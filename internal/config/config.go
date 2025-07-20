@@ -427,58 +427,66 @@ func (c *Config) Validate() error {
 // Validate validates the server configuration.
 func (s *ServerConfig) Validate() error {
 	if s.Address == "" {
-		return fmt.Errorf("server address cannot be empty")
+		return fmt.Errorf("server.address cannot be empty (example: ':8080' or '0.0.0.0:8080')")
 	}
 
 	if s.MetricsPath == "" {
-		return fmt.Errorf("metrics path cannot be empty")
+		return fmt.Errorf("server.metrics_path cannot be empty (default: '/metrics')")
 	}
 
 	if s.HealthPath == "" {
-		return fmt.Errorf("health path cannot be empty")
+		return fmt.Errorf("server.health_path cannot be empty (default: '/health')")
 	}
 
 	if s.ReadyPath == "" {
-		return fmt.Errorf("ready path cannot be empty")
+		return fmt.Errorf("server.ready_path cannot be empty (default: '/ready')")
 	}
 
 	if s.Timeout <= 0 {
-		return fmt.Errorf("server timeout must be positive")
+		return fmt.Errorf("server.timeout must be positive, got '%v' (example: '30s', '1m')", s.Timeout)
 	}
 
 	if s.ReadTimeout <= 0 {
-		return fmt.Errorf("read timeout must be positive")
+		return fmt.Errorf("server.read_timeout must be positive, got '%v' (example: '30s')", s.ReadTimeout)
 	}
 
 	if s.WriteTimeout <= 0 {
-		return fmt.Errorf("write timeout must be positive")
+		return fmt.Errorf("server.write_timeout must be positive, got '%v' (example: '30s')", s.WriteTimeout)
 	}
 
 	if s.IdleTimeout <= 0 {
-		return fmt.Errorf("idle timeout must be positive")
+		return fmt.Errorf("server.idle_timeout must be positive, got '%v' (example: '60s')", s.IdleTimeout)
 	}
 
 	if s.MaxRequestSize <= 0 {
-		return fmt.Errorf("max request size must be positive")
+		return fmt.Errorf("server.max_request_size must be positive, got %d (example: 1048576 for 1MB)", s.MaxRequestSize)
 	}
 
 	// Validate TLS configuration
 	if s.TLS.Enabled {
 		if s.TLS.CertFile == "" {
-			return fmt.Errorf("TLS cert file must be specified when TLS is enabled")
+			return fmt.Errorf("server.tls.cert_file must be specified when TLS is enabled (set server.tls.enabled=false to disable TLS)")
 		}
 		if s.TLS.KeyFile == "" {
-			return fmt.Errorf("TLS key file must be specified when TLS is enabled")
+			return fmt.Errorf("server.tls.key_file must be specified when TLS is enabled (set server.tls.enabled=false to disable TLS)")
+		}
+		
+		// Check if TLS files exist
+		if _, err := os.Stat(s.TLS.CertFile); os.IsNotExist(err) {
+			return fmt.Errorf("server.tls.cert_file '%s' does not exist", s.TLS.CertFile)
+		}
+		if _, err := os.Stat(s.TLS.KeyFile); os.IsNotExist(err) {
+			return fmt.Errorf("server.tls.key_file '%s' does not exist", s.TLS.KeyFile)
 		}
 	}
 
 	// Validate basic auth configuration
 	if s.BasicAuth.Enabled {
 		if s.BasicAuth.Username == "" {
-			return fmt.Errorf("basic auth username must be specified when basic auth is enabled")
+			return fmt.Errorf("server.basic_auth.username must be specified when basic auth is enabled (set server.basic_auth.enabled=false to disable)")
 		}
 		if s.BasicAuth.Password == "" {
-			return fmt.Errorf("basic auth password must be specified when basic auth is enabled")
+			return fmt.Errorf("server.basic_auth.password must be specified when basic auth is enabled (use environment variable SLURM_EXPORTER_SERVER_BASIC_AUTH_PASSWORD)")
 		}
 	}
 
@@ -487,24 +495,24 @@ func (s *ServerConfig) Validate() error {
 
 // Validate validates the SLURM configuration.
 func (s *SLURMConfig) Validate() error {
-	if s.BaseURL == "" {
-		return fmt.Errorf("SLURM base URL cannot be empty")
+	if err := validateURL(s.BaseURL, "slurm.base_url (example: 'https://slurm.example.com:6820' or use environment variable SLURM_EXPORTER_SLURM_BASE_URL)"); err != nil {
+		return err
 	}
 
-	if s.APIVersion == "" {
-		return fmt.Errorf("SLURM API version cannot be empty")
+	if err := validateAPIVersion(s.APIVersion); err != nil {
+		return fmt.Errorf("slurm.api_version: %w", err)
 	}
 
 	if s.Timeout <= 0 {
-		return fmt.Errorf("SLURM timeout must be positive")
+		return fmt.Errorf("slurm.timeout must be positive, got '%v' (example: '30s', '1m')", s.Timeout)
 	}
 
 	if s.RetryAttempts < 0 {
-		return fmt.Errorf("retry attempts cannot be negative")
+		return fmt.Errorf("slurm.retry_attempts cannot be negative, got %d (use 0 to disable retries)", s.RetryAttempts)
 	}
 
 	if s.RetryDelay <= 0 {
-		return fmt.Errorf("retry delay must be positive")
+		return fmt.Errorf("slurm.retry_delay must be positive, got '%v' (example: '5s', '10s')", s.RetryDelay)
 	}
 
 	if err := s.Auth.Validate(); err != nil {
@@ -512,11 +520,11 @@ func (s *SLURMConfig) Validate() error {
 	}
 
 	if s.RateLimit.RequestsPerSecond <= 0 {
-		return fmt.Errorf("requests per second must be positive")
+		return fmt.Errorf("slurm.rate_limit.requests_per_second must be positive, got %.2f (example: 10.0)", s.RateLimit.RequestsPerSecond)
 	}
 
 	if s.RateLimit.BurstSize <= 0 {
-		return fmt.Errorf("burst size must be positive")
+		return fmt.Errorf("slurm.rate_limit.burst_size must be positive, got %d (example: 20)", s.RateLimit.BurstSize)
 	}
 
 	return nil
@@ -529,21 +537,36 @@ func (a *AuthConfig) Validate() error {
 		// No validation needed
 	case "jwt":
 		if a.Token == "" && a.TokenFile == "" {
-			return fmt.Errorf("JWT token or token file must be specified")
+			return fmt.Errorf("slurm.auth.token or slurm.auth.token_file must be specified when using JWT auth (set slurm.auth.type='none' to disable authentication)")
+		}
+		if a.TokenFile != "" {
+			if _, err := os.Stat(a.TokenFile); os.IsNotExist(err) {
+				return fmt.Errorf("slurm.auth.token_file '%s' does not exist", a.TokenFile)
+			}
 		}
 	case "basic":
 		if a.Username == "" {
-			return fmt.Errorf("basic auth username must be specified")
+			return fmt.Errorf("slurm.auth.username must be specified when using basic auth (current type: '%s')", a.Type)
 		}
 		if a.Password == "" && a.PasswordFile == "" {
-			return fmt.Errorf("basic auth password or password file must be specified")
+			return fmt.Errorf("slurm.auth.password or slurm.auth.password_file must be specified when using basic auth (use environment variable SLURM_EXPORTER_SLURM_AUTH_PASSWORD)")
+		}
+		if a.PasswordFile != "" {
+			if _, err := os.Stat(a.PasswordFile); os.IsNotExist(err) {
+				return fmt.Errorf("slurm.auth.password_file '%s' does not exist", a.PasswordFile)
+			}
 		}
 	case "apikey":
 		if a.APIKey == "" && a.APIKeyFile == "" {
-			return fmt.Errorf("API key or API key file must be specified")
+			return fmt.Errorf("slurm.auth.api_key or slurm.auth.api_key_file must be specified when using API key auth (use environment variable SLURM_EXPORTER_SLURM_AUTH_API_KEY)")
+		}
+		if a.APIKeyFile != "" {
+			if _, err := os.Stat(a.APIKeyFile); os.IsNotExist(err) {
+				return fmt.Errorf("slurm.auth.api_key_file '%s' does not exist", a.APIKeyFile)
+			}
 		}
 	default:
-		return fmt.Errorf("unsupported auth type: %s", a.Type)
+		return fmt.Errorf("unsupported auth type: '%s' (supported types: 'none', 'jwt', 'basic', 'apikey')", a.Type)
 	}
 
 	return nil
@@ -552,23 +575,23 @@ func (a *AuthConfig) Validate() error {
 // Validate validates the collectors configuration.
 func (c *CollectorsConfig) Validate() error {
 	if c.Global.DefaultInterval <= 0 {
-		return fmt.Errorf("default interval must be positive")
+		return fmt.Errorf("collectors.global.default_interval must be positive, got '%v' (example: '30s', '1m')", c.Global.DefaultInterval)
 	}
 
 	if c.Global.DefaultTimeout <= 0 {
-		return fmt.Errorf("default timeout must be positive")
+		return fmt.Errorf("collectors.global.default_timeout must be positive, got '%v' (example: '30s')", c.Global.DefaultTimeout)
 	}
 
 	if c.Global.MaxConcurrency <= 0 {
-		return fmt.Errorf("max concurrency must be positive")
+		return fmt.Errorf("collectors.global.max_concurrency must be positive, got %d (example: 5)", c.Global.MaxConcurrency)
 	}
 
 	if c.Global.ErrorThreshold < 0 {
-		return fmt.Errorf("error threshold cannot be negative")
+		return fmt.Errorf("collectors.global.error_threshold cannot be negative, got %d (use 0 to disable error threshold)", c.Global.ErrorThreshold)
 	}
 
 	if c.Global.RecoveryDelay <= 0 {
-		return fmt.Errorf("recovery delay must be positive")
+		return fmt.Errorf("collectors.global.recovery_delay must be positive, got '%v' (example: '30s', '1m')", c.Global.RecoveryDelay)
 	}
 
 	// Validate individual collectors
@@ -587,7 +610,7 @@ func (c *CollectorsConfig) Validate() error {
 
 	for _, col := range collectors {
 		if err := col.collector.Validate(); err != nil {
-			return fmt.Errorf("%s collector: %w", col.name, err)
+			return fmt.Errorf("collectors.%s: %w", col.name, err)
 		}
 	}
 
@@ -598,19 +621,19 @@ func (c *CollectorsConfig) Validate() error {
 func (c *CollectorConfig) Validate() error {
 	if c.Enabled {
 		if c.Interval <= 0 {
-			return fmt.Errorf("interval must be positive when collector is enabled")
+			return fmt.Errorf("interval must be positive when collector is enabled, got '%v' (example: '30s', '1m')", c.Interval)
 		}
 
 		if c.Timeout <= 0 {
-			return fmt.Errorf("timeout must be positive when collector is enabled")
+			return fmt.Errorf("timeout must be positive when collector is enabled, got '%v' (example: '30s')", c.Timeout)
 		}
 
 		if c.MaxConcurrency < 0 {
-			return fmt.Errorf("max concurrency cannot be negative")
+			return fmt.Errorf("max_concurrency cannot be negative, got %d (use 0 for unlimited concurrency)", c.MaxConcurrency)
 		}
 
 		if err := c.ErrorHandling.Validate(); err != nil {
-			return fmt.Errorf("error handling: %w", err)
+			return fmt.Errorf("error_handling: %w", err)
 		}
 	}
 
@@ -620,23 +643,23 @@ func (c *CollectorConfig) Validate() error {
 // Validate validates the error handling configuration.
 func (e *ErrorHandlingConfig) Validate() error {
 	if e.MaxRetries < 0 {
-		return fmt.Errorf("max retries cannot be negative")
+		return fmt.Errorf("max_retries cannot be negative, got %d (use 0 to disable retries)", e.MaxRetries)
 	}
 
 	if e.RetryDelay <= 0 {
-		return fmt.Errorf("retry delay must be positive")
+		return fmt.Errorf("retry_delay must be positive, got '%v' (example: '5s', '10s')", e.RetryDelay)
 	}
 
 	if e.BackoffFactor <= 0 {
-		return fmt.Errorf("backoff factor must be positive")
+		return fmt.Errorf("backoff_factor must be positive, got %.2f (example: 1.5, 2.0)", e.BackoffFactor)
 	}
 
 	if e.MaxRetryDelay <= 0 {
-		return fmt.Errorf("max retry delay must be positive")
+		return fmt.Errorf("max_retry_delay must be positive, got '%v' (example: '30s', '1m')", e.MaxRetryDelay)
 	}
 
 	if e.MaxRetryDelay < e.RetryDelay {
-		return fmt.Errorf("max retry delay must be greater than or equal to retry delay")
+		return fmt.Errorf("max_retry_delay (%v) must be >= retry_delay (%v)", e.MaxRetryDelay, e.RetryDelay)
 	}
 
 	return nil
@@ -652,7 +675,7 @@ func (l *LoggingConfig) Validate() error {
 	}
 
 	if !validLevels[l.Level] {
-		return fmt.Errorf("invalid log level: %s (must be debug, info, warn, or error)", l.Level)
+		return fmt.Errorf("logging.level: invalid value '%s' (supported: debug, info, warn, error)", l.Level)
 	}
 
 	validFormats := map[string]bool{
@@ -661,7 +684,7 @@ func (l *LoggingConfig) Validate() error {
 	}
 
 	if !validFormats[l.Format] {
-		return fmt.Errorf("invalid log format: %s (must be json or text)", l.Format)
+		return fmt.Errorf("logging.format: invalid value '%s' (supported: json, text)", l.Format)
 	}
 
 	validOutputs := map[string]bool{
@@ -671,11 +694,11 @@ func (l *LoggingConfig) Validate() error {
 	}
 
 	if !validOutputs[l.Output] {
-		return fmt.Errorf("invalid log output: %s (must be stdout, stderr, or file)", l.Output)
+		return fmt.Errorf("logging.output: invalid value '%s' (supported: stdout, stderr, file)", l.Output)
 	}
 
 	if l.Output == "file" && l.File == "" {
-		return fmt.Errorf("log file must be specified when output is file")
+		return fmt.Errorf("logging.file must be specified when logging.output='file' (example: '/var/log/slurm-exporter.log')")
 	}
 
 	if l.MaxSize < 0 {
@@ -696,19 +719,19 @@ func (l *LoggingConfig) Validate() error {
 // Validate validates the metrics configuration.
 func (m *MetricsConfig) Validate() error {
 	if m.Namespace == "" {
-		return fmt.Errorf("metrics namespace cannot be empty")
+		return fmt.Errorf("metrics.namespace cannot be empty (example: 'slurm')")
 	}
 
 	if m.MaxAge <= 0 {
-		return fmt.Errorf("max age must be positive")
+		return fmt.Errorf("metrics.max_age must be positive, got '%v' (example: '5m', '1h')", m.MaxAge)
 	}
 
 	if m.AgeBuckets <= 0 {
-		return fmt.Errorf("age buckets must be positive")
+		return fmt.Errorf("metrics.age_buckets must be positive, got %d (example: 5, 10)", m.AgeBuckets)
 	}
 
 	if err := m.Cardinality.Validate(); err != nil {
-		return fmt.Errorf("cardinality: %w", err)
+		return fmt.Errorf("metrics.cardinality: %w", err)
 	}
 
 	return nil
@@ -717,15 +740,15 @@ func (m *MetricsConfig) Validate() error {
 // Validate validates the cardinality configuration.
 func (c *CardinalityConfig) Validate() error {
 	if c.MaxSeries <= 0 {
-		return fmt.Errorf("max series must be positive")
+		return fmt.Errorf("max_series must be positive, got %d (example: 10000, 50000)", c.MaxSeries)
 	}
 
 	if c.MaxLabels <= 0 {
-		return fmt.Errorf("max labels must be positive")
+		return fmt.Errorf("max_labels must be positive, got %d (example: 10, 20)", c.MaxLabels)
 	}
 
 	if c.MaxLabelSize <= 0 {
-		return fmt.Errorf("max label size must be positive")
+		return fmt.Errorf("max_label_size must be positive, got %d (example: 128, 256)", c.MaxLabelSize)
 	}
 
 	if c.WarnLimit < 0 {
@@ -1309,4 +1332,44 @@ func (r *Reloader) GetConfig() *Config {
 // Close stops the file watcher and releases resources
 func (r *Reloader) Close() error {
 	return r.watcher.Close()
+}
+
+// validateDuration validates that a duration string is properly formatted
+func validateDuration(duration time.Duration, field string) error {
+	if duration <= 0 {
+		return fmt.Errorf("%s must be a positive duration (e.g., '30s', '1m', '5m')", field)
+	}
+	return nil
+}
+
+// validateURL validates that a URL is properly formatted
+func validateURL(url, field string) error {
+	if url == "" {
+		return fmt.Errorf("%s cannot be empty", field)
+	}
+	
+	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+		return fmt.Errorf("%s must be a valid HTTP/HTTPS URL starting with 'http://' or 'https://', got: %s", field, url)
+	}
+	
+	return nil
+}
+
+// validatePath validates that a file path is specified when required
+func validatePath(path, field string) error {
+	if path == "" {
+		return fmt.Errorf("%s must be specified (e.g., '/path/to/file')", field)
+	}
+	return nil
+}
+
+// validateAPIVersion validates that the SLURM API version is supported
+func validateAPIVersion(version string) error {
+	supportedVersions := []string{"v0.0.40", "v0.0.41", "v0.0.42", "v0.0.43"}
+	for _, v := range supportedVersions {
+		if version == v {
+			return nil
+		}
+	}
+	return fmt.Errorf("unsupported SLURM API version '%s' (supported: %s)", version, strings.Join(supportedVersions, ", "))
 }
