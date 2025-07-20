@@ -1,0 +1,144 @@
+# Development configuration for SLURM Prometheus Exporter
+# Optimized for debugging and testing
+
+server:
+  address: ":8080"
+  metrics_path: "/metrics"
+  health_path: "/health"
+  ready_path: "/ready"
+  timeout: "30s"
+  read_timeout: "5s"
+  write_timeout: "5s"
+  idle_timeout: "30s"
+  max_request_size: 1048576  # 1MB
+
+  # No TLS for development
+  tls:
+    enabled: false
+
+  # No auth for development
+  basic_auth:
+    enabled: false
+
+  # Enable CORS for development tools
+  cors:
+    enabled: true
+    allowed_origins: ["*"]
+    allowed_methods: ["GET", "POST", "OPTIONS"]
+    allowed_headers: ["*"]
+
+slurm:
+  base_url: "http://localhost:6820"
+  api_version: "v0.0.42"
+  timeout: "15s"  # Shorter timeout for development
+  retry_attempts: 2  # Fewer retries for faster feedback
+  retry_delay: "2s"
+
+  auth:
+    type: "none"  # No auth for development
+
+  tls:
+    insecure_skip_verify: true  # Skip TLS verification in development
+
+  rate_limit:
+    requests_per_second: 5.0  # Lower rate to avoid overwhelming dev environment
+    burst_size: 10
+
+collectors:
+  global:
+    default_interval: "10s"  # More frequent collection for development
+    default_timeout: "5s"
+    max_concurrency: 2  # Lower concurrency for development
+    error_threshold: 3
+    recovery_delay: "30s"
+    graceful_degradation: true
+
+  cluster:
+    enabled: true
+    interval: "10s"
+    timeout: "5s"
+    max_concurrency: 1
+    labels:
+      environment: "development"
+
+  nodes:
+    enabled: true
+    interval: "10s"
+    timeout: "5s"
+    max_concurrency: 1
+    labels:
+      environment: "development"
+
+  jobs:
+    enabled: true
+    interval: "5s"  # Very frequent for development
+    timeout: "5s"
+    max_concurrency: 1
+    labels:
+      environment: "development"
+    error_handling:
+      max_retries: 2
+      retry_delay: "2s"
+      backoff_factor: 1.5
+      max_retry_delay: "30s"
+      fail_fast: true  # Fail fast in development
+
+  users:
+    enabled: true
+    interval: "30s"
+    timeout: "5s"
+    max_concurrency: 1
+    labels:
+      environment: "development"
+
+  partitions:
+    enabled: true
+    interval: "30s"
+    timeout: "5s"
+    max_concurrency: 1
+    labels:
+      environment: "development"
+
+  performance:
+    enabled: true
+    interval: "10s"
+    timeout: "5s"
+    max_concurrency: 1
+    labels:
+      environment: "development"
+
+  system:
+    enabled: true
+    interval: "30s"
+    timeout: "5s"
+    max_concurrency: 1
+    labels:
+      environment: "development"
+
+logging:
+  level: "debug"  # Verbose logging for development
+  format: "text"  # Human-readable format
+  output: "stdout"
+  suppress_http: false  # Show all HTTP requests in development
+  fields:
+    service: "slurm-exporter"
+    environment: "development"
+
+metrics:
+  namespace: "slurm"
+  subsystem: "exporter"
+  const_labels:
+    environment: "development"
+  max_age: "2m"  # Shorter retention for development
+  age_buckets: 3
+
+  registry:
+    enable_go_collector: true
+    enable_process_collector: true
+    enable_build_info: true
+
+  cardinality:
+    max_series: 5000  # Lower limits for development
+    max_labels: 50
+    max_label_size: 512
+    warn_limit: 4000

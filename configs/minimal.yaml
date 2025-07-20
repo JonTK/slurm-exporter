@@ -1,0 +1,50 @@
+# Minimal configuration for SLURM Prometheus Exporter
+# Basic setup with essential collectors only
+
+server:
+  address: ":8080"
+  metrics_path: "/metrics"
+
+slurm:
+  base_url: "http://localhost:6820"
+  auth:
+    type: "none"
+
+# Enable only essential collectors
+collectors:
+  global:
+    default_interval: "60s"  # Less frequent collection
+    max_concurrency: 2
+
+  cluster:
+    enabled: true
+    interval: "60s"
+
+  nodes:
+    enabled: true
+    interval: "60s"
+
+  jobs:
+    enabled: true
+    interval: "30s"
+
+  # Disable optional collectors for minimal setup
+  users:
+    enabled: false
+
+  partitions:
+    enabled: false
+
+  performance:
+    enabled: false
+
+  system:
+    enabled: false
+
+logging:
+  level: "warn"  # Minimal logging
+  format: "text"
+  output: "stdout"
+
+metrics:
+  namespace: "slurm"

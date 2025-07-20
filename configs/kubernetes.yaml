@@ -1,0 +1,151 @@
+# Kubernetes deployment configuration for SLURM Prometheus Exporter
+# Optimized for containerized deployment with service discovery
+
+server:
+  address: ":8080"  # Standard container port
+  metrics_path: "/metrics"
+  health_path: "/health"
+  ready_path: "/ready"
+  timeout: "30s"
+  read_timeout: "10s"
+  write_timeout: "10s"
+  idle_timeout: "60s"
+  max_request_size: 1048576
+
+  # TLS termination handled by ingress/service mesh
+  tls:
+    enabled: false
+
+  # Authentication handled by service mesh/ingress
+  basic_auth:
+    enabled: false
+
+  cors:
+    enabled: false
+
+slurm:
+  # Use Kubernetes service discovery
+  base_url: "${SLURM_REST_URL}"  # Injected via environment
+  api_version: "v0.0.42"
+  timeout: "30s"
+  retry_attempts: 3
+  retry_delay: "5s"
+
+  auth:
+    type: "jwt"
+    token_file: "/etc/slurm-exporter/token"  # Mounted from secret
+
+  tls:
+    insecure_skip_verify: false
+    ca_cert_file: "/etc/ssl/certs/ca.crt"  # Mounted from configmap
+    client_cert_file: "/etc/ssl/certs/tls.crt"  # Mounted from secret
+    client_key_file: "/etc/ssl/certs/tls.key"  # Mounted from secret
+
+  rate_limit:
+    requests_per_second: 15.0
+    burst_size: 30
+
+collectors:
+  global:
+    default_interval: "30s"
+    default_timeout: "15s"
+    max_concurrency: 5
+    error_threshold: 5
+    recovery_delay: "60s"
+    graceful_degradation: true
+
+  cluster:
+    enabled: true
+    interval: "30s"
+    timeout: "15s"
+    max_concurrency: 1
+    labels:
+      deployment: "kubernetes"
+      namespace: "${POD_NAMESPACE}"  # Injected by downward API
+
+  nodes:
+    enabled: true
+    interval: "30s"
+    timeout: "15s"
+    max_concurrency: 3
+    labels:
+      deployment: "kubernetes"
+      namespace: "${POD_NAMESPACE}"
+
+  jobs:
+    enabled: true
+    interval: "15s"
+    timeout: "15s"
+    max_concurrency: 5
+    labels:
+      deployment: "kubernetes"
+      namespace: "${POD_NAMESPACE}"
+
+  users:
+    enabled: true
+    interval: "60s"
+    timeout: "15s"
+    max_concurrency: 2
+    labels:
+      deployment: "kubernetes"
+      namespace: "${POD_NAMESPACE}"
+
+  partitions:
+    enabled: true
+    interval: "60s"
+    timeout: "15s"
+    max_concurrency: 2
+    labels:
+      deployment: "kubernetes"
+      namespace: "${POD_NAMESPACE}"
+
+  performance:
+    enabled: true
+    interval: "30s"
+    timeout: "15s"
+    max_concurrency: 1
+    labels:
+      deployment: "kubernetes"
+      namespace: "${POD_NAMESPACE}"
+
+  system:
+    enabled: true
+    interval: "60s"
+    timeout: "10s"
+    max_concurrency: 1
+    labels:
+      deployment: "kubernetes"
+      namespace: "${POD_NAMESPACE}"
+
+logging:
+  level: "info"
+  format: "json"  # Structured logs for Kubernetes
+  output: "stdout"  # Kubernetes log collection
+  suppress_http: false
+  fields:
+    service: "slurm-exporter"
+    deployment: "kubernetes"
+    namespace: "${POD_NAMESPACE}"
+    pod: "${POD_NAME}"
+    node: "${NODE_NAME}"
+
+metrics:
+  namespace: "slurm"
+  subsystem: "exporter"
+  const_labels:
+    deployment: "kubernetes"
+    namespace: "${POD_NAMESPACE}"
+    cluster: "${CLUSTER_NAME}"
+  max_age: "5m"
+  age_buckets: 5
+
+  registry:
+    enable_go_collector: true
+    enable_process_collector: true
+    enable_build_info: true
+
+  cardinality:
+    max_series: 20000
+    max_labels: 100
+    max_label_size: 1024
+    warn_limit: 16000

@@ -1,0 +1,163 @@
+# Production configuration for SLURM Prometheus Exporter
+# Optimized for high availability and security
+
+server:
+  address: ":8080"
+  metrics_path: "/metrics"
+  health_path: "/health"
+  ready_path: "/ready"
+  timeout: "30s"
+  read_timeout: "15s"
+  write_timeout: "15s"
+  idle_timeout: "120s"
+  max_request_size: 2097152  # 2MB for production workloads
+
+  # Enable TLS for production
+  tls:
+    enabled: true
+    cert_file: "/etc/ssl/certs/slurm-exporter.crt"
+    key_file: "/etc/ssl/private/slurm-exporter.key"
+    min_version: "1.2"
+    cipher_suites:
+      - "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+      - "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"
+
+  # Enable basic auth for metrics endpoint
+  basic_auth:
+    enabled: true
+    username: "prometheus"
+    password: "${METRICS_PASSWORD}"  # Use environment variable
+
+  cors:
+    enabled: false
+
+slurm:
+  base_url: "${SLURM_REST_URL}"  # Use environment variable
+  api_version: "v0.0.42"
+  timeout: "45s"  # Longer timeout for production
+  retry_attempts: 5  # More retries for reliability
+  retry_delay: "10s"
+
+  auth:
+    type: "jwt"
+    token_file: "/etc/slurm-exporter/slurm-token"  # Token from file for security
+
+  tls:
+    insecure_skip_verify: false
+    ca_cert_file: "/etc/ssl/certs/slurm-ca.crt"
+    client_cert_file: "/etc/ssl/certs/slurm-client.crt"
+    client_key_file: "/etc/ssl/private/slurm-client.key"
+
+  rate_limit:
+    requests_per_second: 20.0  # Higher rate for production
+    burst_size: 50
+
+collectors:
+  global:
+    default_interval: "30s"
+    default_timeout: "20s"  # Longer timeout for large clusters
+    max_concurrency: 10  # Higher concurrency for production
+    error_threshold: 10
+    recovery_delay: "120s"
+    graceful_degradation: true
+
+  cluster:
+    enabled: true
+    interval: "30s"
+    timeout: "20s"
+    max_concurrency: 2
+    labels:
+      environment: "production"
+      cluster: "${CLUSTER_NAME}"
+
+  nodes:
+    enabled: true
+    interval: "30s"
+    timeout: "20s"
+    max_concurrency: 5
+    labels:
+      environment: "production"
+    filters:
+      # Exclude maintenance nodes from metrics
+      exclude_nodes: ["maint-*"]
+
+  jobs:
+    enabled: true
+    interval: "15s"
+    timeout: "20s"
+    max_concurrency: 8
+    labels:
+      environment: "production"
+    error_handling:
+      max_retries: 5
+      retry_delay: "10s"
+      backoff_factor: 2.0
+      max_retry_delay: "300s"
+
+  users:
+    enabled: true
+    interval: "60s"
+    timeout: "30s"
+    max_concurrency: 3
+    labels:
+      environment: "production"
+
+  partitions:
+    enabled: true
+    interval: "60s"
+    timeout: "20s"
+    max_concurrency: 3
+    labels:
+      environment: "production"
+
+  performance:
+    enabled: true
+    interval: "30s"
+    timeout: "20s"
+    max_concurrency: 2
+    labels:
+      environment: "production"
+
+  system:
+    enabled: true
+    interval: "60s"
+    timeout: "10s"
+    max_concurrency: 1
+    labels:
+      environment: "production"
+
+logging:
+  level: "warn"  # Less verbose for production
+  format: "json"
+  output: "file"
+  file: "/var/log/slurm-exporter/exporter.log"
+  max_size: 500  # Larger log files
+  max_age: 30  # Keep logs longer in production
+  max_backups: 10
+  compress: true
+  fields:
+    service: "slurm-exporter"
+    environment: "production"
+    cluster: "${CLUSTER_NAME}"
+  suppress_http: true  # Suppress noisy HTTP logs in production
+
+metrics:
+  namespace: "slurm"
+  subsystem: "exporter"
+  const_labels:
+    environment: "production"
+    cluster: "${CLUSTER_NAME}"
+    version: "${VERSION}"
+  max_age: "10m"  # Longer retention for production
+  age_buckets: 10
+
+  registry:
+    enable_go_collector: true
+    enable_process_collector: true
+    enable_build_info: true
+
+  cardinality:
+    max_series: 50000  # Higher limits for production
+    max_labels: 200
+    max_label_size: 2048
+    warn_limit: 40000

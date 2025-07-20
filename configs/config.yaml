@@ -1,0 +1,229 @@
+# Default configuration for SLURM Prometheus Exporter
+# This configuration provides a good starting point for most deployments
+
+# HTTP server configuration
+server:
+  address: ":8080"
+  metrics_path: "/metrics"
+  health_path: "/health"
+  ready_path: "/ready"
+  timeout: "30s"
+  read_timeout: "10s"
+  write_timeout: "10s"
+  idle_timeout: "60s"
+  max_request_size: 1048576  # 1MB
+
+  # TLS configuration (optional)
+  tls:
+    enabled: false
+    cert_file: ""
+    key_file: ""
+
+  # Basic authentication for metrics endpoint (optional)
+  basic_auth:
+    enabled: false
+    username: ""
+    password: ""
+
+  # CORS configuration (optional)
+  cors:
+    enabled: false
+    allowed_origins: []
+    allowed_methods: ["GET"]
+    allowed_headers: []
+
+# SLURM connection configuration
+slurm:
+  base_url: "http://localhost:6820"
+  api_version: "v0.0.42"
+  timeout: "30s"
+  retry_attempts: 3
+  retry_delay: "5s"
+
+  # Authentication configuration
+  auth:
+    type: "none"  # Options: none, jwt, basic, apikey
+    # For JWT authentication:
+    # token: "your-jwt-token"
+    # token_file: "/path/to/token/file"
+    # For basic authentication:
+    # username: "your-username"
+    # password: "your-password"
+    # password_file: "/path/to/password/file"
+    # For API key authentication:
+    # api_key: "your-api-key"
+    # api_key_file: "/path/to/api/key/file"
+
+  # TLS configuration for SLURM connections
+  tls:
+    insecure_skip_verify: false
+    ca_cert_file: ""
+    client_cert_file: ""
+    client_key_file: ""
+
+  # Rate limiting configuration
+  rate_limit:
+    requests_per_second: 10.0
+    burst_size: 20
+
+# Metrics collection configuration
+collectors:
+  # Global collector settings
+  global:
+    default_interval: "30s"
+    default_timeout: "10s"
+    max_concurrency: 5
+    error_threshold: 5
+    recovery_delay: "60s"
+    graceful_degradation: true
+
+  # Cluster overview metrics
+  cluster:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    max_concurrency: 1
+    labels: {}
+    filters: {}
+    error_handling:
+      max_retries: 3
+      retry_delay: "5s"
+      backoff_factor: 2.0
+      max_retry_delay: "60s"
+      fail_fast: false
+
+  # Node metrics
+  nodes:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    max_concurrency: 2
+    labels: {}
+    filters:
+      # Optionally filter specific nodes or states
+      # include_nodes: ["node001", "node002"]
+      # exclude_nodes: ["maintenance-node"]
+      # node_states: ["IDLE", "ALLOCATED", "MIXED"]
+    error_handling:
+      max_retries: 3
+      retry_delay: "5s"
+      backoff_factor: 2.0
+      max_retry_delay: "60s"
+      fail_fast: false
+
+  # Job metrics
+  jobs:
+    enabled: true
+    interval: "15s"  # More frequent for job status changes
+    timeout: "10s"
+    max_concurrency: 3
+    labels: {}
+    filters:
+      # Optionally filter job states
+      # job_states: ["RUNNING", "PENDING", "COMPLETED"]
+    error_handling:
+      max_retries: 3
+      retry_delay: "5s"
+      backoff_factor: 2.0
+      max_retry_delay: "60s"
+      fail_fast: false
+
+  # User and account metrics
+  users:
+    enabled: true
+    interval: "60s"
+    timeout: "10s"
+    max_concurrency: 2
+    labels: {}
+    filters:
+      # Optionally filter specific users
+      # include_users: ["user1", "user2"]
+      # exclude_users: ["test-user"]
+    error_handling:
+      max_retries: 3
+      retry_delay: "5s"
+      backoff_factor: 2.0
+      max_retry_delay: "60s"
+      fail_fast: false
+
+  # Partition metrics
+  partitions:
+    enabled: true
+    interval: "60s"
+    timeout: "10s"
+    max_concurrency: 2
+    labels: {}
+    filters:
+      # Optionally filter specific partitions
+      # include_partitions: ["compute", "gpu"]
+      # exclude_partitions: ["debug"]
+    error_handling:
+      max_retries: 3
+      retry_delay: "5s"
+      backoff_factor: 2.0
+      max_retry_delay: "60s"
+      fail_fast: false
+
+  # Performance and efficiency metrics
+  performance:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    max_concurrency: 1
+    labels: {}
+    filters: {}
+    error_handling:
+      max_retries: 3
+      retry_delay: "5s"
+      backoff_factor: 2.0
+      max_retry_delay: "60s"
+      fail_fast: false
+
+  # System metrics (exporter self-monitoring)
+  system:
+    enabled: true
+    interval: "60s"
+    timeout: "10s"
+    max_concurrency: 1
+    labels: {}
+    filters: {}
+    error_handling:
+      max_retries: 3
+      retry_delay: "5s"
+      backoff_factor: 2.0
+      max_retry_delay: "60s"
+      fail_fast: false
+
+# Logging configuration
+logging:
+  level: "info"  # Options: debug, info, warn, error
+  format: "json"  # Options: json, text
+  output: "stdout"  # Options: stdout, stderr, file
+  file: ""  # Required when output is "file"
+  max_size: 100  # Max size in MB (when using file output)
+  max_age: 7  # Max age in days (when using file output)
+  max_backups: 3  # Max backup files (when using file output)
+  compress: true  # Compress rotated files
+  fields: {}  # Additional fields to include in logs
+  suppress_http: false  # Suppress HTTP request logs
+
+# Metrics configuration
+metrics:
+  namespace: "slurm"
+  subsystem: "exporter"
+  const_labels: {}  # Additional constant labels
+  max_age: "5m"
+  age_buckets: 5
+
+  # Registry configuration
+  registry:
+    enable_go_collector: true
+    enable_process_collector: true
+    enable_build_info: true
+
+  # Cardinality management
+  cardinality:
+    max_series: 10000
+    max_labels: 100
+    max_label_size: 1024
+    warn_limit: 8000

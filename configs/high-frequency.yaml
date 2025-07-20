@@ -1,0 +1,112 @@
+# High-frequency configuration for SLURM Prometheus Exporter
+# Optimized for real-time monitoring and alerting
+
+server:
+  address: ":8080"
+  metrics_path: "/metrics"
+  timeout: "60s"  # Longer timeout for high-frequency collection
+  read_timeout: "20s"
+  write_timeout: "20s"
+
+slurm:
+  base_url: "${SLURM_REST_URL}"
+  api_version: "v0.0.42"
+  timeout: "45s"
+  retry_attempts: 2  # Fewer retries for high frequency
+  retry_delay: "3s"
+
+  auth:
+    type: "jwt"
+    token: "${SLURM_TOKEN}"
+
+  rate_limit:
+    requests_per_second: 50.0  # High rate for frequent collection
+    burst_size: 100
+
+collectors:
+  global:
+    default_interval: "5s"  # Very high frequency
+    default_timeout: "20s"
+    max_concurrency: 10  # High concurrency for fast collection
+    error_threshold: 2  # Lower threshold for high frequency
+    recovery_delay: "30s"
+    graceful_degradation: true
+
+  cluster:
+    enabled: true
+    interval: "5s"
+    timeout: "20s"
+    max_concurrency: 2
+
+  nodes:
+    enabled: true
+    interval: "5s"
+    timeout: "20s"
+    max_concurrency: 5
+    error_handling:
+      max_retries: 2
+      retry_delay: "2s"
+      backoff_factor: 1.5
+      max_retry_delay: "15s"
+      fail_fast: true
+
+  jobs:
+    enabled: true
+    interval: "2s"  # Highest frequency for job changes
+    timeout: "15s"
+    max_concurrency: 8
+    error_handling:
+      max_retries: 1  # Fast failure for high frequency
+      retry_delay: "1s"
+      backoff_factor: 1.2
+      max_retry_delay: "5s"
+      fail_fast: true
+
+  users:
+    enabled: true
+    interval: "10s"
+    timeout: "20s"
+    max_concurrency: 3
+
+  partitions:
+    enabled: true
+    interval: "10s"
+    timeout: "20s"
+    max_concurrency: 3
+
+  performance:
+    enabled: true
+    interval: "5s"
+    timeout: "20s"
+    max_concurrency: 2
+
+  system:
+    enabled: true
+    interval: "10s"
+    timeout: "10s"
+    max_concurrency: 1
+
+logging:
+  level: "error"  # Minimal logging for high frequency
+  format: "json"
+  output: "stdout"
+  suppress_http: true  # Suppress HTTP logs to reduce noise
+
+metrics:
+  namespace: "slurm"
+  subsystem: "exporter"
+  const_labels:
+    mode: "high_frequency"
+  max_age: "1m"  # Short retention for high frequency
+  age_buckets: 2
+
+  registry:
+    enable_go_collector: false  # Disable to reduce overhead
+    enable_process_collector: false
+    enable_build_info: true
+
+  cardinality:
+    max_series: 100000  # Higher limits for high-frequency data
+    max_labels: 200
+    max_label_size: 1024
+    warn_limit: 80000
