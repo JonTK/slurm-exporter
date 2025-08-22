@@ -241,14 +241,4 @@ func TestCollectorMetrics(t *testing.T) {
 	}
 }
 
-func TestCollectionError(t *testing.T) {
-	err := &CollectionError{
-		Collector: "test_collector",
-		Err:       errors.New("test error"),
-		Timestamp: time.Now(),
-	}
-
-	if err.Error() != "test error" {
-		t.Errorf("Expected 'test error', got '%s'", err.Error())
-	}
-}
+// Note: TestCollectionError moved to errors_test.go with enhanced testing

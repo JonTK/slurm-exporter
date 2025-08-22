@@ -131,16 +131,7 @@ type CollectorOptions struct {
 	Logger interface{}
 }
 
-// CollectionError represents an error during metric collection
-type CollectionError struct {
-	Collector string
-	Err       error
-	Timestamp time.Time
-}
-
-func (e *CollectionError) Error() string {
-	return e.Err.Error()
-}
+// Note: CollectionError moved to errors.go with enhanced functionality
 
 // CollectorState represents the current state of a collector
 type CollectorState struct {
