@@ -6,6 +6,8 @@ import (
 
 // MetricDefinitions holds all Prometheus metric definitions for the SLURM exporter
 type MetricDefinitions struct {
+	// Label management
+	LabelManager *LabelManager
 	// Cluster Overview Metrics
 	ClusterInfo                *prometheus.GaugeVec
 	ClusterCapacityCPUs        *prometheus.GaugeVec
@@ -118,6 +120,8 @@ type MetricDefinitions struct {
 // NewMetricDefinitions creates all metric definitions with the given namespace and subsystem
 func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.Labels) *MetricDefinitions {
 	return &MetricDefinitions{
+		// Initialize label manager
+		LabelManager: NewLabelManager(),
 		// Cluster Overview Metrics
 		ClusterInfo: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
