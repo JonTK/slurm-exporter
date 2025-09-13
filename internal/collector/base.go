@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/jontk/slurm-exporter/internal/config"
+	"github.com/jontk/slurm-exporter/internal/metrics"
 	// "github.com/jontk/slurm-exporter/internal/slurm"
 )
 
@@ -33,6 +34,9 @@ type BaseCollector struct {
 	// State tracking
 	state CollectorState
 
+	// Cardinality management
+	cardinalityManager *metrics.CardinalityManager
+
 	// Logger
 	logger *logrus.Entry
 }
@@ -44,17 +48,19 @@ func NewBaseCollector(
 	opts *CollectorOptions,
 	client interface{}, // Will be *slurm.Client when slurm-client build issues are fixed
 	metrics *CollectorMetrics,
+	cardinalityManager *metrics.CardinalityManager,
 ) *BaseCollector {
 	logger := logrus.WithField("collector", name)
 
 	return &BaseCollector{
-		name:       name,
-		enabled:    config.Enabled,
-		config:     config,
-		globalOpts: opts,
-		client:     client,
-		metrics:    metrics,
-		logger:     logger,
+		name:               name,
+		enabled:            config.Enabled,
+		config:             config,
+		globalOpts:         opts,
+		client:             client,
+		metrics:            metrics,
+		cardinalityManager: cardinalityManager,
+		logger:             logger,
 		state: CollectorState{
 			Name:    name,
 			Enabled: config.Enabled,
@@ -254,14 +260,70 @@ func (b *BaseCollector) BuildMetric(
 	return prometheus.MustNewConstMetric(desc, valueType, value, labelValues...)
 }
 
+// BuildMetricWithCardinality creates a prometheus metric with cardinality checking
+func (b *BaseCollector) BuildMetricWithCardinality(
+	metricName string,
+	desc *prometheus.Desc,
+	valueType prometheus.ValueType,
+	value float64,
+	labels map[string]string,
+	labelValues ...string,
+) (prometheus.Metric, bool) {
+	// Check cardinality limits before creating metric
+	if b.cardinalityManager != nil {
+		if !b.cardinalityManager.ShouldCollectMetric(metricName, labels) {
+			b.logger.WithFields(logrus.Fields{
+				"metric": metricName,
+				"labels": labels,
+			}).Debug("Metric dropped due to cardinality limits")
+			return nil, false
+		}
+	}
+	
+	metric := prometheus.MustNewConstMetric(desc, valueType, value, labelValues...)
+	return metric, true
+}
+
 // SendMetric sends a metric to the channel with error handling
 func (b *BaseCollector) SendMetric(ch chan<- prometheus.Metric, metric prometheus.Metric) {
+	if metric == nil {
+		return // Don't send nil metrics
+	}
+	
 	select {
 	case ch <- metric:
 		// Metric sent successfully
 	default:
 		b.logger.Warn("Metric channel is full, dropping metric")
 	}
+}
+
+// SendMetricWithCardinality sends a metric with cardinality checking
+func (b *BaseCollector) SendMetricWithCardinality(
+	ch chan<- prometheus.Metric,
+	metricName string,
+	desc *prometheus.Desc,
+	valueType prometheus.ValueType,
+	value float64,
+	labels map[string]string,
+	labelValues ...string,
+) {
+	metric, shouldSend := b.BuildMetricWithCardinality(metricName, desc, valueType, value, labels, labelValues...)
+	if shouldSend {
+		b.SendMetric(ch, metric)
+	}
+}
+
+// GetCardinalityManager returns the cardinality manager
+func (b *BaseCollector) GetCardinalityManager() *metrics.CardinalityManager {
+	return b.cardinalityManager
+}
+
+// SetCardinalityManager sets the cardinality manager
+func (b *BaseCollector) SetCardinalityManager(cm *metrics.CardinalityManager) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.cardinalityManager = cm
 }
 
 // Describe implements the Collector interface

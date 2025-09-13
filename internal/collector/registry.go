@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/jontk/slurm-exporter/internal/config"
+	"github.com/jontk/slurm-exporter/internal/metrics"
 )
 
 // Registry manages multiple collectors
@@ -27,6 +28,9 @@ type Registry struct {
 	// Configuration
 	config *config.CollectorsConfig
 
+	// Cardinality management
+	cardinalityManager *metrics.CardinalityManager
+
 	// Logger
 	logger *logrus.Entry
 }
@@ -36,17 +40,24 @@ func NewRegistry(cfg *config.CollectorsConfig, promRegistry *prometheus.Registry
 	logger := logrus.WithField("component", "collector_registry")
 
 	// Create metrics for registry operations
-	metrics := NewCollectorMetrics("slurm", "exporter")
-	if err := metrics.Register(promRegistry); err != nil {
+	collectorMetrics := NewCollectorMetrics("slurm", "exporter")
+	if err := collectorMetrics.Register(promRegistry); err != nil {
 		return nil, fmt.Errorf("failed to register registry metrics: %w", err)
 	}
 
+	// Create cardinality manager
+	cardinalityManager := metrics.NewCardinalityManager(logger.Logger)
+	if err := cardinalityManager.RegisterMetrics(promRegistry); err != nil {
+		return nil, fmt.Errorf("failed to register cardinality metrics: %w", err)
+	}
+
 	registry := &Registry{
-		collectors:   make(map[string]Collector),
-		promRegistry: promRegistry,
-		metrics:      metrics,
-		config:       cfg,
-		logger:       logger,
+		collectors:         make(map[string]Collector),
+		promRegistry:       promRegistry,
+		metrics:            collectorMetrics,
+		config:             cfg,
+		cardinalityManager: cardinalityManager,
+		logger:             logger,
 	}
 
 	// Register the registry itself as a collector
@@ -274,6 +285,41 @@ func (ca *collectorAdapter) Collect(ch chan<- prometheus.Metric) {
 	ctx := context.Background()
 	if err := ca.collector.Collect(ctx, ch); err != nil {
 		logrus.WithError(err).WithField("collector", ca.collector.Name()).Error("Collection failed")
+	}
+}
+
+// GetCardinalityManager returns the cardinality manager
+func (r *Registry) GetCardinalityManager() *metrics.CardinalityManager {
+	return r.cardinalityManager
+}
+
+// SetCardinalityLimit configures a cardinality limit for a metric pattern
+func (r *Registry) SetCardinalityLimit(pattern string, limit metrics.CardinalityLimit) {
+	if r.cardinalityManager != nil {
+		r.cardinalityManager.SetLimit(pattern, limit)
+	}
+}
+
+// SetCardinalityFilter configures a cardinality filter for a metric pattern
+func (r *Registry) SetCardinalityFilter(pattern string, filter metrics.CardinalityFilter) {
+	if r.cardinalityManager != nil {
+		r.cardinalityManager.SetFilter(pattern, filter)
+	}
+}
+
+// GetCardinalityReport generates a comprehensive cardinality report
+func (r *Registry) GetCardinalityReport() metrics.CardinalityReport {
+	if r.cardinalityManager != nil {
+		return r.cardinalityManager.GetCardinalityReport()
+	}
+	return metrics.CardinalityReport{}
+}
+
+// StartCardinalityMonitoring begins background cardinality monitoring
+func (r *Registry) StartCardinalityMonitoring(ctx context.Context) {
+	if r.cardinalityManager != nil {
+		go r.cardinalityManager.StartCardinalityMonitoring(ctx)
+		r.logger.Info("Cardinality monitoring started")
 	}
 }
 
