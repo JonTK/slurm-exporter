@@ -87,30 +87,30 @@ func (m *SchedulerMetrics) Register(registry *prometheus.Registry) error {
 		m.MissedRuns,
 		m.ScheduleLatency,
 	}
-	
+
 	for _, c := range collectors {
 		if err := registry.Register(c); err != nil {
 			return err
 		}
 	}
-	
+
 	return nil
 }
 
 // NewScheduler creates a new collection scheduler
 func NewScheduler(registry *Registry, config *config.CollectorsConfig) (*Scheduler, error) {
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	// Create metrics
 	metrics := NewSchedulerMetrics("slurm", "scheduler")
 	if err := metrics.Register(registry.promRegistry); err != nil {
 		cancel()
 		return nil, fmt.Errorf("failed to register scheduler metrics: %w", err)
 	}
-	
+
 	// Create orchestrator
 	orchestrator := NewCollectionOrchestrator(registry, config.Global.MaxConcurrency)
-	
+
 	scheduler := &Scheduler{
 		registry:      registry,
 		orchestrator:  orchestrator,
@@ -121,7 +121,7 @@ func NewScheduler(registry *Registry, config *config.CollectorsConfig) (*Schedul
 		ctx:           ctx,
 		cancel:        cancel,
 	}
-	
+
 	return scheduler, nil
 }
 
@@ -129,41 +129,41 @@ func NewScheduler(registry *Registry, config *config.CollectorsConfig) (*Schedul
 func (s *Scheduler) InitializeSchedules() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	// Helper function to create schedule
 	createSchedule := func(name string, cfg config.CollectorConfig) error {
 		interval := cfg.Interval
 		if interval <= 0 {
 			interval = s.config.Global.DefaultInterval
 		}
-		
+
 		timeout := cfg.Timeout
 		if timeout <= 0 {
 			timeout = s.config.Global.DefaultTimeout
 		}
-		
+
 		schedule := &Schedule{
 			CollectorName: name,
 			Interval:      interval,
 			Timeout:       timeout,
 			enabled:       cfg.Enabled,
 		}
-		
+
 		s.schedules[name] = schedule
-		
+
 		// Set interval in orchestrator
 		s.orchestrator.SetCollectorInterval(name, interval)
-		
+
 		s.logger.WithFields(logrus.Fields{
 			"collector": name,
 			"interval":  interval,
 			"timeout":   timeout,
 			"enabled":   cfg.Enabled,
 		}).Info("Initialized collection schedule")
-		
+
 		return nil
 	}
-	
+
 	// Create schedules for each collector type
 	scheduleConfigs := map[string]config.CollectorConfig{
 		"cluster":     s.config.Cluster,
@@ -174,23 +174,23 @@ func (s *Scheduler) InitializeSchedules() error {
 		"performance": s.config.Performance,
 		"system":      s.config.System,
 	}
-	
+
 	for name, cfg := range scheduleConfigs {
 		if err := createSchedule(name, cfg); err != nil {
 			return fmt.Errorf("failed to create schedule for %s: %w", name, err)
 		}
 	}
-	
+
 	return nil
 }
 
 // Start begins scheduled collection
 func (s *Scheduler) Start() error {
 	s.logger.Info("Starting collection scheduler")
-	
+
 	// Start orchestrator
 	s.orchestrator.Start()
-	
+
 	// Start schedule monitoring
 	s.mu.RLock()
 	for name, schedule := range s.schedules {
@@ -199,23 +199,23 @@ func (s *Scheduler) Start() error {
 		}
 	}
 	s.mu.RUnlock()
-	
+
 	// Monitor for schedule updates
 	go s.monitorSchedules()
-	
+
 	return nil
 }
 
 // Stop stops all scheduled collections
 func (s *Scheduler) Stop() {
 	s.logger.Info("Stopping collection scheduler")
-	
+
 	// Cancel context
 	s.cancel()
-	
+
 	// Stop orchestrator
 	s.orchestrator.Stop()
-	
+
 	// Stop all schedules
 	s.mu.Lock()
 	for _, schedule := range s.schedules {
@@ -230,16 +230,16 @@ func (s *Scheduler) Stop() {
 func (s *Scheduler) startSchedule(name string, schedule *Schedule) {
 	schedule.mu.Lock()
 	defer schedule.mu.Unlock()
-	
+
 	// Calculate next run time
 	now := time.Now()
 	schedule.NextRun = now.Add(schedule.Interval)
-	
+
 	// Create timer
 	schedule.timer = time.AfterFunc(schedule.Interval, func() {
 		s.runScheduledCollection(name, schedule)
 	})
-	
+
 	s.logger.WithFields(logrus.Fields{
 		"collector": name,
 		"next_run":  schedule.NextRun,
@@ -256,14 +256,14 @@ func (s *Scheduler) runScheduledCollection(name string, schedule *Schedule) {
 	}
 	expectedTime := schedule.NextRun
 	schedule.mu.RUnlock()
-	
+
 	// Calculate latency
 	actualTime := time.Now()
 	latency := actualTime.Sub(expectedTime)
-	
+
 	// Record latency metric
 	s.globalMetrics.ScheduleLatency.WithLabelValues(name).Observe(latency.Seconds())
-	
+
 	// Check if we're too late
 	if latency > schedule.Interval {
 		s.globalMetrics.MissedRuns.WithLabelValues(name, "latency").Inc()
@@ -272,10 +272,10 @@ func (s *Scheduler) runScheduledCollection(name string, schedule *Schedule) {
 			"latency":   latency,
 		}).Warn("Missed scheduled collection due to latency")
 	}
-	
+
 	// Run collection
 	result, err := s.orchestrator.CollectNow(name)
-	
+
 	// Update schedule stats
 	schedule.mu.Lock()
 	schedule.LastRun = actualTime
@@ -286,14 +286,14 @@ func (s *Scheduler) runScheduledCollection(name string, schedule *Schedule) {
 	} else {
 		s.globalMetrics.ScheduledRuns.WithLabelValues(name, "success").Inc()
 	}
-	
+
 	// Schedule next run
 	schedule.NextRun = actualTime.Add(schedule.Interval)
 	schedule.timer = time.AfterFunc(schedule.Interval, func() {
 		s.runScheduledCollection(name, schedule)
 	})
 	schedule.mu.Unlock()
-	
+
 	// Log result
 	if err != nil {
 		s.logger.WithError(err).WithField("collector", name).Error("Scheduled collection failed")
@@ -310,7 +310,7 @@ func (s *Scheduler) runScheduledCollection(name string, schedule *Schedule) {
 func (s *Scheduler) monitorSchedules() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-ticker.C:
@@ -325,12 +325,12 @@ func (s *Scheduler) monitorSchedules() {
 func (s *Scheduler) checkScheduleHealth() {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	now := time.Now()
-	
+
 	for name, schedule := range s.schedules {
 		schedule.mu.RLock()
-		
+
 		// Check if schedule is running behind
 		if schedule.enabled && schedule.NextRun.Before(now.Add(-schedule.Interval)) {
 			s.logger.WithFields(logrus.Fields{
@@ -340,10 +340,10 @@ func (s *Scheduler) checkScheduleHealth() {
 				"run_count":   schedule.RunCount,
 				"error_count": schedule.ErrorCount,
 			}).Warn("Schedule is running behind")
-			
+
 			s.globalMetrics.MissedRuns.WithLabelValues(name, "behind").Inc()
 		}
-		
+
 		schedule.mu.RUnlock()
 	}
 }
@@ -353,26 +353,26 @@ func (s *Scheduler) UpdateSchedule(name string, interval, timeout time.Duration)
 	s.mu.RLock()
 	schedule, exists := s.schedules[name]
 	s.mu.RUnlock()
-	
+
 	if !exists {
 		return fmt.Errorf("schedule for collector %s not found", name)
 	}
-	
+
 	schedule.mu.Lock()
 	defer schedule.mu.Unlock()
-	
+
 	// Update schedule
 	schedule.Interval = interval
 	schedule.Timeout = timeout
-	
+
 	// Cancel current timer
 	if schedule.timer != nil {
 		schedule.timer.Stop()
 	}
-	
+
 	// Update orchestrator
 	s.orchestrator.SetCollectorInterval(name, interval)
-	
+
 	// Restart schedule if enabled
 	if schedule.enabled {
 		schedule.NextRun = time.Now().Add(interval)
@@ -380,13 +380,13 @@ func (s *Scheduler) UpdateSchedule(name string, interval, timeout time.Duration)
 			s.runScheduledCollection(name, schedule)
 		})
 	}
-	
+
 	s.logger.WithFields(logrus.Fields{
 		"collector": name,
 		"interval":  interval,
 		"timeout":   timeout,
 	}).Info("Updated collection schedule")
-	
+
 	return nil
 }
 
@@ -395,28 +395,28 @@ func (s *Scheduler) EnableSchedule(name string) error {
 	s.mu.RLock()
 	schedule, exists := s.schedules[name]
 	s.mu.RUnlock()
-	
+
 	if !exists {
 		return fmt.Errorf("schedule for collector %s not found", name)
 	}
-	
+
 	schedule.mu.Lock()
 	defer schedule.mu.Unlock()
-	
+
 	if schedule.enabled {
 		return nil // Already enabled
 	}
-	
+
 	schedule.enabled = true
-	
+
 	// Start schedule
 	schedule.NextRun = time.Now().Add(schedule.Interval)
 	schedule.timer = time.AfterFunc(schedule.Interval, func() {
 		s.runScheduledCollection(name, schedule)
 	})
-	
+
 	s.logger.WithField("collector", name).Info("Enabled collection schedule")
-	
+
 	return nil
 }
 
@@ -425,28 +425,28 @@ func (s *Scheduler) DisableSchedule(name string) error {
 	s.mu.RLock()
 	schedule, exists := s.schedules[name]
 	s.mu.RUnlock()
-	
+
 	if !exists {
 		return fmt.Errorf("schedule for collector %s not found", name)
 	}
-	
+
 	schedule.mu.Lock()
 	defer schedule.mu.Unlock()
-	
+
 	if !schedule.enabled {
 		return nil // Already disabled
 	}
-	
+
 	schedule.enabled = false
-	
+
 	// Stop timer
 	if schedule.timer != nil {
 		schedule.timer.Stop()
 		schedule.timer = nil
 	}
-	
+
 	s.logger.WithField("collector", name).Info("Disabled collection schedule")
-	
+
 	return nil
 }
 
@@ -454,9 +454,9 @@ func (s *Scheduler) DisableSchedule(name string) error {
 func (s *Scheduler) GetScheduleStats() map[string]ScheduleStats {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	stats := make(map[string]ScheduleStats)
-	
+
 	for name, schedule := range s.schedules {
 		schedule.mu.RLock()
 		stats[name] = ScheduleStats{
@@ -472,7 +472,7 @@ func (s *Scheduler) GetScheduleStats() map[string]ScheduleStats {
 		}
 		schedule.mu.RUnlock()
 	}
-	
+
 	return stats
 }
 

@@ -19,8 +19,8 @@ import (
 )
 
 var (
-	configFile = flag.String("config", "configs/config.yaml", "Path to configuration file")
-	logLevel   = flag.String("log-level", "info", "Log level (debug, info, warn, error)")
+	configFile  = flag.String("config", "configs/config.yaml", "Path to configuration file")
+	logLevel    = flag.String("log-level", "info", "Log level (debug, info, warn, error)")
 	showVersion = flag.Bool("version", false, "Show version information and exit")
 	addr        = flag.String("addr", ":8080", "Address to listen on")
 	metricsPath = flag.String("metrics-path", "/metrics", "Path for metrics endpoint")
@@ -78,7 +78,7 @@ func main() {
 
 	// Create Prometheus registry for collectors
 	promRegistry := prometheus.NewRegistry()
-	
+
 	// Create collector registry
 	registry, err := collector.NewRegistry(&cfg.Collectors, promRegistry)
 	if err != nil {
@@ -93,13 +93,13 @@ func main() {
 
 	// Setup graceful shutdown handling
 	shutdown := NewShutdownManager(logger.Logger, 30*time.Second)
-	
+
 	// Register shutdown hooks for proper cleanup
 	shutdown.AddShutdownHook("server", func(ctx context.Context) error {
 		logger.WithComponent("shutdown").Info("Shutting down HTTP server")
 		return srv.Shutdown(ctx)
 	})
-	
+
 	shutdown.AddShutdownHook("logger", func(ctx context.Context) error {
 		logger.WithComponent("shutdown").Info("Closing logger")
 		return logger.Close()

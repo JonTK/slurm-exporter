@@ -399,9 +399,9 @@ func (jc *JobCollector) collectJobQueueStats(ctx context.Context, ch chan<- prom
 		RunTime   float64 // seconds
 		WaitTime  float64 // seconds
 	}{
-		{"gpu", "ml_team", 600, 5400, 600},       // 10 min queue, 90 min run, 10 min wait
-		{"compute", "physics", 1800, 0, 1800},    // 30 min queue (pending), 0 run, 30 min wait
-		{"compute", "bio_team", 300, 7200, 300},  // 5 min queue, 2 hour run, 5 min wait
+		{"gpu", "ml_team", 600, 5400, 600},      // 10 min queue, 90 min run, 10 min wait
+		{"compute", "physics", 1800, 0, 1800},   // 30 min queue (pending), 0 run, 30 min wait
+		{"compute", "bio_team", 300, 7200, 300}, // 5 min queue, 2 hour run, 5 min wait
 	}
 
 	for _, stat := range queueStats {

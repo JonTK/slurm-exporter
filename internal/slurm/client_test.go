@@ -17,11 +17,11 @@ func TestNewClient(t *testing.T) {
 		{
 			name: "valid config",
 			config: &config.SLURMConfig{
-				BaseURL:        "https://example.com:6820",
-				APIVersion:     "v0.0.42",
-				Timeout:        30 * time.Second,
-				RetryAttempts:  3,
-				RetryDelay:     5 * time.Second,
+				BaseURL:       "https://example.com:6820",
+				APIVersion:    "v0.0.42",
+				Timeout:       30 * time.Second,
+				RetryAttempts: 3,
+				RetryDelay:    5 * time.Second,
 				Auth: config.AuthConfig{
 					Type: "none",
 				},
@@ -35,11 +35,11 @@ func TestNewClient(t *testing.T) {
 		{
 			name: "invalid config - empty base URL",
 			config: &config.SLURMConfig{
-				BaseURL:        "",
-				APIVersion:     "v0.0.42",
-				Timeout:        30 * time.Second,
-				RetryAttempts:  3,
-				RetryDelay:     5 * time.Second,
+				BaseURL:       "",
+				APIVersion:    "v0.0.42",
+				Timeout:       30 * time.Second,
+				RetryAttempts: 3,
+				RetryDelay:    5 * time.Second,
 				Auth: config.AuthConfig{
 					Type: "none",
 				},
@@ -53,11 +53,11 @@ func TestNewClient(t *testing.T) {
 		{
 			name: "invalid config - negative timeout",
 			config: &config.SLURMConfig{
-				BaseURL:        "https://example.com:6820",
-				APIVersion:     "v0.0.42",
-				Timeout:        -1 * time.Second,
-				RetryAttempts:  3,
-				RetryDelay:     5 * time.Second,
+				BaseURL:       "https://example.com:6820",
+				APIVersion:    "v0.0.42",
+				Timeout:       -1 * time.Second,
+				RetryAttempts: 3,
+				RetryDelay:    5 * time.Second,
 				Auth: config.AuthConfig{
 					Type: "none",
 				},
@@ -77,11 +77,11 @@ func TestNewClient(t *testing.T) {
 				t.Errorf("NewClient() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			
+
 			if !tt.wantErr && client == nil {
 				t.Error("NewClient() returned nil client with no error")
 			}
-			
+
 			if client != nil {
 				client.Close()
 			}
@@ -91,11 +91,11 @@ func TestNewClient(t *testing.T) {
 
 func TestNewConnectionPool(t *testing.T) {
 	cfg := &config.SLURMConfig{
-		BaseURL:        "https://example.com:6820",
-		APIVersion:     "v0.0.42",
-		Timeout:        30 * time.Second,
-		RetryAttempts:  3,
-		RetryDelay:     5 * time.Second,
+		BaseURL:       "https://example.com:6820",
+		APIVersion:    "v0.0.42",
+		Timeout:       30 * time.Second,
+		RetryAttempts: 3,
+		RetryDelay:    5 * time.Second,
 		Auth: config.AuthConfig{
 			Type: "none",
 		},
@@ -134,7 +134,7 @@ func TestNewConnectionPool(t *testing.T) {
 				t.Errorf("NewConnectionPool() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			
+
 			if !tt.wantErr {
 				if pool == nil {
 					t.Error("NewConnectionPool() returned nil pool with no error")
@@ -154,11 +154,11 @@ func TestNewConnectionPool(t *testing.T) {
 
 func TestConnectionPoolGetClient(t *testing.T) {
 	cfg := &config.SLURMConfig{
-		BaseURL:        "https://example.com:6820",
-		APIVersion:     "v0.0.42",
-		Timeout:        30 * time.Second,
-		RetryAttempts:  3,
-		RetryDelay:     5 * time.Second,
+		BaseURL:       "https://example.com:6820",
+		APIVersion:    "v0.0.42",
+		Timeout:       30 * time.Second,
+		RetryAttempts: 3,
+		RetryDelay:    5 * time.Second,
 		Auth: config.AuthConfig{
 			Type: "none",
 		},
@@ -193,11 +193,11 @@ func TestConnectionPoolGetClient(t *testing.T) {
 
 func TestClientConnectionStatus(t *testing.T) {
 	cfg := &config.SLURMConfig{
-		BaseURL:        "https://example.com:6820",
-		APIVersion:     "v0.0.42",
-		Timeout:        30 * time.Second,
-		RetryAttempts:  3,
-		RetryDelay:     5 * time.Second,
+		BaseURL:       "https://example.com:6820",
+		APIVersion:    "v0.0.42",
+		Timeout:       30 * time.Second,
+		RetryAttempts: 3,
+		RetryDelay:    5 * time.Second,
 		Auth: config.AuthConfig{
 			Type: "none",
 		},
@@ -228,11 +228,11 @@ func TestClientConnectionStatus(t *testing.T) {
 
 func TestClientContextCancellation(t *testing.T) {
 	cfg := &config.SLURMConfig{
-		BaseURL:        "https://example.com:6820",
-		APIVersion:     "v0.0.42",
-		Timeout:        30 * time.Second,
-		RetryAttempts:  3,
-		RetryDelay:     5 * time.Second,
+		BaseURL:       "https://example.com:6820",
+		APIVersion:    "v0.0.42",
+		Timeout:       30 * time.Second,
+		RetryAttempts: 3,
+		RetryDelay:    5 * time.Second,
 		Auth: config.AuthConfig{
 			Type: "none",
 		},
@@ -263,11 +263,11 @@ func TestClientContextCancellation(t *testing.T) {
 
 func TestClientRateLimiting(t *testing.T) {
 	cfg := &config.SLURMConfig{
-		BaseURL:        "https://example.com:6820",
-		APIVersion:     "v0.0.42",
-		Timeout:        30 * time.Second,
-		RetryAttempts:  0, // No retries for faster test
-		RetryDelay:     1 * time.Second,
+		BaseURL:       "https://example.com:6820",
+		APIVersion:    "v0.0.42",
+		Timeout:       30 * time.Second,
+		RetryAttempts: 0, // No retries for faster test
+		RetryDelay:    1 * time.Second,
 		Auth: config.AuthConfig{
 			Type: "none",
 		},
@@ -285,13 +285,13 @@ func TestClientRateLimiting(t *testing.T) {
 
 	// Make multiple rapid requests - should be rate limited
 	start := time.Now()
-	
+
 	ctx := context.Background()
 	_ = client.TestConnection(ctx)
 	_ = client.TestConnection(ctx)
-	
+
 	elapsed := time.Since(start)
-	
+
 	// With rate limiting, the second call should take at least 1 second
 	if elapsed < 900*time.Millisecond {
 		t.Errorf("Rate limiting not working properly, elapsed time: %v", elapsed)

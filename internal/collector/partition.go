@@ -247,14 +247,14 @@ func (pc *PartitionCollector) collectPartitionInfo(ctx context.Context, ch chan<
 func (pc *PartitionCollector) collectPartitionUtilization(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Simulate partition utilization data
 	partitionUtilization := []struct {
-		Name              string
-		JobCount          int
-		AllocatedNodes    int
-		AllocatedCPUs     int
-		AllocatedMemory   int64 // bytes
-		TotalNodes        int
-		TotalCPUs         int
-		TotalMemory       int64 // bytes
+		Name            string
+		JobCount        int
+		AllocatedNodes  int
+		AllocatedCPUs   int
+		AllocatedMemory int64 // bytes
+		TotalNodes      int
+		TotalCPUs       int
+		TotalMemory     int64 // bytes
 	}{
 		{
 			Name:            "compute",
@@ -376,20 +376,20 @@ func (pc *PartitionCollector) collectPartitionUtilization(ctx context.Context, c
 func (pc *PartitionCollector) collectPartitionPolicies(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Simulate partition policy data
 	partitionPolicies := []struct {
-		Name               string
-		MaxTime            int64 // minutes
-		DefaultTime        int64 // minutes
-		Priority           int
-		PreemptMode        string
-		OversubscribeMode  string
-		MaxNodesPerJob     int
-		MaxCPUsPerJob      int
-		MaxMemoryPerJob    int64 // bytes
+		Name              string
+		MaxTime           int64 // minutes
+		DefaultTime       int64 // minutes
+		Priority          int
+		PreemptMode       string
+		OversubscribeMode string
+		MaxNodesPerJob    int
+		MaxCPUsPerJob     int
+		MaxMemoryPerJob   int64 // bytes
 	}{
 		{
 			Name:              "compute",
-			MaxTime:           2880,  // 48 hours
-			DefaultTime:       480,   // 8 hours
+			MaxTime:           2880, // 48 hours
+			DefaultTime:       480,  // 8 hours
 			Priority:          1,
 			PreemptMode:       "OFF",
 			OversubscribeMode: "NO",
@@ -399,8 +399,8 @@ func (pc *PartitionCollector) collectPartitionPolicies(ctx context.Context, ch c
 		},
 		{
 			Name:              "gpu",
-			MaxTime:           1440,  // 24 hours
-			DefaultTime:       240,   // 4 hours
+			MaxTime:           1440, // 24 hours
+			DefaultTime:       240,  // 4 hours
 			Priority:          10,
 			PreemptMode:       "REQUEUE",
 			OversubscribeMode: "NO",
@@ -410,8 +410,8 @@ func (pc *PartitionCollector) collectPartitionPolicies(ctx context.Context, ch c
 		},
 		{
 			Name:              "highmem",
-			MaxTime:           720,   // 12 hours
-			DefaultTime:       120,   // 2 hours
+			MaxTime:           720, // 12 hours
+			DefaultTime:       120, // 2 hours
 			Priority:          5,
 			PreemptMode:       "OFF",
 			OversubscribeMode: "NO",
@@ -421,8 +421,8 @@ func (pc *PartitionCollector) collectPartitionPolicies(ctx context.Context, ch c
 		},
 		{
 			Name:              "debug",
-			MaxTime:           60,    // 1 hour
-			DefaultTime:       15,    // 15 minutes
+			MaxTime:           60, // 1 hour
+			DefaultTime:       15, // 15 minutes
 			Priority:          100,
 			PreemptMode:       "REQUEUE",
 			OversubscribeMode: "YES",
@@ -478,38 +478,38 @@ func (pc *PartitionCollector) collectPartitionPolicies(ctx context.Context, ch c
 
 // PartitionInfo represents partition information structure
 type PartitionInfo struct {
-	Name         string
-	State        string
-	Nodes        []string
-	TotalNodes   int
-	TotalCPUs    int
-	TotalMemory  int64
-	AllowGroups  []string
-	AllowUsers   []string
-	DenyGroups   []string
-	DenyUsers    []string
-	Default      bool
-	Hidden       bool
-	RootOnly     bool
-	Shared       bool
-	Preempt      bool
-	Priority     int
-	Limits       PartitionLimits
-	Policies     PartitionPolicies
+	Name        string
+	State       string
+	Nodes       []string
+	TotalNodes  int
+	TotalCPUs   int
+	TotalMemory int64
+	AllowGroups []string
+	AllowUsers  []string
+	DenyGroups  []string
+	DenyUsers   []string
+	Default     bool
+	Hidden      bool
+	RootOnly    bool
+	Shared      bool
+	Preempt     bool
+	Priority    int
+	Limits      PartitionLimits
+	Policies    PartitionPolicies
 }
 
 // PartitionLimits represents resource limits for a partition
 type PartitionLimits struct {
-	MaxTime            time.Duration
-	DefaultTime        time.Duration
-	MaxNodes           int
-	MaxNodesPerJob     int
-	MaxCPUs            int
-	MaxCPUsPerJob      int
-	MaxMemory          int64
-	MaxMemoryPerJob    int64
-	MaxJobsPerUser     int
-	MaxJobsTotal       int
+	MaxTime         time.Duration
+	DefaultTime     time.Duration
+	MaxNodes        int
+	MaxNodesPerJob  int
+	MaxCPUs         int
+	MaxCPUsPerJob   int
+	MaxMemory       int64
+	MaxMemoryPerJob int64
+	MaxJobsPerUser  int
+	MaxJobsTotal    int
 }
 
 // PartitionPolicies represents policies for a partition

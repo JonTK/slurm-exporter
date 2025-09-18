@@ -118,7 +118,6 @@ func TestNewLogger(t *testing.T) {
 			t.Fatalf("Failed to parse log JSON: %v", err)
 		}
 
-
 		if logEntry["service"] != "slurm-exporter" {
 			t.Errorf("Expected service field to be 'slurm-exporter', got %v", logEntry["service"])
 		}
@@ -391,14 +390,14 @@ func TestLogFormats(t *testing.T) {
 			}
 
 			logger, err := NewLogger(cfg)
-			
+
 			if tc.shouldError {
 				if err == nil {
 					t.Errorf("Expected error for format '%s', but got none", tc.format)
 				}
 				return
 			}
-			
+
 			if err != nil {
 				t.Fatalf("Failed to create logger: %v", err)
 			}

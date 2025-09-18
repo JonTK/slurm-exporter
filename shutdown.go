@@ -17,14 +17,14 @@ type ShutdownHook func(ctx context.Context) error
 
 // ShutdownManager manages graceful shutdown of the application
 type ShutdownManager struct {
-	logger      *logrus.Logger
-	timeout     time.Duration
-	hooks       map[string]ShutdownHook
-	hookOrder   []string
-	sigChan     chan os.Signal
-	shutdownCh  chan struct{}
-	mu          sync.RWMutex
-	started     bool
+	logger     *logrus.Logger
+	timeout    time.Duration
+	hooks      map[string]ShutdownHook
+	hookOrder  []string
+	sigChan    chan os.Signal
+	shutdownCh chan struct{}
+	mu         sync.RWMutex
+	started    bool
 }
 
 // NewShutdownManager creates a new shutdown manager
@@ -59,7 +59,7 @@ func (sm *ShutdownManager) RemoveShutdownHook(name string) {
 
 	if _, exists := sm.hooks[name]; exists {
 		delete(sm.hooks, name)
-		
+
 		// Remove from order slice
 		for i, hookName := range sm.hookOrder {
 			if hookName == name {
@@ -67,7 +67,7 @@ func (sm *ShutdownManager) RemoveShutdownHook(name string) {
 				break
 			}
 		}
-		
+
 		sm.logger.WithField("hook", name).Debug("Shutdown hook removed")
 	}
 }
@@ -82,7 +82,7 @@ func (sm *ShutdownManager) Start(ctx context.Context) {
 	}
 
 	// Listen for shutdown signals
-	signal.Notify(sm.sigChan, 
+	signal.Notify(sm.sigChan,
 		syscall.SIGINT,  // Ctrl+C
 		syscall.SIGTERM, // Termination request
 		syscall.SIGQUIT, // Quit request
@@ -120,18 +120,18 @@ func (sm *ShutdownManager) Shutdown() error {
 	var errors []error
 	for i := len(hooks) - 1; i >= 0; i-- {
 		hookName := hooks[i]
-		
+
 		sm.mu.RLock()
 		hook, exists := sm.hooks[hookName]
 		sm.mu.RUnlock()
-		
+
 		if !exists {
 			continue
 		}
 
 		hookStart := time.Now()
 		sm.logger.WithField("hook", hookName).Info("Executing shutdown hook")
-		
+
 		if err := sm.executeHookWithTimeout(ctx, hookName, hook); err != nil {
 			sm.logger.WithError(err).WithField("hook", hookName).Error("Shutdown hook failed")
 			errors = append(errors, fmt.Errorf("hook %s: %w", hookName, err))
@@ -162,7 +162,7 @@ func (sm *ShutdownManager) Shutdown() error {
 // executeHookWithTimeout executes a hook with timeout protection
 func (sm *ShutdownManager) executeHookWithTimeout(ctx context.Context, name string, hook ShutdownHook) error {
 	done := make(chan error, 1)
-	
+
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
@@ -199,7 +199,7 @@ func (sm *ShutdownManager) Wait() {
 func (sm *ShutdownManager) GetRegisteredHooks() []string {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
-	
+
 	hooks := make([]string, len(sm.hookOrder))
 	copy(hooks, sm.hookOrder)
 	return hooks

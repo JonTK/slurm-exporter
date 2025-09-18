@@ -794,10 +794,10 @@ logging:
 
 	// Set environment variables that should override YAML
 	envVars := map[string]string{
-		"SLURM_EXPORTER_SERVER_ADDRESS":    ":7777",
-		"SLURM_EXPORTER_SLURM_AUTH_TYPE":   "jwt",
-		"SLURM_EXPORTER_SLURM_AUTH_TOKEN":  "jwt-token",
-		"SLURM_EXPORTER_LOGGING_LEVEL":     "error",
+		"SLURM_EXPORTER_SERVER_ADDRESS":   ":7777",
+		"SLURM_EXPORTER_SLURM_AUTH_TYPE":  "jwt",
+		"SLURM_EXPORTER_SLURM_AUTH_TOKEN": "jwt-token",
+		"SLURM_EXPORTER_LOGGING_LEVEL":    "error",
 	}
 
 	for key, value := range envVars {

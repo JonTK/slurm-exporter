@@ -13,10 +13,10 @@ func TestMainFlags(t *testing.T) {
 
 	// Test version flag
 	os.Args = []string{"cmd", "--version"}
-	
+
 	// Reset flags for testing
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-	
+
 	// Re-define flags
 	showVersion := flag.Bool("version", false, "Show version information and exit")
 	configFile := flag.String("config", "configs/config.yaml", "Path to configuration file")
@@ -33,7 +33,7 @@ func TestMainFlags(t *testing.T) {
 	// Test default values
 	os.Args = []string{"cmd"}
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-	
+
 	showVersion = flag.Bool("version", false, "Show version information and exit")
 	configFile = flag.String("config", "configs/config.yaml", "Path to configuration file")
 	logLevel = flag.String("log-level", "info", "Log level (debug, info, warn, error)")
@@ -79,7 +79,7 @@ func TestMainFlagsCustomValues(t *testing.T) {
 
 	// Reset flags for testing
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-	
+
 	// Re-define flags
 	showVersion := flag.Bool("version", false, "Show version information and exit")
 	configFile := flag.String("config", "configs/config.yaml", "Path to configuration file")

@@ -35,17 +35,17 @@ func TestScheduler(t *testing.T) {
 			Interval: 100 * time.Millisecond,
 		},
 	}
-	
+
 	// Create registry
 	promRegistry := prometheus.NewRegistry()
 	registry, err := NewRegistry(cfg, promRegistry)
 	if err != nil {
 		t.Fatalf("Failed to create registry: %v", err)
 	}
-	
+
 	// Register mock collectors
 	var clusterCount, nodesCount int32
-	
+
 	registry.Register("cluster", &mockCollector{
 		name:    "cluster",
 		enabled: true,
@@ -54,7 +54,7 @@ func TestScheduler(t *testing.T) {
 			return nil
 		},
 	})
-	
+
 	registry.Register("nodes", &mockCollector{
 		name:    "nodes",
 		enabled: true,
@@ -63,7 +63,7 @@ func TestScheduler(t *testing.T) {
 			return nil
 		},
 	})
-	
+
 	registry.Register("jobs", &mockCollector{
 		name:    "jobs",
 		enabled: false,
@@ -72,24 +72,24 @@ func TestScheduler(t *testing.T) {
 			return nil
 		},
 	})
-	
+
 	// Create scheduler
 	scheduler, err := NewScheduler(registry, cfg)
 	if err != nil {
 		t.Fatalf("Failed to create scheduler: %v", err)
 	}
-	
+
 	t.Run("InitializeSchedules", func(t *testing.T) {
 		err := scheduler.InitializeSchedules()
 		if err != nil {
 			t.Errorf("Failed to initialize schedules: %v", err)
 		}
-		
+
 		// Check schedules were created
 		if len(scheduler.schedules) < 3 {
 			t.Errorf("Expected at least 3 schedules, got %d", len(scheduler.schedules))
 		}
-		
+
 		// Check cluster schedule
 		if schedule, exists := scheduler.schedules["cluster"]; exists {
 			if schedule.Interval != 50*time.Millisecond {
@@ -101,7 +101,7 @@ func TestScheduler(t *testing.T) {
 		} else {
 			t.Error("Cluster schedule not found")
 		}
-		
+
 		// Check jobs schedule (should be disabled)
 		if schedule, exists := scheduler.schedules["jobs"]; exists {
 			if schedule.enabled {
@@ -111,35 +111,35 @@ func TestScheduler(t *testing.T) {
 			t.Error("Jobs schedule not found")
 		}
 	})
-	
+
 	t.Run("ScheduledCollection", func(t *testing.T) {
 		// Start scheduler
 		err := scheduler.Start()
 		if err != nil {
 			t.Fatalf("Failed to start scheduler: %v", err)
 		}
-		
+
 		// Wait for collections to happen
 		time.Sleep(200 * time.Millisecond)
-		
+
 		// Stop scheduler
 		scheduler.Stop()
-		
+
 		// Check collection counts
 		clusterCollections := atomic.LoadInt32(&clusterCount)
 		nodesCollections := atomic.LoadInt32(&nodesCount)
-		
+
 		// Cluster should collect ~4 times (50ms interval over 200ms)
 		if clusterCollections < 2 || clusterCollections > 6 {
 			t.Errorf("Expected 2-6 cluster collections, got %d", clusterCollections)
 		}
-		
+
 		// Nodes should collect ~2-3 times (75ms interval over 200ms)
 		if nodesCollections < 1 || nodesCollections > 4 {
 			t.Errorf("Expected 1-4 nodes collections, got %d", nodesCollections)
 		}
 	})
-	
+
 	t.Run("UpdateSchedule", func(t *testing.T) {
 		// Create new registry and scheduler for this test
 		promRegistry2 := prometheus.NewRegistry()
@@ -148,33 +148,33 @@ func TestScheduler(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to create scheduler: %v", err)
 		}
-		
+
 		// Register a test collector
 		registry2.Register("cluster", &mockCollector{
 			name:    "cluster",
 			enabled: true,
 		})
 		scheduler2.InitializeSchedules()
-		
+
 		// Update cluster schedule
 		err = scheduler2.UpdateSchedule("cluster", 150*time.Millisecond, 50*time.Millisecond)
 		if err != nil {
 			t.Errorf("Failed to update schedule: %v", err)
 		}
-		
+
 		// Verify update
 		schedule := scheduler2.schedules["cluster"]
 		if schedule.Interval != 150*time.Millisecond {
 			t.Errorf("Expected updated interval 150ms, got %v", schedule.Interval)
 		}
-		
+
 		// Test updating non-existent schedule
 		err = scheduler2.UpdateSchedule("non_existent", 100*time.Millisecond, 50*time.Millisecond)
 		if err == nil {
 			t.Error("Expected error updating non-existent schedule")
 		}
 	})
-	
+
 	t.Run("EnableDisableSchedule", func(t *testing.T) {
 		// Create new registry and scheduler for this test
 		promRegistry3 := prometheus.NewRegistry()
@@ -183,43 +183,43 @@ func TestScheduler(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to create scheduler: %v", err)
 		}
-		
+
 		// Register a test collector
 		registry3.Register("cluster", &mockCollector{
 			name:    "cluster",
 			enabled: true,
 		})
 		scheduler3.InitializeSchedules()
-		
+
 		// Disable cluster schedule
 		err = scheduler3.DisableSchedule("cluster")
 		if err != nil {
 			t.Errorf("Failed to disable schedule: %v", err)
 		}
-		
+
 		// Check it's disabled
 		if scheduler3.schedules["cluster"].enabled {
 			t.Error("Schedule should be disabled")
 		}
-		
+
 		// Re-enable
 		err = scheduler3.EnableSchedule("cluster")
 		if err != nil {
 			t.Errorf("Failed to enable schedule: %v", err)
 		}
-		
+
 		// Check it's enabled
 		if !scheduler3.schedules["cluster"].enabled {
 			t.Error("Schedule should be enabled")
 		}
-		
+
 		// Test with non-existent schedule
 		err = scheduler3.EnableSchedule("non_existent")
 		if err == nil {
 			t.Error("Expected error enabling non-existent schedule")
 		}
 	})
-	
+
 	t.Run("ScheduleStats", func(t *testing.T) {
 		// Create new registry and scheduler for this test
 		promRegistry4 := prometheus.NewRegistry()
@@ -228,22 +228,22 @@ func TestScheduler(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to create scheduler: %v", err)
 		}
-		
+
 		// Register test collectors
 		registry4.Register("cluster", &mockCollector{
 			name:    "cluster",
 			enabled: true,
 		})
 		scheduler4.InitializeSchedules()
-		
+
 		// Get stats
 		stats := scheduler4.GetScheduleStats()
-		
+
 		// Check we have stats for all collectors
 		if len(stats) < 3 {
 			t.Errorf("Expected at least 3 stats entries, got %d", len(stats))
 		}
-		
+
 		// Check cluster stats
 		if clusterStats, exists := stats["cluster"]; exists {
 			if clusterStats.CollectorName != "cluster" {
@@ -274,14 +274,14 @@ func TestSchedulerErrorHandling(t *testing.T) {
 			Interval: 50 * time.Millisecond,
 		},
 	}
-	
+
 	// Create registry
 	promRegistry := prometheus.NewRegistry()
 	registry, err := NewRegistry(cfg, promRegistry)
 	if err != nil {
 		t.Fatalf("Failed to create registry: %v", err)
 	}
-	
+
 	// Register failing collector
 	var errorCount int32
 	registry.Register("cluster", &mockCollector{
@@ -292,7 +292,7 @@ func TestSchedulerErrorHandling(t *testing.T) {
 			return errors.New("collection failed")
 		},
 	})
-	
+
 	// Create and start scheduler
 	scheduler, err := NewScheduler(registry, cfg)
 	if err != nil {
@@ -300,19 +300,19 @@ func TestSchedulerErrorHandling(t *testing.T) {
 	}
 	scheduler.InitializeSchedules()
 	scheduler.Start()
-	
+
 	// Wait for collections
 	time.Sleep(150 * time.Millisecond)
-	
+
 	// Stop scheduler
 	scheduler.Stop()
-	
+
 	// Check error count
 	errCount := atomic.LoadInt32(&errorCount)
 	if errCount < 2 {
 		t.Errorf("Expected at least 2 error collections, got %d", errCount)
 	}
-	
+
 	// Check schedule error stats
 	stats := scheduler.GetScheduleStats()
 	if clusterStats, exists := stats["cluster"]; exists {
@@ -340,14 +340,14 @@ func TestScheduleHealthCheck(t *testing.T) {
 			Interval: 50 * time.Millisecond,
 		},
 	}
-	
+
 	// Create registry
 	promRegistry := prometheus.NewRegistry()
 	registry, err := NewRegistry(cfg, promRegistry)
 	if err != nil {
 		t.Fatalf("Failed to create registry: %v", err)
 	}
-	
+
 	// Register slow collector that will cause schedule to fall behind
 	registry.Register("cluster", &mockCollector{
 		name:    "cluster",
@@ -358,23 +358,23 @@ func TestScheduleHealthCheck(t *testing.T) {
 			return nil
 		},
 	})
-	
+
 	// Create scheduler
 	scheduler, err := NewScheduler(registry, cfg)
 	if err != nil {
 		t.Fatalf("Failed to create scheduler: %v", err)
 	}
 	scheduler.InitializeSchedules()
-	
+
 	// Manually set NextRun to past
 	schedule := scheduler.schedules["cluster"]
 	schedule.mu.Lock()
 	schedule.NextRun = time.Now().Add(-200 * time.Millisecond)
 	schedule.mu.Unlock()
-	
+
 	// Run health check
 	scheduler.checkScheduleHealth()
-	
+
 	// Should have recorded missed runs
 	// Note: Can't easily verify prometheus metrics in test, but the function should execute without panic
 }
@@ -382,17 +382,17 @@ func TestScheduleHealthCheck(t *testing.T) {
 func TestSchedulerMetrics(t *testing.T) {
 	metrics := NewSchedulerMetrics("test", "scheduler")
 	registry := prometheus.NewRegistry()
-	
+
 	err := metrics.Register(registry)
 	if err != nil {
 		t.Fatalf("Failed to register metrics: %v", err)
 	}
-	
+
 	// Update some metrics
 	metrics.ScheduledRuns.WithLabelValues("test", "success").Inc()
 	metrics.MissedRuns.WithLabelValues("test", "latency").Inc()
 	metrics.ScheduleLatency.WithLabelValues("test").Observe(0.5)
-	
+
 	// Verify metrics were registered (will panic if not)
 	metrics.ScheduledRuns.WithLabelValues("test", "error").Inc()
 }

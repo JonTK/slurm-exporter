@@ -12,16 +12,16 @@ import (
 type ErrorType string
 
 const (
-	ErrorTypeConnection   ErrorType = "connection"
-	ErrorTypeAuth         ErrorType = "authentication"
-	ErrorTypeTimeout      ErrorType = "timeout"
-	ErrorTypeRateLimit    ErrorType = "rate_limit"
-	ErrorTypeAPI          ErrorType = "api_error"
-	ErrorTypeParsing      ErrorType = "parsing"
-	ErrorTypeInternal     ErrorType = "internal"
+	ErrorTypeConnection    ErrorType = "connection"
+	ErrorTypeAuth          ErrorType = "authentication"
+	ErrorTypeTimeout       ErrorType = "timeout"
+	ErrorTypeRateLimit     ErrorType = "rate_limit"
+	ErrorTypeAPI           ErrorType = "api_error"
+	ErrorTypeParsing       ErrorType = "parsing"
+	ErrorTypeInternal      ErrorType = "internal"
 	ErrorTypeConfiguration ErrorType = "configuration"
-	ErrorTypePermission   ErrorType = "permission"
-	ErrorTypeNotFound     ErrorType = "not_found"
+	ErrorTypePermission    ErrorType = "permission"
+	ErrorTypeNotFound      ErrorType = "not_found"
 )
 
 // ErrorSeverity represents the severity level of errors
@@ -36,34 +36,34 @@ const (
 
 // CollectionError represents a structured collection error
 type CollectionError struct {
-	Collector    string        `json:"collector"`
-	Type         ErrorType     `json:"type"`
-	Severity     ErrorSeverity `json:"severity"`
-	Message      string        `json:"message"`
-	Err          error         `json:"error,omitempty"`
-	Timestamp    time.Time     `json:"timestamp"`
-	Context      ErrorContext  `json:"context,omitempty"`
-	Retryable    bool          `json:"retryable"`
-	Suggestions  []string      `json:"suggestions,omitempty"`
+	Collector   string        `json:"collector"`
+	Type        ErrorType     `json:"type"`
+	Severity    ErrorSeverity `json:"severity"`
+	Message     string        `json:"message"`
+	Err         error         `json:"error,omitempty"`
+	Timestamp   time.Time     `json:"timestamp"`
+	Context     ErrorContext  `json:"context,omitempty"`
+	Retryable   bool          `json:"retryable"`
+	Suggestions []string      `json:"suggestions,omitempty"`
 }
 
 // ErrorContext provides additional context about the error
 type ErrorContext struct {
-	Operation    string            `json:"operation,omitempty"`
-	Endpoint     string            `json:"endpoint,omitempty"`
-	HTTPStatus   int               `json:"http_status,omitempty"`
-	Duration     time.Duration     `json:"duration,omitempty"`
-	RequestID    string            `json:"request_id,omitempty"`
-	Metadata     map[string]string `json:"metadata,omitempty"`
+	Operation  string            `json:"operation,omitempty"`
+	Endpoint   string            `json:"endpoint,omitempty"`
+	HTTPStatus int               `json:"http_status,omitempty"`
+	Duration   time.Duration     `json:"duration,omitempty"`
+	RequestID  string            `json:"request_id,omitempty"`
+	Metadata   map[string]string `json:"metadata,omitempty"`
 }
 
 // Error implements the error interface
 func (ce *CollectionError) Error() string {
 	if ce.Err != nil {
-		return fmt.Sprintf("%s collector [%s/%s]: %s: %v", 
+		return fmt.Sprintf("%s collector [%s/%s]: %s: %v",
 			ce.Collector, ce.Type, ce.Severity, ce.Message, ce.Err)
 	}
-	return fmt.Sprintf("%s collector [%s/%s]: %s", 
+	return fmt.Sprintf("%s collector [%s/%s]: %s",
 		ce.Collector, ce.Type, ce.Severity, ce.Message)
 }
 
@@ -83,13 +83,13 @@ func (ce *CollectionError) Is(target error) bool {
 // LogFields returns structured log fields for this error
 func (ce *CollectionError) LogFields() logrus.Fields {
 	fields := logrus.Fields{
-		"collector":   ce.Collector,
-		"error_type":  ce.Type,
-		"severity":    ce.Severity,
-		"timestamp":   ce.Timestamp,
-		"retryable":   ce.Retryable,
+		"collector":  ce.Collector,
+		"error_type": ce.Type,
+		"severity":   ce.Severity,
+		"timestamp":  ce.Timestamp,
+		"retryable":  ce.Retryable,
 	}
-	
+
 	if ce.Context.Operation != "" {
 		fields["operation"] = ce.Context.Operation
 	}
@@ -105,12 +105,12 @@ func (ce *CollectionError) LogFields() logrus.Fields {
 	if ce.Context.RequestID != "" {
 		fields["request_id"] = ce.Context.RequestID
 	}
-	
+
 	// Add metadata
 	for k, v := range ce.Context.Metadata {
 		fields[fmt.Sprintf("meta_%s", k)] = v
 	}
-	
+
 	return fields
 }
 
@@ -209,7 +209,7 @@ func (eb *ErrorBuilder) RateLimit(err error, endpoint string, retryAfter time.Du
 func (eb *ErrorBuilder) API(err error, endpoint string, httpStatus int, requestID string, suggestions ...string) *CollectionError {
 	severity := SeverityMedium
 	retryable := true
-	
+
 	// Determine severity and retryability based on HTTP status
 	switch {
 	case httpStatus >= 500:
@@ -225,7 +225,7 @@ func (eb *ErrorBuilder) API(err error, endpoint string, httpStatus int, requestI
 		severity = SeverityMedium
 		retryable = false
 	}
-	
+
 	return &CollectionError{
 		Collector:   eb.collector,
 		Type:        ErrorTypeAPI,
@@ -347,12 +347,12 @@ func (eb *ErrorBuilder) NotFound(err error, resource string, identifier string, 
 // Log logs the error with appropriate level and structured fields
 func (eb *ErrorBuilder) Log(err *CollectionError) {
 	fields := err.LogFields()
-	
+
 	// Add suggestions if present
 	if len(err.Suggestions) > 0 {
 		fields["suggestions"] = err.Suggestions
 	}
-	
+
 	// Log with appropriate level based on severity
 	switch err.Severity {
 	case SeverityLow:
@@ -385,48 +385,48 @@ func (ea *ErrorAnalyzer) AnalyzeError(err error, collector string) *CollectionEr
 	if err == nil {
 		return nil
 	}
-	
+
 	// If it's already a CollectionError, return as-is
 	if collErr, ok := err.(*CollectionError); ok {
 		return collErr
 	}
-	
+
 	builder := NewErrorBuilder(collector, ea.logger)
-	
+
 	// Analyze error by message and type
 	errMsg := err.Error()
-	
+
 	switch {
 	case isConnectionError(errMsg):
-		return builder.Connection(err, "", 
+		return builder.Connection(err, "",
 			"Check SLURM API endpoint URL and network connectivity",
 			"Verify firewall rules allow outbound connections",
 			"Ensure SLURM REST API is running and accessible")
-			
+
 	case isTimeoutError(errMsg):
 		return builder.Timeout(err, "unknown", 0,
 			"Increase timeout configuration",
 			"Check SLURM API performance and load",
 			"Consider reducing request frequency")
-			
+
 	case isAuthError(errMsg):
 		return builder.Auth(err, "unknown",
 			"Verify authentication credentials",
 			"Check token/password expiration",
 			"Ensure user has required permissions")
-			
+
 	case isRateLimitError(errMsg):
 		return builder.RateLimit(err, "", 0,
 			"Reduce collection frequency",
 			"Implement exponential backoff",
 			"Check rate limit configuration")
-			
+
 	case isPermissionError(errMsg):
 		return builder.Permission(err, "unknown", "read",
 			"Check user permissions in SLURM",
 			"Verify authentication user has access to required resources",
 			"Contact SLURM administrator")
-			
+
 	default:
 		return builder.Internal(err, "unknown",
 			"Check logs for detailed error information",
@@ -446,7 +446,7 @@ func isConnectionError(errMsg string) bool {
 		"dial tcp",
 		"connect:",
 	}
-	
+
 	for _, keyword := range connectionKeywords {
 		if contains(errMsg, keyword) {
 			return true
@@ -463,7 +463,7 @@ func isTimeoutError(errMsg string) bool {
 		"context deadline exceeded",
 		"request timeout",
 	}
-	
+
 	for _, keyword := range timeoutKeywords {
 		if contains(errMsg, keyword) {
 			return true
@@ -482,7 +482,7 @@ func isAuthError(errMsg string) bool {
 		"401",
 		"auth",
 	}
-	
+
 	for _, keyword := range authKeywords {
 		if contains(errMsg, keyword) {
 			return true
@@ -500,7 +500,7 @@ func isRateLimitError(errMsg string) bool {
 		"quota exceeded",
 		"throttle",
 	}
-	
+
 	for _, keyword := range rateLimitKeywords {
 		if contains(errMsg, keyword) {
 			return true
@@ -518,7 +518,7 @@ func isPermissionError(errMsg string) bool {
 		"access denied",
 		"not authorized",
 	}
-	
+
 	for _, keyword := range permissionKeywords {
 		if contains(errMsg, keyword) {
 			return true
@@ -529,12 +529,12 @@ func isPermissionError(errMsg string) bool {
 
 // contains checks if str contains substr (case-insensitive)
 func contains(str, substr string) bool {
-	return len(str) >= len(substr) && 
-		   (str == substr || 
-		    len(str) > len(substr) && 
-		    (str[:len(substr)] == substr || 
-		     str[len(str)-len(substr):] == substr ||
-		     containsHelper(str, substr)))
+	return len(str) >= len(substr) &&
+		(str == substr ||
+			len(str) > len(substr) &&
+				(str[:len(substr)] == substr ||
+					str[len(str)-len(substr):] == substr ||
+					containsHelper(str, substr)))
 }
 
 // containsHelper helper for case-insensitive substring search
@@ -564,10 +564,10 @@ func (erh *ErrorRecoveryHandler) HandleError(ctx context.Context, err *Collectio
 	if err == nil {
 		return nil
 	}
-	
+
 	erh.logger.WithFields(err.LogFields()).WithError(err.Err).
 		Debugf("Processing error for recovery: %s", err.Message)
-	
+
 	// Execute recovery strategy based on error type
 	switch err.Type {
 	case ErrorTypeConnection:
@@ -588,7 +588,7 @@ func (erh *ErrorRecoveryHandler) HandleError(ctx context.Context, err *Collectio
 func (erh *ErrorRecoveryHandler) handleConnectionError(ctx context.Context, err *CollectionError) error {
 	erh.logger.WithField("collector", err.Collector).
 		Info("Attempting connection error recovery")
-	
+
 	// For connection errors, we typically want to retry after a delay
 	// This would be handled by the circuit breaker in practice
 	return err
@@ -598,7 +598,7 @@ func (erh *ErrorRecoveryHandler) handleConnectionError(ctx context.Context, err 
 func (erh *ErrorRecoveryHandler) handleTimeoutError(ctx context.Context, err *CollectionError) error {
 	erh.logger.WithField("collector", err.Collector).
 		Info("Attempting timeout error recovery")
-	
+
 	// For timeout errors, suggest increasing timeout or reducing load
 	return err
 }
@@ -607,13 +607,13 @@ func (erh *ErrorRecoveryHandler) handleTimeoutError(ctx context.Context, err *Co
 func (erh *ErrorRecoveryHandler) handleRateLimitError(ctx context.Context, err *CollectionError) error {
 	erh.logger.WithField("collector", err.Collector).
 		Info("Attempting rate limit error recovery")
-	
+
 	// For rate limit errors, implement backoff
 	if retryAfter := err.Context.Metadata["retry_after"]; retryAfter != "" {
 		if duration, parseErr := time.ParseDuration(retryAfter); parseErr == nil {
 			erh.logger.WithField("retry_after", duration).
 				Info("Backing off due to rate limit")
-			
+
 			select {
 			case <-time.After(duration):
 				return nil // Indicate recovery attempt successful
@@ -622,7 +622,7 @@ func (erh *ErrorRecoveryHandler) handleRateLimitError(ctx context.Context, err *
 			}
 		}
 	}
-	
+
 	return err
 }
 
@@ -630,7 +630,7 @@ func (erh *ErrorRecoveryHandler) handleRateLimitError(ctx context.Context, err *
 func (erh *ErrorRecoveryHandler) handleAuthError(ctx context.Context, err *CollectionError) error {
 	erh.logger.WithField("collector", err.Collector).
 		Error("Authentication error requires manual intervention")
-	
+
 	// Auth errors typically require manual intervention
 	return err
 }

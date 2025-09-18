@@ -15,7 +15,7 @@ import (
 // Logger wraps logrus.Logger with additional configuration
 type Logger struct {
 	*logrus.Logger
-	config       *config.LoggingConfig
+	config         *config.LoggingConfig
 	constantFields logrus.Fields
 }
 
@@ -76,7 +76,7 @@ func NewLogger(cfg *config.LoggingConfig) (*Logger, error) {
 		if cfg.File == "" {
 			return nil, fmt.Errorf("log file path is required when output is 'file'")
 		}
-		
+
 		// Create directory if it doesn't exist
 		if err := os.MkdirAll(filepath.Dir(cfg.File), 0755); err != nil {
 			return nil, fmt.Errorf("failed to create log directory: %w", err)
@@ -140,8 +140,8 @@ func (l *Logger) WithCollector(collector string) *logrus.Entry {
 // WithRequest creates a logger with request fields
 func (l *Logger) WithRequest(method, path, userAgent string) *logrus.Entry {
 	return l.Logger.WithFields(logrus.Fields{
-		"http_method":    method,
-		"http_path":      path,
+		"http_method":     method,
+		"http_path":       path,
 		"http_user_agent": userAgent,
 	})
 }
@@ -171,7 +171,7 @@ func (l *Logger) Debug(args ...interface{}) {
 	l.withConstantFields().Debug(args...)
 }
 
-// Info logs a message at info level with constant fields  
+// Info logs a message at info level with constant fields
 func (l *Logger) Info(args ...interface{}) {
 	l.withConstantFields().Info(args...)
 }

@@ -20,18 +20,18 @@ func TestCollectionError(t *testing.T) {
 			Err:       baseErr,
 			Timestamp: time.Now(),
 		}
-		
+
 		// Test Error() method
 		errStr := collErr.Error()
 		if errStr == "" {
 			t.Error("Error string should not be empty")
 		}
-		
+
 		// Test Unwrap() method
 		if collErr.Unwrap() != baseErr {
 			t.Error("Unwrap should return the base error")
 		}
-		
+
 		// Test Is() method
 		otherErr := &CollectionError{
 			Collector: "test",
@@ -40,7 +40,7 @@ func TestCollectionError(t *testing.T) {
 		if !collErr.Is(otherErr) {
 			t.Error("Should match errors with same collector and type")
 		}
-		
+
 		differentErr := &CollectionError{
 			Collector: "other",
 			Type:      ErrorTypeConnection,
@@ -49,7 +49,7 @@ func TestCollectionError(t *testing.T) {
 			t.Error("Should not match errors with different collector")
 		}
 	})
-	
+
 	t.Run("LogFields", func(t *testing.T) {
 		collErr := &CollectionError{
 			Collector: "test",
@@ -69,9 +69,9 @@ func TestCollectionError(t *testing.T) {
 				},
 			},
 		}
-		
+
 		fields := collErr.LogFields()
-		
+
 		// Check required fields
 		if fields["collector"] != "test" {
 			t.Errorf("Expected collector 'test', got '%v'", fields["collector"])
@@ -85,7 +85,7 @@ func TestCollectionError(t *testing.T) {
 		if fields["retryable"] != true {
 			t.Errorf("Expected retryable true, got '%v'", fields["retryable"])
 		}
-		
+
 		// Check context fields
 		if fields["operation"] != "get_jobs" {
 			t.Errorf("Expected operation 'get_jobs', got '%v'", fields["operation"])
@@ -111,11 +111,11 @@ func TestCollectionError(t *testing.T) {
 func TestErrorBuilder(t *testing.T) {
 	logger := logrus.NewEntry(logrus.New())
 	builder := NewErrorBuilder("test_collector", logger)
-	
+
 	t.Run("Connection", func(t *testing.T) {
 		baseErr := errors.New("connection refused")
 		err := builder.Connection(baseErr, "https://slurm.example.com", "Check network")
-		
+
 		if err.Collector != "test_collector" {
 			t.Errorf("Expected collector 'test_collector', got '%s'", err.Collector)
 		}
@@ -135,11 +135,11 @@ func TestErrorBuilder(t *testing.T) {
 			t.Errorf("Expected suggestions ['Check network'], got %v", err.Suggestions)
 		}
 	})
-	
+
 	t.Run("Auth", func(t *testing.T) {
 		baseErr := errors.New("unauthorized")
 		err := builder.Auth(baseErr, "jwt", "Check token")
-		
+
 		if err.Type != ErrorTypeAuth {
 			t.Errorf("Expected type '%s', got '%s'", ErrorTypeAuth, err.Type)
 		}
@@ -153,12 +153,12 @@ func TestErrorBuilder(t *testing.T) {
 			t.Errorf("Expected auth_type 'jwt', got '%s'", err.Context.Metadata["auth_type"])
 		}
 	})
-	
+
 	t.Run("Timeout", func(t *testing.T) {
 		baseErr := errors.New("context deadline exceeded")
 		duration := 30 * time.Second
 		err := builder.Timeout(baseErr, "fetch_jobs", duration, "Increase timeout")
-		
+
 		if err.Type != ErrorTypeTimeout {
 			t.Errorf("Expected type '%s', got '%s'", ErrorTypeTimeout, err.Type)
 		}
@@ -175,11 +175,11 @@ func TestErrorBuilder(t *testing.T) {
 			t.Errorf("Expected duration %v, got %v", duration, err.Context.Duration)
 		}
 	})
-	
+
 	t.Run("API", func(t *testing.T) {
 		baseErr := errors.New("internal server error")
 		err := builder.API(baseErr, "/api/jobs", 500, "req-456", "Try again")
-		
+
 		if err.Type != ErrorTypeAPI {
 			t.Errorf("Expected type '%s', got '%s'", ErrorTypeAPI, err.Type)
 		}
@@ -195,7 +195,7 @@ func TestErrorBuilder(t *testing.T) {
 		if err.Context.RequestID != "req-456" {
 			t.Errorf("Expected request_id 'req-456', got '%s'", err.Context.RequestID)
 		}
-		
+
 		// Test 404 error (should not be retryable)
 		err404 := builder.API(baseErr, "/api/jobs", 404, "req-457")
 		if err404.Retryable {
@@ -204,7 +204,7 @@ func TestErrorBuilder(t *testing.T) {
 		if err404.Severity != SeverityLow {
 			t.Errorf("Expected severity '%s' for 404, got '%s'", SeverityLow, err404.Severity)
 		}
-		
+
 		// Test 401 error (should be critical)
 		err401 := builder.API(baseErr, "/api/jobs", 401, "req-458")
 		if err401.Retryable {
@@ -219,93 +219,93 @@ func TestErrorBuilder(t *testing.T) {
 func TestErrorAnalyzer(t *testing.T) {
 	logger := logrus.NewEntry(logrus.New())
 	analyzer := NewErrorAnalyzer(logger)
-	
+
 	testCases := []struct {
-		name        string
-		errMsg      string
+		name         string
+		errMsg       string
 		expectedType ErrorType
-		retryable   bool
+		retryable    bool
 	}{
 		{
-			name:        "ConnectionRefused",
-			errMsg:      "dial tcp: connection refused",
+			name:         "ConnectionRefused",
+			errMsg:       "dial tcp: connection refused",
 			expectedType: ErrorTypeConnection,
-			retryable:   true,
+			retryable:    true,
 		},
 		{
-			name:        "Timeout",
-			errMsg:      "context deadline exceeded",
+			name:         "Timeout",
+			errMsg:       "context deadline exceeded",
 			expectedType: ErrorTypeTimeout,
-			retryable:   true,
+			retryable:    true,
 		},
 		{
-			name:        "Unauthorized",
-			errMsg:      "401 unauthorized",
+			name:         "Unauthorized",
+			errMsg:       "401 unauthorized",
 			expectedType: ErrorTypeAuth,
-			retryable:   false,
+			retryable:    false,
 		},
 		{
-			name:        "RateLimit",
-			errMsg:      "429 too many requests",
+			name:         "RateLimit",
+			errMsg:       "429 too many requests",
 			expectedType: ErrorTypeRateLimit,
-			retryable:   true,
+			retryable:    true,
 		},
 		{
-			name:        "Permission",
-			errMsg:      "403 forbidden",
+			name:         "Permission",
+			errMsg:       "403 forbidden",
 			expectedType: ErrorTypePermission,
-			retryable:   false,
+			retryable:    false,
 		},
 		{
-			name:        "Unknown",
-			errMsg:      "some random error",
+			name:         "Unknown",
+			errMsg:       "some random error",
 			expectedType: ErrorTypeInternal,
-			retryable:   true,
+			retryable:    true,
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			baseErr := errors.New(tc.errMsg)
 			collErr := analyzer.AnalyzeError(baseErr, "test_collector")
-			
+
 			if collErr == nil {
 				t.Fatal("Expected analyzed error, got nil")
 			}
-			
+
 			if collErr.Type != tc.expectedType {
 				t.Errorf("Expected type '%s', got '%s'", tc.expectedType, collErr.Type)
 			}
-			
+
 			if collErr.Retryable != tc.retryable {
 				t.Errorf("Expected retryable %v, got %v", tc.retryable, collErr.Retryable)
 			}
-			
+
 			if collErr.Collector != "test_collector" {
 				t.Errorf("Expected collector 'test_collector', got '%s'", collErr.Collector)
 			}
-			
+
 			if len(collErr.Suggestions) == 0 {
 				t.Error("Expected suggestions to be provided")
 			}
 		})
 	}
-	
+
 	t.Run("ExistingCollectionError", func(t *testing.T) {
 		originalErr := &CollectionError{
 			Collector: "original",
 			Type:      ErrorTypeAPI,
 			Severity:  SeverityHigh,
 		}
-		
+
 		result := analyzer.AnalyzeError(originalErr, "test_collector")
-		
+
 		// Should return the original error unchanged
 		if result != originalErr {
 			t.Error("Should return original CollectionError unchanged")
 		}
 	})
-	
+
 	t.Run("NilError", func(t *testing.T) {
 		result := analyzer.AnalyzeError(nil, "test_collector")
 		if result != nil {
@@ -318,14 +318,14 @@ func TestErrorRecoveryHandler(t *testing.T) {
 	logger := logrus.NewEntry(logrus.New())
 	handler := NewErrorRecoveryHandler(logger)
 	ctx := context.Background()
-	
+
 	t.Run("NilError", func(t *testing.T) {
 		err := handler.HandleError(ctx, nil)
 		if err != nil {
 			t.Error("Should return nil for nil error")
 		}
 	})
-	
+
 	t.Run("ConnectionError", func(t *testing.T) {
 		collErr := &CollectionError{
 			Collector: "test",
@@ -334,14 +334,14 @@ func TestErrorRecoveryHandler(t *testing.T) {
 			Message:   "Connection failed",
 			Retryable: true,
 		}
-		
+
 		err := handler.HandleError(ctx, collErr)
 		// Connection errors are returned as-is for circuit breaker handling
 		if err != collErr {
 			t.Error("Should return original connection error")
 		}
 	})
-	
+
 	t.Run("TimeoutError", func(t *testing.T) {
 		collErr := &CollectionError{
 			Collector: "test",
@@ -350,14 +350,14 @@ func TestErrorRecoveryHandler(t *testing.T) {
 			Message:   "Timeout occurred",
 			Retryable: true,
 		}
-		
+
 		err := handler.HandleError(ctx, collErr)
 		// Timeout errors are returned as-is for circuit breaker handling
 		if err != collErr {
 			t.Error("Should return original timeout error")
 		}
 	})
-	
+
 	t.Run("RateLimitError", func(t *testing.T) {
 		collErr := &CollectionError{
 			Collector: "test",
@@ -371,18 +371,18 @@ func TestErrorRecoveryHandler(t *testing.T) {
 				},
 			},
 		}
-		
+
 		// Test with context that times out immediately
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
-		
+
 		err := handler.HandleError(ctx, collErr)
 		// Should return context error due to cancellation
 		if err != context.Canceled {
 			t.Errorf("Expected context.Canceled, got %v", err)
 		}
 	})
-	
+
 	t.Run("AuthError", func(t *testing.T) {
 		collErr := &CollectionError{
 			Collector: "test",
@@ -391,14 +391,14 @@ func TestErrorRecoveryHandler(t *testing.T) {
 			Message:   "Authentication failed",
 			Retryable: false,
 		}
-		
+
 		err := handler.HandleError(ctx, collErr)
 		// Auth errors require manual intervention
 		if err != collErr {
 			t.Error("Should return original auth error")
 		}
 	})
-	
+
 	t.Run("OtherError", func(t *testing.T) {
 		collErr := &CollectionError{
 			Collector: "test",
@@ -407,7 +407,7 @@ func TestErrorRecoveryHandler(t *testing.T) {
 			Message:   "Parsing failed",
 			Retryable: false,
 		}
-		
+
 		err := handler.HandleError(ctx, collErr)
 		// Other errors are returned as-is
 		if err != collErr {
@@ -430,27 +430,27 @@ func TestErrorClassification(t *testing.T) {
 		{"NetworkUnreachable", "network unreachable", isConnectionError, true},
 		{"DialTCP", "dial tcp 127.0.0.1:6820: connection refused", isConnectionError, true},
 		{"NotConnection", "some other error", isConnectionError, false},
-		
+
 		// Timeout errors
 		{"Timeout", "operation timeout", isTimeoutError, true},
 		{"DeadlineExceeded", "context deadline exceeded", isTimeoutError, true},
 		{"RequestTimeout", "request timeout", isTimeoutError, true},
 		{"NotTimeout", "some other error", isTimeoutError, false},
-		
+
 		// Auth errors
 		{"Unauthorized", "401 unauthorized", isAuthError, true},
 		{"AuthFailed", "authentication failed", isAuthError, true},
 		{"InvalidToken", "invalid token provided", isAuthError, true},
 		{"TokenExpired", "token expired", isAuthError, true},
 		{"NotAuth", "some other error", isAuthError, false},
-		
+
 		// Rate limit errors
 		{"RateLimit", "rate limit exceeded", isRateLimitError, true},
 		{"TooManyRequests", "429 too many requests", isRateLimitError, true},
 		{"QuotaExceeded", "quota exceeded", isRateLimitError, true},
 		{"Throttle", "request throttled", isRateLimitError, true},
 		{"NotRateLimit", "some other error", isRateLimitError, false},
-		
+
 		// Permission errors
 		{"PermissionDenied", "permission denied", isPermissionError, true},
 		{"Forbidden", "403 forbidden", isPermissionError, true},
@@ -458,7 +458,7 @@ func TestErrorClassification(t *testing.T) {
 		{"NotAuthorized", "not authorized for this action", isPermissionError, true},
 		{"NotPermission", "some other error", isPermissionError, false},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			result := tc.checkFn(tc.errMsg)
@@ -484,12 +484,12 @@ func TestContainsHelper(t *testing.T) {
 		{"", "timeout", false},
 		{"timeout", "", true},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.str+"_contains_"+tc.substr, func(t *testing.T) {
 			result := contains(tc.str, tc.substr)
 			if result != tc.expected {
-				t.Errorf("Expected contains('%s', '%s') = %v, got %v", 
+				t.Errorf("Expected contains('%s', '%s') = %v, got %v",
 					tc.str, tc.substr, tc.expected, result)
 			}
 		})

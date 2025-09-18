@@ -204,89 +204,89 @@ func (uc *UserCollector) collectAccountStats(ctx context.Context, ch chan<- prom
 	// Simulate account information and usage - in real implementation this would come from SLURM API
 	// This represents data from account associations and usage tracking
 	accountStats := []struct {
-		AccountName        string
-		Organization       string
-		Description        string
-		ParentAccount      string
-		Priority           int
-		MaxJobs            int
-		MaxCPUs            int
-		MaxMemory          int64 // bytes
-		TotalJobCount      int
-		TotalCPUAllocated  int
+		AccountName          string
+		Organization         string
+		Description          string
+		ParentAccount        string
+		Priority             int
+		MaxJobs              int
+		MaxCPUs              int
+		MaxMemory            int64 // bytes
+		TotalJobCount        int
+		TotalCPUAllocated    int
 		TotalMemoryAllocated int64 // bytes
-		FairShareScore     float64
-		RawUsage           float64 // CPU hours
-		NormalizedUsage    float64 // normalized units
-		EffectiveUsage     float64 // with fair-share applied
+		FairShareScore       float64
+		RawUsage             float64 // CPU hours
+		NormalizedUsage      float64 // normalized units
+		EffectiveUsage       float64 // with fair-share applied
 	}{
 		{
-			AccountName:         "ml_team",
-			Organization:        "Computer Science",
-			Description:         "Machine Learning Research Team",
-			ParentAccount:       "cs_dept",
-			Priority:            1000,
-			MaxJobs:             50,
-			MaxCPUs:             500,
-			MaxMemory:           1024 * 1024 * 1024 * 1024, // 1TB
-			TotalJobCount:       45,
-			TotalCPUAllocated:   240,
+			AccountName:          "ml_team",
+			Organization:         "Computer Science",
+			Description:          "Machine Learning Research Team",
+			ParentAccount:        "cs_dept",
+			Priority:             1000,
+			MaxJobs:              50,
+			MaxCPUs:              500,
+			MaxMemory:            1024 * 1024 * 1024 * 1024, // 1TB
+			TotalJobCount:        45,
+			TotalCPUAllocated:    240,
 			TotalMemoryAllocated: 512 * 1024 * 1024 * 1024, // 512GB
-			FairShareScore:      0.85,
-			RawUsage:            1200.5,
-			NormalizedUsage:     1.2,
-			EffectiveUsage:      1.02,
+			FairShareScore:       0.85,
+			RawUsage:             1200.5,
+			NormalizedUsage:      1.2,
+			EffectiveUsage:       1.02,
 		},
 		{
-			AccountName:         "physics",
-			Organization:        "Physics Department",
-			Description:         "Physics Research Computing",
-			ParentAccount:       "physics_dept",
-			Priority:            800,
-			MaxJobs:             40,
-			MaxCPUs:             400,
-			MaxMemory:           800 * 1024 * 1024 * 1024, // 800GB
-			TotalJobCount:       32,
-			TotalCPUAllocated:   192,
+			AccountName:          "physics",
+			Organization:         "Physics Department",
+			Description:          "Physics Research Computing",
+			ParentAccount:        "physics_dept",
+			Priority:             800,
+			MaxJobs:              40,
+			MaxCPUs:              400,
+			MaxMemory:            800 * 1024 * 1024 * 1024, // 800GB
+			TotalJobCount:        32,
+			TotalCPUAllocated:    192,
 			TotalMemoryAllocated: 384 * 1024 * 1024 * 1024, // 384GB
-			FairShareScore:      0.92,
-			RawUsage:            980.3,
-			NormalizedUsage:     0.98,
-			EffectiveUsage:      0.90,
+			FairShareScore:       0.92,
+			RawUsage:             980.3,
+			NormalizedUsage:      0.98,
+			EffectiveUsage:       0.90,
 		},
 		{
-			AccountName:         "bio_team",
-			Organization:        "Biology Department",
-			Description:         "Bioinformatics Research",
-			ParentAccount:       "bio_dept",
-			Priority:            600,
-			MaxJobs:             30,
-			MaxCPUs:             300,
-			MaxMemory:           600 * 1024 * 1024 * 1024, // 600GB
-			TotalJobCount:       38,
-			TotalCPUAllocated:   152,
+			AccountName:          "bio_team",
+			Organization:         "Biology Department",
+			Description:          "Bioinformatics Research",
+			ParentAccount:        "bio_dept",
+			Priority:             600,
+			MaxJobs:              30,
+			MaxCPUs:              300,
+			MaxMemory:            600 * 1024 * 1024 * 1024, // 600GB
+			TotalJobCount:        38,
+			TotalCPUAllocated:    152,
 			TotalMemoryAllocated: 304 * 1024 * 1024 * 1024, // 304GB
-			FairShareScore:      0.78,
-			RawUsage:            760.8,
-			NormalizedUsage:     0.76,
-			EffectiveUsage:      0.59,
+			FairShareScore:       0.78,
+			RawUsage:             760.8,
+			NormalizedUsage:      0.76,
+			EffectiveUsage:       0.59,
 		},
 		{
-			AccountName:         "chemistry",
-			Organization:        "Chemistry Department",
-			Description:         "Computational Chemistry",
-			ParentAccount:       "chem_dept",
-			Priority:            700,
-			MaxJobs:             25,
-			MaxCPUs:             250,
-			MaxMemory:           500 * 1024 * 1024 * 1024, // 500GB
-			TotalJobCount:       18,
-			TotalCPUAllocated:   72,
+			AccountName:          "chemistry",
+			Organization:         "Chemistry Department",
+			Description:          "Computational Chemistry",
+			ParentAccount:        "chem_dept",
+			Priority:             700,
+			MaxJobs:              25,
+			MaxCPUs:              250,
+			MaxMemory:            500 * 1024 * 1024 * 1024, // 500GB
+			TotalJobCount:        18,
+			TotalCPUAllocated:    72,
 			TotalMemoryAllocated: 144 * 1024 * 1024 * 1024, // 144GB
-			FairShareScore:      1.15,
-			RawUsage:            420.2,
-			NormalizedUsage:     0.42,
-			EffectiveUsage:      0.48,
+			FairShareScore:       1.15,
+			RawUsage:             420.2,
+			NormalizedUsage:      0.42,
+			EffectiveUsage:       0.48,
 		},
 	}
 
@@ -389,35 +389,35 @@ type AccountLimits struct {
 
 // AccountUsage represents usage statistics for an account
 type AccountUsage struct {
-	JobCount     int
-	CPUHours     float64
-	MemoryHours  float64
-	NodeHours    float64
-	FairShare    float64
-	RawUsage     float64
-	NormUsage    float64
-	EffUsage     float64
+	JobCount    int
+	CPUHours    float64
+	MemoryHours float64
+	NodeHours   float64
+	FairShare   float64
+	RawUsage    float64
+	NormUsage   float64
+	EffUsage    float64
 }
 
 // UserInfo represents user information and statistics
 type UserInfo struct {
-	Username     string
-	FullName     string
-	Email        string
+	Username       string
+	FullName       string
+	Email          string
 	DefaultAccount string
-	Accounts     []string
-	Active       bool
-	AdminLevel   string
-	Usage        UserUsage
+	Accounts       []string
+	Active         bool
+	AdminLevel     string
+	Usage          UserUsage
 }
 
 // UserUsage represents usage statistics for a user
 type UserUsage struct {
-	JobCount       int
-	CPUAllocated   int
+	JobCount        int
+	CPUAllocated    int
 	MemoryAllocated int64
-	JobStates      map[string]int
-	RecentActivity time.Time
+	JobStates       map[string]int
+	RecentActivity  time.Time
 }
 
 // parseAccountAssociation parses SLURM account association data
@@ -437,14 +437,14 @@ func (uc *UserCollector) parseAccountAssociation(data interface{}) (*AccountInfo
 			MaxNodes:  10,
 		},
 		Usage: AccountUsage{
-			JobCount:     25,
-			CPUHours:     1200.5,
-			MemoryHours:  2400.8,
-			NodeHours:    120.3,
-			FairShare:    0.85,
-			RawUsage:     1200.5,
-			NormUsage:    1.2,
-			EffUsage:     1.02,
+			JobCount:    25,
+			CPUHours:    1200.5,
+			MemoryHours: 2400.8,
+			NodeHours:   120.3,
+			FairShare:   0.85,
+			RawUsage:    1200.5,
+			NormUsage:   1.2,
+			EffUsage:    1.02,
 		},
 	}, nil
 }

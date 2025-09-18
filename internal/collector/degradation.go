@@ -26,22 +26,22 @@ type CircuitBreaker struct {
 	name         string
 	maxFailures  int
 	resetTimeout time.Duration
-	
+
 	mu           sync.RWMutex
 	failures     int
 	lastFailTime time.Time
 	state        CircuitBreakerState
-	
-	logger       *logrus.Entry
+
+	logger *logrus.Entry
 }
 
 // CircuitBreakerState represents the state of the circuit breaker
 type CircuitBreakerState int
 
 const (
-	StateClosed CircuitBreakerState = iota // Normal operation
-	StateOpen                               // Failures exceeded, rejecting calls
-	StateHalfOpen                           // Testing if service recovered
+	StateClosed   CircuitBreakerState = iota // Normal operation
+	StateOpen                                // Failures exceeded, rejecting calls
+	StateHalfOpen                            // Testing if service recovered
 )
 
 // NewCircuitBreaker creates a new circuit breaker
@@ -58,7 +58,7 @@ func NewCircuitBreaker(name string, maxFailures int, resetTimeout time.Duration)
 // Call executes a function with circuit breaker protection
 func (cb *CircuitBreaker) Call(fn func() error) error {
 	cb.mu.Lock()
-	
+
 	// Check current state
 	switch cb.state {
 	case StateOpen:
@@ -70,32 +70,32 @@ func (cb *CircuitBreaker) Call(fn func() error) error {
 			cb.mu.Unlock()
 			return fmt.Errorf("circuit breaker is open for %s", cb.name)
 		}
-		
+
 	case StateHalfOpen:
 		// In half-open, we allow one call through
 		cb.logger.Debug("Circuit breaker in half-open state, testing call")
 	}
-	
+
 	cb.mu.Unlock()
-	
+
 	// Execute the function
 	err := fn()
-	
+
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
-	
+
 	if err != nil {
 		cb.recordFailure()
-		
+
 		// If we were half-open, go back to open
 		if cb.state == StateHalfOpen {
 			cb.state = StateOpen
 			cb.logger.Warn("Circuit breaker returning to open after failed test")
 		}
-		
+
 		return err
 	}
-	
+
 	// Success - reset if needed
 	if cb.state == StateHalfOpen {
 		cb.state = StateClosed
@@ -105,7 +105,7 @@ func (cb *CircuitBreaker) Call(fn func() error) error {
 		cb.failures = 0
 		cb.logger.Debug("Circuit breaker failures reset after success")
 	}
-	
+
 	return nil
 }
 
@@ -113,7 +113,7 @@ func (cb *CircuitBreaker) Call(fn func() error) error {
 func (cb *CircuitBreaker) recordFailure() {
 	cb.failures++
 	cb.lastFailTime = time.Now()
-	
+
 	if cb.failures >= cb.maxFailures && cb.state == StateClosed {
 		cb.state = StateOpen
 		cb.logger.WithField("failures", cb.failures).Warn("Circuit breaker opened due to excessive failures")
@@ -138,7 +138,7 @@ func (cb *CircuitBreaker) GetState() CircuitBreakerState {
 func (cb *CircuitBreaker) Reset() {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
-	
+
 	cb.failures = 0
 	cb.state = StateClosed
 	cb.logger.Info("Circuit breaker manually reset")
@@ -146,18 +146,18 @@ func (cb *CircuitBreaker) Reset() {
 
 // DegradationManager manages graceful degradation for collectors
 type DegradationManager struct {
-	config         *config.DegradationConfig
-	breakers       map[string]*CircuitBreaker
-	mu             sync.RWMutex
-	
+	config   *config.DegradationConfig
+	breakers map[string]*CircuitBreaker
+	mu       sync.RWMutex
+
 	// Metrics
 	degradationMetrics *DegradationMetrics
-	
+
 	// Cached values for degraded mode
-	cache          map[string]*CachedMetrics
-	cacheMu        sync.RWMutex
-	
-	logger         *logrus.Entry
+	cache   map[string]*CachedMetrics
+	cacheMu sync.RWMutex
+
+	logger *logrus.Entry
 }
 
 // CachedMetrics holds cached metric values for degraded mode
@@ -170,9 +170,9 @@ type CachedMetrics struct {
 
 // DegradationMetrics tracks degradation events
 type DegradationMetrics struct {
-	CircuitBreakerState   *prometheus.GaugeVec
-	DegradationMode       prometheus.Gauge
-	CachedMetricsServed   *prometheus.CounterVec
+	CircuitBreakerState       *prometheus.GaugeVec
+	DegradationMode           prometheus.Gauge
+	CachedMetricsServed       *prometheus.CounterVec
 	FailuresBeforeDegradation *prometheus.HistogramVec
 }
 
@@ -226,13 +226,13 @@ func (m *DegradationMetrics) Register(registry *prometheus.Registry) error {
 		m.CachedMetricsServed,
 		m.FailuresBeforeDegradation,
 	}
-	
+
 	for _, c := range collectors {
 		if err := registry.Register(c); err != nil {
 			return err
 		}
 	}
-	
+
 	return nil
 }
 
@@ -242,7 +242,7 @@ func NewDegradationManager(config *config.DegradationConfig, promRegistry *prome
 	if err := metrics.Register(promRegistry); err != nil {
 		return nil, fmt.Errorf("failed to register degradation metrics: %w", err)
 	}
-	
+
 	dm := &DegradationManager{
 		config:             config,
 		breakers:           make(map[string]*CircuitBreaker),
@@ -250,10 +250,10 @@ func NewDegradationManager(config *config.DegradationConfig, promRegistry *prome
 		cache:              make(map[string]*CachedMetrics),
 		logger:             logrus.WithField("component", "degradation_manager"),
 	}
-	
+
 	// Set initial degradation mode
 	dm.degradationMetrics.DegradationMode.Set(float64(ModeNormal))
-	
+
 	return dm, nil
 }
 
@@ -261,18 +261,18 @@ func NewDegradationManager(config *config.DegradationConfig, promRegistry *prome
 func (dm *DegradationManager) GetCircuitBreaker(collectorName string) *CircuitBreaker {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
-	
+
 	if breaker, exists := dm.breakers[collectorName]; exists {
 		return breaker
 	}
-	
+
 	// Create new circuit breaker
 	breaker := NewCircuitBreaker(
 		collectorName,
 		dm.config.MaxFailures,
 		dm.config.ResetTimeout,
 	)
-	
+
 	dm.breakers[collectorName] = breaker
 	return breaker
 }
@@ -284,19 +284,19 @@ func (dm *DegradationManager) ExecuteWithDegradation(
 	collectFunc func(context.Context) ([]prometheus.Metric, error),
 ) ([]prometheus.Metric, error) {
 	breaker := dm.GetCircuitBreaker(collectorName)
-	
+
 	// Try to execute with circuit breaker
 	var metrics []prometheus.Metric
 	var collectErr error
-	
+
 	err := breaker.Call(func() error {
 		metrics, collectErr = collectFunc(ctx)
 		return collectErr
 	})
-	
+
 	// Update circuit breaker state metric
 	dm.degradationMetrics.CircuitBreakerState.WithLabelValues(collectorName).Set(float64(breaker.GetState()))
-	
+
 	if err != nil {
 		// Check if we should serve cached metrics
 		if dm.config.UseCachedMetrics && breaker.IsOpen() {
@@ -310,15 +310,15 @@ func (dm *DegradationManager) ExecuteWithDegradation(
 				return cached.Metrics, nil
 			}
 		}
-		
+
 		return nil, err
 	}
-	
+
 	// Success - cache the metrics if enabled
 	if dm.config.UseCachedMetrics && len(metrics) > 0 {
 		dm.cacheMetrics(collectorName, metrics)
 	}
-	
+
 	return metrics, nil
 }
 
@@ -326,14 +326,14 @@ func (dm *DegradationManager) ExecuteWithDegradation(
 func (dm *DegradationManager) cacheMetrics(collectorName string, metrics []prometheus.Metric) {
 	dm.cacheMu.Lock()
 	defer dm.cacheMu.Unlock()
-	
+
 	dm.cache[collectorName] = &CachedMetrics{
 		CollectorName: collectorName,
 		Metrics:       metrics,
 		CachedAt:      time.Now(),
 		TTL:           dm.config.CacheTTL,
 	}
-	
+
 	dm.logger.WithFields(logrus.Fields{
 		"collector":    collectorName,
 		"metric_count": len(metrics),
@@ -344,18 +344,18 @@ func (dm *DegradationManager) cacheMetrics(collectorName string, metrics []prome
 func (dm *DegradationManager) getCachedMetrics(collectorName string) *CachedMetrics {
 	dm.cacheMu.RLock()
 	defer dm.cacheMu.RUnlock()
-	
+
 	cached, exists := dm.cache[collectorName]
 	if !exists {
 		return nil
 	}
-	
+
 	// Check if cache is still valid
 	if time.Since(cached.CachedAt) > cached.TTL {
 		dm.logger.WithField("collector", collectorName).Debug("Cached metrics expired")
 		return nil
 	}
-	
+
 	return cached
 }
 
@@ -363,16 +363,16 @@ func (dm *DegradationManager) getCachedMetrics(collectorName string) *CachedMetr
 func (dm *DegradationManager) UpdateDegradationMode() {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
-	
+
 	openCount := 0
 	totalCount := len(dm.breakers)
-	
+
 	for _, breaker := range dm.breakers {
 		if breaker.IsOpen() {
 			openCount++
 		}
 	}
-	
+
 	var mode DegradationMode
 	if openCount == 0 {
 		mode = ModeNormal
@@ -381,13 +381,13 @@ func (dm *DegradationManager) UpdateDegradationMode() {
 	} else {
 		mode = ModeUnavailable
 	}
-	
+
 	dm.degradationMetrics.DegradationMode.Set(float64(mode))
-	
+
 	if mode != ModeNormal {
 		dm.logger.WithFields(logrus.Fields{
-			"mode":         mode,
-			"open_breakers": openCount,
+			"mode":           mode,
+			"open_breakers":  openCount,
 			"total_breakers": totalCount,
 		}).Warn("System in degraded mode")
 	}
@@ -397,9 +397,9 @@ func (dm *DegradationManager) UpdateDegradationMode() {
 func (dm *DegradationManager) GetDegradationStats() map[string]DegradationStats {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
-	
+
 	stats := make(map[string]DegradationStats)
-	
+
 	for name, breaker := range dm.breakers {
 		breaker.mu.RLock()
 		stats[name] = DegradationStats{
@@ -411,7 +411,7 @@ func (dm *DegradationManager) GetDegradationStats() map[string]DegradationStats 
 		}
 		breaker.mu.RUnlock()
 	}
-	
+
 	return stats
 }
 
@@ -433,11 +433,11 @@ type DegradationStats struct {
 func (dm *DegradationManager) ResetAllBreakers() {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
-	
+
 	for _, breaker := range dm.breakers {
 		breaker.Reset()
 	}
-	
+
 	dm.UpdateDegradationMode()
 	dm.logger.Info("All circuit breakers reset")
 }

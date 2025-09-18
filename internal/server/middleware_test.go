@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -26,7 +27,7 @@ func createTestServer() *Server {
 	}
 	logger := logrus.New()
 	logger.SetLevel(logrus.DebugLevel)
-	
+
 	return &Server{
 		config: cfg,
 		logger: logger,
@@ -35,7 +36,7 @@ func createTestServer() *Server {
 
 func TestLoggingMiddleware(t *testing.T) {
 	server := createTestServer()
-	
+
 	// Capture log output
 	var buf bytes.Buffer
 	server.logger.SetOutput(&buf)
@@ -145,7 +146,7 @@ func TestHeadersMiddleware(t *testing.T) {
 
 func TestRecoveryMiddleware(t *testing.T) {
 	server := createTestServer()
-	
+
 	// Capture log output
 	var buf bytes.Buffer
 	server.logger.SetOutput(&buf)
@@ -188,7 +189,7 @@ func TestRecoveryMiddleware(t *testing.T) {
 
 func TestCombinedMiddleware(t *testing.T) {
 	server := createTestServer()
-	
+
 	// Capture log output
 	var buf bytes.Buffer
 	server.logger.SetOutput(&buf)
@@ -227,6 +228,118 @@ func TestCombinedMiddleware(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Errorf("Expected status 200, got %d", w.Code)
 	}
+}
+
+func TestTimeoutMiddleware(t *testing.T) {
+	server := createTestServer()
+
+	t.Run("NormalRequest", func(t *testing.T) {
+		// Create a test handler that completes quickly
+		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("success"))
+		})
+
+		// Wrap with timeout middleware
+		handler := server.TimeoutMiddleware(testHandler)
+
+		req := httptest.NewRequest("GET", "/health", nil)
+		w := httptest.NewRecorder()
+
+		handler.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status 200, got %d", w.Code)
+		}
+
+		if !strings.Contains(w.Body.String(), "success") {
+			t.Error("Expected response to contain 'success'")
+		}
+	})
+
+	t.Run("TimeoutRequest", func(t *testing.T) {
+		// Create a test handler that takes longer than timeout
+		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Sleep longer than health endpoint timeout (5s)
+			time.Sleep(6 * time.Second)
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("should not reach here"))
+		})
+
+		// Wrap with timeout middleware
+		handler := server.TimeoutMiddleware(testHandler)
+
+		req := httptest.NewRequest("GET", "/health", nil)
+		w := httptest.NewRecorder()
+
+		start := time.Now()
+		handler.ServeHTTP(w, req)
+		duration := time.Since(start)
+
+		// Should timeout quickly (around 5 seconds for health endpoint)
+		if duration > 7*time.Second {
+			t.Errorf("Request took too long: %v", duration)
+		}
+
+		if w.Code != http.StatusGatewayTimeout {
+			t.Errorf("Expected status 504, got %d", w.Code)
+		}
+
+		if !strings.Contains(w.Body.String(), "Request timeout") {
+			t.Error("Expected response to contain 'Request timeout'")
+		}
+	})
+
+	t.Run("MetricsEndpointTimeout", func(t *testing.T) {
+		// Test that metrics endpoint gets longer timeout
+		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Sleep for a time that would exceed health timeout but not metrics timeout
+			time.Sleep(8 * time.Second)
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("metrics response"))
+		})
+
+		handler := server.TimeoutMiddleware(testHandler)
+
+		req := httptest.NewRequest("GET", "/metrics", nil)
+		w := httptest.NewRecorder()
+
+		start := time.Now()
+		handler.ServeHTTP(w, req)
+		duration := time.Since(start)
+
+		// Should complete (not timeout) for metrics endpoint
+		if duration > 10*time.Second {
+			t.Errorf("Request took too long: %v", duration)
+		}
+
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status 200, got %d", w.Code)
+		}
+	})
+
+	t.Run("CancelledContext", func(t *testing.T) {
+		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Handler should not be reached due to cancelled context
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("should not reach here"))
+		})
+
+		handler := server.TimeoutMiddleware(testHandler)
+
+		// Create a request with already cancelled context
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel() // Cancel immediately
+
+		req := httptest.NewRequest("GET", "/test", nil).WithContext(ctx)
+		w := httptest.NewRecorder()
+
+		handler.ServeHTTP(w, req)
+
+		if w.Code != http.StatusRequestTimeout {
+			t.Errorf("Expected status 408, got %d", w.Code)
+		}
+	})
 }
 
 func TestResponseWriter(t *testing.T) {

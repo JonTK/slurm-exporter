@@ -69,7 +69,7 @@ func (smc *SelfMonitoringCollector) collectSelfMonitoringMetrics(ctx context.Con
 
 	// Collect exporter runtime metrics
 	if err := smc.collectRuntimeMetrics(ctx, ch); err != nil {
-		return smc.errorBuilder.Internal(err, "runtime_metrics", 
+		return smc.errorBuilder.Internal(err, "runtime_metrics",
 			"Failed to collect exporter runtime metrics",
 			"Check exporter process health and memory usage")
 	}
@@ -77,7 +77,7 @@ func (smc *SelfMonitoringCollector) collectSelfMonitoringMetrics(ctx context.Con
 	// Collect collection performance metrics
 	if err := smc.collectPerformanceMetrics(ctx, ch); err != nil {
 		return smc.errorBuilder.Internal(err, "performance_metrics",
-			"Failed to collect exporter performance metrics", 
+			"Failed to collect exporter performance metrics",
 			"Check collector timing and error rates")
 	}
 
@@ -119,7 +119,7 @@ func (smc *SelfMonitoringCollector) collectRuntimeMetrics(ctx context.Context, c
 
 	// Simulate exporter health metrics
 	exporterMetrics := []struct {
-		CollectorName       string
+		CollectorName      string
 		IsUp               bool
 		LastCollectionTime time.Time
 		CollectionDuration time.Duration
@@ -128,7 +128,7 @@ func (smc *SelfMonitoringCollector) collectRuntimeMetrics(ctx context.Context, c
 		MetricsExported    int
 	}{
 		{
-			CollectorName:       "cluster",
+			CollectorName:      "cluster",
 			IsUp:               true,
 			LastCollectionTime: time.Now().Add(-30 * time.Second),
 			CollectionDuration: 2 * time.Second,
@@ -137,7 +137,7 @@ func (smc *SelfMonitoringCollector) collectRuntimeMetrics(ctx context.Context, c
 			MetricsExported:    25,
 		},
 		{
-			CollectorName:       "node",
+			CollectorName:      "node",
 			IsUp:               true,
 			LastCollectionTime: time.Now().Add(-25 * time.Second),
 			CollectionDuration: 5 * time.Second,
@@ -146,7 +146,7 @@ func (smc *SelfMonitoringCollector) collectRuntimeMetrics(ctx context.Context, c
 			MetricsExported:    150,
 		},
 		{
-			CollectorName:       "job",
+			CollectorName:      "job",
 			IsUp:               true,
 			LastCollectionTime: time.Now().Add(-20 * time.Second),
 			CollectionDuration: 8 * time.Second,
@@ -155,7 +155,7 @@ func (smc *SelfMonitoringCollector) collectRuntimeMetrics(ctx context.Context, c
 			MetricsExported:    350,
 		},
 		{
-			CollectorName:       "user",
+			CollectorName:      "user",
 			IsUp:               true,
 			LastCollectionTime: time.Now().Add(-35 * time.Second),
 			CollectionDuration: 3 * time.Second,
@@ -164,7 +164,7 @@ func (smc *SelfMonitoringCollector) collectRuntimeMetrics(ctx context.Context, c
 			MetricsExported:    80,
 		},
 		{
-			CollectorName:       "partition",
+			CollectorName:      "partition",
 			IsUp:               true,
 			LastCollectionTime: time.Now().Add(-28 * time.Second),
 			CollectionDuration: 4 * time.Second,
@@ -173,7 +173,7 @@ func (smc *SelfMonitoringCollector) collectRuntimeMetrics(ctx context.Context, c
 			MetricsExported:    85,
 		},
 		{
-			CollectorName:       "performance",
+			CollectorName:      "performance",
 			IsUp:               true,
 			LastCollectionTime: time.Now().Add(-32 * time.Second),
 			CollectionDuration: 6 * time.Second,
@@ -295,11 +295,11 @@ func (smc *SelfMonitoringCollector) collectPerformanceMetrics(ctx context.Contex
 func (smc *SelfMonitoringCollector) collectAPIMetrics(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Simulate API interaction data
 	apiMetrics := []struct {
-		Endpoint      string
-		Duration      time.Duration
-		ErrorType     string
-		ErrorCount    int
-		SuccessCount  int
+		Endpoint     string
+		Duration     time.Duration
+		ErrorType    string
+		ErrorCount   int
+		SuccessCount int
 	}{
 		{
 			Endpoint:     "/slurm/v1/jobs",
@@ -403,18 +403,18 @@ func (smc *SelfMonitoringCollector) collectCacheMetrics(ctx context.Context, ch 
 type SelfMonitoringMetrics struct {
 	RuntimeMetrics     RuntimeMetrics
 	PerformanceMetrics CollectorPerformanceMetrics
-	APIMetrics        APIInteractionMetrics
-	CacheMetrics      CachePerformanceMetrics
+	APIMetrics         APIInteractionMetrics
+	CacheMetrics       CachePerformanceMetrics
 }
 
 // RuntimeMetrics represents exporter runtime statistics
 type RuntimeMetrics struct {
-	Uptime           time.Duration
-	MemoryUsage      uint64
-	GoroutineCount   int
-	CPUUsage         float64
-	CollectorsUp     map[string]bool
-	LastCollection   map[string]time.Time
+	Uptime         time.Duration
+	MemoryUsage    uint64
+	GoroutineCount int
+	CPUUsage       float64
+	CollectorsUp   map[string]bool
+	LastCollection map[string]time.Time
 }
 
 // CollectorPerformanceMetrics represents collector performance statistics
@@ -494,8 +494,8 @@ func (smc *SelfMonitoringCollector) parseSelfMonitoringData(data interface{}) (*
 				"performance": 5200 * time.Millisecond,
 			},
 			CollectionErrors: map[string]map[string]int{
-				"node": {"timeout": 2},
-				"job":  {"api_error": 1},
+				"node":        {"timeout": 2},
+				"job":         {"api_error": 1},
 				"performance": {"parse_error": 1},
 			},
 			CollectionSuccess: map[string]int{

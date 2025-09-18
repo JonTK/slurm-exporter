@@ -22,11 +22,11 @@ type RegistryInterface interface {
 
 // Server represents the HTTP server.
 type Server struct {
-	config       *config.Config
-	logger       *logrus.Logger
-	server       *http.Server
-	registry     RegistryInterface
-	promRegistry *prometheus.Registry
+	config         *config.Config
+	logger         *logrus.Logger
+	server         *http.Server
+	registry       RegistryInterface
+	promRegistry   *prometheus.Registry
 	isShuttingDown bool
 }
 
@@ -34,17 +34,17 @@ type Server struct {
 func New(cfg *config.Config, logger *logrus.Logger, registry RegistryInterface) (*Server, error) {
 	// Create Prometheus registry if not provided
 	promRegistry := prometheus.NewRegistry()
-	
+
 	s := &Server{
 		config:       cfg,
 		logger:       logger,
 		registry:     registry,
 		promRegistry: promRegistry,
 	}
-	
+
 	// Create HTTP handler and setup routes with middleware
 	handler := s.setupRoutes()
-	
+
 	// Configure HTTP server
 	server := &http.Server{
 		Addr:         cfg.Server.Address,
@@ -53,7 +53,7 @@ func New(cfg *config.Config, logger *logrus.Logger, registry RegistryInterface) 
 		WriteTimeout: cfg.Server.WriteTimeout,
 		IdleTimeout:  cfg.Server.IdleTimeout,
 	}
-	
+
 	s.server = server
 	return s, nil
 }
@@ -61,19 +61,19 @@ func New(cfg *config.Config, logger *logrus.Logger, registry RegistryInterface) 
 // setupRoutes configures HTTP routes
 func (s *Server) setupRoutes() http.Handler {
 	mux := http.NewServeMux()
-	
+
 	// Health check endpoint
 	mux.HandleFunc("/health", s.handleHealth)
-	
+
 	// Readiness check endpoint
 	mux.HandleFunc("/ready", s.handleReady)
-	
+
 	// Metrics endpoint
 	mux.Handle(s.config.Server.MetricsPath, s.createMetricsHandler())
-	
+
 	// Root endpoint with basic info
 	mux.HandleFunc("/", s.handleRoot)
-	
+
 	// Apply middleware to all routes
 	return s.CombinedMiddleware(mux)
 }
@@ -81,17 +81,17 @@ func (s *Server) setupRoutes() http.Handler {
 // Start starts the HTTP server.
 func (s *Server) Start(ctx context.Context) error {
 	s.logger.WithField("address", s.config.Server.Address).Info("Starting HTTP server")
-	
+
 	go func() {
 		<-ctx.Done()
 		s.logger.Info("Context cancelled, shutting down server")
 		s.server.Shutdown(context.Background())
 	}()
-	
+
 	if err := s.server.ListenAndServe(); err != http.ErrServerClosed {
 		return fmt.Errorf("server error: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -109,8 +109,18 @@ func (s *Server) IsShuttingDown() bool {
 
 // handleHealth handles the health check endpoint
 func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
-	s.logger.WithField("component", "health_handler").Debug("Health check requested")
-	
+	logger := s.logger.WithField("component", "health_handler")
+	logger.Debug("Health check requested")
+
+	// Check if request context is cancelled
+	select {
+	case <-r.Context().Done():
+		logger.Debug("Request cancelled before processing")
+		http.Error(w, "Request cancelled", http.StatusRequestTimeout)
+		return
+	default:
+	}
+
 	// Simple health check - always returns OK
 	// Could be extended to check dependencies
 	w.Header().Set("Content-Type", "text/plain")
@@ -122,7 +132,16 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleReady(w http.ResponseWriter, r *http.Request) {
 	logger := s.logger.WithField("component", "ready_handler")
 	logger.Debug("Readiness check requested")
-	
+
+	// Check if request context is cancelled
+	select {
+	case <-r.Context().Done():
+		logger.Debug("Request cancelled before processing")
+		http.Error(w, "Request cancelled", http.StatusRequestTimeout)
+		return
+	default:
+	}
+
 	// Not ready if shutting down
 	if s.isShuttingDown {
 		w.Header().Set("Content-Type", "text/plain")
@@ -130,11 +149,20 @@ func (s *Server) handleReady(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Server is shutting down"))
 		return
 	}
-	
+
 	// Check if collectors are ready
 	if s.registry != nil {
 		stats := s.registry.GetStats()
-		
+
+		// Check for cancellation during stats gathering
+		select {
+		case <-r.Context().Done():
+			logger.Debug("Request cancelled during collector stats check")
+			http.Error(w, "Request cancelled", http.StatusRequestTimeout)
+			return
+		default:
+		}
+
 		// Consider ready if at least one collector is enabled
 		ready := false
 		enabledCount := 0
@@ -144,14 +172,14 @@ func (s *Server) handleReady(w http.ResponseWriter, r *http.Request) {
 				enabledCount++
 			}
 		}
-		
+
 		logger.WithFields(logrus.Fields{
 			"total_collectors":   len(stats),
 			"enabled_collectors": enabledCount,
-			"ready":             ready,
-			"shutting_down":     s.isShuttingDown,
+			"ready":              ready,
+			"shutting_down":      s.isShuttingDown,
 		}).Debug("Collector status checked")
-		
+
 		if !ready {
 			w.Header().Set("Content-Type", "text/plain")
 			w.WriteHeader(http.StatusServiceUnavailable)
@@ -159,7 +187,7 @@ func (s *Server) handleReady(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	
+
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Ready"))
@@ -167,11 +195,21 @@ func (s *Server) handleReady(w http.ResponseWriter, r *http.Request) {
 
 // handleRoot handles the root endpoint
 func (s *Server) handleRoot(w http.ResponseWriter, r *http.Request) {
-	s.logger.WithField("component", "root_handler").Debug("Root endpoint requested")
-	
+	logger := s.logger.WithField("component", "root_handler")
+	logger.Debug("Root endpoint requested")
+
+	// Check if request context is cancelled
+	select {
+	case <-r.Context().Done():
+		logger.Debug("Request cancelled before processing")
+		http.Error(w, "Request cancelled", http.StatusRequestTimeout)
+		return
+	default:
+	}
+
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
-	
+
 	html := `<!DOCTYPE html>
 <html>
 <head>
@@ -199,14 +237,33 @@ func (s *Server) handleRoot(w http.ResponseWriter, r *http.Request) {
     </div>
 </body>
 </html>`
-	
+
 	// Generate collector status
 	collectorStatus := "No collectors configured"
 	if s.registry != nil {
 		stats := s.registry.GetStats()
+
+		// Check for cancellation during stats processing
+		select {
+		case <-r.Context().Done():
+			logger.Debug("Request cancelled during collector status generation")
+			http.Error(w, "Request cancelled", http.StatusRequestTimeout)
+			return
+		default:
+		}
+
 		if len(stats) > 0 {
 			collectorStatus = "<ul>"
 			for name, stat := range stats {
+				// Check for cancellation in the loop (for large number of collectors)
+				select {
+				case <-r.Context().Done():
+					logger.Debug("Request cancelled during collector status loop")
+					http.Error(w, "Request cancelled", http.StatusRequestTimeout)
+					return
+				default:
+				}
+
 				status := "✅ Enabled"
 				if !stat.Enabled {
 					status = "❌ Disabled"
@@ -216,7 +273,7 @@ func (s *Server) handleRoot(w http.ResponseWriter, r *http.Request) {
 			collectorStatus += "</ul>"
 		}
 	}
-	
+
 	content := fmt.Sprintf(html, s.config.Server.MetricsPath, collectorStatus)
 	w.Write([]byte(content))
 }
@@ -228,32 +285,60 @@ func (s *Server) createMetricsHandler() http.Handler {
 		s.promRegistry,
 		prometheus.DefaultGatherer, // Include Go runtime metrics
 	}
-	
+
 	// Create promhttp handler with custom configuration
 	handler := promhttp.HandlerFor(gatherer, promhttp.HandlerOpts{
 		ErrorLog:      s.logger,
 		ErrorHandling: promhttp.ContinueOnError,
 		Timeout:       30 * time.Second,
 	})
-	
+
 	// Wrap with collection triggering
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check if request context is already cancelled
+		select {
+		case <-r.Context().Done():
+			s.logger.WithField("component", "metrics_handler").Debug("Request cancelled before processing")
+			http.Error(w, "Request cancelled", http.StatusRequestTimeout)
+			return
+		default:
+		}
+
 		// Trigger collection from all collectors if registry is available
 		if s.registry != nil {
-			ctx, cancel := context.WithTimeout(r.Context(), 25*time.Second)
-			defer cancel()
-			
-			if err := s.registry.CollectAll(ctx); err != nil {
-				s.logger.WithFields(logrus.Fields{
-					"component": "metrics_handler",
-					"error":     err.Error(),
-				}).Warn("Failed to collect all metrics")
-				// Continue serving cached/existing metrics
+			// Use the request context (which already has timeout from middleware)
+			collectionCtx := r.Context()
+
+			s.logger.WithField("component", "metrics_handler").Debug("Starting metrics collection")
+
+			if err := s.registry.CollectAll(collectionCtx); err != nil {
+				if collectionCtx.Err() == context.DeadlineExceeded {
+					s.logger.WithField("component", "metrics_handler").Warn("Metrics collection timed out")
+				} else if collectionCtx.Err() == context.Canceled {
+					s.logger.WithField("component", "metrics_handler").Debug("Metrics collection cancelled")
+					http.Error(w, "Request cancelled", http.StatusRequestTimeout)
+					return
+				} else {
+					s.logger.WithFields(logrus.Fields{
+						"component": "metrics_handler",
+						"error":     err.Error(),
+					}).Warn("Failed to collect all metrics")
+				}
+				// Continue serving cached/existing metrics even on timeout/error
 			} else {
-				s.logger.WithField("component", "metrics_handler").Debug("Metrics collection triggered successfully")
+				s.logger.WithField("component", "metrics_handler").Debug("Metrics collection completed successfully")
 			}
 		}
-		
+
+		// Check again if request was cancelled during collection
+		select {
+		case <-r.Context().Done():
+			s.logger.WithField("component", "metrics_handler").Debug("Request cancelled during collection")
+			http.Error(w, "Request cancelled", http.StatusRequestTimeout)
+			return
+		default:
+		}
+
 		// Serve the metrics
 		handler.ServeHTTP(w, r)
 	})

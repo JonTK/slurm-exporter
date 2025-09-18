@@ -86,7 +86,7 @@ func (b *BaseCollector) SetEnabled(enabled bool) {
 	defer b.mu.Unlock()
 	b.enabled = enabled
 	b.state.Enabled = enabled
-	
+
 	if enabled {
 		b.logger.Info("Collector enabled")
 	} else {
@@ -129,13 +129,13 @@ func (b *BaseCollector) CollectWithMetrics(
 	if timeout <= 0 {
 		timeout = b.globalOpts.Timeout
 	}
-	
+
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
 	// Perform collection
 	err := collectFunc(ctx, ch)
-	
+
 	// Update duration metric
 	duration := time.Since(start)
 	b.metrics.Duration.With(labels).Observe(duration.Seconds())
@@ -145,20 +145,20 @@ func (b *BaseCollector) CollectWithMetrics(
 		s.LastCollection = start
 		s.LastDuration = duration
 		s.TotalCollections++
-		
+
 		if err != nil {
 			s.LastError = err
 			s.ConsecutiveErrors++
 			s.TotalErrors++
 			b.metrics.Errors.With(labels).Inc()
 			b.metrics.Up.With(labels).Set(0)
-			
+
 			b.logger.WithError(err).Error("Collection failed")
 		} else {
 			s.LastError = nil
 			s.ConsecutiveErrors = 0
 			b.metrics.Up.With(labels).Set(1)
-			
+
 			b.logger.WithField("duration", duration).Debug("Collection completed")
 		}
 	})
@@ -189,7 +189,7 @@ func (b *BaseCollector) HandleError(err error) error {
 	if b.config.ErrorHandling.MaxRetries > 0 {
 		errorThreshold = b.config.ErrorHandling.MaxRetries
 	}
-	
+
 	if state.ConsecutiveErrors >= errorThreshold {
 		b.logger.WithError(err).Error("Collector disabled due to consecutive errors")
 		b.SetEnabled(false)
@@ -216,7 +216,7 @@ func (b *BaseCollector) ShouldRetry(attempt int) bool {
 // GetRetryDelay calculates the delay before the next retry
 func (b *BaseCollector) GetRetryDelay(attempt int) time.Duration {
 	errorHandling := b.config.ErrorHandling
-	
+
 	// Calculate exponential backoff
 	// For attempt 0, use base delay
 	// For attempt 1+, multiply by backoff factor
@@ -224,14 +224,14 @@ func (b *BaseCollector) GetRetryDelay(attempt int) time.Duration {
 	for i := 0; i < attempt; i++ {
 		multiplier *= errorHandling.BackoffFactor
 	}
-	
+
 	delay := time.Duration(float64(errorHandling.RetryDelay) * multiplier)
-	
+
 	// Cap at max delay
 	if delay > errorHandling.MaxRetryDelay {
 		delay = errorHandling.MaxRetryDelay
 	}
-	
+
 	return delay
 }
 
@@ -240,7 +240,7 @@ func (b *BaseCollector) WrapError(err error, format string, args ...interface{})
 	if err == nil {
 		return nil
 	}
-	
+
 	msg := fmt.Sprintf(format, args...)
 	return fmt.Errorf("collector %s: %s: %w", b.name, msg, err)
 }
@@ -279,7 +279,7 @@ func (b *BaseCollector) BuildMetricWithCardinality(
 			return nil, false
 		}
 	}
-	
+
 	metric := prometheus.MustNewConstMetric(desc, valueType, value, labelValues...)
 	return metric, true
 }
@@ -289,7 +289,7 @@ func (b *BaseCollector) SendMetric(ch chan<- prometheus.Metric, metric prometheu
 	if metric == nil {
 		return // Don't send nil metrics
 	}
-	
+
 	select {
 	case ch <- metric:
 		// Metric sent successfully

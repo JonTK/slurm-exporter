@@ -16,10 +16,10 @@ func TestLoggingCollector(t *testing.T) {
 	logger, hook := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)
 	logEntry := logrus.NewEntry(logger)
-	
+
 	t.Run("SuccessfulCollection", func(t *testing.T) {
 		hook.Reset()
-		
+
 		// Create mock collector
 		mockCollector := &mockCollector{
 			name:    "test_collector",
@@ -34,27 +34,27 @@ func TestLoggingCollector(t *testing.T) {
 				return nil
 			},
 		}
-		
+
 		// Create logging collector
 		loggingCollector := NewLoggingCollector(mockCollector, logEntry)
-		
+
 		// Test collection
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 10)
-		
+
 		err := loggingCollector.Collect(ctx, metricChan)
 		close(metricChan)
-		
+
 		if err != nil {
 			t.Errorf("Expected successful collection, got error: %v", err)
 		}
-		
+
 		// Check logs
 		entries := hook.AllEntries()
 		if len(entries) < 2 {
 			t.Errorf("Expected at least 2 log entries, got %d", len(entries))
 		}
-		
+
 		// Find the completion log
 		var completionLog *logrus.Entry
 		for _, entry := range entries {
@@ -63,7 +63,7 @@ func TestLoggingCollector(t *testing.T) {
 				break
 			}
 		}
-		
+
 		if completionLog == nil {
 			t.Error("Expected to find completion log entry")
 		} else {
@@ -78,10 +78,10 @@ func TestLoggingCollector(t *testing.T) {
 			}
 		}
 	})
-	
+
 	t.Run("FailedCollection", func(t *testing.T) {
 		hook.Reset()
-		
+
 		// Create failing mock collector
 		mockCollector := &mockCollector{
 			name:    "failing_collector",
@@ -90,26 +90,26 @@ func TestLoggingCollector(t *testing.T) {
 				return errors.New("connection refused")
 			},
 		}
-		
+
 		// Create logging collector
 		loggingCollector := NewLoggingCollector(mockCollector, logEntry)
-		
+
 		// Test collection
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 10)
-		
+
 		err := loggingCollector.Collect(ctx, metricChan)
 		close(metricChan)
-		
+
 		if err == nil {
 			t.Error("Expected collection to fail")
 		}
-		
+
 		// Should be a CollectionError
 		if _, ok := err.(*CollectionError); !ok {
 			t.Errorf("Expected CollectionError, got %T", err)
 		}
-		
+
 		// Check logs for error entry
 		entries := hook.AllEntries()
 		errorFound := false
@@ -122,35 +122,35 @@ func TestLoggingCollector(t *testing.T) {
 				break
 			}
 		}
-		
+
 		if !errorFound {
 			t.Error("Expected to find error log entry")
 		}
 	})
-	
+
 	t.Run("DisabledCollector", func(t *testing.T) {
 		hook.Reset()
-		
+
 		// Create disabled mock collector
 		mockCollector := &mockCollector{
 			name:    "disabled_collector",
 			enabled: false,
 		}
-		
+
 		// Create logging collector
 		loggingCollector := NewLoggingCollector(mockCollector, logEntry)
-		
+
 		// Test collection
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 10)
-		
+
 		err := loggingCollector.Collect(ctx, metricChan)
 		close(metricChan)
-		
+
 		if err != nil {
 			t.Errorf("Expected no error for disabled collector, got: %v", err)
 		}
-		
+
 		// Check for disabled message
 		entries := hook.AllEntries()
 		disabledFound := false
@@ -160,25 +160,25 @@ func TestLoggingCollector(t *testing.T) {
 				break
 			}
 		}
-		
+
 		if !disabledFound {
 			t.Error("Expected to find disabled collector message")
 		}
 	})
-	
+
 	t.Run("SetEnabled", func(t *testing.T) {
 		hook.Reset()
-		
+
 		mockCollector := &mockCollector{
 			name:    "toggle_collector",
 			enabled: true,
 		}
-		
+
 		loggingCollector := NewLoggingCollector(mockCollector, logEntry)
-		
+
 		// Disable collector
 		loggingCollector.SetEnabled(false)
-		
+
 		// Check logs
 		entries := hook.AllEntries()
 		stateChangeFound := false
@@ -194,33 +194,33 @@ func TestLoggingCollector(t *testing.T) {
 				break
 			}
 		}
-		
+
 		if !stateChangeFound {
 			t.Error("Expected to find state change log entry")
 		}
 	})
-	
+
 	t.Run("Describe", func(t *testing.T) {
 		hook.Reset()
-		
+
 		mockCollector := &mockCollector{
 			name:    "describe_collector",
 			enabled: true,
 		}
-		
+
 		loggingCollector := NewLoggingCollector(mockCollector, logEntry)
-		
+
 		// Test describe
 		descChan := make(chan *prometheus.Desc, 10)
 		loggingCollector.Describe(descChan)
 		close(descChan)
-		
+
 		// Check logs
 		entries := hook.AllEntries()
 		if len(entries) < 2 {
 			t.Errorf("Expected at least 2 log entries for describe, got %d", len(entries))
 		}
-		
+
 		// Should have start and completion messages
 		startFound := false
 		completeFound := false
@@ -232,7 +232,7 @@ func TestLoggingCollector(t *testing.T) {
 				completeFound = true
 			}
 		}
-		
+
 		if !startFound {
 			t.Error("Expected to find start message")
 		}
@@ -246,24 +246,24 @@ func TestCollectorLogger(t *testing.T) {
 	logger, hook := test.NewNullLogger()
 	logger.SetLevel(logrus.TraceLevel)
 	logEntry := logrus.NewEntry(logger)
-	
+
 	collectorLogger := NewCollectorLogger(logEntry)
-	
+
 	t.Run("LogCollection", func(t *testing.T) {
 		hook.Reset()
-		
+
 		fields := logrus.Fields{
 			"duration_ms": 100,
 			"success":     true,
 		}
-		
+
 		collectorLogger.LogCollection("test_collector", "collect", fields)
-		
+
 		entries := hook.AllEntries()
 		if len(entries) != 1 {
 			t.Errorf("Expected 1 log entry, got %d", len(entries))
 		}
-		
+
 		entry := entries[0]
 		if entry.Data["collector"] != "test_collector" {
 			t.Errorf("Expected collector 'test_collector', got '%v'", entry.Data["collector"])
@@ -275,22 +275,22 @@ func TestCollectorLogger(t *testing.T) {
 			t.Errorf("Expected duration_ms 100, got '%v'", entry.Data["duration_ms"])
 		}
 	})
-	
+
 	t.Run("LogError", func(t *testing.T) {
 		hook.Reset()
-		
+
 		testErr := errors.New("test error")
 		fields := logrus.Fields{
 			"endpoint": "/api/jobs",
 		}
-		
+
 		collectorLogger.LogError("test_collector", "fetch", testErr, fields)
-		
+
 		entries := hook.AllEntries()
 		if len(entries) != 1 {
 			t.Errorf("Expected 1 log entry, got %d", len(entries))
 		}
-		
+
 		entry := entries[0]
 		if entry.Level != logrus.ErrorLevel {
 			t.Errorf("Expected error level, got %v", entry.Level)
@@ -302,22 +302,22 @@ func TestCollectorLogger(t *testing.T) {
 			t.Errorf("Expected endpoint '/api/jobs', got '%v'", entry.Data["endpoint"])
 		}
 	})
-	
+
 	t.Run("LogMetric", func(t *testing.T) {
 		hook.Reset()
-		
+
 		labels := map[string]string{
 			"job_id": "12345",
 			"state":  "running",
 		}
-		
+
 		collectorLogger.LogMetric("test_collector", "job_count", 42, labels)
-		
+
 		entries := hook.AllEntries()
 		if len(entries) != 1 {
 			t.Errorf("Expected 1 log entry, got %d", len(entries))
 		}
-		
+
 		entry := entries[0]
 		if entry.Level != logrus.TraceLevel {
 			t.Errorf("Expected trace level, got %v", entry.Level)
@@ -332,18 +332,18 @@ func TestCollectorLogger(t *testing.T) {
 			t.Errorf("Expected job_id '12345', got '%v'", entry.Data["job_id"])
 		}
 	})
-	
+
 	t.Run("LogPerformance", func(t *testing.T) {
 		hook.Reset()
-		
+
 		duration := 150 * time.Millisecond
 		collectorLogger.LogPerformance("test_collector", "collect", duration, true, 5)
-		
+
 		entries := hook.AllEntries()
 		if len(entries) != 1 {
 			t.Errorf("Expected 1 log entry, got %d", len(entries))
 		}
-		
+
 		entry := entries[0]
 		if entry.Level != logrus.InfoLevel {
 			t.Errorf("Expected info level, got %v", entry.Level)
@@ -363,23 +363,23 @@ func TestCollectorLogger(t *testing.T) {
 func TestStructuredLogger(t *testing.T) {
 	logger, hook := test.NewNullLogger()
 	logEntry := logrus.NewEntry(logger)
-	
+
 	structuredLogger := NewStructuredLogger(logEntry)
-	
+
 	t.Run("WithCollector", func(t *testing.T) {
 		entry := structuredLogger.WithCollector("test_collector")
 		if entry.Data["collector"] != "test_collector" {
 			t.Errorf("Expected collector 'test_collector', got '%v'", entry.Data["collector"])
 		}
 	})
-	
+
 	t.Run("WithOperation", func(t *testing.T) {
 		entry := structuredLogger.WithOperation("collect")
 		if entry.Data["operation"] != "collect" {
 			t.Errorf("Expected operation 'collect', got '%v'", entry.Data["operation"])
 		}
 	})
-	
+
 	t.Run("WithDuration", func(t *testing.T) {
 		duration := 100 * time.Millisecond
 		entry := structuredLogger.WithDuration(duration)
@@ -387,7 +387,7 @@ func TestStructuredLogger(t *testing.T) {
 			t.Errorf("Expected duration_ms 100, got '%v'", entry.Data["duration_ms"])
 		}
 	})
-	
+
 	t.Run("WithError", func(t *testing.T) {
 		// Test with regular error
 		regularErr := errors.New("regular error")
@@ -395,7 +395,7 @@ func TestStructuredLogger(t *testing.T) {
 		if entry.Data["error"] != regularErr {
 			t.Errorf("Expected error to be set")
 		}
-		
+
 		// Test with CollectionError
 		collErr := &CollectionError{
 			Collector: "test",
@@ -412,7 +412,7 @@ func TestStructuredLogger(t *testing.T) {
 			t.Errorf("Expected error_type '%s', got '%v'", ErrorTypeAPI, entry.Data["error_type"])
 		}
 	})
-	
+
 	t.Run("WithContext", func(t *testing.T) {
 		// Test with context containing request ID
 		ctx := context.WithValue(context.Background(), "request_id", "req-123")
@@ -420,7 +420,7 @@ func TestStructuredLogger(t *testing.T) {
 		if entry.Data["request_id"] != "req-123" {
 			t.Errorf("Expected request_id 'req-123', got '%v'", entry.Data["request_id"])
 		}
-		
+
 		// Test with context containing trace ID
 		ctx = context.WithValue(ctx, "trace_id", "trace-456")
 		entry = structuredLogger.WithContext(ctx)
@@ -428,18 +428,18 @@ func TestStructuredLogger(t *testing.T) {
 			t.Errorf("Expected trace_id 'trace-456', got '%v'", entry.Data["trace_id"])
 		}
 	})
-	
+
 	t.Run("LogEntry", func(t *testing.T) {
 		hook.Reset()
-		
+
 		entry := structuredLogger.LogEntry("test_collector", "collect")
 		entry.Info("Test message")
-		
+
 		entries := hook.AllEntries()
 		if len(entries) != 1 {
 			t.Errorf("Expected 1 log entry, got %d", len(entries))
 		}
-		
+
 		logEntry := entries[0]
 		if logEntry.Data["collector"] != "test_collector" {
 			t.Errorf("Expected collector 'test_collector', got '%v'", logEntry.Data["collector"])

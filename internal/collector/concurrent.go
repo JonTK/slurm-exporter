@@ -17,16 +17,16 @@ type ConcurrentCollector struct {
 	maxConcurrency int
 	semaphore      chan struct{}
 	wg             sync.WaitGroup
-	
+
 	// Metrics
-	activeCollections  int64
-	totalCollections   int64
-	failedCollections  int64
-	
+	activeCollections int64
+	totalCollections  int64
+	failedCollections int64
+
 	// Collection results
 	resultsMu sync.Mutex
 	results   map[string]*CollectionResult
-	
+
 	logger *logrus.Entry
 }
 
@@ -46,7 +46,7 @@ func NewConcurrentCollector(registry *Registry, maxConcurrency int) *ConcurrentC
 	if maxConcurrency <= 0 {
 		maxConcurrency = 5 // Default
 	}
-	
+
 	return &ConcurrentCollector{
 		registry:       registry,
 		maxConcurrency: maxConcurrency,
@@ -63,46 +63,46 @@ func (cc *ConcurrentCollector) CollectAll(ctx context.Context) ([]*CollectionRes
 	if len(collectors) == 0 {
 		return nil, nil
 	}
-	
+
 	// Reset results
 	cc.resultsMu.Lock()
 	cc.results = make(map[string]*CollectionResult)
 	cc.resultsMu.Unlock()
-	
+
 	// Create result channel
 	resultChan := make(chan *CollectionResult, len(collectors))
-	
+
 	// Start collections
 	for _, name := range collectors {
 		collector, exists := cc.registry.Get(name)
 		if !exists || !collector.IsEnabled() {
 			continue
 		}
-		
+
 		cc.wg.Add(1)
 		go cc.collectFromCollector(ctx, name, collector, resultChan)
 	}
-	
+
 	// Wait for all collections to complete
 	go func() {
 		cc.wg.Wait()
 		close(resultChan)
 	}()
-	
+
 	// Collect results
 	var results []*CollectionResult
 	for result := range resultChan {
 		results = append(results, result)
-		
+
 		cc.resultsMu.Lock()
 		cc.results[result.CollectorName] = result
 		cc.resultsMu.Unlock()
-		
+
 		if result.Error != nil {
 			atomic.AddInt64(&cc.failedCollections, 1)
 		}
 	}
-	
+
 	// Check for errors
 	var errors []error
 	for _, result := range results {
@@ -110,11 +110,11 @@ func (cc *ConcurrentCollector) CollectAll(ctx context.Context) ([]*CollectionRes
 			errors = append(errors, fmt.Errorf("%s: %w", result.CollectorName, result.Error))
 		}
 	}
-	
+
 	if len(errors) > 0 {
 		return results, fmt.Errorf("collection errors: %v", errors)
 	}
-	
+
 	return results, nil
 }
 
@@ -126,7 +126,7 @@ func (cc *ConcurrentCollector) collectFromCollector(
 	resultChan chan<- *CollectionResult,
 ) {
 	defer cc.wg.Done()
-	
+
 	// Acquire semaphore
 	select {
 	case cc.semaphore <- struct{}{}:
@@ -141,47 +141,47 @@ func (cc *ConcurrentCollector) collectFromCollector(
 		}
 		return
 	}
-	
+
 	// Track active collections
 	atomic.AddInt64(&cc.activeCollections, 1)
 	defer atomic.AddInt64(&cc.activeCollections, -1)
 	atomic.AddInt64(&cc.totalCollections, 1)
-	
+
 	// Start collection
 	result := &CollectionResult{
 		CollectorName: name,
 		StartTime:     time.Now(),
 	}
-	
+
 	// Create metrics channel
 	metricChan := make(chan prometheus.Metric, 1000)
 	var metrics []prometheus.Metric
-	
+
 	// Collect metrics in background
 	var collectionErr error
 	done := make(chan struct{})
-	
+
 	go func() {
 		defer close(done)
 		collectionErr = collector.Collect(ctx, metricChan)
 		close(metricChan)
 	}()
-	
+
 	// Collect all metrics
 	for metric := range metricChan {
 		metrics = append(metrics, metric)
 	}
-	
+
 	// Wait for collection to complete
 	<-done
-	
+
 	// Update result
 	result.EndTime = time.Now()
 	result.Duration = result.EndTime.Sub(result.StartTime)
 	result.MetricCount = len(metrics)
 	result.Error = collectionErr
 	result.Success = collectionErr == nil
-	
+
 	// Log result
 	if result.Success {
 		cc.logger.WithFields(logrus.Fields{
@@ -195,7 +195,7 @@ func (cc *ConcurrentCollector) collectFromCollector(
 			"error":     result.Error,
 		}).Error("Collection failed")
 	}
-	
+
 	resultChan <- result
 }
 
@@ -218,7 +218,7 @@ func (cc *ConcurrentCollector) GetFailedCollections() int64 {
 func (cc *ConcurrentCollector) GetLastResults() map[string]*CollectionResult {
 	cc.resultsMu.Lock()
 	defer cc.resultsMu.Unlock()
-	
+
 	// Create a copy to avoid race conditions
 	results := make(map[string]*CollectionResult)
 	for k, v := range cc.results {
@@ -229,20 +229,20 @@ func (cc *ConcurrentCollector) GetLastResults() map[string]*CollectionResult {
 
 // CollectionOrchestrator manages scheduled collection cycles
 type CollectionOrchestrator struct {
-	collector      *ConcurrentCollector
-	registry       *Registry
-	intervals      map[string]time.Duration
-	timers         map[string]*time.Timer
-	mu             sync.RWMutex
-	ctx            context.Context
-	cancel         context.CancelFunc
-	logger         *logrus.Entry
+	collector *ConcurrentCollector
+	registry  *Registry
+	intervals map[string]time.Duration
+	timers    map[string]*time.Timer
+	mu        sync.RWMutex
+	ctx       context.Context
+	cancel    context.CancelFunc
+	logger    *logrus.Entry
 }
 
 // NewCollectionOrchestrator creates a new collection orchestrator
 func NewCollectionOrchestrator(registry *Registry, maxConcurrency int) *CollectionOrchestrator {
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	return &CollectionOrchestrator{
 		collector: NewConcurrentCollector(registry, maxConcurrency),
 		registry:  registry,
@@ -258,9 +258,9 @@ func NewCollectionOrchestrator(registry *Registry, maxConcurrency int) *Collecti
 func (co *CollectionOrchestrator) SetCollectorInterval(name string, interval time.Duration) {
 	co.mu.Lock()
 	defer co.mu.Unlock()
-	
+
 	co.intervals[name] = interval
-	
+
 	// Cancel existing timer if any
 	if timer, exists := co.timers[name]; exists {
 		timer.Stop()
@@ -271,7 +271,7 @@ func (co *CollectionOrchestrator) SetCollectorInterval(name string, interval tim
 // Start begins the collection orchestration
 func (co *CollectionOrchestrator) Start() {
 	co.logger.Info("Starting collection orchestrator")
-	
+
 	// Start individual collector timers
 	for _, name := range co.registry.List() {
 		co.startCollectorTimer(name)
@@ -283,24 +283,24 @@ func (co *CollectionOrchestrator) startCollectorTimer(name string) {
 	co.mu.RLock()
 	interval, hasInterval := co.intervals[name]
 	co.mu.RUnlock()
-	
+
 	if !hasInterval {
 		// Use default interval from configuration
 		return
 	}
-	
+
 	collector, exists := co.registry.Get(name)
 	if !exists || !collector.IsEnabled() {
 		return
 	}
-	
+
 	// Create timer
 	timer := time.NewTimer(interval)
-	
+
 	co.mu.Lock()
 	co.timers[name] = timer
 	co.mu.Unlock()
-	
+
 	// Start timer goroutine
 	go func() {
 		for {
@@ -308,7 +308,7 @@ func (co *CollectionOrchestrator) startCollectorTimer(name string) {
 			case <-timer.C:
 				// Perform collection
 				ctx, cancel := context.WithTimeout(co.ctx, 30*time.Second)
-				
+
 				metricChan := make(chan prometheus.Metric, 1000)
 				go func() {
 					defer close(metricChan)
@@ -316,23 +316,23 @@ func (co *CollectionOrchestrator) startCollectorTimer(name string) {
 						co.logger.WithError(err).WithField("collector", name).Error("Scheduled collection failed")
 					}
 				}()
-				
+
 				// Drain metrics
 				count := 0
 				for range metricChan {
 					count++
 				}
-				
+
 				co.logger.WithFields(logrus.Fields{
 					"collector":    name,
 					"metric_count": count,
 				}).Debug("Scheduled collection completed")
-				
+
 				cancel()
-				
+
 				// Reset timer
 				timer.Reset(interval)
-				
+
 			case <-co.ctx.Done():
 				timer.Stop()
 				return
@@ -345,7 +345,7 @@ func (co *CollectionOrchestrator) startCollectorTimer(name string) {
 func (co *CollectionOrchestrator) Stop() {
 	co.logger.Info("Stopping collection orchestrator")
 	co.cancel()
-	
+
 	// Stop all timers
 	co.mu.Lock()
 	for _, timer := range co.timers {
@@ -361,19 +361,19 @@ func (co *CollectionOrchestrator) CollectNow(name string) (*CollectionResult, er
 	if !exists {
 		return nil, fmt.Errorf("collector %s not found", name)
 	}
-	
+
 	if !collector.IsEnabled() {
 		return nil, fmt.Errorf("collector %s is disabled", name)
 	}
-	
+
 	resultChan := make(chan *CollectionResult, 1)
 	co.collector.wg.Add(1)
-	
+
 	ctx, cancel := context.WithTimeout(co.ctx, 30*time.Second)
 	defer cancel()
-	
+
 	go co.collector.collectFromCollector(ctx, name, collector, resultChan)
-	
+
 	result := <-resultChan
 	return result, result.Error
 }

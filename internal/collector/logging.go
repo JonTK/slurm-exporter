@@ -20,7 +20,7 @@ type LoggingCollector struct {
 // NewLoggingCollector creates a new collector with enhanced logging
 func NewLoggingCollector(collector Collector, logger *logrus.Entry) *LoggingCollector {
 	collectorLogger := logger.WithField("collector", collector.Name())
-	
+
 	return &LoggingCollector{
 		collector:    collector,
 		logger:       collectorLogger,
@@ -39,9 +39,9 @@ func (lc *LoggingCollector) Name() string {
 func (lc *LoggingCollector) Describe(ch chan<- *prometheus.Desc) {
 	lc.logger.Debug("Starting metric description")
 	start := time.Now()
-	
+
 	lc.collector.Describe(ch)
-	
+
 	duration := time.Since(start)
 	lc.logger.WithField("duration_ms", duration.Milliseconds()).
 		Debug("Completed metric description")
@@ -50,29 +50,29 @@ func (lc *LoggingCollector) Describe(ch chan<- *prometheus.Desc) {
 // Collect performs collection with enhanced logging and error handling
 func (lc *LoggingCollector) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	start := time.Now()
-	
+
 	lc.logger.WithFields(logrus.Fields{
 		"operation": "collect",
 		"enabled":   lc.collector.IsEnabled(),
 	}).Debug("Starting metric collection")
-	
+
 	// Check if collector is enabled
 	if !lc.collector.IsEnabled() {
 		lc.logger.Debug("Collector is disabled, skipping collection")
 		return nil
 	}
-	
+
 	// Create a channel to count metrics
 	metricChan := make(chan prometheus.Metric, 1000)
 	var metricCount int
-	
+
 	// Collect metrics in background
 	done := make(chan error, 1)
 	go func() {
 		defer close(metricChan)
 		done <- lc.collector.Collect(ctx, metricChan)
 	}()
-	
+
 	// Forward metrics and count them
 	metricDone := make(chan struct{})
 	go func() {
@@ -86,13 +86,13 @@ func (lc *LoggingCollector) Collect(ctx context.Context, ch chan<- prometheus.Me
 			}
 		}
 	}()
-	
+
 	// Wait for collection to complete
 	err := <-done
 	// Wait for all metrics to be forwarded
 	<-metricDone
 	duration := time.Since(start)
-	
+
 	// Log the result
 	fields := logrus.Fields{
 		"operation":    "collect",
@@ -100,14 +100,14 @@ func (lc *LoggingCollector) Collect(ctx context.Context, ch chan<- prometheus.Me
 		"metric_count": metricCount,
 		"success":      err == nil,
 	}
-	
+
 	if err != nil {
 		// Analyze and enhance the error
 		collErr := lc.analyzer.AnalyzeError(err, lc.collector.Name())
-		
+
 		// Log with structured error information
 		lc.errorBuilder.Log(collErr)
-		
+
 		// Attempt recovery
 		recoveryErr := lc.recovery.HandleError(ctx, collErr)
 		if recoveryErr != nil {
@@ -117,7 +117,7 @@ func (lc *LoggingCollector) Collect(ctx context.Context, ch chan<- prometheus.Me
 			lc.logger.WithFields(fields).
 				Info("Collection failed but recovery attempted")
 		}
-		
+
 		return collErr
 	} else {
 		lc.logger.WithFields(fields).Info("Collection completed successfully")
@@ -134,7 +134,7 @@ func (lc *LoggingCollector) IsEnabled() bool {
 func (lc *LoggingCollector) SetEnabled(enabled bool) {
 	oldState := lc.collector.IsEnabled()
 	lc.collector.SetEnabled(enabled)
-	
+
 	lc.logger.WithFields(logrus.Fields{
 		"old_state": oldState,
 		"new_state": enabled,
@@ -168,12 +168,12 @@ func (cl *CollectorLogger) LogError(collector string, operation string, err erro
 		"collector": collector,
 		"operation": operation,
 	}
-	
+
 	// Merge additional fields
 	for k, v := range fields {
 		allFields[k] = v
 	}
-	
+
 	cl.logger.WithFields(allFields).WithError(err).Error("Collector error")
 }
 
@@ -185,12 +185,12 @@ func (cl *CollectorLogger) LogMetric(collector string, metricName string, value 
 		"value":       value,
 		"operation":   "emit_metric",
 	}
-	
+
 	// Add labels
 	for k, v := range labels {
 		fields[k] = v
 	}
-	
+
 	cl.logger.WithFields(fields).Trace("Metric emitted")
 }
 
@@ -203,7 +203,7 @@ func (cl *CollectorLogger) LogPerformance(collector string, operation string, du
 		"success":      success,
 		"metric_count": metricCount,
 	}
-	
+
 	if success {
 		cl.logger.WithFields(fields).Info("Collection performance")
 	} else {
@@ -214,22 +214,22 @@ func (cl *CollectorLogger) LogPerformance(collector string, operation string, du
 // LogConfigChange logs configuration changes
 func (cl *CollectorLogger) LogConfigChange(collector string, field string, oldValue, newValue interface{}) {
 	cl.logger.WithFields(logrus.Fields{
-		"collector":  collector,
-		"field":      field,
-		"old_value":  oldValue,
-		"new_value":  newValue,
-		"operation":  "config_change",
+		"collector": collector,
+		"field":     field,
+		"old_value": oldValue,
+		"new_value": newValue,
+		"operation": "config_change",
 	}).Info("Configuration changed")
 }
 
 // LogStateChange logs state transitions
 func (cl *CollectorLogger) LogStateChange(collector string, oldState, newState string, reason string) {
 	cl.logger.WithFields(logrus.Fields{
-		"collector":  collector,
-		"old_state":  oldState,
-		"new_state":  newState,
-		"reason":     reason,
-		"operation":  "state_change",
+		"collector": collector,
+		"old_state": oldState,
+		"new_state": newState,
+		"reason":    reason,
+		"operation": "state_change",
 	}).Info("State transition")
 }
 
@@ -271,17 +271,17 @@ func (sl *StructuredLogger) WithError(err error) *logrus.Entry {
 // WithContext adds context fields to logger
 func (sl *StructuredLogger) WithContext(ctx context.Context) *logrus.Entry {
 	fields := logrus.Fields{}
-	
+
 	// Extract request ID if available
 	if reqID := ctx.Value("request_id"); reqID != nil {
 		fields["request_id"] = reqID
 	}
-	
+
 	// Extract trace ID if available
 	if traceID := ctx.Value("trace_id"); traceID != nil {
 		fields["trace_id"] = traceID
 	}
-	
+
 	return sl.logger.WithFields(fields)
 }
 

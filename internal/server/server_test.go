@@ -42,7 +42,6 @@ func (m *mockRegistry) CollectAll(ctx context.Context) error {
 	return nil
 }
 
-
 func createTestConfig() *config.Config {
 	return &config.Config{
 		Server: config.ServerConfig{

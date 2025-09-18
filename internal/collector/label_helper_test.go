@@ -147,7 +147,7 @@ func TestLabelSetBuilder(t *testing.T) {
 
 	t.Run("FluentInterface", func(t *testing.T) {
 		builder := NewLabelSetBuilder(labelManager)
-		
+
 		labels, err := builder.
 			WithCluster("test-cluster").
 			WithNode("node01").
@@ -163,13 +163,13 @@ func TestLabelSetBuilder(t *testing.T) {
 		}
 
 		expectedLabels := map[string]string{
-			"cluster_name":   "test_cluster",
-			"node_name":      "node01",
-			"partition":      "compute",
-			"job_state":      "running",
-			"resource_type":  "cpu",
-			"metric_type":    "utilization",
-			"time_window":    "1h",
+			"cluster_name":  "test_cluster",
+			"node_name":     "node01",
+			"partition":     "compute",
+			"job_state":     "running",
+			"resource_type": "cpu",
+			"metric_type":   "utilization",
+			"time_window":   "1h",
 		}
 
 		for key, expectedValue := range expectedLabels {
@@ -181,7 +181,7 @@ func TestLabelSetBuilder(t *testing.T) {
 
 	t.Run("WithJob", func(t *testing.T) {
 		builder := NewLabelSetBuilder(labelManager)
-		
+
 		labels, err := builder.
 			WithCluster("test-cluster").
 			WithJob("12345", "alice", "ml_team", "gpu").
@@ -207,7 +207,7 @@ func TestLabelSetBuilder(t *testing.T) {
 
 	t.Run("WithCustom", func(t *testing.T) {
 		builder := NewLabelSetBuilder(labelManager)
-		
+
 		labels, err := builder.
 			WithCluster("test-cluster").
 			WithCustom("custom_label", "custom_value").
@@ -224,7 +224,7 @@ func TestLabelSetBuilder(t *testing.T) {
 
 	t.Run("BuildSlice", func(t *testing.T) {
 		builder := NewLabelSetBuilder(labelManager)
-		
+
 		names, values, err := builder.
 			WithCluster("test-cluster").
 			WithPartition("compute").
@@ -334,7 +334,7 @@ func TestGetLabelNames(t *testing.T) {
 		)
 
 		names := GetLabelNames(desc)
-		
+
 		// The function returns a default set since we can't easily extract from desc
 		if len(names) == 0 {
 			t.Error("Expected at least one label name")

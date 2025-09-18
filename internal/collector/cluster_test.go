@@ -63,7 +63,7 @@ func TestClusterCollector(t *testing.T) {
 
 	t.Run("Describe", func(t *testing.T) {
 		descChan := make(chan *prometheus.Desc, 100)
-		
+
 		collector.Describe(descChan)
 		close(descChan)
 
@@ -81,7 +81,7 @@ func TestClusterCollector(t *testing.T) {
 
 	t.Run("Collect", func(t *testing.T) {
 		hook.Reset()
-		
+
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 100)
 
@@ -108,7 +108,7 @@ func TestClusterCollector(t *testing.T) {
 
 	t.Run("CollectClusterInfo", func(t *testing.T) {
 		hook.Reset()
-		
+
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 10)
 
@@ -443,4 +443,3 @@ func (rc *RegistryCollector) Collect(ch chan<- prometheus.Metric) {
 	// Ignore errors for this test
 	_ = rc.collector.Collect(ctx, ch)
 }
-

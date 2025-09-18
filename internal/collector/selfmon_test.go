@@ -63,7 +63,7 @@ func TestSelfMonitoringCollector(t *testing.T) {
 
 	t.Run("Describe", func(t *testing.T) {
 		descChan := make(chan *prometheus.Desc, 100)
-		
+
 		collector.Describe(descChan)
 		close(descChan)
 
@@ -81,7 +81,7 @@ func TestSelfMonitoringCollector(t *testing.T) {
 
 	t.Run("Collect", func(t *testing.T) {
 		hook.Reset()
-		
+
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 200)
 
@@ -106,7 +106,7 @@ func TestSelfMonitoringCollector(t *testing.T) {
 
 	t.Run("CollectRuntimeMetrics", func(t *testing.T) {
 		hook.Reset()
-		
+
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 50)
 
@@ -257,7 +257,7 @@ func TestSelfMonitoringCollectorUtilities(t *testing.T) {
 		for _, tc := range testCases {
 			ratio := collector.calculateCacheHitRatio(tc.hits, tc.misses)
 			if ratio != tc.expected {
-				t.Errorf("calculateCacheHitRatio(%d, %d) = %.3f, expected %.3f", 
+				t.Errorf("calculateCacheHitRatio(%d, %d) = %.3f, expected %.3f",
 					tc.hits, tc.misses, ratio, tc.expected)
 			}
 		}

@@ -14,9 +14,9 @@ import (
 // ClusterCollector collects cluster-level overview metrics
 type ClusterCollector struct {
 	*BaseCollector
-	metrics        *metrics.MetricDefinitions
-	clusterName    string
-	errorBuilder   *ErrorBuilder
+	metrics      *metrics.MetricDefinitions
+	clusterName  string
+	errorBuilder *ErrorBuilder
 }
 
 // NewClusterCollector creates a new cluster collector
@@ -33,7 +33,7 @@ func NewClusterCollector(
 		Duration: metrics.CollectionDuration,
 		Up:       metrics.CollectorUp,
 	}, nil)
-	
+
 	return &ClusterCollector{
 		BaseCollector: base,
 		metrics:       metrics,
@@ -69,38 +69,38 @@ func (cc *ClusterCollector) Collect(ctx context.Context, ch chan<- prometheus.Me
 // collectClusterMetrics performs the actual cluster metrics collection
 func (cc *ClusterCollector) collectClusterMetrics(ctx context.Context, ch chan<- prometheus.Metric) error {
 	cc.logger.Debug("Starting cluster metrics collection")
-	
+
 	// Since SLURM client is not available, we'll simulate the metrics for now
 	// In real implementation, this would use the SLURM client to fetch data
-	
+
 	// Collect cluster information
 	if err := cc.collectClusterInfo(ctx, ch); err != nil {
 		return cc.errorBuilder.Internal(err, "collect_cluster_info",
 			"Check SLURM controller connectivity",
 			"Verify SLURM REST API is accessible")
 	}
-	
+
 	// Collect node information for cluster aggregates
 	if err := cc.collectNodeSummary(ctx, ch); err != nil {
 		return cc.errorBuilder.API(err, "/slurm/v1/nodes", 500, "",
 			"Check SLURM node data availability",
 			"Verify node information is up to date")
 	}
-	
+
 	// Collect job information for cluster aggregates
 	if err := cc.collectJobSummary(ctx, ch); err != nil {
 		return cc.errorBuilder.API(err, "/slurm/v1/jobs", 500, "",
 			"Check SLURM job data availability",
 			"Verify job information is accessible")
 	}
-	
+
 	// Collect partition information
 	if err := cc.collectPartitionSummary(ctx, ch); err != nil {
 		return cc.errorBuilder.API(err, "/slurm/v1/partitions", 500, "",
 			"Check SLURM partition data availability",
 			"Verify partition configuration is accessible")
 	}
-	
+
 	cc.logger.Debug("Completed cluster metrics collection")
 	return nil
 }
@@ -109,12 +109,12 @@ func (cc *ClusterCollector) collectClusterMetrics(ctx context.Context, ch chan<-
 func (cc *ClusterCollector) collectClusterInfo(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Simulate cluster info - in real implementation this would come from SLURM API
 	clusterInfo := map[string]string{
-		"cluster_name":     cc.clusterName,
-		"version":          "23.02.0", // Simulated version
-		"build_time":       "2023-02-15",
-		"controller_host":  "slurmctld.example.com",
+		"cluster_name":    cc.clusterName,
+		"version":         "23.02.0", // Simulated version
+		"build_time":      "2023-02-15",
+		"controller_host": "slurmctld.example.com",
 	}
-	
+
 	// Send cluster info metric
 	cc.SendMetric(ch, cc.BuildMetric(
 		cc.metrics.ClusterInfo.WithLabelValues(
@@ -130,7 +130,7 @@ func (cc *ClusterCollector) collectClusterInfo(ctx context.Context, ch chan<- pr
 		clusterInfo["build_time"],
 		clusterInfo["controller_host"],
 	))
-	
+
 	cc.LogCollection("Collected cluster info: version=%s", clusterInfo["version"])
 	return nil
 }
@@ -140,13 +140,13 @@ func (cc *ClusterCollector) collectNodeSummary(ctx context.Context, ch chan<- pr
 	// Simulate node data - in real implementation this would come from SLURM API
 	// This represents what we might get from /slurm/v1/nodes
 	nodeData := struct {
-		TotalNodes     int
-		TotalCPUs      int
-		TotalMemory    int64 // bytes
-		AllocatedNodes int
-		AllocatedCPUs  int
+		TotalNodes      int
+		TotalCPUs       int
+		TotalMemory     int64 // bytes
+		AllocatedNodes  int
+		AllocatedCPUs   int
 		AllocatedMemory int64 // bytes
-		NodeStates     map[string]int
+		NodeStates      map[string]int
 	}{
 		TotalNodes:      100,
 		TotalCPUs:       4800,
@@ -161,7 +161,7 @@ func (cc *ClusterCollector) collectNodeSummary(ctx context.Context, ch chan<- pr
 			"drain":     2,
 		},
 	}
-	
+
 	// Cluster capacity metrics
 	cc.SendMetric(ch, cc.BuildMetric(
 		cc.metrics.ClusterCapacityNodes.WithLabelValues(cc.clusterName).Desc(),
@@ -169,21 +169,21 @@ func (cc *ClusterCollector) collectNodeSummary(ctx context.Context, ch chan<- pr
 		float64(nodeData.TotalNodes),
 		cc.clusterName,
 	))
-	
+
 	cc.SendMetric(ch, cc.BuildMetric(
 		cc.metrics.ClusterCapacityCPUs.WithLabelValues(cc.clusterName).Desc(),
 		prometheus.GaugeValue,
 		float64(nodeData.TotalCPUs),
 		cc.clusterName,
 	))
-	
+
 	cc.SendMetric(ch, cc.BuildMetric(
 		cc.metrics.ClusterCapacityMemory.WithLabelValues(cc.clusterName).Desc(),
 		prometheus.GaugeValue,
 		float64(nodeData.TotalMemory),
 		cc.clusterName,
 	))
-	
+
 	// Cluster allocation metrics
 	cc.SendMetric(ch, cc.BuildMetric(
 		cc.metrics.ClusterAllocatedNodes.WithLabelValues(cc.clusterName).Desc(),
@@ -191,47 +191,47 @@ func (cc *ClusterCollector) collectNodeSummary(ctx context.Context, ch chan<- pr
 		float64(nodeData.AllocatedNodes),
 		cc.clusterName,
 	))
-	
+
 	cc.SendMetric(ch, cc.BuildMetric(
 		cc.metrics.ClusterAllocatedCPUs.WithLabelValues(cc.clusterName).Desc(),
 		prometheus.GaugeValue,
 		float64(nodeData.AllocatedCPUs),
 		cc.clusterName,
 	))
-	
+
 	cc.SendMetric(ch, cc.BuildMetric(
 		cc.metrics.ClusterAllocatedMemory.WithLabelValues(cc.clusterName).Desc(),
 		prometheus.GaugeValue,
 		float64(nodeData.AllocatedMemory),
 		cc.clusterName,
 	))
-	
+
 	// Cluster utilization metrics
 	cpuUtilization := float64(nodeData.AllocatedCPUs) / float64(nodeData.TotalCPUs)
 	memoryUtilization := float64(nodeData.AllocatedMemory) / float64(nodeData.TotalMemory)
 	nodeUtilization := float64(nodeData.AllocatedNodes) / float64(nodeData.TotalNodes)
-	
+
 	cc.SendMetric(ch, cc.BuildMetric(
 		cc.metrics.ClusterUtilizationCPUs.WithLabelValues(cc.clusterName).Desc(),
 		prometheus.GaugeValue,
 		cpuUtilization,
 		cc.clusterName,
 	))
-	
+
 	cc.SendMetric(ch, cc.BuildMetric(
 		cc.metrics.ClusterUtilizationMemory.WithLabelValues(cc.clusterName).Desc(),
 		prometheus.GaugeValue,
 		memoryUtilization,
 		cc.clusterName,
 	))
-	
+
 	cc.SendMetric(ch, cc.BuildMetric(
 		cc.metrics.ClusterUtilizationNodes.WithLabelValues(cc.clusterName).Desc(),
 		prometheus.GaugeValue,
 		nodeUtilization,
 		cc.clusterName,
 	))
-	
+
 	// Node states metrics
 	for state, count := range nodeData.NodeStates {
 		cc.SendMetric(ch, cc.BuildMetric(
@@ -242,10 +242,10 @@ func (cc *ClusterCollector) collectNodeSummary(ctx context.Context, ch chan<- pr
 			state,
 		))
 	}
-	
-	cc.LogCollection("Collected node summary: %d total nodes, %.1f%% CPU utilization", 
+
+	cc.LogCollection("Collected node summary: %d total nodes, %.1f%% CPU utilization",
 		nodeData.TotalNodes, cpuUtilization*100)
-	
+
 	return nil
 }
 
@@ -261,10 +261,10 @@ func (cc *ClusterCollector) collectJobSummary(ctx context.Context, ch chan<- pro
 		"failed":    23,
 		"timeout":   12,
 	}
-	
+
 	// Extract unique users count (simulated)
 	uniqueUsers := 85
-	
+
 	// Job states metrics
 	for state, count := range jobStates {
 		cc.SendMetric(ch, cc.BuildMetric(
@@ -275,7 +275,7 @@ func (cc *ClusterCollector) collectJobSummary(ctx context.Context, ch chan<- pro
 			state,
 		))
 	}
-	
+
 	// User count metric
 	cc.SendMetric(ch, cc.BuildMetric(
 		cc.metrics.ClusterUserCount.WithLabelValues(cc.clusterName).Desc(),
@@ -283,12 +283,12 @@ func (cc *ClusterCollector) collectJobSummary(ctx context.Context, ch chan<- pro
 		float64(uniqueUsers),
 		cc.clusterName,
 	))
-	
+
 	totalJobs := 0
 	for _, count := range jobStates {
 		totalJobs += count
 	}
-	
+
 	cc.LogCollection("Collected job summary: %d total jobs, %d unique users", totalJobs, uniqueUsers)
 	return nil
 }
@@ -298,14 +298,14 @@ func (cc *ClusterCollector) collectPartitionSummary(ctx context.Context, ch chan
 	// Simulate partition data - in real implementation this would come from SLURM API
 	// This represents what we might get from /slurm/v1/partitions
 	partitionCount := 8 // Example: compute, gpu, highmem, debug, etc.
-	
+
 	cc.SendMetric(ch, cc.BuildMetric(
 		cc.metrics.ClusterPartitionCount.WithLabelValues(cc.clusterName).Desc(),
 		prometheus.GaugeValue,
 		float64(partitionCount),
 		cc.clusterName,
 	))
-	
+
 	cc.LogCollection("Collected partition summary: %d partitions", partitionCount)
 	return nil
 }
@@ -374,11 +374,11 @@ func (cc *ClusterCollector) parseMemorySize(slurmMemory string) (int64, error) {
 	if slurmMemory == "" {
 		return 0, nil
 	}
-	
+
 	// Extract numeric part and unit
 	var value float64
 	var unit string
-	
+
 	// Simple parsing - in real implementation, use more robust parsing
 	if len(slurmMemory) > 0 {
 		lastChar := slurmMemory[len(slurmMemory)-1]
@@ -411,7 +411,7 @@ func (cc *ClusterCollector) parseMemorySize(slurmMemory string) (int64, error) {
 			}
 		}
 	}
-	
+
 	// Convert to bytes
 	switch unit {
 	case "K":
@@ -432,22 +432,21 @@ func (cc *ClusterCollector) parseTimeString(slurmTime string) (int64, error) {
 	if slurmTime == "" || slurmTime == "Unknown" {
 		return 0, nil
 	}
-	
+
 	// SLURM typically uses format: "2023-02-15T10:30:25"
 	layouts := []string{
 		"2006-01-02T15:04:05",
 		"2006-01-02 15:04:05",
 		time.RFC3339,
 	}
-	
+
 	for _, layout := range layouts {
 		if t, err := time.Parse(layout, slurmTime); err == nil {
 			return t.Unix(), nil
 		}
 	}
-	
+
 	return 0, cc.errorBuilder.Parsing(nil, "parse_time", "timestamp",
 		"Check SLURM time format configuration",
 		"Verify time zone settings")
 }
-

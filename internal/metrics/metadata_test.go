@@ -129,7 +129,7 @@ func TestMetricTypes(t *testing.T) {
 
 	t.Run("StabilityLevel", func(t *testing.T) {
 		levels := []StabilityLevel{
-			StabilityStable, StabilityBeta, StabilityAlpha, 
+			StabilityStable, StabilityBeta, StabilityAlpha,
 			StabilityDeprecated, StabilityExperimental,
 		}
 		for _, level := range levels {
@@ -215,7 +215,7 @@ func TestMetricMetadataStructure(t *testing.T) {
 		// Test that key metrics have all required fields
 		keyMetrics := []string{
 			"slurm_cluster_info",
-			"slurm_node_state", 
+			"slurm_node_state",
 			"slurm_job_states",
 			"slurm_exporter_collection_duration_seconds",
 		}
@@ -334,7 +334,7 @@ func TestDocumentationQuality(t *testing.T) {
 func TestCategoryDistribution(t *testing.T) {
 	t.Run("CategoryBalance", func(t *testing.T) {
 		counts := GetCategoryCount()
-		
+
 		// Should have metrics in all major categories
 		expectedCategories := []MetricCategory{
 			CategoryCluster, CategoryNode, CategoryJob, CategoryExporter,

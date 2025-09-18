@@ -49,7 +49,7 @@ func (lh *LabelHelper) ValidateAndBuildMetric(
 		lh.logger.WithError(err).WithFields(logrus.Fields{
 			"labels": labelMap,
 		}).Warn("Label validation failed, using original values")
-		
+
 		// Continue with original values if validation fails
 		validatedLabels = labelMap
 	}
@@ -278,17 +278,17 @@ func NewDimensionalAnalysisReporter(labelManager *metrics.LabelManager, logger *
 // LogCardinalityAnalysis logs the current cardinality analysis
 func (dar *DimensionalAnalysisReporter) LogCardinalityAnalysis() {
 	analysis := dar.labelManager.GetDimensionalAnalysis()
-	
+
 	dar.logger.Info("Dimensional Analysis Summary:")
 	for labelName, info := range analysis {
 		dar.logger.WithFields(logrus.Fields{
-			"label":        labelName,
-			"cardinality":  info.CurrentCardinality,
-			"max":          info.MaxCardinality,
-			"utilization":  fmt.Sprintf("%.1f%%", info.UtilizationPercent),
-			"type":         info.LabelType,
-			"required":     info.Required,
-			"sensitive":    info.Sensitive,
+			"label":       labelName,
+			"cardinality": info.CurrentCardinality,
+			"max":         info.MaxCardinality,
+			"utilization": fmt.Sprintf("%.1f%%", info.UtilizationPercent),
+			"type":        info.LabelType,
+			"required":    info.Required,
+			"sensitive":   info.Sensitive,
 		}).Info("Label dimension analysis")
 	}
 }
@@ -296,7 +296,7 @@ func (dar *DimensionalAnalysisReporter) LogCardinalityAnalysis() {
 // LogHighCardinalityWarnings logs warnings for high cardinality labels
 func (dar *DimensionalAnalysisReporter) LogHighCardinalityWarnings(thresholdPercent float64) {
 	highCardinality := dar.labelManager.GetHighCardinalityLabels(thresholdPercent)
-	
+
 	if len(highCardinality) == 0 {
 		dar.logger.Info("No high cardinality labels detected")
 		return
@@ -304,7 +304,7 @@ func (dar *DimensionalAnalysisReporter) LogHighCardinalityWarnings(thresholdPerc
 
 	dar.logger.WithField("threshold", fmt.Sprintf("%.1f%%", thresholdPercent)).
 		Warn("High cardinality labels detected")
-	
+
 	for _, info := range highCardinality {
 		dar.logger.WithFields(logrus.Fields{
 			"label":       info.LabelName,
@@ -318,7 +318,7 @@ func (dar *DimensionalAnalysisReporter) LogHighCardinalityWarnings(thresholdPerc
 // LogRecommendations logs label optimization recommendations
 func (dar *DimensionalAnalysisReporter) LogRecommendations() {
 	recommendations := dar.labelManager.GetLabelRecommendations()
-	
+
 	if len(recommendations) == 0 {
 		dar.logger.Info("No label optimization recommendations at this time")
 		return

@@ -63,7 +63,7 @@ func TestUserCollector(t *testing.T) {
 
 	t.Run("Describe", func(t *testing.T) {
 		descChan := make(chan *prometheus.Desc, 100)
-		
+
 		collector.Describe(descChan)
 		close(descChan)
 
@@ -81,7 +81,7 @@ func TestUserCollector(t *testing.T) {
 
 	t.Run("Collect", func(t *testing.T) {
 		hook.Reset()
-		
+
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 200)
 
@@ -106,7 +106,7 @@ func TestUserCollector(t *testing.T) {
 
 	t.Run("CollectUserStats", func(t *testing.T) {
 		hook.Reset()
-		
+
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 100)
 
@@ -306,14 +306,14 @@ func TestUserCollectorDataTypes(t *testing.T) {
 				MaxNodes:  10,
 			},
 			Usage: AccountUsage{
-				JobCount:     25,
-				CPUHours:     1200.5,
-				MemoryHours:  2400.8,
-				NodeHours:    120.3,
-				FairShare:    0.85,
-				RawUsage:     1200.5,
-				NormUsage:    1.2,
-				EffUsage:     1.02,
+				JobCount:    25,
+				CPUHours:    1200.5,
+				MemoryHours: 2400.8,
+				NodeHours:   120.3,
+				FairShare:   0.85,
+				RawUsage:    1200.5,
+				NormUsage:   1.2,
+				EffUsage:    1.02,
 			},
 		}
 

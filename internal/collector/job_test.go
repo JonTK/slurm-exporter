@@ -63,7 +63,7 @@ func TestJobCollector(t *testing.T) {
 
 	t.Run("Describe", func(t *testing.T) {
 		descChan := make(chan *prometheus.Desc, 100)
-		
+
 		collector.Describe(descChan)
 		close(descChan)
 
@@ -81,7 +81,7 @@ func TestJobCollector(t *testing.T) {
 
 	t.Run("Collect", func(t *testing.T) {
 		hook.Reset()
-		
+
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 200)
 
@@ -106,7 +106,7 @@ func TestJobCollector(t *testing.T) {
 
 	t.Run("CollectActiveJobs", func(t *testing.T) {
 		hook.Reset()
-		
+
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 100)
 

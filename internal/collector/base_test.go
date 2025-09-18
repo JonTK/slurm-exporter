@@ -36,7 +36,7 @@ func TestBaseCollector(t *testing.T) {
 	}
 
 	metrics := NewCollectorMetrics("test", "collector")
-	
+
 	// Create a nil client for now due to slurm-client build issues
 	var client interface{} = nil
 
@@ -163,7 +163,7 @@ func TestBaseCollector(t *testing.T) {
 
 	t.Run("ErrorHandling", func(t *testing.T) {
 		testErr := errors.New("test error")
-		
+
 		// Test error wrapping
 		wrapped := base.WrapError(testErr, "operation failed")
 		if wrapped == nil {
@@ -198,7 +198,7 @@ func TestBaseCollector(t *testing.T) {
 		ch := make(chan prometheus.Metric, 1)
 		ch <- metric
 		close(ch)
-		
+
 		collected := <-ch
 		if collected == nil {
 			t.Error("Expected to collect the metric")

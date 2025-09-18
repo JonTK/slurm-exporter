@@ -95,10 +95,10 @@ func (pc *PerformanceCollector) collectThroughputMetrics(ctx context.Context, ch
 	// Simulate throughput data - in real implementation this would come from SLURM API
 	// This represents jobs completed/submitted per hour, CPU hours delivered, etc.
 	throughputData := []struct {
-		MetricType      string
-		Value          float64
-		TimeWindow     string
-		PartitionName  string
+		MetricType    string
+		Value         float64
+		TimeWindow    string
+		PartitionName string
 	}{
 		{
 			MetricType:    "jobs_completed",
@@ -182,63 +182,63 @@ func (pc *PerformanceCollector) collectEfficiencyMetrics(ctx context.Context, ch
 	// Simulate efficiency data
 	efficiencyData := []struct {
 		EfficiencyType string
-		Value         float64
-		PartitionName string
-		TimeWindow    string
+		Value          float64
+		PartitionName  string
+		TimeWindow     string
 	}{
 		{
 			EfficiencyType: "cpu_utilization",
-			Value:         0.78, // 78% CPU utilization
-			PartitionName: "compute",
-			TimeWindow:    "1h",
+			Value:          0.78, // 78% CPU utilization
+			PartitionName:  "compute",
+			TimeWindow:     "1h",
 		},
 		{
 			EfficiencyType: "memory_utilization",
-			Value:         0.65, // 65% memory utilization
-			PartitionName: "compute",
-			TimeWindow:    "1h",
+			Value:          0.65, // 65% memory utilization
+			PartitionName:  "compute",
+			TimeWindow:     "1h",
 		},
 		{
 			EfficiencyType: "node_utilization",
-			Value:         0.82, // 82% node utilization
-			PartitionName: "compute",
-			TimeWindow:    "1h",
+			Value:          0.82, // 82% node utilization
+			PartitionName:  "compute",
+			TimeWindow:     "1h",
 		},
 		{
 			EfficiencyType: "cpu_utilization",
-			Value:         0.85, // 85% CPU utilization
-			PartitionName: "gpu",
-			TimeWindow:    "1h",
+			Value:          0.85, // 85% CPU utilization
+			PartitionName:  "gpu",
+			TimeWindow:     "1h",
 		},
 		{
 			EfficiencyType: "memory_utilization",
-			Value:         0.72, // 72% memory utilization
-			PartitionName: "gpu",
-			TimeWindow:    "1h",
+			Value:          0.72, // 72% memory utilization
+			PartitionName:  "gpu",
+			TimeWindow:     "1h",
 		},
 		{
 			EfficiencyType: "node_utilization",
-			Value:         0.90, // 90% node utilization
-			PartitionName: "gpu",
-			TimeWindow:    "1h",
+			Value:          0.90, // 90% node utilization
+			PartitionName:  "gpu",
+			TimeWindow:     "1h",
 		},
 		{
 			EfficiencyType: "cpu_utilization",
-			Value:         0.91, // 91% CPU utilization
-			PartitionName: "highmem",
-			TimeWindow:    "1h",
+			Value:          0.91, // 91% CPU utilization
+			PartitionName:  "highmem",
+			TimeWindow:     "1h",
 		},
 		{
 			EfficiencyType: "memory_utilization",
-			Value:         0.88, // 88% memory utilization
-			PartitionName: "highmem",
-			TimeWindow:    "1h",
+			Value:          0.88, // 88% memory utilization
+			PartitionName:  "highmem",
+			TimeWindow:     "1h",
 		},
 		{
 			EfficiencyType: "node_utilization",
-			Value:         0.75, // 75% node utilization
-			PartitionName: "highmem",
-			TimeWindow:    "1h",
+			Value:          0.75, // 75% node utilization
+			PartitionName:  "highmem",
+			TimeWindow:     "1h",
 		},
 	}
 
@@ -262,7 +262,7 @@ func (pc *PerformanceCollector) collectEfficiencyMetrics(ctx context.Context, ch
 	// Collect resource utilization metrics (more detailed breakdowns)
 	resourceData := []struct {
 		ResourceType  string
-		Utilization  float64
+		Utilization   float64
 		PartitionName string
 	}{
 		{"cpu", 0.78, "compute"},
@@ -293,7 +293,7 @@ func (pc *PerformanceCollector) collectEfficiencyMetrics(ctx context.Context, ch
 		))
 	}
 
-	pc.LogCollection("Collected efficiency metrics for %d efficiency points and %d resource points", 
+	pc.LogCollection("Collected efficiency metrics for %d efficiency points and %d resource points",
 		len(efficiencyData), len(resourceData))
 	return nil
 }
@@ -302,14 +302,14 @@ func (pc *PerformanceCollector) collectEfficiencyMetrics(ctx context.Context, ch
 func (pc *PerformanceCollector) collectQueueMetrics(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Simulate queue analysis data
 	queueData := []struct {
-		PartitionName     string
-		QueueDepth       int
-		AvgWaitTime      time.Duration
-		MedianWaitTime   time.Duration
-		MaxWaitTime      time.Duration
-		P95WaitTime      time.Duration
-		JobTurnoverRate  float64 // jobs per hour
-		Priority         string
+		PartitionName   string
+		QueueDepth      int
+		AvgWaitTime     time.Duration
+		MedianWaitTime  time.Duration
+		MaxWaitTime     time.Duration
+		P95WaitTime     time.Duration
+		JobTurnoverRate float64 // jobs per hour
+		Priority        string
 	}{
 		{
 			PartitionName:   "compute",
@@ -405,37 +405,37 @@ func (pc *PerformanceCollector) collectQueueMetrics(ctx context.Context, ch chan
 
 // PerformanceMetrics represents system performance metrics
 type PerformanceMetrics struct {
-	ThroughputMetrics  ThroughputMetrics
-	EfficiencyMetrics  EfficiencyMetrics
+	ThroughputMetrics ThroughputMetrics
+	EfficiencyMetrics EfficiencyMetrics
 	QueueMetrics      QueueMetrics
 }
 
 // ThroughputMetrics represents throughput statistics
 type ThroughputMetrics struct {
-	JobsPerHour       float64
-	CPUHoursPerHour   float64
-	CompletionRate    float64
-	SubmissionRate    float64
+	JobsPerHour     float64
+	CPUHoursPerHour float64
+	CompletionRate  float64
+	SubmissionRate  float64
 }
 
 // EfficiencyMetrics represents efficiency statistics
 type EfficiencyMetrics struct {
-	CPUUtilization    float64
-	MemoryUtilization float64
-	NodeUtilization   float64
+	CPUUtilization     float64
+	MemoryUtilization  float64
+	NodeUtilization    float64
 	StorageUtilization float64
 	NetworkUtilization float64
-	OverallEfficiency float64
+	OverallEfficiency  float64
 }
 
 // QueueMetrics represents queue analysis statistics
 type QueueMetrics struct {
-	QueueDepth        int
-	AverageWaitTime   time.Duration
-	MedianWaitTime    time.Duration
-	MaxWaitTime       time.Duration
-	P95WaitTime       time.Duration
-	TurnoverRate      float64
+	QueueDepth      int
+	AverageWaitTime time.Duration
+	MedianWaitTime  time.Duration
+	MaxWaitTime     time.Duration
+	P95WaitTime     time.Duration
+	TurnoverRate    float64
 }
 
 // calculateEfficiency calculates overall system efficiency
@@ -479,12 +479,12 @@ func (pc *PerformanceCollector) parsePerformanceData(data interface{}) (*Perform
 			SubmissionRate:  1.15,
 		},
 		EfficiencyMetrics: EfficiencyMetrics{
-			CPUUtilization:    0.78,
-			MemoryUtilization: 0.65,
-			NodeUtilization:   0.82,
+			CPUUtilization:     0.78,
+			MemoryUtilization:  0.65,
+			NodeUtilization:    0.82,
 			StorageUtilization: 0.45,
 			NetworkUtilization: 0.23,
-			OverallEfficiency: 0.725,
+			OverallEfficiency:  0.725,
 		},
 		QueueMetrics: QueueMetrics{
 			QueueDepth:      125,

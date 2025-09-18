@@ -347,7 +347,7 @@ func TestCollectorAdapter(t *testing.T) {
 
 		errorAdapter := &collectorAdapter{collector: errorCol}
 		ch := make(chan prometheus.Metric, 10)
-		
+
 		// Should not panic on error
 		errorAdapter.Collect(ch)
 		close(ch)

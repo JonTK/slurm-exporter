@@ -46,7 +46,7 @@ func (dc *DegradedCollector) Collect(ctx context.Context, ch chan<- prometheus.M
 		metricChan := make(chan prometheus.Metric, 1000)
 		var metrics []prometheus.Metric
 		var collectionErr error
-		
+
 		// Collect in a goroutine
 		done := make(chan struct{})
 		go func() {
@@ -54,21 +54,21 @@ func (dc *DegradedCollector) Collect(ctx context.Context, ch chan<- prometheus.M
 			collectionErr = dc.collector.Collect(ctx, metricChan)
 			close(metricChan)
 		}()
-		
+
 		// Gather all metrics
 		for metric := range metricChan {
 			metrics = append(metrics, metric)
 		}
-		
+
 		// Wait for collection to complete
 		<-done
-		
+
 		return metrics, collectionErr
 	}
-	
+
 	// Execute with degradation support
 	metrics, err := dc.degradationManager.ExecuteWithDegradation(ctx, dc.collector.Name(), collectFunc)
-	
+
 	// Send collected metrics to the channel
 	for _, metric := range metrics {
 		select {
@@ -78,7 +78,7 @@ func (dc *DegradedCollector) Collect(ctx context.Context, ch chan<- prometheus.M
 			return ctx.Err()
 		}
 	}
-	
+
 	return err
 }
 
@@ -111,20 +111,20 @@ func NewDegradedRegistry(
 	if err != nil {
 		return nil, fmt.Errorf("failed to create base registry: %w", err)
 	}
-	
+
 	// Create degradation manager
 	degradationManager, err := NewDegradationManager(&config.Degradation, promRegistry)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create degradation manager: %w", err)
 	}
-	
+
 	dr := &DegradedRegistry{
 		registry:           registry,
 		degradationManager: degradationManager,
 		degradedCollectors: make(map[string]*DegradedCollector),
 		logger:             logrus.WithField("component", "degraded_registry"),
 	}
-	
+
 	return dr, nil
 }
 
@@ -134,17 +134,17 @@ func (dr *DegradedRegistry) Register(name string, collector Collector) error {
 	if err := dr.registry.Register(name, collector); err != nil {
 		return err
 	}
-	
+
 	// Wrap with degradation support if enabled
 	dr.mu.Lock()
 	defer dr.mu.Unlock()
-	
+
 	if dr.degradationManager.config.Enabled {
 		degradedCollector := NewDegradedCollector(collector, dr.degradationManager)
 		dr.degradedCollectors[name] = degradedCollector
 		dr.logger.WithField("collector", name).Info("Registered collector with degradation support")
 	}
-	
+
 	return nil
 }
 
@@ -153,7 +153,7 @@ func (dr *DegradedRegistry) Unregister(name string) error {
 	dr.mu.Lock()
 	delete(dr.degradedCollectors, name)
 	dr.mu.Unlock()
-	
+
 	return dr.registry.Unregister(name)
 }
 
@@ -166,7 +166,7 @@ func (dr *DegradedRegistry) Get(name string) (Collector, bool) {
 		return degraded, true
 	}
 	dr.mu.RUnlock()
-	
+
 	// Fall back to base registry
 	return dr.registry.Get(name)
 }
@@ -234,7 +234,7 @@ func (drc *degradedRegistryCollector) Collect(ch chan<- prometheus.Metric) {
 				defer close(subCh)
 				collector.Collect(ctx, subCh)
 			}()
-			
+
 			// Forward metrics
 			for metric := range subCh {
 				ch <- metric

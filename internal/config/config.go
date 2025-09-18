@@ -26,26 +26,26 @@ type Config struct {
 
 // ServerConfig holds HTTP server configuration.
 type ServerConfig struct {
-	Address       string        `yaml:"address"`
-	MetricsPath   string        `yaml:"metrics_path"`
-	HealthPath    string        `yaml:"health_path"`
-	ReadyPath     string        `yaml:"ready_path"`
-	Timeout       time.Duration `yaml:"timeout"`
-	ReadTimeout   time.Duration `yaml:"read_timeout"`
-	WriteTimeout  time.Duration `yaml:"write_timeout"`
-	IdleTimeout   time.Duration `yaml:"idle_timeout"`
-	TLS           TLSConfig     `yaml:"tls"`
-	BasicAuth     BasicAuthConfig `yaml:"basic_auth"`
-	CORS          CORSConfig    `yaml:"cors"`
-	MaxRequestSize int64        `yaml:"max_request_size"`
+	Address        string          `yaml:"address"`
+	MetricsPath    string          `yaml:"metrics_path"`
+	HealthPath     string          `yaml:"health_path"`
+	ReadyPath      string          `yaml:"ready_path"`
+	Timeout        time.Duration   `yaml:"timeout"`
+	ReadTimeout    time.Duration   `yaml:"read_timeout"`
+	WriteTimeout   time.Duration   `yaml:"write_timeout"`
+	IdleTimeout    time.Duration   `yaml:"idle_timeout"`
+	TLS            TLSConfig       `yaml:"tls"`
+	BasicAuth      BasicAuthConfig `yaml:"basic_auth"`
+	CORS           CORSConfig      `yaml:"cors"`
+	MaxRequestSize int64           `yaml:"max_request_size"`
 }
 
 // TLSConfig holds TLS configuration.
 type TLSConfig struct {
-	Enabled    bool   `yaml:"enabled"`
-	CertFile   string `yaml:"cert_file"`
-	KeyFile    string `yaml:"key_file"`
-	MinVersion string `yaml:"min_version"`
+	Enabled      bool     `yaml:"enabled"`
+	CertFile     string   `yaml:"cert_file"`
+	KeyFile      string   `yaml:"key_file"`
+	MinVersion   string   `yaml:"min_version"`
 	CipherSuites []string `yaml:"cipher_suites"`
 }
 
@@ -66,13 +66,13 @@ type CORSConfig struct {
 
 // SLURMConfig holds SLURM connection configuration.
 type SLURMConfig struct {
-	BaseURL       string        `yaml:"base_url"`
-	APIVersion    string        `yaml:"api_version"`
-	Auth          AuthConfig    `yaml:"auth"`
-	Timeout       time.Duration `yaml:"timeout"`
-	RetryAttempts int           `yaml:"retry_attempts"`
-	RetryDelay    time.Duration `yaml:"retry_delay"`
-	TLS           SLURMTLSConfig `yaml:"tls"`
+	BaseURL       string          `yaml:"base_url"`
+	APIVersion    string          `yaml:"api_version"`
+	Auth          AuthConfig      `yaml:"auth"`
+	Timeout       time.Duration   `yaml:"timeout"`
+	RetryAttempts int             `yaml:"retry_attempts"`
+	RetryDelay    time.Duration   `yaml:"retry_delay"`
+	TLS           SLURMTLSConfig  `yaml:"tls"`
 	RateLimit     RateLimitConfig `yaml:"rate_limit"`
 }
 
@@ -92,15 +92,15 @@ type RateLimitConfig struct {
 
 // AuthConfig holds authentication configuration.
 type AuthConfig struct {
-	Type         string            `yaml:"type"`         // jwt, basic, apikey, none
-	Token        string            `yaml:"token"`        // For JWT
-	TokenFile    string            `yaml:"token_file"`   // For JWT from file
-	Username     string            `yaml:"username"`     // For basic auth
-	Password     string            `yaml:"password"`     // For basic auth
+	Type         string            `yaml:"type"`          // jwt, basic, apikey, none
+	Token        string            `yaml:"token"`         // For JWT
+	TokenFile    string            `yaml:"token_file"`    // For JWT from file
+	Username     string            `yaml:"username"`      // For basic auth
+	Password     string            `yaml:"password"`      // For basic auth
 	PasswordFile string            `yaml:"password_file"` // For basic auth from file
-	APIKey       string            `yaml:"api_key"`      // For API key auth
-	APIKeyFile   string            `yaml:"api_key_file"` // For API key from file
-	Headers      map[string]string `yaml:"headers"`      // Custom headers
+	APIKey       string            `yaml:"api_key"`       // For API key auth
+	APIKeyFile   string            `yaml:"api_key_file"`  // For API key from file
+	Headers      map[string]string `yaml:"headers"`       // Custom headers
 }
 
 // CollectorsConfig holds configuration for metric collectors.
@@ -118,23 +118,23 @@ type CollectorsConfig struct {
 
 // GlobalCollectorConfig holds global collector settings.
 type GlobalCollectorConfig struct {
-	DefaultInterval    time.Duration `yaml:"default_interval"`
-	DefaultTimeout     time.Duration `yaml:"default_timeout"`
-	MaxConcurrency     int           `yaml:"max_concurrency"`
-	ErrorThreshold     int           `yaml:"error_threshold"`
-	RecoveryDelay      time.Duration `yaml:"recovery_delay"`
-	GracefulDegradation bool         `yaml:"graceful_degradation"`
+	DefaultInterval     time.Duration `yaml:"default_interval"`
+	DefaultTimeout      time.Duration `yaml:"default_timeout"`
+	MaxConcurrency      int           `yaml:"max_concurrency"`
+	ErrorThreshold      int           `yaml:"error_threshold"`
+	RecoveryDelay       time.Duration `yaml:"recovery_delay"`
+	GracefulDegradation bool          `yaml:"graceful_degradation"`
 }
 
 // CollectorConfig holds configuration for individual collectors.
 type CollectorConfig struct {
-	Enabled         bool          `yaml:"enabled"`
-	Interval        time.Duration `yaml:"interval"`
-	Timeout         time.Duration `yaml:"timeout"`
-	MaxConcurrency  int           `yaml:"max_concurrency"`
-	Labels          map[string]string `yaml:"labels"`
-	Filters         FilterConfig  `yaml:"filters"`
-	ErrorHandling   ErrorHandlingConfig `yaml:"error_handling"`
+	Enabled        bool                `yaml:"enabled"`
+	Interval       time.Duration       `yaml:"interval"`
+	Timeout        time.Duration       `yaml:"timeout"`
+	MaxConcurrency int                 `yaml:"max_concurrency"`
+	Labels         map[string]string   `yaml:"labels"`
+	Filters        FilterConfig        `yaml:"filters"`
+	ErrorHandling  ErrorHandlingConfig `yaml:"error_handling"`
 }
 
 // FilterConfig holds filtering configuration for collectors.
@@ -169,34 +169,34 @@ type DegradationConfig struct {
 
 // LoggingConfig holds logging configuration.
 type LoggingConfig struct {
-	Level          string            `yaml:"level"`          // debug, info, warn, error
-	Format         string            `yaml:"format"`         // json, text
-	Output         string            `yaml:"output"`         // stdout, stderr, file
-	File           string            `yaml:"file"`           // Log file path
-	MaxSize        int               `yaml:"max_size"`       // Max size in MB
-	MaxAge         int               `yaml:"max_age"`        // Max age in days
-	MaxBackups     int               `yaml:"max_backups"`    // Max backup files
-	Compress       bool              `yaml:"compress"`       // Compress rotated files
-	Fields         map[string]string `yaml:"fields"`         // Additional fields
-	SuppressHTTP   bool              `yaml:"suppress_http"`  // Suppress HTTP request logs
+	Level        string            `yaml:"level"`         // debug, info, warn, error
+	Format       string            `yaml:"format"`        // json, text
+	Output       string            `yaml:"output"`        // stdout, stderr, file
+	File         string            `yaml:"file"`          // Log file path
+	MaxSize      int               `yaml:"max_size"`      // Max size in MB
+	MaxAge       int               `yaml:"max_age"`       // Max age in days
+	MaxBackups   int               `yaml:"max_backups"`   // Max backup files
+	Compress     bool              `yaml:"compress"`      // Compress rotated files
+	Fields       map[string]string `yaml:"fields"`        // Additional fields
+	SuppressHTTP bool              `yaml:"suppress_http"` // Suppress HTTP request logs
 }
 
 // MetricsConfig holds metrics configuration.
 type MetricsConfig struct {
-	Namespace        string            `yaml:"namespace"`
-	Subsystem        string            `yaml:"subsystem"`
-	ConstLabels      map[string]string `yaml:"const_labels"`
-	MaxAge           time.Duration     `yaml:"max_age"`
-	AgeBuckets       int               `yaml:"age_buckets"`
-	Registry         RegistryConfig    `yaml:"registry"`
-	Cardinality      CardinalityConfig `yaml:"cardinality"`
+	Namespace   string            `yaml:"namespace"`
+	Subsystem   string            `yaml:"subsystem"`
+	ConstLabels map[string]string `yaml:"const_labels"`
+	MaxAge      time.Duration     `yaml:"max_age"`
+	AgeBuckets  int               `yaml:"age_buckets"`
+	Registry    RegistryConfig    `yaml:"registry"`
+	Cardinality CardinalityConfig `yaml:"cardinality"`
 }
 
 // RegistryConfig holds Prometheus registry configuration.
 type RegistryConfig struct {
-	EnableGoCollector     bool `yaml:"enable_go_collector"`
+	EnableGoCollector      bool `yaml:"enable_go_collector"`
 	EnableProcessCollector bool `yaml:"enable_process_collector"`
-	EnableBuildInfo       bool `yaml:"enable_build_info"`
+	EnableBuildInfo        bool `yaml:"enable_build_info"`
 }
 
 // CardinalityConfig holds cardinality management configuration.
@@ -348,9 +348,9 @@ func Default() *Config {
 			SuppressHTTP: false,
 		},
 		Metrics: MetricsConfig{
-			Namespace: "slurm",
-			Subsystem: "exporter",
-			MaxAge:    5 * time.Minute,
+			Namespace:  "slurm",
+			Subsystem:  "exporter",
+			MaxAge:     5 * time.Minute,
 			AgeBuckets: 5,
 			Registry: RegistryConfig{
 				EnableGoCollector:      true,
@@ -487,7 +487,7 @@ func (s *ServerConfig) Validate() error {
 		if s.TLS.KeyFile == "" {
 			return fmt.Errorf("server.tls.key_file must be specified when TLS is enabled (set server.tls.enabled=false to disable TLS)")
 		}
-		
+
 		// Check if TLS files exist
 		if _, err := os.Stat(s.TLS.CertFile); os.IsNotExist(err) {
 			return fmt.Errorf("server.tls.cert_file '%s' does not exist", s.TLS.CertFile)
@@ -693,16 +693,16 @@ func (d *DegradationConfig) Validate() error {
 		if d.MaxFailures <= 0 {
 			return fmt.Errorf("max_failures must be positive when degradation is enabled, got %d (example: 3, 5)", d.MaxFailures)
 		}
-		
+
 		if d.ResetTimeout <= 0 {
 			return fmt.Errorf("reset_timeout must be positive when degradation is enabled, got '%v' (example: '5m', '10m')", d.ResetTimeout)
 		}
-		
+
 		if d.UseCachedMetrics && d.CacheTTL <= 0 {
 			return fmt.Errorf("cache_ttl must be positive when cached metrics are enabled, got '%v' (example: '10m', '30m')", d.CacheTTL)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -1388,11 +1388,11 @@ func validateURL(url, field string) error {
 	if url == "" {
 		return fmt.Errorf("%s cannot be empty", field)
 	}
-	
+
 	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
 		return fmt.Errorf("%s must be a valid HTTP/HTTPS URL starting with 'http://' or 'https://', got: %s", field, url)
 	}
-	
+
 	return nil
 }
 

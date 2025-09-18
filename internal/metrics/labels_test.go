@@ -200,14 +200,14 @@ func TestLabelDimension(t *testing.T) {
 	t.Run("StandardLabels", func(t *testing.T) {
 		// Test that all standard labels are properly defined
 		requiredFields := []string{"cluster_name", "job_state", "node_state", "partition_state"}
-		
+
 		for _, fieldName := range requiredFields {
 			dimension, exists := StandardLabels[fieldName]
 			if !exists {
 				t.Errorf("Standard label %s not found", fieldName)
 				continue
 			}
-			
+
 			if dimension.Name != fieldName {
 				t.Errorf("Label name mismatch for %s", fieldName)
 			}

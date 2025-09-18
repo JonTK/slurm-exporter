@@ -158,7 +158,7 @@ func (r *Registry) EnableCollector(name string) error {
 	collector.SetEnabled(true)
 	labels := prometheus.Labels{"collector": name}
 	r.metrics.Up.With(labels).Set(1)
-	
+
 	r.logger.WithField("collector", name).Info("Collector enabled")
 	return nil
 }
@@ -176,7 +176,7 @@ func (r *Registry) DisableCollector(name string) error {
 	collector.SetEnabled(false)
 	labels := prometheus.Labels{"collector": name}
 	r.metrics.Up.With(labels).Set(0)
-	
+
 	r.logger.WithField("collector", name).Info("Collector disabled")
 	return nil
 }
@@ -350,9 +350,9 @@ func RegisterCollectorFactory(name string, factory CollectorFactory) {
 func (r *Registry) CreateCollectorsFromConfig(cfg *config.CollectorsConfig, client interface{}) error {
 	// This method will be implemented when we have actual collector implementations
 	// For now, it's a placeholder that shows the intended usage pattern
-	
+
 	r.logger.Info("Creating collectors from configuration")
-	
+
 	// Example of how collectors would be created:
 	// if cfg.Cluster.Enabled {
 	//     collector, err := clusterCollectorFactory(cfg.Cluster, client)
@@ -363,6 +363,6 @@ func (r *Registry) CreateCollectorsFromConfig(cfg *config.CollectorsConfig, clie
 	//         return fmt.Errorf("failed to register cluster collector: %w", err)
 	//     }
 	// }
-	
+
 	return nil
 }

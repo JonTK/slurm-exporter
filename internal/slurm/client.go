@@ -167,7 +167,7 @@ func (c *Client) executeWithRetry(ctx context.Context, operation func() error) e
 		// Execute the operation
 		if err := operation(); err != nil {
 			lastErr = err
-			
+
 			// Don't retry on context cancellation
 			if ctx.Err() != nil {
 				return ctx.Err()
@@ -180,7 +180,7 @@ func (c *Client) executeWithRetry(ctx context.Context, operation func() error) e
 			if attempt < c.config.RetryAttempts {
 				delay := c.config.RetryDelay * time.Duration(attempt+1)
 				logrus.WithField("delay", delay).Debug("Retrying SLURM API request")
-				
+
 				select {
 				case <-time.After(delay):
 					continue
@@ -212,7 +212,7 @@ func (c *Client) executeWithRetry(ctx context.Context, operation func() error) e
 // GetJobs retrieves job information from SLURM
 func (c *Client) GetJobs(ctx context.Context) (*slurm.JobList, error) {
 	var result *slurm.JobList
-	
+
 	err := c.executeWithRetry(ctx, func() error {
 		reqCtx, cancel := context.WithTimeout(ctx, c.config.Timeout)
 		defer cancel()
@@ -223,17 +223,17 @@ func (c *Client) GetJobs(ctx context.Context) (*slurm.JobList, error) {
 			return fmt.Errorf("failed to get jobs: %w", err)
 		}
 		result = jobList
-		
+
 		return nil
 	})
-	
+
 	return result, err
 }
 
 // GetNodes retrieves node information from SLURM
 func (c *Client) GetNodes(ctx context.Context) (*slurm.NodeList, error) {
 	var result *slurm.NodeList
-	
+
 	err := c.executeWithRetry(ctx, func() error {
 		reqCtx, cancel := context.WithTimeout(ctx, c.config.Timeout)
 		defer cancel()
@@ -244,17 +244,17 @@ func (c *Client) GetNodes(ctx context.Context) (*slurm.NodeList, error) {
 			return fmt.Errorf("failed to get nodes: %w", err)
 		}
 		result = nodeList
-		
+
 		return nil
 	})
-	
+
 	return result, err
 }
 
 // GetPartitions retrieves partition information from SLURM
 func (c *Client) GetPartitions(ctx context.Context) (*slurm.PartitionList, error) {
 	var result *slurm.PartitionList
-	
+
 	err := c.executeWithRetry(ctx, func() error {
 		reqCtx, cancel := context.WithTimeout(ctx, c.config.Timeout)
 		defer cancel()
@@ -265,17 +265,17 @@ func (c *Client) GetPartitions(ctx context.Context) (*slurm.PartitionList, error
 			return fmt.Errorf("failed to get partitions: %w", err)
 		}
 		result = partitionList
-		
+
 		return nil
 	})
-	
+
 	return result, err
 }
 
 // GetInfo retrieves cluster information from SLURM
 func (c *Client) GetInfo(ctx context.Context) (*slurm.ClusterInfo, error) {
 	var result *slurm.ClusterInfo
-	
+
 	err := c.executeWithRetry(ctx, func() error {
 		reqCtx, cancel := context.WithTimeout(ctx, c.config.Timeout)
 		defer cancel()
@@ -286,17 +286,17 @@ func (c *Client) GetInfo(ctx context.Context) (*slurm.ClusterInfo, error) {
 			return fmt.Errorf("failed to get cluster info: %w", err)
 		}
 		result = clusterInfo
-		
+
 		return nil
 	})
-	
+
 	return result, err
 }
 
 // GetStats retrieves cluster statistics from SLURM
 func (c *Client) GetStats(ctx context.Context) (*slurm.ClusterStats, error) {
 	var result *slurm.ClusterStats
-	
+
 	err := c.executeWithRetry(ctx, func() error {
 		reqCtx, cancel := context.WithTimeout(ctx, c.config.Timeout)
 		defer cancel()
@@ -307,10 +307,10 @@ func (c *Client) GetStats(ctx context.Context) (*slurm.ClusterStats, error) {
 			return fmt.Errorf("failed to get cluster stats: %w", err)
 		}
 		result = clusterStats
-		
+
 		return nil
 	})
-	
+
 	return result, err
 }
 
@@ -318,7 +318,7 @@ func (c *Client) GetStats(ctx context.Context) (*slurm.ClusterStats, error) {
 func (c *Client) Close() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	c.connected = false
 	// No explicit cleanup needed for the HTTP client in this case
 	return nil

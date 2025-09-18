@@ -9,112 +9,112 @@ type MetricDefinitions struct {
 	// Label management
 	LabelManager *LabelManager
 	// Cluster Overview Metrics
-	ClusterInfo                *prometheus.GaugeVec
-	ClusterCapacityCPUs        *prometheus.GaugeVec
-	ClusterCapacityMemory      *prometheus.GaugeVec
-	ClusterCapacityNodes       *prometheus.GaugeVec
-	ClusterAllocatedCPUs       *prometheus.GaugeVec
-	ClusterAllocatedMemory     *prometheus.GaugeVec
-	ClusterAllocatedNodes      *prometheus.GaugeVec
-	ClusterUtilizationCPUs     *prometheus.GaugeVec
-	ClusterUtilizationMemory   *prometheus.GaugeVec
-	ClusterUtilizationNodes    *prometheus.GaugeVec
-	ClusterNodeStates          *prometheus.GaugeVec
-	ClusterPartitionCount      *prometheus.GaugeVec
-	ClusterJobCount            *prometheus.GaugeVec
-	ClusterUserCount           *prometheus.GaugeVec
-	
+	ClusterInfo              *prometheus.GaugeVec
+	ClusterCapacityCPUs      *prometheus.GaugeVec
+	ClusterCapacityMemory    *prometheus.GaugeVec
+	ClusterCapacityNodes     *prometheus.GaugeVec
+	ClusterAllocatedCPUs     *prometheus.GaugeVec
+	ClusterAllocatedMemory   *prometheus.GaugeVec
+	ClusterAllocatedNodes    *prometheus.GaugeVec
+	ClusterUtilizationCPUs   *prometheus.GaugeVec
+	ClusterUtilizationMemory *prometheus.GaugeVec
+	ClusterUtilizationNodes  *prometheus.GaugeVec
+	ClusterNodeStates        *prometheus.GaugeVec
+	ClusterPartitionCount    *prometheus.GaugeVec
+	ClusterJobCount          *prometheus.GaugeVec
+	ClusterUserCount         *prometheus.GaugeVec
+
 	// Node-Level Metrics
-	NodeInfo                   *prometheus.GaugeVec
-	NodeCPUs                   *prometheus.GaugeVec
-	NodeMemory                 *prometheus.GaugeVec
-	NodeState                  *prometheus.GaugeVec
-	NodeAllocatedCPUs          *prometheus.GaugeVec
-	NodeAllocatedMemory        *prometheus.GaugeVec
-	NodeLoad                   *prometheus.GaugeVec
-	NodeUptime                 *prometheus.GaugeVec
-	NodeLastHeartbeat          *prometheus.GaugeVec
-	NodeFeatures               *prometheus.GaugeVec
-	NodeGPUs                   *prometheus.GaugeVec
-	NodeWeight                 *prometheus.GaugeVec
-	
+	NodeInfo            *prometheus.GaugeVec
+	NodeCPUs            *prometheus.GaugeVec
+	NodeMemory          *prometheus.GaugeVec
+	NodeState           *prometheus.GaugeVec
+	NodeAllocatedCPUs   *prometheus.GaugeVec
+	NodeAllocatedMemory *prometheus.GaugeVec
+	NodeLoad            *prometheus.GaugeVec
+	NodeUptime          *prometheus.GaugeVec
+	NodeLastHeartbeat   *prometheus.GaugeVec
+	NodeFeatures        *prometheus.GaugeVec
+	NodeGPUs            *prometheus.GaugeVec
+	NodeWeight          *prometheus.GaugeVec
+
 	// Job Metrics
-	JobInfo                    *prometheus.GaugeVec
-	JobStates                  *prometheus.GaugeVec
-	JobQueueTime               *prometheus.HistogramVec
-	JobRunTime                 *prometheus.HistogramVec
-	JobWaitTime                *prometheus.HistogramVec
-	JobCPURequested            *prometheus.GaugeVec
-	JobMemoryRequested         *prometheus.GaugeVec
-	JobNodesRequested          *prometheus.GaugeVec
-	JobCPUAllocated            *prometheus.GaugeVec
-	JobMemoryAllocated         *prometheus.GaugeVec
-	JobNodesAllocated          *prometheus.GaugeVec
-	JobPriority                *prometheus.GaugeVec
-	JobStartTime               *prometheus.GaugeVec
-	JobEndTime                 *prometheus.GaugeVec
-	JobExitCode                *prometheus.GaugeVec
-	
+	JobInfo            *prometheus.GaugeVec
+	JobStates          *prometheus.GaugeVec
+	JobQueueTime       *prometheus.HistogramVec
+	JobRunTime         *prometheus.HistogramVec
+	JobWaitTime        *prometheus.HistogramVec
+	JobCPURequested    *prometheus.GaugeVec
+	JobMemoryRequested *prometheus.GaugeVec
+	JobNodesRequested  *prometheus.GaugeVec
+	JobCPUAllocated    *prometheus.GaugeVec
+	JobMemoryAllocated *prometheus.GaugeVec
+	JobNodesAllocated  *prometheus.GaugeVec
+	JobPriority        *prometheus.GaugeVec
+	JobStartTime       *prometheus.GaugeVec
+	JobEndTime         *prometheus.GaugeVec
+	JobExitCode        *prometheus.GaugeVec
+
 	// User and Account Metrics
-	UserJobCount               *prometheus.GaugeVec
-	UserCPUAllocated           *prometheus.GaugeVec
-	UserMemoryAllocated        *prometheus.GaugeVec
-	UserJobStates              *prometheus.GaugeVec
-	AccountInfo                *prometheus.GaugeVec
-	AccountJobCount            *prometheus.GaugeVec
-	AccountCPUAllocated        *prometheus.GaugeVec
-	AccountMemoryAllocated     *prometheus.GaugeVec
-	AccountFairShare           *prometheus.GaugeVec
-	AccountUsage               *prometheus.GaugeVec
-	
+	UserJobCount           *prometheus.GaugeVec
+	UserCPUAllocated       *prometheus.GaugeVec
+	UserMemoryAllocated    *prometheus.GaugeVec
+	UserJobStates          *prometheus.GaugeVec
+	AccountInfo            *prometheus.GaugeVec
+	AccountJobCount        *prometheus.GaugeVec
+	AccountCPUAllocated    *prometheus.GaugeVec
+	AccountMemoryAllocated *prometheus.GaugeVec
+	AccountFairShare       *prometheus.GaugeVec
+	AccountUsage           *prometheus.GaugeVec
+
 	// Partition Metrics
-	PartitionInfo              *prometheus.GaugeVec
-	PartitionNodes             *prometheus.GaugeVec
-	PartitionCPUs              *prometheus.GaugeVec
-	PartitionMemory            *prometheus.GaugeVec
-	PartitionState             *prometheus.GaugeVec
-	PartitionJobCount          *prometheus.GaugeVec
-	PartitionAllocatedCPUs     *prometheus.GaugeVec
-	PartitionAllocatedMemory   *prometheus.GaugeVec
-	PartitionUtilization       *prometheus.GaugeVec
-	PartitionMaxTime           *prometheus.GaugeVec
-	PartitionDefaultTime       *prometheus.GaugeVec
-	PartitionPriority          *prometheus.GaugeVec
-	
+	PartitionInfo            *prometheus.GaugeVec
+	PartitionNodes           *prometheus.GaugeVec
+	PartitionCPUs            *prometheus.GaugeVec
+	PartitionMemory          *prometheus.GaugeVec
+	PartitionState           *prometheus.GaugeVec
+	PartitionJobCount        *prometheus.GaugeVec
+	PartitionAllocatedCPUs   *prometheus.GaugeVec
+	PartitionAllocatedMemory *prometheus.GaugeVec
+	PartitionUtilization     *prometheus.GaugeVec
+	PartitionMaxTime         *prometheus.GaugeVec
+	PartitionDefaultTime     *prometheus.GaugeVec
+	PartitionPriority        *prometheus.GaugeVec
+
 	// Performance and Efficiency Metrics
-	ClusterThroughput          *prometheus.GaugeVec
-	ClusterEfficiency          *prometheus.GaugeVec
-	QueueBacklog               *prometheus.GaugeVec
-	AverageQueueTime           *prometheus.GaugeVec
-	AverageWaitTime            *prometheus.GaugeVec
-	JobCompletionRate          *prometheus.GaugeVec
-	ResourceWastage            *prometheus.GaugeVec
-	SchedulingLatency          *prometheus.HistogramVec
-	SystemThroughput           *prometheus.GaugeVec
-	SystemEfficiency           *prometheus.GaugeVec
-	QueueWaitTime              *prometheus.GaugeVec
-	QueueDepth                 *prometheus.GaugeVec
-	ResourceUtilization        *prometheus.GaugeVec
-	JobTurnover                *prometheus.GaugeVec
-	
+	ClusterThroughput   *prometheus.GaugeVec
+	ClusterEfficiency   *prometheus.GaugeVec
+	QueueBacklog        *prometheus.GaugeVec
+	AverageQueueTime    *prometheus.GaugeVec
+	AverageWaitTime     *prometheus.GaugeVec
+	JobCompletionRate   *prometheus.GaugeVec
+	ResourceWastage     *prometheus.GaugeVec
+	SchedulingLatency   *prometheus.HistogramVec
+	SystemThroughput    *prometheus.GaugeVec
+	SystemEfficiency    *prometheus.GaugeVec
+	QueueWaitTime       *prometheus.GaugeVec
+	QueueDepth          *prometheus.GaugeVec
+	ResourceUtilization *prometheus.GaugeVec
+	JobTurnover         *prometheus.GaugeVec
+
 	// System Metrics
-	SystemLoad                 *prometheus.GaugeVec
-	SystemMemoryUsage          *prometheus.GaugeVec
-	SystemDiskUsage            *prometheus.GaugeVec
-	SystemNetworkIO            *prometheus.GaugeVec
-	SystemCPUUsage             *prometheus.GaugeVec
-	
+	SystemLoad        *prometheus.GaugeVec
+	SystemMemoryUsage *prometheus.GaugeVec
+	SystemDiskUsage   *prometheus.GaugeVec
+	SystemNetworkIO   *prometheus.GaugeVec
+	SystemCPUUsage    *prometheus.GaugeVec
+
 	// Exporter Self-Monitoring
-	CollectionDuration         *prometheus.HistogramVec
-	CollectionErrors           *prometheus.CounterVec
-	CollectionSuccess          *prometheus.CounterVec
-	CollectorUp                *prometheus.GaugeVec
-	LastCollectionTime         *prometheus.GaugeVec
-	MetricsExported            *prometheus.CounterVec
-	APICallDuration            *prometheus.HistogramVec
-	APICallErrors              *prometheus.CounterVec
-	CacheHits                  *prometheus.CounterVec
-	CacheMisses                *prometheus.CounterVec
+	CollectionDuration *prometheus.HistogramVec
+	CollectionErrors   *prometheus.CounterVec
+	CollectionSuccess  *prometheus.CounterVec
+	CollectorUp        *prometheus.GaugeVec
+	LastCollectionTime *prometheus.GaugeVec
+	MetricsExported    *prometheus.CounterVec
+	APICallDuration    *prometheus.HistogramVec
+	APICallErrors      *prometheus.CounterVec
+	CacheHits          *prometheus.CounterVec
+	CacheMisses        *prometheus.CounterVec
 }
 
 // NewMetricDefinitions creates all metric definitions with the given namespace and subsystem
@@ -133,7 +133,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "version", "build_time", "controller_host"},
 		),
-		
+
 		ClusterCapacityCPUs: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -144,7 +144,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name"},
 		),
-		
+
 		ClusterCapacityMemory: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -155,7 +155,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name"},
 		),
-		
+
 		ClusterCapacityNodes: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -166,7 +166,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name"},
 		),
-		
+
 		ClusterAllocatedCPUs: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -177,7 +177,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name"},
 		),
-		
+
 		ClusterAllocatedMemory: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -188,7 +188,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name"},
 		),
-		
+
 		ClusterAllocatedNodes: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -199,7 +199,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name"},
 		),
-		
+
 		ClusterUtilizationCPUs: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -210,7 +210,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name"},
 		),
-		
+
 		ClusterUtilizationMemory: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -221,7 +221,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name"},
 		),
-		
+
 		ClusterUtilizationNodes: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -232,7 +232,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name"},
 		),
-		
+
 		ClusterNodeStates: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -243,7 +243,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "state"},
 		),
-		
+
 		ClusterPartitionCount: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -254,7 +254,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name"},
 		),
-		
+
 		ClusterJobCount: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -265,7 +265,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "state"},
 		),
-		
+
 		ClusterUserCount: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -276,7 +276,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name"},
 		),
-		
+
 		// Node-Level Metrics
 		NodeInfo: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
@@ -288,7 +288,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "node_name", "architecture", "os", "kernel"},
 		),
-		
+
 		NodeCPUs: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -299,7 +299,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "node_name"},
 		),
-		
+
 		NodeMemory: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -310,7 +310,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "node_name"},
 		),
-		
+
 		NodeState: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -321,7 +321,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "node_name", "state"},
 		),
-		
+
 		NodeAllocatedCPUs: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -332,7 +332,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "node_name"},
 		),
-		
+
 		NodeAllocatedMemory: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -343,7 +343,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "node_name"},
 		),
-		
+
 		NodeLoad: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -354,7 +354,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "node_name", "interval"},
 		),
-		
+
 		NodeUptime: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -365,7 +365,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "node_name"},
 		),
-		
+
 		NodeLastHeartbeat: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -376,7 +376,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "node_name"},
 		),
-		
+
 		NodeFeatures: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -387,7 +387,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "node_name", "feature"},
 		),
-		
+
 		NodeGPUs: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -398,7 +398,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "node_name", "gpu_type"},
 		),
-		
+
 		NodeWeight: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -409,7 +409,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "node_name"},
 		),
-		
+
 		// Job Metrics
 		JobInfo: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
@@ -421,7 +421,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "job_id", "job_name", "user", "account", "partition", "state"},
 		),
-		
+
 		JobStates: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -432,7 +432,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "state"},
 		),
-		
+
 		JobQueueTime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
 				Namespace:   namespace,
@@ -444,7 +444,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition", "account"},
 		),
-		
+
 		JobRunTime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
 				Namespace:   namespace,
@@ -456,7 +456,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition", "account"},
 		),
-		
+
 		JobWaitTime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
 				Namespace:   namespace,
@@ -468,7 +468,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition", "account"},
 		),
-		
+
 		JobCPURequested: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -479,7 +479,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "job_id", "user", "account", "partition"},
 		),
-		
+
 		JobMemoryRequested: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -490,7 +490,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "job_id", "user", "account", "partition"},
 		),
-		
+
 		JobNodesRequested: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -501,7 +501,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "job_id", "user", "account", "partition"},
 		),
-		
+
 		JobCPUAllocated: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -512,7 +512,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "job_id", "user", "account", "partition"},
 		),
-		
+
 		JobMemoryAllocated: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -523,7 +523,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "job_id", "user", "account", "partition"},
 		),
-		
+
 		JobNodesAllocated: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -534,7 +534,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "job_id", "user", "account", "partition"},
 		),
-		
+
 		JobPriority: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -545,7 +545,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "job_id", "user", "account", "partition"},
 		),
-		
+
 		JobStartTime: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -556,7 +556,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "job_id", "user", "account", "partition"},
 		),
-		
+
 		JobEndTime: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -567,7 +567,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "job_id", "user", "account", "partition"},
 		),
-		
+
 		JobExitCode: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -578,7 +578,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "job_id", "user", "account", "partition"},
 		),
-		
+
 		// User and Account Metrics
 		UserJobCount: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
@@ -590,7 +590,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "user", "account"},
 		),
-		
+
 		UserCPUAllocated: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -601,7 +601,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "user", "account"},
 		),
-		
+
 		UserMemoryAllocated: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -612,7 +612,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "user", "account"},
 		),
-		
+
 		UserJobStates: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -623,7 +623,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "user", "account", "state"},
 		),
-		
+
 		AccountInfo: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -634,7 +634,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "account", "organization", "description", "parent"},
 		),
-		
+
 		AccountJobCount: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -645,7 +645,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "account"},
 		),
-		
+
 		AccountCPUAllocated: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -656,7 +656,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "account"},
 		),
-		
+
 		AccountMemoryAllocated: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -667,7 +667,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "account"},
 		),
-		
+
 		AccountFairShare: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -678,7 +678,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "account"},
 		),
-		
+
 		AccountUsage: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -689,7 +689,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "account", "usage_type"},
 		),
-		
+
 		// Partition Metrics
 		PartitionInfo: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
@@ -701,7 +701,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition", "state", "allow_groups", "allow_users"},
 		),
-		
+
 		PartitionNodes: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -712,7 +712,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition"},
 		),
-		
+
 		PartitionCPUs: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -723,7 +723,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition"},
 		),
-		
+
 		PartitionMemory: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -734,7 +734,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition"},
 		),
-		
+
 		PartitionState: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -745,7 +745,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition", "state"},
 		),
-		
+
 		PartitionJobCount: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -756,7 +756,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition"},
 		),
-		
+
 		PartitionAllocatedCPUs: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -767,7 +767,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition"},
 		),
-		
+
 		PartitionAllocatedMemory: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -778,7 +778,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition"},
 		),
-		
+
 		PartitionUtilization: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -789,7 +789,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition", "resource_type"},
 		),
-		
+
 		PartitionMaxTime: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -800,7 +800,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition"},
 		),
-		
+
 		PartitionDefaultTime: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -811,7 +811,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition"},
 		),
-		
+
 		PartitionPriority: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -822,7 +822,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition"},
 		),
-		
+
 		// Performance Metrics
 		SystemThroughput: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
@@ -834,7 +834,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "metric_type", "time_window", "partition"},
 		),
-		
+
 		SystemEfficiency: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -845,7 +845,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "efficiency_type", "partition", "time_window"},
 		),
-		
+
 		QueueWaitTime: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -856,7 +856,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition", "statistic", "priority"},
 		),
-		
+
 		QueueDepth: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -867,7 +867,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition", "priority"},
 		),
-		
+
 		ResourceUtilization: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -878,7 +878,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "resource_type", "partition"},
 		),
-		
+
 		JobTurnover: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -889,7 +889,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cluster_name", "partition"},
 		),
-		
+
 		// Exporter Self-Monitoring
 		CollectionDuration: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
@@ -902,7 +902,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"collector"},
 		),
-		
+
 		CollectionErrors: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace:   namespace,
@@ -913,7 +913,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"collector", "error_type"},
 		),
-		
+
 		CollectionSuccess: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace:   namespace,
@@ -924,7 +924,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"collector"},
 		),
-		
+
 		CollectorUp: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -935,7 +935,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"collector"},
 		),
-		
+
 		LastCollectionTime: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   namespace,
@@ -946,7 +946,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"collector"},
 		),
-		
+
 		MetricsExported: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace:   namespace,
@@ -957,7 +957,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"collector", "metric_name"},
 		),
-		
+
 		APICallDuration: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
 				Namespace:   namespace,
@@ -969,7 +969,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"endpoint", "method"},
 		),
-		
+
 		APICallErrors: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace:   namespace,
@@ -980,7 +980,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"endpoint", "method", "status_code"},
 		),
-		
+
 		CacheHits: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace:   namespace,
@@ -991,7 +991,7 @@ func NewMetricDefinitions(namespace, subsystem string, constLabels prometheus.La
 			},
 			[]string{"cache_type"},
 		),
-		
+
 		CacheMisses: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace:   namespace,
@@ -1023,7 +1023,7 @@ func (md *MetricDefinitions) Register(registry *prometheus.Registry) error {
 		md.ClusterPartitionCount,
 		md.ClusterJobCount,
 		md.ClusterUserCount,
-		
+
 		// Node metrics
 		md.NodeInfo,
 		md.NodeCPUs,
@@ -1037,7 +1037,7 @@ func (md *MetricDefinitions) Register(registry *prometheus.Registry) error {
 		md.NodeFeatures,
 		md.NodeGPUs,
 		md.NodeWeight,
-		
+
 		// Job metrics
 		md.JobInfo,
 		md.JobStates,
@@ -1054,7 +1054,7 @@ func (md *MetricDefinitions) Register(registry *prometheus.Registry) error {
 		md.JobStartTime,
 		md.JobEndTime,
 		md.JobExitCode,
-		
+
 		// User and account metrics
 		md.UserJobCount,
 		md.UserCPUAllocated,
@@ -1066,7 +1066,7 @@ func (md *MetricDefinitions) Register(registry *prometheus.Registry) error {
 		md.AccountMemoryAllocated,
 		md.AccountFairShare,
 		md.AccountUsage,
-		
+
 		// Partition metrics
 		md.PartitionInfo,
 		md.PartitionNodes,
@@ -1080,7 +1080,7 @@ func (md *MetricDefinitions) Register(registry *prometheus.Registry) error {
 		md.PartitionMaxTime,
 		md.PartitionDefaultTime,
 		md.PartitionPriority,
-		
+
 		// Performance metrics
 		md.SystemThroughput,
 		md.SystemEfficiency,
@@ -1088,7 +1088,7 @@ func (md *MetricDefinitions) Register(registry *prometheus.Registry) error {
 		md.QueueDepth,
 		md.ResourceUtilization,
 		md.JobTurnover,
-		
+
 		// Exporter metrics
 		md.CollectionDuration,
 		md.CollectionErrors,
@@ -1101,13 +1101,13 @@ func (md *MetricDefinitions) Register(registry *prometheus.Registry) error {
 		md.CacheHits,
 		md.CacheMisses,
 	}
-	
+
 	for _, metric := range metrics {
 		if err := registry.Register(metric); err != nil {
 			return err
 		}
 	}
-	
+
 	return nil
 }
 
@@ -1129,7 +1129,7 @@ func (md *MetricDefinitions) Unregister(registry *prometheus.Registry) {
 		md.ClusterPartitionCount,
 		md.ClusterJobCount,
 		md.ClusterUserCount,
-		
+
 		// Node metrics
 		md.NodeInfo,
 		md.NodeCPUs,
@@ -1143,7 +1143,7 @@ func (md *MetricDefinitions) Unregister(registry *prometheus.Registry) {
 		md.NodeFeatures,
 		md.NodeGPUs,
 		md.NodeWeight,
-		
+
 		// Job metrics
 		md.JobInfo,
 		md.JobStates,
@@ -1160,7 +1160,7 @@ func (md *MetricDefinitions) Unregister(registry *prometheus.Registry) {
 		md.JobStartTime,
 		md.JobEndTime,
 		md.JobExitCode,
-		
+
 		// User and account metrics
 		md.UserJobCount,
 		md.UserCPUAllocated,
@@ -1172,7 +1172,7 @@ func (md *MetricDefinitions) Unregister(registry *prometheus.Registry) {
 		md.AccountMemoryAllocated,
 		md.AccountFairShare,
 		md.AccountUsage,
-		
+
 		// Partition metrics
 		md.PartitionInfo,
 		md.PartitionNodes,
@@ -1186,7 +1186,7 @@ func (md *MetricDefinitions) Unregister(registry *prometheus.Registry) {
 		md.PartitionMaxTime,
 		md.PartitionDefaultTime,
 		md.PartitionPriority,
-		
+
 		// Performance metrics
 		md.SystemThroughput,
 		md.SystemEfficiency,
@@ -1194,7 +1194,7 @@ func (md *MetricDefinitions) Unregister(registry *prometheus.Registry) {
 		md.QueueDepth,
 		md.ResourceUtilization,
 		md.JobTurnover,
-		
+
 		// Exporter metrics
 		md.CollectionDuration,
 		md.CollectionErrors,
@@ -1207,7 +1207,7 @@ func (md *MetricDefinitions) Unregister(registry *prometheus.Registry) {
 		md.CacheHits,
 		md.CacheMisses,
 	}
-	
+
 	for _, metric := range metrics {
 		registry.Unregister(metric)
 	}

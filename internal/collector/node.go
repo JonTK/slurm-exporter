@@ -243,9 +243,9 @@ func (nc *NodeCollector) collectNodeUtilization(ctx context.Context, ch chan<- p
 		AllocatedCPUs   int
 		AllocatedMemory int64 // bytes
 	}{
-		{"compute-001", 0, 0},                               // idle
-		{"compute-002", 48, 64 * 1024 * 1024 * 1024},       // fully allocated
-		{"gpu-001", 12, 128 * 1024 * 1024 * 1024},          // partially allocated
+		{"compute-001", 0, 0},                        // idle
+		{"compute-002", 48, 64 * 1024 * 1024 * 1024}, // fully allocated
+		{"gpu-001", 12, 128 * 1024 * 1024 * 1024},    // partially allocated
 	}
 
 	for _, util := range nodeUtilization {
