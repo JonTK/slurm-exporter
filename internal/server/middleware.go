@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -82,26 +83,91 @@ func (s *Server) MetricsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		// Wrap the response writer
-		rw := &responseWriter{
+		// Increment in-flight requests
+		s.httpMetrics.requestsInFlight.Inc()
+		defer s.httpMetrics.requestsInFlight.Dec()
+
+		// Wrap the response writer to capture metrics
+		rw := &metricsResponseWriter{
 			ResponseWriter: w,
 			statusCode:     0,
+			written:        0,
+		}
+
+		// Record request size
+		requestSize := float64(r.ContentLength)
+		if requestSize < 0 {
+			requestSize = 0
 		}
 
 		// Call the next handler
 		next.ServeHTTP(rw, r)
 
-		// Record metrics (if we had HTTP metrics - placeholder for future)
+		// Record metrics
 		duration := time.Since(start)
+		method := r.Method
+		path := s.normalizePath(r.URL.Path)
+		status := rw.statusCode
+		if status == 0 {
+			status = 200 // Default to 200 if not set
+		}
+
+		// Update metrics
+		labels := []string{method, path}
+		statusLabels := []string{method, path, strconv.Itoa(status)}
+
+		s.httpMetrics.requestsTotal.WithLabelValues(statusLabels...).Inc()
+		s.httpMetrics.requestDuration.WithLabelValues(labels...).Observe(duration.Seconds())
+		s.httpMetrics.requestSize.WithLabelValues(labels...).Observe(requestSize)
+		s.httpMetrics.responseSize.WithLabelValues(labels...).Observe(float64(rw.written))
 
 		s.logger.WithFields(logrus.Fields{
-			"component": "http_metrics",
-			"method":    r.Method,
-			"path":      r.URL.Path,
-			"status":    rw.statusCode,
-			"duration":  duration,
+			"component":     "http_metrics",
+			"method":        method,
+			"path":          path,
+			"status":        status,
+			"duration":      duration,
+			"request_size":  requestSize,
+			"response_size": rw.written,
 		}).Debug("HTTP metrics recorded")
 	})
+}
+
+// normalizePath normalizes URL paths for metrics to avoid cardinality explosion
+func (s *Server) normalizePath(path string) string {
+	switch path {
+	case s.config.Server.MetricsPath:
+		return "/metrics"
+	case s.config.Server.HealthPath:
+		return "/health"
+	case s.config.Server.ReadyPath:
+		return "/ready"
+	case "/":
+		return "/"
+	default:
+		return "/other"
+	}
+}
+
+// metricsResponseWriter wraps http.ResponseWriter to capture metrics
+type metricsResponseWriter struct {
+	http.ResponseWriter
+	statusCode int
+	written    int64
+}
+
+func (mw *metricsResponseWriter) WriteHeader(code int) {
+	mw.statusCode = code
+	mw.ResponseWriter.WriteHeader(code)
+}
+
+func (mw *metricsResponseWriter) Write(b []byte) (int, error) {
+	if mw.statusCode == 0 {
+		mw.statusCode = http.StatusOK
+	}
+	n, err := mw.ResponseWriter.Write(b)
+	mw.written += int64(n)
+	return n, err
 }
 
 // HeadersMiddleware adds standard security and info headers

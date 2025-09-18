@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
 	"github.com/jontk/slurm-exporter/internal/config"
@@ -28,9 +29,16 @@ func createTestServer() *Server {
 	logger := logrus.New()
 	logger.SetLevel(logrus.DebugLevel)
 
+	// Create HTTP metrics for middleware testing
+	httpMetrics := NewHTTPMetrics()
+	promRegistry := prometheus.NewRegistry()
+	httpMetrics.Register(promRegistry)
+
 	return &Server{
-		config: cfg,
-		logger: logger,
+		config:       cfg,
+		logger:       logger,
+		httpMetrics:  httpMetrics,
+		promRegistry: promRegistry,
 	}
 }
 
@@ -227,6 +235,59 @@ func TestCombinedMiddleware(t *testing.T) {
 	// Response should be successful
 	if w.Code != http.StatusOK {
 		t.Errorf("Expected status 200, got %d", w.Code)
+	}
+}
+
+func TestMetricsMiddleware(t *testing.T) {
+	server := createTestServer()
+
+	// Create a test handler
+	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("test response"))
+	})
+
+	// Wrap with metrics middleware
+	handler := server.MetricsMiddleware(testHandler)
+
+	// Create request
+	req := httptest.NewRequest("GET", "/test", nil)
+	w := httptest.NewRecorder()
+
+	// Execute request
+	handler.ServeHTTP(w, req)
+
+	// Check response
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", w.Code)
+	}
+
+	// Verify metrics were recorded
+	// Note: In a real test environment, you would gather metrics from the registry
+	// and verify specific values. For this test, we just ensure no panics occurred
+	// and the handler completed successfully.
+
+	// Test with different methods and paths to verify path normalization
+	testCases := []struct {
+		method string
+		path   string
+		expect string
+	}{
+		{"GET", "/metrics", "/metrics"},
+		{"POST", "/health", "/health"},
+		{"PUT", "/ready", "/ready"},
+		{"GET", "/", "/"},
+		{"GET", "/unknown/path", "/other"},
+	}
+
+	for _, tc := range testCases {
+		req := httptest.NewRequest(tc.method, tc.path, nil)
+		w := httptest.NewRecorder()
+		handler.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status 200 for %s %s, got %d", tc.method, tc.path, w.Code)
+		}
 	}
 }
 

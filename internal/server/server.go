@@ -20,6 +20,87 @@ type RegistryInterface interface {
 	CollectAll(ctx context.Context) error
 }
 
+// HTTPMetrics holds HTTP-related metrics
+type HTTPMetrics struct {
+	requestsTotal    *prometheus.CounterVec
+	requestDuration  *prometheus.HistogramVec
+	requestSize      *prometheus.HistogramVec
+	responseSize     *prometheus.HistogramVec
+	requestsInFlight prometheus.Gauge
+}
+
+// NewHTTPMetrics creates HTTP metrics
+func NewHTTPMetrics() *HTTPMetrics {
+	return &HTTPMetrics{
+		requestsTotal: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: "slurm_exporter",
+				Subsystem: "http",
+				Name:      "requests_total",
+				Help:      "Total number of HTTP requests",
+			},
+			[]string{"method", "path", "status"},
+		),
+		requestDuration: prometheus.NewHistogramVec(
+			prometheus.HistogramOpts{
+				Namespace: "slurm_exporter",
+				Subsystem: "http",
+				Name:      "request_duration_seconds",
+				Help:      "HTTP request duration in seconds",
+				Buckets:   prometheus.DefBuckets,
+			},
+			[]string{"method", "path"},
+		),
+		requestSize: prometheus.NewHistogramVec(
+			prometheus.HistogramOpts{
+				Namespace: "slurm_exporter",
+				Subsystem: "http",
+				Name:      "request_size_bytes",
+				Help:      "HTTP request size in bytes",
+				Buckets:   prometheus.ExponentialBuckets(100, 10, 6),
+			},
+			[]string{"method", "path"},
+		),
+		responseSize: prometheus.NewHistogramVec(
+			prometheus.HistogramOpts{
+				Namespace: "slurm_exporter",
+				Subsystem: "http",
+				Name:      "response_size_bytes",
+				Help:      "HTTP response size in bytes",
+				Buckets:   prometheus.ExponentialBuckets(100, 10, 6),
+			},
+			[]string{"method", "path"},
+		),
+		requestsInFlight: prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Namespace: "slurm_exporter",
+				Subsystem: "http",
+				Name:      "requests_in_flight",
+				Help:      "Current number of HTTP requests being served",
+			},
+		),
+	}
+}
+
+// Register registers HTTP metrics with Prometheus
+func (m *HTTPMetrics) Register(registry *prometheus.Registry) error {
+	collectors := []prometheus.Collector{
+		m.requestsTotal,
+		m.requestDuration,
+		m.requestSize,
+		m.responseSize,
+		m.requestsInFlight,
+	}
+
+	for _, c := range collectors {
+		if err := registry.Register(c); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // Server represents the HTTP server.
 type Server struct {
 	config         *config.Config
@@ -27,6 +108,7 @@ type Server struct {
 	server         *http.Server
 	registry       RegistryInterface
 	promRegistry   *prometheus.Registry
+	httpMetrics    *HTTPMetrics
 	isShuttingDown bool
 }
 
@@ -35,11 +117,18 @@ func New(cfg *config.Config, logger *logrus.Logger, registry RegistryInterface) 
 	// Create Prometheus registry if not provided
 	promRegistry := prometheus.NewRegistry()
 
+	// Create HTTP metrics
+	httpMetrics := NewHTTPMetrics()
+	if err := httpMetrics.Register(promRegistry); err != nil {
+		return nil, fmt.Errorf("failed to register HTTP metrics: %w", err)
+	}
+
 	s := &Server{
 		config:       cfg,
 		logger:       logger,
 		registry:     registry,
 		promRegistry: promRegistry,
+		httpMetrics:  httpMetrics,
 	}
 
 	// Create HTTP handler and setup routes with middleware
