@@ -1,0 +1,51 @@
+# Dockerfile and build context
+.dockerignore
+Dockerfile*
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+docs/
+*.md
+
+# Development tools
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Test files
+*_test.go
+testdata/
+coverage.out
+coverage.html
+
+# Kubernetes and deployment files
+k8s/
+charts/
+docker-compose.yml
+
+# Build artifacts
+bin/
+dist/
+*.exe
+*.so
+*.dylib
+
+# Temporary files
+tmp/
+temp/
+.DS_Store
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
+
+# Dependencies (will be downloaded during build)
+vendor/
