@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    name: monitoring
+    purpose: metrics-collection
+  annotations:
+    description: "Namespace for monitoring and metrics collection components"

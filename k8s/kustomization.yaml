@@ -1,0 +1,43 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: slurm-exporter
+  namespace: monitoring
+
+namespace: monitoring
+
+resources:
+- namespace.yaml
+- rbac.yaml
+- deployment.yaml
+- service.yaml
+- configmap.yaml
+- networkpolicy.yaml
+- poddisruptionbudget.yaml
+- hpa.yaml
+
+images:
+- name: slurm-exporter
+  newTag: latest
+
+commonLabels:
+  app: slurm-exporter
+  managed-by: kustomize
+
+patches:
+- target:
+    kind: Deployment
+    name: slurm-exporter
+  patch: |-
+    - op: replace
+      path: /spec/template/metadata/annotations/config~1hash
+      value: "UPDATE_CONFIG_HASH_HERE"
+
+configMapGenerator:
+- name: slurm-exporter-config
+  files:
+  - config.yaml=../configs/config.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true

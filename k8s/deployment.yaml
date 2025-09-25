@@ -1,0 +1,143 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slurm-exporter
+  namespace: monitoring
+  labels:
+    app: slurm-exporter
+    component: metrics
+    version: v1
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: slurm-exporter
+  template:
+    metadata:
+      labels:
+        app: slurm-exporter
+        component: metrics
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+        config/hash: ""  # This should be updated when config changes
+    spec:
+      serviceAccountName: slurm-exporter
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: slurm-exporter
+        image: slurm-exporter:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http-metrics
+          containerPort: 8080
+          protocol: TCP
+        env:
+        - name: SLURM_EXPORTER_CONFIG_FILE
+          value: "/etc/slurm-exporter/config.yaml"
+        - name: SLURM_EXPORTER_ADDRESS
+          value: ":8080"
+        volumeMounts:
+        - name: config
+          mountPath: /etc/slurm-exporter
+          readOnly: true
+        - name: tls-certs
+          mountPath: /etc/ssl/slurm-exporter
+          readOnly: true
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 65534
+          runAsGroup: 65534
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http-metrics
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http-metrics
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: http-metrics
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 6
+      volumes:
+      - name: config
+        configMap:
+          name: slurm-exporter-config
+          defaultMode: 0444
+      - name: tls-certs
+        secret:
+          secretName: slurm-exporter-tls
+          defaultMode: 0400
+          optional: true
+      # Restart policy for failed containers
+      restartPolicy: Always
+      # DNS policy for service discovery
+      dnsPolicy: ClusterFirst
+      # Termination grace period
+      terminationGracePeriodSeconds: 30
+      # Node selection (optional)
+      nodeSelector:
+        kubernetes.io/os: linux
+      # Tolerations for dedicated monitoring nodes (optional)
+      tolerations:
+      - key: "monitoring"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      # Affinity rules (optional)
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - slurm-exporter
+              topologyKey: kubernetes.io/hostname

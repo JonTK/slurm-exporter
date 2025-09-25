@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: slurm-exporter
+  namespace: monitoring
+  labels:
+    app: slurm-exporter
+    component: metrics
+automountServiceAccountToken: false
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: metrics
+rules:
+# No special permissions needed for SLURM exporter
+# It only needs to access external SLURM API and expose metrics
+- apiGroups: [""]
+  resources: ["endpoints", "services"]
+  verbs: ["get", "list", "watch"]
+  # This is only needed if the exporter needs to discover SLURM endpoints via Kubernetes services
+  # Can be removed if SLURM endpoints are configured statically
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: metrics
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: slurm-exporter
+subjects:
+- kind: ServiceAccount
+  name: slurm-exporter
+  namespace: monitoring

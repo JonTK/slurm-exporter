@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: slurm-exporter
+  namespace: monitoring
+  labels:
+    app: slurm-exporter
+    component: metrics
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: slurm-exporter
