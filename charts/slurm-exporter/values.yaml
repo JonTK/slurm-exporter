@@ -1,0 +1,360 @@
+# Default values for slurm-exporter
+# This is a YAML-formatted file
+# Declare variables to be passed into your templates
+
+# Global settings
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+
+# Image configuration
+image:
+  registry: ""
+  repository: slurm-exporter
+  tag: "latest"
+  digest: ""
+  pullPolicy: IfNotPresent
+
+# Number of replicas
+replicaCount: 1
+
+# Update strategy
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 0
+    maxSurge: 1
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: http-metrics
+  protocol: TCP
+  annotations: {}
+  labels: {}
+  clusterIP: ""
+  loadBalancerIP: ""
+  loadBalancerSourceRanges: []
+  externalTrafficPolicy: Cluster
+  sessionAffinity: None
+
+# Service monitor for Prometheus Operator
+serviceMonitor:
+  enabled: false
+  namespace: ""
+  interval: 30s
+  scrapeTimeout: 10s
+  path: /metrics
+  labels: {}
+  annotations: {}
+  honorLabels: true
+  relabelings: []
+  metricRelabelings: []
+
+# Prometheus rules
+prometheusRule:
+  enabled: false
+  namespace: ""
+  labels: {}
+  annotations: {}
+  rules: []
+
+# Pod disruption budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+  maxUnavailable: ""
+
+# Horizontal Pod Autoscaler
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+  behavior: {}
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod labels
+podLabels: {}
+
+# Security context for the pod
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+  fsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
+
+# Security context for the container
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+
+# Liveness probe configuration
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /health
+    port: http-metrics
+    scheme: HTTP
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 10
+  successThreshold: 1
+  failureThreshold: 3
+
+# Readiness probe configuration
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /ready
+    port: http-metrics
+    scheme: HTTP
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+# Startup probe configuration
+startupProbe:
+  enabled: true
+  httpGet:
+    path: /health
+    port: http-metrics
+    scheme: HTTP
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 6
+
+# Service account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+  automountServiceAccountToken: false
+
+# RBAC
+rbac:
+  create: true
+  rules: []
+
+# Network policy
+networkPolicy:
+  enabled: false
+  ingress: []
+  egress: []
+
+# Configuration
+config:
+  # Server configuration
+  server:
+    address: ":8080"
+    metricsPath: "/metrics"
+    healthPath: "/health"
+    readyPath: "/ready"
+    timeout: "30s"
+    readTimeout: "15s"
+    writeTimeout: "15s"
+    idleTimeout: "60s"
+    maxRequestSize: 1048576
+
+    # TLS configuration
+    tls:
+      enabled: false
+      certFile: "/etc/ssl/slurm-exporter/tls.crt"
+      keyFile: "/etc/ssl/slurm-exporter/tls.key"
+      minVersion: "1.2"
+      cipherSuites: []
+
+    # Basic authentication
+    basicAuth:
+      enabled: false
+      username: ""
+      password: ""
+
+    # CORS configuration
+    cors:
+      enabled: false
+      allowedOrigins: []
+      allowedMethods: ["GET"]
+      allowedHeaders: []
+
+  # SLURM connection configuration
+  slurm:
+    baseURL: "https://slurm-api.example.com:6820"
+    apiVersion: "v0.0.42"
+    timeout: "30s"
+    retryAttempts: 3
+    retryDelay: "5s"
+
+    # Authentication
+    auth:
+      type: "none"  # none, jwt, basic, apikey
+      tokenFile: ""
+      username: ""
+      passwordFile: ""
+      apiKeyFile: ""
+
+    # Connection pool
+    maxIdleConns: 10
+    maxConnsPerHost: 20
+    idleConnTimeout: "90s"
+
+  # Collectors configuration
+  collectors:
+    cluster:
+      enabled: true
+      interval: "60s"
+    node:
+      enabled: true
+      interval: "60s"
+    job:
+      enabled: true
+      interval: "30s"
+    user:
+      enabled: true
+      interval: "120s"
+    partition:
+      enabled: true
+      interval: "90s"
+    performance:
+      enabled: true
+      interval: "60s"
+    scheduler:
+      enabled: true
+      interval: "60s"
+    selfmon:
+      enabled: true
+      interval: "30s"
+
+  # Logging configuration
+  logging:
+    level: "info"
+    format: "json"
+    output: "stdout"
+    addCaller: false
+    disableStacktrace: true
+
+  # Metrics configuration
+  metrics:
+    namespace: "slurm"
+    maxCardinality: 50000
+    cardinalityCheckInterval: "300s"
+
+# Extra environment variables
+extraEnvVars: []
+
+# Extra environment variables from ConfigMap or Secret
+extraEnvVarsSecret: ""
+extraEnvVarsConfigMap: ""
+
+# Extra volumes
+extraVolumes: []
+
+# Extra volume mounts
+extraVolumeMounts: []
+
+# Init containers
+initContainers: []
+
+# Sidecar containers
+sidecars: []
+
+# Pod priority class
+priorityClassName: ""
+
+# Termination grace period
+terminationGracePeriodSeconds: 30
+
+# DNS policy
+dnsPolicy: ClusterFirst
+
+# DNS config
+dnsConfig: {}
+
+# Host aliases
+hostAliases: []
+
+# Secrets for authentication
+secrets:
+  # SLURM authentication credentials
+  slurmAuth:
+    create: false
+    name: ""
+    data: {}
+
+  # TLS certificates
+  tls:
+    create: false
+    name: ""
+    data: {}
+
+  # Basic auth credentials
+  basicAuth:
+    create: false
+    name: ""
+    data: {}
+
+# ConfigMap for configuration
+configMap:
+  create: true
+  name: ""
+  data: {}
+
+# External secrets (if using external secret management)
+externalSecrets:
+  enabled: false
+  secretStore: ""
+  secrets: []
+
+# Ingress configuration
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  tls: []
+
+# Persistence (for logs or temporary files)
+persistence:
+  enabled: false
+  storageClass: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+  annotations: {}
+
+# Extra objects to deploy
+extraObjects: []

@@ -1,0 +1,120 @@
+# Production values for slurm-exporter
+# Override default values for production deployment
+
+replicaCount: 2
+
+image:
+  registry: your-registry.com
+  repository: slurm-exporter
+  tag: "v1.0.0"
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+serviceMonitor:
+  enabled: true
+  interval: 60s
+  labels:
+    prometheus: kube-prometheus
+
+prometheusRule:
+  enabled: true
+  labels:
+    prometheus: kube-prometheus
+
+config:
+  server:
+    tls:
+      enabled: true
+      certFile: "/etc/ssl/slurm-exporter/tls.crt"
+      keyFile: "/etc/ssl/slurm-exporter/tls.key"
+      minVersion: "1.2"
+
+    basicAuth:
+      enabled: true
+      username: "prometheus"
+      password: "secure-production-password"
+
+  slurm:
+    baseURL: "https://slurm-cluster.prod.internal:6820"
+    timeout: "45s"
+    retryAttempts: 5
+    retryDelay: "10s"
+
+    auth:
+      type: "jwt"
+      tokenFile: "/etc/slurm-exporter/secrets/jwt-token"
+
+  collectors:
+    cluster:
+      interval: "120s"
+    node:
+      interval: "90s"
+    job:
+      interval: "60s"
+    user:
+      interval: "300s"
+    partition:
+      interval: "180s"
+    performance:
+      interval: "120s"
+    scheduler:
+      interval: "120s"
+    selfmon:
+      interval: "60s"
+
+  logging:
+    level: "warn"
+    addCaller: false
+    disableStacktrace: true
+
+  metrics:
+    maxCardinality: 100000
+    cardinalityCheckInterval: "600s"
+
+secrets:
+  slurmAuth:
+    create: true
+    data:
+      jwt-token: ""  # Base64 encoded JWT token
+
+  tls:
+    create: true
+    data:
+      tls.crt: ""  # Base64 encoded certificate
+      tls.key: ""  # Base64 encoded private key
+
+nodeSelector:
+  node-role.kubernetes.io/worker: "true"
+
+tolerations:
+  - key: "monitoring"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - slurm-exporter
+        topologyKey: kubernetes.io/hostname

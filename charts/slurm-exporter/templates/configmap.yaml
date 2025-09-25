@@ -1,0 +1,137 @@
+{{- if .Values.configMap.create }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "slurm-exporter.configMapName" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "slurm-exporter.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    # SLURM Prometheus Exporter Configuration
+    # Generated from Helm values
+    
+    server:
+      address: {{ .Values.config.server.address | quote }}
+      metrics_path: {{ .Values.config.server.metricsPath | quote }}
+      health_path: {{ .Values.config.server.healthPath | quote }}
+      ready_path: {{ .Values.config.server.readyPath | quote }}
+      timeout: {{ .Values.config.server.timeout | quote }}
+      read_timeout: {{ .Values.config.server.readTimeout | quote }}
+      write_timeout: {{ .Values.config.server.writeTimeout | quote }}
+      idle_timeout: {{ .Values.config.server.idleTimeout | quote }}
+      max_request_size: {{ .Values.config.server.maxRequestSize }}
+      
+      tls:
+        enabled: {{ .Values.config.server.tls.enabled }}
+        {{- if .Values.config.server.tls.enabled }}
+        cert_file: {{ .Values.config.server.tls.certFile | quote }}
+        key_file: {{ .Values.config.server.tls.keyFile | quote }}
+        min_version: {{ .Values.config.server.tls.minVersion | quote }}
+        {{- if .Values.config.server.tls.cipherSuites }}
+        cipher_suites:
+          {{- range .Values.config.server.tls.cipherSuites }}
+          - {{ . | quote }}
+          {{- end }}
+        {{- end }}
+        {{- end }}
+      
+      basic_auth:
+        enabled: {{ .Values.config.server.basicAuth.enabled }}
+        {{- if .Values.config.server.basicAuth.enabled }}
+        username: {{ .Values.config.server.basicAuth.username | quote }}
+        password: {{ .Values.config.server.basicAuth.password | quote }}
+        {{- end }}
+      
+      cors:
+        enabled: {{ .Values.config.server.cors.enabled }}
+        {{- if .Values.config.server.cors.enabled }}
+        allowed_origins:
+          {{- range .Values.config.server.cors.allowedOrigins }}
+          - {{ . | quote }}
+          {{- end }}
+        allowed_methods:
+          {{- range .Values.config.server.cors.allowedMethods }}
+          - {{ . | quote }}
+          {{- end }}
+        allowed_headers:
+          {{- range .Values.config.server.cors.allowedHeaders }}
+          - {{ . | quote }}
+          {{- end }}
+        {{- end }}
+    
+    slurm:
+      base_url: {{ .Values.config.slurm.baseURL | quote }}
+      api_version: {{ .Values.config.slurm.apiVersion | quote }}
+      timeout: {{ .Values.config.slurm.timeout | quote }}
+      retry_attempts: {{ .Values.config.slurm.retryAttempts }}
+      retry_delay: {{ .Values.config.slurm.retryDelay | quote }}
+      
+      auth:
+        type: {{ .Values.config.slurm.auth.type | quote }}
+        {{- if .Values.config.slurm.auth.tokenFile }}
+        token_file: {{ .Values.config.slurm.auth.tokenFile | quote }}
+        {{- end }}
+        {{- if .Values.config.slurm.auth.username }}
+        username: {{ .Values.config.slurm.auth.username | quote }}
+        {{- end }}
+        {{- if .Values.config.slurm.auth.passwordFile }}
+        password_file: {{ .Values.config.slurm.auth.passwordFile | quote }}
+        {{- end }}
+        {{- if .Values.config.slurm.auth.apiKeyFile }}
+        api_key_file: {{ .Values.config.slurm.auth.apiKeyFile | quote }}
+        {{- end }}
+      
+      max_idle_conns: {{ .Values.config.slurm.maxIdleConns }}
+      max_conns_per_host: {{ .Values.config.slurm.maxConnsPerHost }}
+      idle_conn_timeout: {{ .Values.config.slurm.idleConnTimeout | quote }}
+    
+    collectors:
+      cluster:
+        enabled: {{ .Values.config.collectors.cluster.enabled }}
+        interval: {{ .Values.config.collectors.cluster.interval | quote }}
+      
+      node:
+        enabled: {{ .Values.config.collectors.node.enabled }}
+        interval: {{ .Values.config.collectors.node.interval | quote }}
+      
+      job:
+        enabled: {{ .Values.config.collectors.job.enabled }}
+        interval: {{ .Values.config.collectors.job.interval | quote }}
+      
+      user:
+        enabled: {{ .Values.config.collectors.user.enabled }}
+        interval: {{ .Values.config.collectors.user.interval | quote }}
+      
+      partition:
+        enabled: {{ .Values.config.collectors.partition.enabled }}
+        interval: {{ .Values.config.collectors.partition.interval | quote }}
+      
+      performance:
+        enabled: {{ .Values.config.collectors.performance.enabled }}
+        interval: {{ .Values.config.collectors.performance.interval | quote }}
+      
+      scheduler:
+        enabled: {{ .Values.config.collectors.scheduler.enabled }}
+        interval: {{ .Values.config.collectors.scheduler.interval | quote }}
+      
+      selfmon:
+        enabled: {{ .Values.config.collectors.selfmon.enabled }}
+        interval: {{ .Values.config.collectors.selfmon.interval | quote }}
+    
+    logging:
+      level: {{ .Values.config.logging.level | quote }}
+      format: {{ .Values.config.logging.format | quote }}
+      output: {{ .Values.config.logging.output | quote }}
+      add_caller: {{ .Values.config.logging.addCaller }}
+      disable_stacktrace: {{ .Values.config.logging.disableStacktrace }}
+    
+    metrics:
+      namespace: {{ .Values.config.metrics.namespace | quote }}
+      max_cardinality: {{ .Values.config.metrics.maxCardinality }}
+      cardinality_check_interval: {{ .Values.config.metrics.cardinalityCheckInterval | quote }}
+  
+  {{- with .Values.configMap.data }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{- end }}

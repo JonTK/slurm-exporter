@@ -1,0 +1,87 @@
+# Development values for slurm-exporter
+# Override default values for development deployment
+
+replicaCount: 1
+
+image:
+  repository: slurm-exporter
+  tag: "latest"
+  pullPolicy: Always
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+serviceMonitor:
+  enabled: true
+  interval: 15s
+
+config:
+  server:
+    tls:
+      enabled: false
+
+    basicAuth:
+      enabled: false
+
+    cors:
+      enabled: true
+      allowedOrigins: ["*"]
+      allowedMethods: ["GET", "OPTIONS"]
+
+  slurm:
+    baseURL: "http://slurm-mock:8080"
+    timeout: "30s"
+    retryAttempts: 3
+    retryDelay: "5s"
+
+    auth:
+      type: "none"
+
+  collectors:
+    cluster:
+      interval: "30s"
+    node:
+      interval: "30s"
+    job:
+      interval: "15s"
+    user:
+      interval: "60s"
+    partition:
+      interval: "45s"
+    performance:
+      interval: "30s"
+    scheduler:
+      interval: "30s"
+    selfmon:
+      interval: "10s"
+
+  logging:
+    level: "debug"
+    addCaller: true
+    disableStacktrace: false
+
+  metrics:
+    maxCardinality: 25000
+    cardinalityCheckInterval: "60s"
+
+# Allow easier access for development
+service:
+  type: NodePort
+
+# Enable ingress for easier external access
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: slurm-exporter.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
