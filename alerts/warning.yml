@@ -1,0 +1,330 @@
+groups:
+  - name: slurm_warning
+    interval: 60s
+    rules:
+      # Resource Utilization
+      - alert: HighCPUUtilization
+        expr: |
+          (
+            slurm_cluster_cpus_total{state="allocated"} 
+            / 
+            slurm_cluster_cpus_total{state="total"}
+          ) > 0.90
+        for: 30m
+        labels:
+          severity: warning
+          team: hpc-ops
+          component: capacity
+        annotations:
+          summary: "Cluster CPU utilization above 90%"
+          description: |
+            CPU utilization has been {{ $value | humanizePercentage }} for 30 minutes.
+            Allocated CPUs: {{ printf "slurm_cluster_cpus_total{state='allocated'}" | query | first | value }}
+            Total CPUs: {{ printf "slurm_cluster_cpus_total{state='total'}" | query | first | value }}
+            Impact: Limited capacity for new jobs
+            Action: Consider scaling or job prioritization
+
+      - alert: HighMemoryUtilization
+        expr: |
+          (
+            slurm_cluster_memory_total_bytes{state="allocated"} 
+            / 
+            slurm_cluster_memory_total_bytes{state="total"}
+          ) > 0.85
+        for: 30m
+        labels:
+          severity: warning
+          team: hpc-ops
+          component: capacity
+        annotations:
+          summary: "Cluster memory utilization above 85%"
+          description: |
+            Memory utilization: {{ $value | humanizePercentage }}
+            Allocated: {{ printf "slurm_cluster_memory_total_bytes{state='allocated'}" | query | first | value | humanize1024 }}
+            Total: {{ printf "slurm_cluster_memory_total_bytes{state='total'}" | query | first | value | humanize1024 }}
+
+      - alert: GPUShortage
+        expr: |
+          (
+            sum(slurm_node_gpus_allocated) 
+            / 
+            sum(slurm_node_gpus_total)
+          ) > 0.95
+        for: 1h
+        labels:
+          severity: warning
+          team: hpc-ops
+          component: gpu-resources
+        annotations:
+          summary: "GPU utilization above 95%"
+          description: |
+            {{ $value | humanizePercentage }} of GPUs are allocated.
+            Available GPUs: {{ printf "sum(slurm_node_gpus_total - slurm_node_gpus_allocated)" | query | first | value }}
+            Impact: GPU jobs may experience long wait times
+
+      # Queue Depth
+      - alert: ExcessivePendingJobs
+        expr: slurm_cluster_jobs_total{state="pending"} > 1000
+        for: 1h
+        labels:
+          severity: warning
+          team: hpc-ops
+          component: scheduler
+        annotations:
+          summary: "Over 1000 jobs pending for 1 hour"
+          description: |
+            Current pending jobs: {{ $value }}
+            Running jobs: {{ printf "slurm_cluster_jobs_total{state='running'}" | query | first | value }}
+            Action: Review job priorities and resource availability
+
+      - alert: LongJobWaitTimes
+        expr: |
+          histogram_quantile(0.90, 
+            rate(slurm_job_wait_time_seconds_bucket[1h])
+          ) > 14400  # 4 hours
+        for: 30m
+        labels:
+          severity: warning
+          team: hpc-ops
+          component: scheduler
+        annotations:
+          summary: "90% of jobs waiting more than 4 hours"
+          description: |
+            90th percentile wait time: {{ $value | humanizeDuration }}
+            Action: Review scheduler configuration and fairshare policies
+
+      - alert: JobBacklogGrowing
+        expr: |
+          predict_linear(slurm_cluster_jobs_total{state="pending"}[2h], 3600) 
+          > 
+          slurm_cluster_jobs_total{state="pending"} * 1.5
+        for: 30m
+        labels:
+          severity: warning
+          team: hpc-ops
+          component: capacity
+        annotations:
+          summary: "Job backlog growing rapidly"
+          description: |
+            Pending jobs projected to increase 50% in next hour.
+            Current: {{ printf "slurm_cluster_jobs_total{state='pending'}" | query | first | value }}
+            Projected: {{ $value }}
+
+      # Node Health
+      - alert: NodesInDrainState
+        expr: |
+          sum(slurm_node_state{state="drain"} == 1) > 10
+        for: 24h
+        labels:
+          severity: warning
+          team: hpc-ops
+          component: maintenance
+        annotations:
+          summary: "{{ $value }} nodes in drain state for 24 hours"
+          description: |
+            Nodes have been draining for extended period.
+            May indicate forgotten maintenance or issues preventing drain completion.
+            Action: Review drain reasons and complete maintenance
+
+      - alert: HighNodeFailureRate
+        expr: |
+          rate(slurm_node_state_changes_total{to_state="down"}[1h]) > 0.5
+        for: 30m
+        labels:
+          severity: warning
+          team: hpc-ops
+          component: node-health
+        annotations:
+          summary: "High rate of node failures"
+          description: |
+            {{ $value }} nodes per hour are failing.
+            Action: Investigate common failure patterns
+
+      - alert: NodeMemoryPressure
+        expr: |
+          (
+            slurm_node_memory_allocated_bytes 
+            / 
+            slurm_node_memory_total_bytes
+          ) > 0.95
+        for: 30m
+        labels:
+          severity: warning
+          team: hpc-ops
+          component: node-health
+        annotations:
+          summary: "High memory usage on node {{ $labels.node }}"
+          description: |
+            Memory utilization: {{ $value | humanizePercentage }}
+            Allocated: {{ printf "slurm_node_memory_allocated_bytes{node='%s'}" $labels.node | query | first | value | humanize1024 }}
+            Action: Monitor for OOM kills and memory leaks
+
+      - alert: HighNodeTemperature
+        expr: slurm_node_temperature_celsius{sensor="cpu0"} > 85
+        for: 15m
+        labels:
+          severity: warning
+          team: hpc-ops
+          component: infrastructure
+        annotations:
+          summary: "High temperature on node {{ $labels.node }}"
+          description: |
+            CPU temperature: {{ $value }}°C (threshold: 85°C)
+            Sensor: {{ $labels.sensor }}
+            Action: Check cooling system and node workload
+
+      # Performance Degradation
+      - alert: SchedulerSlowdown
+        expr: |
+          histogram_quantile(0.95, 
+            rate(slurm_scheduler_cycle_duration_seconds_bucket[10m])
+          ) > 10
+        for: 20m
+        labels:
+          severity: warning
+          team: hpc-ops
+          component: scheduler
+        annotations:
+          summary: "SLURM scheduler performance degraded"
+          description: |
+            95th percentile cycle time: {{ $value }}s (normal: <5s)
+            May cause job start delays
+            Action: Review scheduler logs and configuration
+
+      - alert: BackfillIneffective
+        expr: |
+          rate(slurm_backfill_jobs_total[1h]) < 1 
+          and 
+          slurm_cluster_jobs_total{state="pending"} > 100
+        for: 2h
+        labels:
+          severity: warning
+          team: hpc-ops
+          component: scheduler
+        annotations:
+          summary: "Backfill scheduler not filling gaps"
+          description: |
+            Less than 1 job per hour via backfill despite {{ printf "slurm_cluster_jobs_total{state='pending'}" | query | first | value }} pending jobs.
+            Action: Review backfill configuration and job constraints
+
+      - alert: LowJobEfficiency
+        expr: |
+          histogram_quantile(0.50, 
+            rate(slurm_job_efficiency_percentage_bucket[2h])
+          ) < 50
+        for: 4h
+        labels:
+          severity: warning
+          team: hpc-users
+          component: efficiency
+        annotations:
+          summary: "Median job efficiency below 50%"
+          description: |
+            Half of all jobs are using less than 50% of allocated resources.
+            Current median efficiency: {{ $value }}%
+            Impact: Wasted resources and longer queue times
+            Action: User education and policy enforcement
+
+      # Resource Quotas
+      - alert: AccountApproachingQuota
+        expr: |
+          (
+            slurm_account_usage_cpu_hours 
+            / 
+            slurm_account_quota_cpu_hours
+          ) > 0.80
+        for: 1h
+        labels:
+          severity: warning
+          team: hpc-admin
+          component: accounting
+        annotations:
+          summary: "Account {{ $labels.account }} at {{ $value | humanizePercentage }} of CPU quota"
+          description: |
+            Usage: {{ printf "slurm_account_usage_cpu_hours{account='%s'}" $labels.account | query | first | value | humanize }}
+            Quota: {{ printf "slurm_account_quota_cpu_hours{account='%s'}" $labels.account | query | first | value | humanize }}
+            Period: {{ $labels.period }}
+            Action: Notify account owner
+
+      - alert: UserExcessiveResourceUse
+        expr: |
+          slurm_user_cpus_allocated > 1000 
+          or 
+          slurm_user_memory_allocated_bytes > 10*1024^4  # 10TB
+        for: 4h
+        labels:
+          severity: warning
+          team: hpc-admin
+          component: fairshare
+        annotations:
+          summary: "User {{ $labels.user }} using excessive resources"
+          description: |
+            CPUs allocated: {{ printf "slurm_user_cpus_allocated{user='%s'}" $labels.user | query | first | value }}
+            Memory allocated: {{ printf "slurm_user_memory_allocated_bytes{user='%s'}" $labels.user | query | first | value | humanize1024 }}
+            Duration: 4+ hours
+            Action: Review user's jobs and fairshare impact
+
+      # API and Exporter Health
+      - alert: HighAPIErrorRate
+        expr: |
+          rate(slurm_exporter_api_requests_total{status!~"2.."}[5m]) 
+          / 
+          rate(slurm_exporter_api_requests_total[5m]) > 0.05
+        for: 15m
+        labels:
+          severity: warning
+          team: hpc-ops
+          component: monitoring
+        annotations:
+          summary: "High SLURM API error rate"
+          description: |
+            {{ $value | humanizePercentage }} of API requests are failing.
+            Action: Check SLURM REST API service and authentication
+
+      - alert: SlowMetricCollection
+        expr: |
+          histogram_quantile(0.95,
+            rate(slurm_exporter_collection_duration_seconds_bucket[5m])
+          ) > 30
+        for: 20m
+        labels:
+          severity: warning
+          team: hpc-ops
+          component: monitoring
+        annotations:
+          summary: "Slow metric collection from SLURM"
+          description: |
+            95th percentile collection time for {{ $labels.collector }}: {{ $value }}s
+            May impact metric freshness
+            Action: Review collector configuration and SLURM API performance
+
+      # Fairshare Imbalance
+      - alert: FairshareImbalance
+        expr: |
+          stddev by (partition) (slurm_account_fairshare) > 0.3
+        for: 24h
+        labels:
+          severity: warning
+          team: hpc-admin
+          component: fairshare
+        annotations:
+          summary: "Large fairshare variance in partition {{ $labels.partition }}"
+          description: |
+            Standard deviation of fairshare factors: {{ $value }}
+            Some accounts may be significantly over or under-utilizing resources.
+            Action: Review fairshare policy and account usage patterns
+
+      # Power and Cooling
+      - alert: HighPowerConsumption
+        expr: |
+          sum(slurm_node_power_usage_watts) > 500000  # 500kW
+        for: 2h
+        labels:
+          severity: warning
+          team: hpc-ops
+          component: infrastructure
+        annotations:
+          summary: "Cluster power consumption above 500kW"
+          description: |
+            Current power draw: {{ $value | humanize }}W
+            Action: Review power efficiency and cooling capacity

@@ -1,0 +1,296 @@
+groups:
+  - name: slurm_info
+    interval: 300s
+    rules:
+      # Maintenance and Lifecycle
+      - alert: NodeMaintenanceReminder
+        expr: |
+          (time() - slurm_node_drain_timestamp) > 86400 * 7  # 7 days
+          and
+          slurm_node_state{state="drain"} == 1
+        for: 1h
+        labels:
+          severity: info
+          team: hpc-ops
+          component: maintenance
+        annotations:
+          summary: "Node {{ $labels.node }} in drain state for over 7 days"
+          description: |
+            Node has been draining for {{ $value | humanizeDuration }}.
+            Action: Complete maintenance or undrain if no longer needed
+
+      - alert: SlurmVersionMismatch
+        expr: |
+          count(count by (version) (slurm_cluster_info)) > 1
+        for: 24h
+        labels:
+          severity: info
+          team: hpc-ops
+          component: configuration
+        annotations:
+          summary: "Multiple SLURM versions detected"
+          description: |
+            Different SLURM versions running in environment.
+            Versions: {{ range query "count by (version) (slurm_cluster_info)" }}{{ .Labels.version }} {{ end }}
+            Action: Plan upgrade to consistent version
+
+      - alert: CertificateExpiringSoon
+        expr: |
+          (slurm_tls_cert_expiry_timestamp - time()) < 86400 * 30  # 30 days
+        for: 24h
+        labels:
+          severity: info
+          team: hpc-ops
+          component: security
+        annotations:
+          summary: "TLS certificate expiring in {{ $value | humanizeDuration }}"
+          description: |
+            Certificate for {{ $labels.subject }} expires on {{ $labels.expiry_date }}.
+            Action: Renew certificate before expiration
+
+      # Capacity Planning
+      - alert: ProjectedCapacityShortage
+        expr: |
+          predict_linear(
+            slurm_cluster_cpus_total{state="allocated"}[7d], 
+            86400 * 30  # 30 days
+          ) 
+          > 
+          slurm_cluster_cpus_total{state="total"} * 0.95
+        for: 6h
+        labels:
+          severity: info
+          team: hpc-planning
+          component: capacity
+        annotations:
+          summary: "CPU capacity projected to reach 95% in 30 days"
+          description: |
+            Based on 7-day trend, CPU allocation will reach critical levels.
+            Current utilization: {{ printf "(slurm_cluster_cpus_total{state='allocated'} / slurm_cluster_cpus_total{state='total'})" | query | first | value | humanizePercentage }}
+            Action: Plan capacity expansion
+
+      - alert: PartitionUnderutilized
+        expr: |
+          avg_over_time(
+            (slurm_partition_cpus_total{state="allocated"} / slurm_partition_cpus_total{state="total"})
+            [7d]
+          ) < 0.30
+        for: 24h
+        labels:
+          severity: info
+          team: hpc-planning
+          component: efficiency
+        annotations:
+          summary: "Partition {{ $labels.partition }} averaging {{ $value | humanizePercentage }} utilization"
+          description: |
+            7-day average CPU utilization is below 30%.
+            Consider consolidating partitions or adjusting policies.
+
+      - alert: SeasonalCapacityTrend
+        expr: |
+          avg_over_time(slurm_cluster_jobs_total{state="running"}[7d]) 
+          > 
+          avg_over_time(slurm_cluster_jobs_total{state="running"}[30d]) * 1.2
+        for: 48h
+        labels:
+          severity: info
+          team: hpc-planning
+          component: capacity
+        annotations:
+          summary: "20% increase in job load compared to 30-day average"
+          description: |
+            Current 7-day average: {{ printf "avg_over_time(slurm_cluster_jobs_total{state='running'}[7d])" | query | first | value }}
+            30-day average: {{ printf "avg_over_time(slurm_cluster_jobs_total{state='running'}[30d])" | query | first | value }}
+            Action: Monitor for sustained increase
+
+      # User Behavior
+      - alert: NewHighVolumeUser
+        expr: |
+          increase(slurm_user_jobs_total[7d]) > 100
+          and
+          increase(slurm_user_jobs_total[30d]) == increase(slurm_user_jobs_total[7d])
+        for: 24h
+        labels:
+          severity: info
+          team: hpc-support
+          component: user-support
+        annotations:
+          summary: "New user {{ $labels.user }} submitted {{ $value }} jobs in first week"
+          description: |
+            User {{ $labels.user }} is a new high-volume user.
+            Action: Reach out to offer onboarding assistance
+
+      - alert: FrequentJobFailures
+        expr: |
+          (
+            sum by (user) (increase(slurm_user_jobs_total{state="failed"}[24h]))
+            /
+            sum by (user) (increase(slurm_user_jobs_total[24h]))
+          ) > 0.25
+          and
+          sum by (user) (increase(slurm_user_jobs_total[24h])) > 10
+        for: 24h
+        labels:
+          severity: info
+          team: hpc-support
+          component: user-support
+        annotations:
+          summary: "User {{ $labels.user }} has {{ $value | humanizePercentage }} job failure rate"
+          description: |
+            More than 25% of jobs failing in last 24 hours.
+            Total jobs: {{ printf "sum(increase(slurm_user_jobs_total{user='%s'}[24h]))" $labels.user | query | first | value }}
+            Failed jobs: {{ printf "sum(increase(slurm_user_jobs_total{user='%s',state='failed'}[24h]))" $labels.user | query | first | value }}
+            Action: Reach out to offer assistance
+
+      - alert: IneffientResourceRequests
+        expr: |
+          avg by (user) (
+            slurm_job_cpus_requested / slurm_job_cpus_used
+          ) > 4
+          and
+          count by (user) (slurm_job_info) > 5
+        for: 7d
+        labels:
+          severity: info
+          team: hpc-support
+          component: efficiency
+        annotations:
+          summary: "User {{ $labels.user }} overestimating resource needs"
+          description: |
+            Average CPU request is {{ $value }}x actual usage.
+            Impact: Longer wait times for all users
+            Action: Provide guidance on resource estimation
+
+      # Configuration and Policy
+      - alert: UnusedPartition
+        expr: |
+          sum_over_time(slurm_partition_jobs_total{state="running"}[7d]) == 0
+        for: 7d
+        labels:
+          severity: info
+          team: hpc-admin
+          component: configuration
+        annotations:
+          summary: "Partition {{ $labels.partition }} unused for 7 days"
+          description: |
+            No jobs have run in partition {{ $labels.partition }} for a week.
+            Action: Review partition configuration and access policies
+
+      - alert: HomogeneousJobSizes
+        expr: |
+          stddev by (partition) (slurm_job_nodes_allocated) 
+          / 
+          avg by (partition) (slurm_job_nodes_allocated) < 0.1
+        for: 48h
+        labels:
+          severity: info
+          team: hpc-admin
+          component: optimization
+        annotations:
+          summary: "Partition {{ $labels.partition }} has very uniform job sizes"
+          description: |
+            Low variation in job sizes (CV: {{ $value }}).
+            May benefit from specialized partition configuration.
+
+      # Monitoring Health
+      - alert: MetricCollectionDelayed
+        expr: |
+          time() - slurm_exporter_last_collection_timestamp > 300
+          and
+          time() - slurm_exporter_last_collection_timestamp < 600
+        for: 10m
+        labels:
+          severity: info
+          team: hpc-ops
+          component: monitoring
+        annotations:
+          summary: "{{ $labels.collector }} metrics are {{ $value | humanizeDuration }} old"
+          description: |
+            Metric collection is delayed but not critical.
+            Action: Monitor for further degradation
+
+      - alert: ExporterVersionOutdated
+        expr: |
+          slurm_exporter_build_info{version!~"1\\..*"} == 1
+        for: 7d
+        labels:
+          severity: info
+          team: hpc-ops
+          component: monitoring
+        annotations:
+          summary: "SLURM exporter running outdated version"
+          description: |
+            Current version: {{ $labels.version }}
+            Action: Plan upgrade to latest version
+
+      # Efficiency Opportunities
+      - alert: MemoryOverprovisioning
+        expr: |
+          avg(
+            slurm_node_memory_allocated_bytes / slurm_node_memory_total_bytes
+          ) < 0.5
+          and
+          avg(
+            slurm_node_cpus_allocated / slurm_node_cpus_total
+          ) > 0.8
+        for: 48h
+        labels:
+          severity: info
+          team: hpc-planning
+          component: efficiency
+        annotations:
+          summary: "High CPU utilization but low memory usage"
+          description: |
+            CPU utilization: {{ printf "avg(slurm_node_cpus_allocated / slurm_node_cpus_total)" | query | first | value | humanizePercentage }}
+            Memory utilization: {{ printf "avg(slurm_node_memory_allocated_bytes / slurm_node_memory_total_bytes)" | query | first | value | humanizePercentage }}
+            Action: Consider nodes with different CPU:memory ratios
+
+      - alert: GPUIdleTime
+        expr: |
+          (
+            sum(slurm_node_gpus_total) - sum(slurm_node_gpus_allocated)
+          ) * 
+          avg(slurm_gpu_hourly_cost) > 100
+        for: 12h
+        labels:
+          severity: info
+          team: hpc-planning
+          component: cost
+        annotations:
+          summary: "Idle GPU cost exceeds ${{ $value }}/hour"
+          description: |
+            Idle GPUs: {{ printf "sum(slurm_node_gpus_total) - sum(slurm_node_gpus_allocated)" | query | first | value }}
+            Consider power saving or consolidation strategies.
+
+      # Trends and Patterns
+      - alert: WeekendUtilizationDrop
+        expr: |
+          avg(slurm_cluster_cpus_total{state="allocated"} / slurm_cluster_cpus_total{state="total"}) < 0.5
+          and
+          day_of_week() >= 6
+        for: 6h
+        labels:
+          severity: info
+          team: hpc-planning
+          component: patterns
+        annotations:
+          summary: "Weekend utilization below 50%"
+          description: |
+            Current utilization: {{ $value | humanizePercentage }}
+            Consider maintenance windows or reduced capacity.
+
+      - alert: RecurringPeakLoad
+        expr: |
+          hour() >= 14 and hour() <= 16
+          and
+          (slurm_cluster_cpus_total{state="allocated"} / slurm_cluster_cpus_total{state="total"}) > 0.85
+        for: 1h
+        labels:
+          severity: info
+          team: hpc-planning
+          component: patterns
+        annotations:
+          summary: "Daily peak load period detected"
+          description: |
+            Utilization peaks {{ $value | humanizePercentage }} during 2-4 PM.
+            Consider load balancing strategies.

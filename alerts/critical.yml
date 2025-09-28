@@ -1,0 +1,188 @@
+groups:
+  - name: slurm_critical
+    interval: 30s
+    rules:
+      # Controller Availability
+      - alert: SlurmControllerDown
+        expr: up{job="slurm-exporter"} == 0 or slurm_cluster_info == 0
+        for: 5m
+        labels:
+          severity: critical
+          team: hpc-ops
+          component: slurm-controller
+        annotations:
+          summary: "SLURM controller is not responding"
+          description: |
+            The SLURM controller has been unreachable for 5 minutes.
+            Cluster: {{ $labels.cluster_name }}
+            Impact: No new jobs can be scheduled
+            Action: Check controller services and network connectivity
+          runbook_url: "https://wiki.company.com/slurm/controller-down"
+          dashboard_url: "https://grafana.company.com/d/slurm-health"
+
+      - alert: SlurmControllerFailover
+        expr: |
+          slurm_cluster_info{control_host!=""} 
+          and 
+          (slurm_cluster_info{control_host=""} offset 5m) != 0
+        for: 1m
+        labels:
+          severity: critical
+          team: hpc-ops
+          component: slurm-controller
+        annotations:
+          summary: "SLURM controller failover detected"
+          description: |
+            SLURM controller has failed over from primary to backup.
+            New controller: {{ $labels.control_host }}
+            Action: Investigate primary controller failure
+          runbook_url: "https://wiki.company.com/slurm/controller-failover"
+
+      # Mass Node Failures
+      - alert: MassNodeFailure
+        expr: |
+          (
+            sum(slurm_node_state{state="down"} == 1) 
+            / 
+            sum(slurm_node_state == 1)
+          ) > 0.1
+        for: 10m
+        labels:
+          severity: critical
+          team: hpc-ops
+          component: compute-nodes
+        annotations:
+          summary: "More than 10% of compute nodes are down"
+          description: |
+            {{ $value | humanizePercentage }} of cluster nodes are in DOWN state.
+            Total nodes down: {{ printf "sum(slurm_node_state{state='down'} == 1)" | query | first | value }}
+            Impact: Severe capacity reduction
+            Action: Check for infrastructure issues (power, network, storage)
+          runbook_url: "https://wiki.company.com/slurm/mass-node-failure"
+
+      - alert: EntirePartitionDown
+        expr: |
+          sum by (partition) (slurm_partition_nodes_total{state="down"}) 
+          == 
+          sum by (partition) (slurm_partition_nodes_total{state="total"})
+        for: 5m
+        labels:
+          severity: critical
+          team: hpc-ops
+          component: partition
+        annotations:
+          summary: "Entire partition {{ $labels.partition }} is down"
+          description: |
+            All nodes in partition {{ $labels.partition }} are down.
+            Total nodes affected: {{ $value }}
+            Impact: No jobs can run in this partition
+            Action: Check partition-specific infrastructure
+
+      # Scheduler Failures
+      - alert: SchedulerStalled
+        expr: |
+          time() - slurm_exporter_last_collection_timestamp{collector="scheduler"} > 600
+          or
+          increase(slurm_scheduler_cycle_duration_seconds_count[5m]) == 0
+        for: 5m
+        labels:
+          severity: critical
+          team: hpc-ops
+          component: scheduler
+        annotations:
+          summary: "SLURM scheduler is not processing jobs"
+          description: |
+            The SLURM scheduler has not completed a cycle in over 10 minutes.
+            Last update: {{ $value | humanizeDuration }} ago
+            Impact: No new jobs will start
+            Action: Check slurmctld logs and restart if necessary
+
+      - alert: SchedulerPerformanceCritical
+        expr: |
+          histogram_quantile(0.95, 
+            rate(slurm_scheduler_cycle_duration_seconds_bucket[5m])
+          ) > 30
+        for: 10m
+        labels:
+          severity: critical
+          team: hpc-ops
+          component: scheduler
+        annotations:
+          summary: "SLURM scheduler cycle time critically high"
+          description: |
+            95th percentile scheduler cycle time is {{ $value }}s (threshold: 30s).
+            Impact: Severe job start delays
+            Action: Review scheduler configuration and job queue depth
+
+      # Data Loss Risk
+      - alert: AccountingDatabaseDown
+        expr: |
+          slurm_exporter_api_requests_total{endpoint="/slurmdb",status!="200"} 
+          / 
+          slurm_exporter_api_requests_total{endpoint="/slurmdb"} > 0.95
+        for: 15m
+        labels:
+          severity: critical
+          team: hpc-ops
+          component: accounting
+        annotations:
+          summary: "SLURM accounting database is unavailable"
+          description: |
+            Over 95% of requests to SLURM accounting database are failing.
+            Error rate: {{ $value | humanizePercentage }}
+            Impact: Job accounting data may be lost
+            Action: Check slurmdbd service and MySQL database
+
+      - alert: ExporterDataCollectionFailure
+        expr: |
+          sum(rate(slurm_exporter_collection_errors_total[5m])) by (collector) > 1
+        for: 10m
+        labels:
+          severity: critical
+          team: hpc-ops
+          component: monitoring
+        annotations:
+          summary: "SLURM exporter failing to collect {{ $labels.collector }} metrics"
+          description: |
+            The {{ $labels.collector }} collector is experiencing {{ $value }} errors per second.
+            Impact: Missing metrics for monitoring and alerting
+            Action: Check exporter logs and SLURM API connectivity
+
+      # Storage Failures
+      - alert: SharedStorageUnavailable
+        expr: |
+          sum(slurm_node_state{state="down",reason=~".*NFS.*|.*storage.*"} == 1) > 10
+        for: 5m
+        labels:
+          severity: critical
+          team: hpc-ops
+          component: storage
+        annotations:
+          summary: "Shared storage issues affecting multiple nodes"
+          description: |
+            {{ $value }} nodes are down due to storage issues.
+            Impact: Jobs cannot access shared filesystems
+            Action: Check NFS servers and network connectivity
+
+      # Emergency Resource Exhaustion
+      - alert: ClusterResourceExhaustion
+        expr: |
+          (
+            slurm_cluster_cpus_total{state="allocated"} 
+            / 
+            slurm_cluster_cpus_total{state="total"}
+          ) > 0.99
+          and
+          slurm_cluster_jobs_total{state="pending"} > 1000
+        for: 15m
+        labels:
+          severity: critical
+          team: hpc-ops
+          component: capacity
+        annotations:
+          summary: "Cluster at 99% capacity with large job backlog"
+          description: |
+            CPU utilization: {{ printf "(slurm_cluster_cpus_total{state='allocated'} / slurm_cluster_cpus_total{state='total'})" | query | first | value | humanizePercentage }}
+            Pending jobs: {{ printf "slurm_cluster_jobs_total{state='pending'}" | query | first | value }}
+            Impact: Extreme wait times for all users
+            Action: Emergency capacity planning or job prioritization required
