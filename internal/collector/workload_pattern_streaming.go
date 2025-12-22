@@ -131,7 +131,7 @@ type WorkloadPatternEvent struct {
 	PerformanceProfile        string
 	ThroughputPattern         string
 	LatencyPattern            string
-	EfficiencyPattern         string
+	PerformanceEfficiencyPattern string
 	SpeedupPattern            string
 	ScalabilityPattern        string
 	BottleneckPattern         string

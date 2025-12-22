@@ -82,7 +82,7 @@ type FairShareViolationsCollector struct {
 
 // FairShareViolationsSLURMClient interface for fair-share violation operations
 type FairShareViolationsSLURMClient interface {
-	DetectFairShareViolations(ctx context.Context) ([]*FairShareViolation, error)
+	DetectFairShareViolations(ctx context.Context) ([]*FairShareViolationRecord, error)
 	GetUserViolationProfile(ctx context.Context, userName string) (*UserViolationProfile, error)
 	GetAccountViolationSummary(ctx context.Context, accountName string) (*AccountViolationSummary, error)
 	GetSystemViolationOverview(ctx context.Context) (*SystemViolationOverview, error)
@@ -96,8 +96,8 @@ type FairShareViolationsSLURMClient interface {
 	GetViolationImpactAnalysis(ctx context.Context, violationID string) (*ViolationImpactAnalysis, error)
 }
 
-// FairShareViolation represents a detected violation
-type FairShareViolation struct {
+// FairShareViolationRecord represents a detected violation
+type FairShareViolationRecord struct {
 	ViolationID         string    `json:"violation_id"`
 	UserName            string    `json:"user_name"`
 	AccountName         string    `json:"account_name"`
@@ -1071,7 +1071,7 @@ func (c *FairShareViolationsCollector) collectViolations(ctx context.Context) {
 		typeCounts[violation.ViolationType]++
 	}
 
-	for severity, count := range severityCounts {
+	for severity := range severityCounts {
 		for violationType, typeCount := range typeCounts {
 			c.violationType.WithLabelValues(violationType, severity).Set(typeCount)
 		}

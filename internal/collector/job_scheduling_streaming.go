@@ -772,7 +772,7 @@ type SchedulingStreamingPerformanceMetrics struct {
 	Availability             float64
 	Reliability              float64
 	Durability               float64
-	Fault Tolerance          float64
+	FaultTolerance           float64
 	RecoverabilityScore      float64
 	ResilienceScore          float64
 }
@@ -1369,7 +1369,8 @@ func (c *JobSchedulingStreamingCollector) collectEventSubscriptions(ctx context.
 	
 	for _, sub := range subscriptions {
 		// Subscription metrics
-		labels := []string{sub.SubscriptionType, sub.Status, sub.DeliveryMethod}
+		// TODO: Remove unused variable
+		// labels := []string{sub.SubscriptionType, sub.Status, sub.DeliveryMethod}
 		
 		ch <- prometheus.MustNewConstMetric(
 			c.schedulingEvents,

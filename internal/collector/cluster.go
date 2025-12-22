@@ -3,6 +3,7 @@ package collector
 import (
 	"context"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -318,17 +319,17 @@ func (cc *ClusterCollector) parseNodeState(slurmState string) string {
 	// SLURM node states can be complex (e.g., "idle+cloud", "allocated+completing")
 	// Normalize to primary states for metrics
 	switch {
-	case contains(slurmState, "idle"):
+	case strings.Contains(slurmState, "idle"):
 		return "idle"
-	case contains(slurmState, "allocated") || contains(slurmState, "mixed"):
+	case strings.Contains(slurmState, "allocated") || strings.Contains(slurmState, "mixed"):
 		return "allocated"
-	case contains(slurmState, "down"):
+	case strings.Contains(slurmState, "down"):
 		return "down"
-	case contains(slurmState, "drain"):
+	case strings.Contains(slurmState, "drain"):
 		return "drain"
-	case contains(slurmState, "completing"):
+	case strings.Contains(slurmState, "completing"):
 		return "completing"
-	case contains(slurmState, "maint"):
+	case strings.Contains(slurmState, "maint"):
 		return "maintenance"
 	default:
 		return "unknown"

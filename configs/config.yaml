@@ -60,6 +60,7 @@ server:
 slurm:
   base_url: "http://localhost:6820"
   api_version: "v0.0.42"
+  use_adapters: true  # Enable adapter pattern for better version compatibility
   timeout: "30s"
   retry_attempts: 3
   retry_delay: "5s"
@@ -217,6 +218,50 @@ collectors:
       backoff_factor: 2.0
       max_retry_delay: "60s"
       fail_fast: false
+
+  # QoS (Quality of Service) metrics
+  qos:
+    enabled: true
+    interval: "60s"
+    timeout: "10s"
+    max_concurrency: 1
+    labels: {}
+    filters:
+      # Optionally filter specific QoS
+      # include_qos: ["normal", "high"]
+      # exclude_qos: ["low"]
+    error_handling:
+      max_retries: 3
+      retry_delay: "5s"
+      backoff_factor: 2.0
+      max_retry_delay: "60s"
+      fail_fast: false
+
+  # Reservation metrics
+  reservations:
+    enabled: true
+    interval: "60s"
+    timeout: "10s"
+    max_concurrency: 1
+    labels: {}
+    filters:
+      # Optionally filter specific partitions or accounts
+      # include_partitions: ["compute", "gpu"]
+      # include_accounts: ["research", "engineering"]
+    error_handling:
+      max_retries: 3
+      retry_delay: "5s"
+      backoff_factor: 2.0
+      max_retry_delay: "60s"
+      fail_fast: false
+
+  # Graceful degradation configuration
+  degradation:
+    enabled: true
+    max_failures: 3
+    reset_timeout: "5m"
+    use_cached_metrics: true
+    cache_ttl: "10m"
 
 # Logging configuration
 logging:

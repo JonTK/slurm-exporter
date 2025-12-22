@@ -863,7 +863,7 @@ func (c *AccountQuotaCollector) collectQuotaViolations(ctx context.Context, acco
 	}
 
 	// Get enforcement status
-	enforcement, err := c.client.GetQuotaEnforcementStatus(ctx, accountName)
+	_, err = c.client.GetQuotaEnforcementStatus(ctx, accountName)
 	if err == nil {
 		// Mock enforcement status values
 		c.accountQuotaEnforcementStatus.WithLabelValues(accountName, "cpu").Set(2.0) // hard enforcement
@@ -872,7 +872,7 @@ func (c *AccountQuotaCollector) collectQuotaViolations(ctx context.Context, acco
 }
 
 func (c *AccountQuotaCollector) collectQuotaTrends(ctx context.Context, accountName string) {
-	trends, err := c.client.GetAccountQuotaTrends(ctx, accountName, "30d")
+	_, err := c.client.GetAccountQuotaTrends(ctx, accountName, "30d")
 	if err != nil {
 		return
 	}
@@ -905,7 +905,7 @@ func (c *AccountQuotaCollector) collectQuotaAlerts(ctx context.Context, accountN
 	c.accountQuotaAlertLevel.WithLabelValues(accountName, "overall").Set(float64(maxAlertLevel))
 
 	// Get recommendations
-	recommendations, err := c.client.GetAccountQuotaRecommendations(ctx, accountName)
+	_, err = c.client.GetAccountQuotaRecommendations(ctx, accountName)
 	if err == nil {
 		// Mock recommendation scores
 		c.accountQuotaRecommendationScore.WithLabelValues(accountName, "increase_quota").Set(0.8)
@@ -964,19 +964,7 @@ type EffectiveResourceLimits struct {
 	Sources      []string                  `json:"sources"`
 }
 
-// QuotaViolation represents a quota violation event
-type QuotaViolation struct {
-	ViolationID   string                   `json:"violation_id"`
-	AccountName   string                   `json:"account_name"`
-	UserName      string                   `json:"user_name"`
-	ResourceType  string                   `json:"resource_type"`
-	ViolationType string                   `json:"violation_type"`
-	RequestedAmount float64                 `json:"requested_amount"`
-	AvailableAmount float64                 `json:"available_amount"`
-	Timestamp     time.Time                `json:"timestamp"`
-	JobID         string                   `json:"job_id"`
-	Action        string                   `json:"action"`
-}
+// Note: QuotaViolation type is defined in common_types.go
 
 // QuotaEnforcementStatus represents enforcement status
 type QuotaEnforcementStatus struct {
@@ -1028,12 +1016,4 @@ type QuotaRecommendations struct {
 	PotentialSavings float64                `json:"potential_savings"`
 }
 
-// QuotaRecommendation represents a single recommendation
-type QuotaRecommendation struct {
-	Type          string                   `json:"type"`
-	Priority      string                   `json:"priority"`
-	Description   string                   `json:"description"`
-	Impact        float64                  `json:"impact"`
-	Effort        string                   `json:"effort"`
-	ResourceType  string                   `json:"resource_type"`
-}
+// Note: QuotaRecommendation type is defined in common_types.go

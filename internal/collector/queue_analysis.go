@@ -99,8 +99,8 @@ type QueueAnalysisCollector struct {
 // QueueAnalysisSLURMClient interface for queue analysis operations
 type QueueAnalysisSLURMClient interface {
 	GetQueuePositionAnalysis(ctx context.Context, jobID string) (*QueuePositionAnalysis, error)
-	PredictWaitTime(ctx context.Context, jobID string) (*WaitTimePrediction, error)
-	GetQueueMetrics(ctx context.Context, partition string) (*QueueMetrics, error)
+	PredictWaitTime(ctx context.Context, jobID string) (*QueueWaitTimePrediction, error)
+	GetQueueMetrics(ctx context.Context, partition string) (*QueueAnalysisMetrics, error)
 	GetHistoricalWaitTimes(ctx context.Context, filters *WaitTimeFilters) (*HistoricalWaitTimes, error)
 	GetQueueEfficiencyAnalysis(ctx context.Context, partition string) (*QueueEfficiencyAnalysis, error)
 	GetResourceQueueAnalysis(ctx context.Context, resourceType string) (*ResourceQueueAnalysis, error)
@@ -148,8 +148,8 @@ type QueuePositionAnalysis struct {
 	LastUpdated time.Time `json:"last_updated"`
 }
 
-// WaitTimePrediction represents wait time prediction for a job
-type WaitTimePrediction struct {
+// QueueWaitTimePrediction represents wait time prediction for a job
+type QueueWaitTimePrediction struct {
 	JobID               string        `json:"job_id"`
 	UserName            string        `json:"user_name"`
 	PartitionName       string        `json:"partition_name"`
@@ -186,8 +186,8 @@ type WaitTimePrediction struct {
 	UpdateFrequency     time.Duration `json:"update_frequency"`
 }
 
-// QueueMetrics represents comprehensive queue metrics
-type QueueMetrics struct {
+// QueueAnalysisMetrics represents comprehensive queue metrics
+type QueueAnalysisMetrics struct {
 	PartitionName       string    `json:"partition_name"`
 
 	// Basic Queue Stats

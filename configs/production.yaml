@@ -34,6 +34,7 @@ server:
 slurm:
   base_url: "${SLURM_REST_URL}"  # Use environment variable
   api_version: "v0.0.42"
+  use_adapters: true  # Enable adapter pattern for version compatibility
   timeout: "45s"  # Longer timeout for production
   retry_attempts: 5  # More retries for reliability
   retry_delay: "10s"

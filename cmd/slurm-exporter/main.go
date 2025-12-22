@@ -15,6 +15,7 @@ import (
 	"github.com/jontk/slurm-exporter/internal/config"
 	"github.com/jontk/slurm-exporter/internal/logging"
 	"github.com/jontk/slurm-exporter/internal/server"
+	"github.com/jontk/slurm-exporter/internal/slurm"
 	"github.com/jontk/slurm-exporter/pkg/version"
 )
 
@@ -96,8 +97,22 @@ func main() {
 		logger.WithComponent("main").WithError(err).Fatal("Failed to create collector registry")
 	}
 
+	// Create SLURM client using our wrapper
+	slurmWrapper, err := slurm.NewClient(&cfg.SLURM)
+	if err != nil {
+		logger.WithComponent("main").WithError(err).Fatal("Failed to create SLURM client")
+	}
+
+	// Get the underlying client for collectors
+	slurmClient := slurmWrapper.GetSlurmClient()
+
+	// Create and register collectors based on configuration
+	if err := registry.CreateCollectorsFromConfig(&cfg.Collectors, slurmClient); err != nil {
+		logger.WithComponent("main").WithError(err).Fatal("Failed to create collectors")
+	}
+
 	// Create and start the server
-	srv, err := server.New(cfg, logger.Logger, registry)
+	srv, err := server.New(cfg, logger.Logger, registry, promRegistry)
 	if err != nil {
 		logger.WithComponent("main").WithError(err).Fatal("Failed to create server")
 	}

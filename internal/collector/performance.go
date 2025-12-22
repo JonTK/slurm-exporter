@@ -403,10 +403,10 @@ func (pc *PerformanceCollector) collectQueueMetrics(ctx context.Context, ch chan
 	return nil
 }
 
-// PerformanceMetrics represents system performance metrics
-type PerformanceMetrics struct {
+// SystemPerformanceMetrics represents system performance metrics
+type SystemPerformanceMetrics struct {
 	ThroughputMetrics ThroughputMetrics
-	EfficiencyMetrics EfficiencyMetrics
+	EfficiencyMetrics SystemEfficiencyMetrics
 	QueueMetrics      QueueMetrics
 }
 
@@ -418,8 +418,8 @@ type ThroughputMetrics struct {
 	SubmissionRate  float64
 }
 
-// EfficiencyMetrics represents efficiency statistics
-type EfficiencyMetrics struct {
+// SystemEfficiencyMetrics represents efficiency statistics
+type SystemEfficiencyMetrics struct {
 	CPUUtilization     float64
 	MemoryUtilization  float64
 	NodeUtilization    float64
@@ -449,12 +449,13 @@ func (pc *PerformanceCollector) calculateEfficiency(metrics *EfficiencyMetrics) 
 		"network": 0.05,
 	}
 
+	// Map efficiency metrics to utilization names
 	utilizations := map[string]float64{
-		"cpu":     metrics.CPUUtilization,
-		"memory":  metrics.MemoryUtilization,
-		"node":    metrics.NodeUtilization,
-		"storage": metrics.StorageUtilization,
-		"network": metrics.NetworkUtilization,
+		"cpu":     metrics.CPUEfficiency,
+		"memory":  metrics.MemoryEfficiency,
+		"node":    metrics.ResourceEfficiency,    // Use resource efficiency as proxy for node
+		"storage": metrics.IOEfficiency,          // Use IO efficiency as proxy for storage
+		"network": metrics.NetworkEfficiency,
 	}
 
 	efficiency := 0.0
@@ -471,28 +472,36 @@ func (pc *PerformanceCollector) calculateEfficiency(metrics *EfficiencyMetrics) 
 func (pc *PerformanceCollector) parsePerformanceData(data interface{}) (*PerformanceMetrics, error) {
 	// In real implementation, this would parse actual SLURM API response
 	// For now, return mock performance data
+	// Return simplified performance metrics based on the new structure
 	return &PerformanceMetrics{
-		ThroughputMetrics: ThroughputMetrics{
-			JobsPerHour:     45.5,
-			CPUHoursPerHour: 1890.5,
-			CompletionRate:  0.92,
-			SubmissionRate:  1.15,
-		},
-		EfficiencyMetrics: EfficiencyMetrics{
-			CPUUtilization:     0.78,
-			MemoryUtilization:  0.65,
-			NodeUtilization:    0.82,
-			StorageUtilization: 0.45,
-			NetworkUtilization: 0.23,
-			OverallEfficiency:  0.725,
-		},
-		QueueMetrics: QueueMetrics{
-			QueueDepth:      125,
-			AverageWaitTime: 45 * time.Minute,
-			MedianWaitTime:  32 * time.Minute,
-			MaxWaitTime:     3*time.Hour + 15*time.Minute,
-			P95WaitTime:     2*time.Hour + 30*time.Minute,
-			TurnoverRate:    42.5,
+		Throughput:      45.5,  // Jobs per hour
+		Latency:         120.0, // Average latency in seconds
+		QueueTime:       300.0, // Average queue time in seconds
+		ExecutionTime:   1800.0, // Average execution time in seconds
+		TurnaroundTime:  2100.0, // Total turnaround time in seconds
+		SuccessRate:     0.92,
+		ErrorRate:       0.08,
+	}, nil
+}
+
+// parseEfficiencyData parses efficiency data (now separate from performance)
+func (pc *PerformanceCollector) parseEfficiencyData(data interface{}) (*EfficiencyMetrics, error) {
+	// Return efficiency metrics using the correct structure
+	return &EfficiencyMetrics{
+		CPUEfficiency:       0.78,
+		MemoryEfficiency:    0.65,
+		ResourceEfficiency:  0.715, // Average of CPU and memory
+		IOEfficiency:        0.45,
+		NetworkEfficiency:   0.23,
+		OverallEfficiency:   0.725,
+		WasteRatio:          0.275,
+		OptimizationScore:   0.68,
+		EfficiencyGrade:     "B",
+		EfficiencyCategory:  "Good",
+		QueueEfficiency:     0.82,
+		Recommendations: []string{
+			"Consider optimizing memory allocation",
+			"Network utilization is low - review network requirements",
 		},
 	}, nil
 }

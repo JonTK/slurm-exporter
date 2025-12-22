@@ -12,7 +12,7 @@ import (
 // needed for fair-share trend visualization and reporting
 type FairShareTrendReportingSLURMClient interface {
 	// Trend Data Collection
-	GetFairShareTrendData(ctx context.Context, entity string, period string) (*FairShareTrendData, error)
+	GetFairShareTrendData(ctx context.Context, entity string, period string) (*FairShareTrendReportData, error)
 	GetUserFairShareHistory(ctx context.Context, userName string, period string) (*UserFairShareHistory, error)
 	GetAccountFairShareHistory(ctx context.Context, accountName string, period string) (*AccountFairShareHistory, error)
 	GetSystemFairShareTrends(ctx context.Context, period string) (*SystemFairShareTrends, error)
@@ -42,8 +42,167 @@ type FairShareTrendReportingSLURMClient interface {
 	GetReportingSchedule(ctx context.Context) (*ReportingSchedule, error)
 }
 
-// FairShareTrendData represents comprehensive trend data for fair-share metrics
-type FairShareTrendData struct {
+// UserFairShareHistory represents historical fair-share data for a user
+type UserFairShareHistory struct {
+	UserName         string                 `json:"user_name"`
+	Period           string                 `json:"period"`
+	FairShareValues  []float64              `json:"fair_share_values"`
+	Timestamps       []time.Time            `json:"timestamps"`
+	AverageFairShare float64                `json:"average_fair_share"`
+	TrendDirection   string                 `json:"trend_direction"`
+	VolatilityScore  float64                `json:"volatility_score"`
+}
+
+// AccountFairShareHistory represents historical fair-share data for an account
+type AccountFairShareHistory struct {
+	AccountName      string                 `json:"account_name"`
+	Period           string                 `json:"period"`
+	FairShareValues  []float64              `json:"fair_share_values"`
+	Timestamps       []time.Time            `json:"timestamps"`
+	AverageFairShare float64                `json:"average_fair_share"`
+	TrendDirection   string                 `json:"trend_direction"`
+	UserCount        int                    `json:"user_count"`
+}
+
+// SystemFairShareTrends represents system-wide fair-share trends
+type SystemFairShareTrends struct {
+	Period               string                 `json:"period"`
+	OverallTrend         string                 `json:"overall_trend"`
+	DistributionBalance  float64                `json:"distribution_balance"`
+	GiniCoefficient      float64                `json:"gini_coefficient"`
+	TopUsersShare        float64                `json:"top_users_share"`
+	BottomUsersShare     float64                `json:"bottom_users_share"`
+}
+
+// FairShareAggregations represents aggregated fair-share data
+type FairShareAggregations struct {
+	Period              string                 `json:"period"`
+	Mean                float64                `json:"mean"`
+	Median              float64                `json:"median"`
+	StandardDeviation   float64                `json:"standard_deviation"`
+	Min                 float64                `json:"min"`
+	Max                 float64                `json:"max"`
+	Percentiles         map[int]float64        `json:"percentiles"`
+}
+
+// FairShareMovingAverages represents moving averages of fair-share data
+type FairShareMovingAverages struct {
+	Period              string                 `json:"period"`
+	SimpleMA            []float64              `json:"simple_ma"`
+	ExponentialMA       []float64              `json:"exponential_ma"`
+	WeightedMA          []float64              `json:"weighted_ma"`
+	Timestamps          []time.Time            `json:"timestamps"`
+}
+
+// SeasonalDecomposition represents seasonal decomposition of fair-share data
+type SeasonalDecomposition struct {
+	Period              string                 `json:"period"`
+	Trend               []float64              `json:"trend"`
+	Seasonal            []float64              `json:"seasonal"`
+	Residual            []float64              `json:"residual"`
+	SeasonalPeriod      int                    `json:"seasonal_period"`
+}
+
+// FairShareDistribution represents distribution analysis of fair-share data
+type FairShareDistribution struct {
+	Period              string                 `json:"period"`
+	Histogram           map[string]int         `json:"histogram"`
+	Density             []float64              `json:"density"`
+	Skewness            float64                `json:"skewness"`
+	Kurtosis            float64                `json:"kurtosis"`
+	Entropy             float64                `json:"entropy"`
+}
+
+// FairShareComparison represents comparison between entities
+type FairShareComparison struct {
+	EntityA             string                 `json:"entity_a"`
+	EntityB             string                 `json:"entity_b"`
+	Period              string                 `json:"period"`
+	Correlation         float64                `json:"correlation"`
+	DifferenceMetrics   map[string]float64     `json:"difference_metrics"`
+	StatisticalTest     map[string]float64     `json:"statistical_test"`
+}
+
+// FairShareCorrelations represents correlation analysis
+type FairShareCorrelations struct {
+	Period              string                 `json:"period"`
+	CorrelationMatrix   [][]float64            `json:"correlation_matrix"`
+	Entities            []string               `json:"entities"`
+	SignificantPairs    []string               `json:"significant_pairs"`
+}
+
+// FairShareInsights represents analytical insights
+type FairShareInsights struct {
+	Period              string                 `json:"period"`
+	KeyFindings         []string               `json:"key_findings"`
+	Trends              []string               `json:"trends"`
+	Recommendations     []string               `json:"recommendations"`
+	RiskFactors         []string               `json:"risk_factors"`
+}
+
+// FairShareAnomalies represents detected anomalies
+type FairShareAnomalies struct {
+	Period              string                 `json:"period"`
+	AnomalyCount        int                    `json:"anomaly_count"`
+	Anomalies           []FairShareAnomaly     `json:"anomalies"`
+	AnomalyScore        float64                `json:"anomaly_score"`
+}
+
+// FairShareAnomaly represents a single anomaly
+type FairShareAnomaly struct {
+	Timestamp           time.Time              `json:"timestamp"`
+	Entity              string                 `json:"entity"`
+	Type                string                 `json:"type"`
+	Severity            string                 `json:"severity"`
+	Value               float64                `json:"value"`
+	ExpectedValue       float64                `json:"expected_value"`
+	Description         string                 `json:"description"`
+}
+
+// FairShareForecast represents forecasted fair-share values
+type FairShareForecast struct {
+	Entity              string                 `json:"entity"`
+	Period              string                 `json:"period"`
+	ForecastValues      []float64              `json:"forecast_values"`
+	ConfidenceIntervals [][]float64            `json:"confidence_intervals"`
+	Timestamps          []time.Time            `json:"timestamps"`
+	ModelAccuracy       float64                `json:"model_accuracy"`
+}
+
+// DashboardMetrics represents metrics for dashboard display
+type DashboardMetrics struct {
+	DashboardID         string                 `json:"dashboard_id"`
+	Metrics             map[string]interface{} `json:"metrics"`
+	LastUpdated         time.Time              `json:"last_updated"`
+	RefreshInterval     time.Duration          `json:"refresh_interval"`
+}
+
+// RealtimeUpdates represents real-time update data
+type RealtimeUpdates struct {
+	UpdateType          string                 `json:"update_type"`
+	Updates             []interface{}          `json:"updates"`
+	Timestamp           time.Time              `json:"timestamp"`
+}
+
+// VisualizationConfig represents visualization configuration
+type VisualizationConfig struct {
+	VisualType          string                 `json:"visual_type"`
+	Config              map[string]interface{} `json:"config"`
+	DataSource          string                 `json:"data_source"`
+	RefreshRate         time.Duration          `json:"refresh_rate"`
+}
+
+// ReportingSchedule represents reporting schedule
+type ReportingSchedule struct {
+	ScheduleID          string                 `json:"schedule_id"`
+	ReportType          string                 `json:"report_type"`
+	Frequency           string                 `json:"frequency"`
+	NextRun             time.Time              `json:"next_run"`
+	Recipients          []string               `json:"recipients"`
+}
+
+// FairShareTrendReportData represents comprehensive trend data for fair-share metrics
+type FairShareTrendReportData struct {
 	Entity            string                 `json:"entity"`
 	EntityType        string                 `json:"entity_type"`
 	Period            string                 `json:"period"`
@@ -100,9 +259,9 @@ type FairShareTimeSeries struct {
 	Resolution       string                  `json:"resolution"`
 	
 	// Time Series Data
-	DataPoints       []TimeSeriesPoint       `json:"data_points"`
-	Interpolated     []TimeSeriesPoint       `json:"interpolated_points"`
-	Smoothed         []TimeSeriesPoint       `json:"smoothed_points"`
+	DataPoints       []FairShareTimeSeriesPoint       `json:"data_points"`
+	Interpolated     []FairShareTimeSeriesPoint       `json:"interpolated_points"`
+	Smoothed         []FairShareTimeSeriesPoint       `json:"smoothed_points"`
 	
 	// Trend Components
 	TrendComponent   []float64               `json:"trend_component"`
@@ -115,7 +274,7 @@ type FairShareTimeSeries struct {
 	SpectralDensity  []float64               `json:"spectral_density"`
 	
 	// Change Points
-	ChangePoints     []ChangePoint           `json:"change_points"`
+	ChangePoints     []TrendChangePoint           `json:"change_points"`
 	Breakpoints      []time.Time             `json:"breakpoints"`
 	RegimeChanges    []RegimeChange          `json:"regime_changes"`
 	
@@ -125,8 +284,8 @@ type FairShareTimeSeries struct {
 	SamplingRate     float64                 `json:"sampling_rate"`
 }
 
-// TimeSeriesPoint represents a single point in time series
-type TimeSeriesPoint struct {
+// FairShareTimeSeriesPoint represents a single point in time series for fairshare data
+type FairShareTimeSeriesPoint struct {
 	Timestamp  time.Time              `json:"timestamp"`
 	Value      float64                `json:"value"`
 	Confidence float64                `json:"confidence"`
@@ -1003,7 +1162,7 @@ func (c *FairShareTrendReportingCollector) collectTrendData(ctx context.Context,
 }
 
 func (c *FairShareTrendReportingCollector) collectSystemTrends(ctx context.Context, period string) {
-	systemTrends, err := c.client.GetSystemFairShareTrends(ctx, period)
+	_, err := c.client.GetSystemFairShareTrends(ctx, period)
 	if err != nil {
 		return
 	}
@@ -1015,14 +1174,14 @@ func (c *FairShareTrendReportingCollector) collectSystemTrends(ctx context.Conte
 
 func (c *FairShareTrendReportingCollector) collectTimeSeriesAnalysis(ctx context.Context) {
 	// Collect time series data
-	timeSeries, err := c.client.GetFairShareTimeSeries(ctx, "user1", "fairshare", "1h")
+	_, err := c.client.GetFairShareTimeSeries(ctx, "user1", "fairshare", "1h")
 	if err == nil {
 		c.fairShareSignalToNoise.WithLabelValues("user1", "user").Set(0.8)  // Mock data
 		c.fairShareAutoCorrelation.WithLabelValues("user1", "user", "1").Set(0.75)  // Mock data
 	}
 	
 	// Moving averages
-	movingAvgs, err := c.client.GetFairShareMovingAverages(ctx, "user1", []string{"7d", "30d"})
+	_, err = c.client.GetFairShareMovingAverages(ctx, "user1", []string{"7d", "30d"})
 	if err == nil {
 		c.fairShareMovingAverage.WithLabelValues("user1", "user", "7d").Set(0.65)   // Mock data
 		c.fairShareMovingAverage.WithLabelValues("user1", "user", "30d").Set(0.62)  // Mock data
@@ -1030,7 +1189,7 @@ func (c *FairShareTrendReportingCollector) collectTimeSeriesAnalysis(ctx context
 	}
 	
 	// Seasonal decomposition
-	seasonal, err := c.client.GetSeasonalDecomposition(ctx, "user1", "30d")
+	_, err = c.client.GetSeasonalDecomposition(ctx, "user1", "30d")
 	if err == nil {
 		c.fairShareSeasonalComponent.WithLabelValues("user1", "user", "weekly").Set(0.05)   // Mock data
 		c.fairShareTrendComponent.WithLabelValues("user1", "user").Set(0.63)                // Mock data
@@ -1040,14 +1199,14 @@ func (c *FairShareTrendReportingCollector) collectTimeSeriesAnalysis(ctx context
 
 func (c *FairShareTrendReportingCollector) collectVisualizationData(ctx context.Context) {
 	// Heatmap data
-	heatmap, err := c.client.GetFairShareHeatmap(ctx, "user", "24h")
+	_, err := c.client.GetFairShareHeatmap(ctx, "user", "24h")
 	if err == nil {
 		c.fairShareHeatmapIntensity.WithLabelValues("user1", "morning").Set(0.75)   // Mock data
 		c.fairShareHeatmapIntensity.WithLabelValues("user1", "afternoon").Set(0.82) // Mock data
 	}
 	
 	// Correlation analysis
-	correlations, err := c.client.GetFairShareCorrelations(ctx, []string{"fairshare", "usage"}, "30d")
+	_, err = c.client.GetFairShareCorrelations(ctx, []string{"fairshare", "usage"}, "30d")
 	if err == nil {
 		c.fairShareCorrelation.WithLabelValues("user1", "user2", "fairshare").Set(0.65)    // Mock data
 		c.fairShareSimilarityScore.WithLabelValues("user1", "user2", "cosine").Set(0.78)   // Mock data
@@ -1065,7 +1224,7 @@ func (c *FairShareTrendReportingCollector) collectVisualizationData(ctx context.
 
 func (c *FairShareTrendReportingCollector) collectForecastingMetrics(ctx context.Context) {
 	// Forecast data
-	forecast, err := c.client.GetFairShareForecast(ctx, "user1", "7d")
+	_, err := c.client.GetFairShareForecast(ctx, "user1", "7d")
 	if err == nil {
 		c.fairShareForecastValue.WithLabelValues("user1", "user", "7d").Set(0.68)            // Mock data
 		c.fairShareForecastConfidence.WithLabelValues("user1", "user", "7d").Set(0.82)       // Mock data
@@ -1086,7 +1245,7 @@ func (c *FairShareTrendReportingCollector) collectForecastingMetrics(ctx context
 
 func (c *FairShareTrendReportingCollector) collectReportingMetrics(ctx context.Context) {
 	// Report generation
-	report, err := c.client.GenerateFairShareReport(ctx, "monthly", "30d")
+	_, err := c.client.GenerateFairShareReport(ctx, "monthly", "30d")
 	if err == nil {
 		c.reportGenerationTime.WithLabelValues("monthly").Observe(2.5)                      // Mock 2.5 seconds
 		c.reportDataPoints.WithLabelValues("monthly", "trends").Set(1500.0)                // Mock data
@@ -1199,8 +1358,8 @@ func (c *FairShareTrendReportingCollector) collectAllMetrics(ch chan<- prometheu
 
 // Additional types for comprehensive reporting
 
-// ChangePoint represents a detected change point in time series
-type ChangePoint struct {
+// TrendChangePoint represents a detected change point in time series
+type TrendChangePoint struct {
 	Timestamp   time.Time `json:"timestamp"`
 	Magnitude   float64   `json:"magnitude"`
 	Confidence  float64   `json:"confidence"`

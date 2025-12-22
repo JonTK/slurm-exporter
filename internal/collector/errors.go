@@ -448,7 +448,7 @@ func isConnectionError(errMsg string) bool {
 	}
 
 	for _, keyword := range connectionKeywords {
-		if contains(errMsg, keyword) {
+		if errorContains(errMsg, keyword) {
 			return true
 		}
 	}
@@ -465,7 +465,7 @@ func isTimeoutError(errMsg string) bool {
 	}
 
 	for _, keyword := range timeoutKeywords {
-		if contains(errMsg, keyword) {
+		if errorContains(errMsg, keyword) {
 			return true
 		}
 	}
@@ -484,7 +484,7 @@ func isAuthError(errMsg string) bool {
 	}
 
 	for _, keyword := range authKeywords {
-		if contains(errMsg, keyword) {
+		if errorContains(errMsg, keyword) {
 			return true
 		}
 	}
@@ -502,7 +502,7 @@ func isRateLimitError(errMsg string) bool {
 	}
 
 	for _, keyword := range rateLimitKeywords {
-		if contains(errMsg, keyword) {
+		if errorContains(errMsg, keyword) {
 			return true
 		}
 	}
@@ -520,25 +520,25 @@ func isPermissionError(errMsg string) bool {
 	}
 
 	for _, keyword := range permissionKeywords {
-		if contains(errMsg, keyword) {
+		if errorContains(errMsg, keyword) {
 			return true
 		}
 	}
 	return false
 }
 
-// contains checks if str contains substr (case-insensitive)
-func contains(str, substr string) bool {
+// errorContains checks if str contains substr (case-insensitive)
+func errorContains(str, substr string) bool {
 	return len(str) >= len(substr) &&
 		(str == substr ||
 			len(str) > len(substr) &&
 				(str[:len(substr)] == substr ||
 					str[len(str)-len(substr):] == substr ||
-					containsHelper(str, substr)))
+					errorContainsHelper(str, substr)))
 }
 
-// containsHelper helper for case-insensitive substring search
-func containsHelper(str, substr string) bool {
+// errorContainsHelper helper for case-insensitive substring search
+func errorContainsHelper(str, substr string) bool {
 	for i := 0; i <= len(str)-len(substr); i++ {
 		if str[i:i+len(substr)] == substr {
 			return true

@@ -137,10 +137,6 @@ func (m *MockFairSharePolicyEffectivenessSLURMClient) GetPolicyCostBenefitAnalys
 }
 
 // Mock structures for missing types
-type PolicyImplementationDetails struct{}
-type PolicyParameterAnalysis struct{}
-type PolicyConfigurationValidation struct{}
-type FairnessDistributionAnalysis struct{}
 type ResourceAllocationEffectiveness struct{}
 type UserEquityAnalysis struct{}
 type SystemPerformanceImpact struct{}

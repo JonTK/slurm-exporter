@@ -9,6 +9,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
+	"github.com/jontk/slurm-client"
 	"github.com/jontk/slurm-exporter/internal/config"
 	"github.com/jontk/slurm-exporter/internal/metrics"
 )
@@ -348,21 +349,39 @@ func RegisterCollectorFactory(name string, factory CollectorFactory) {
 
 // CreateCollectorsFromConfig creates and registers collectors based on configuration
 func (r *Registry) CreateCollectorsFromConfig(cfg *config.CollectorsConfig, client interface{}) error {
-	// This method will be implemented when we have actual collector implementations
-	// For now, it's a placeholder that shows the intended usage pattern
-
 	r.logger.Info("Creating collectors from configuration")
 
-	// Example of how collectors would be created:
-	// if cfg.Cluster.Enabled {
-	//     collector, err := clusterCollectorFactory(cfg.Cluster, client)
-	//     if err != nil {
-	//         return fmt.Errorf("failed to create cluster collector: %w", err)
-	//     }
-	//     if err := r.Register("cluster", collector); err != nil {
-	//         return fmt.Errorf("failed to register cluster collector: %w", err)
-	//     }
-	// }
+	// Cast client to the expected interface
+	_, ok := client.(slurm.SlurmClient)
+	if !ok {
+		return fmt.Errorf("invalid client type, expected slurm.SlurmClient")
+	}
 
+	// Create and register enabled collectors
+	slurmClient := client.(slurm.SlurmClient)
+	logger := r.logger
+
+	// Register collectors that have working constructors
+	if cfg.QoS.Enabled {
+		collector := NewQoSCollector(slurmClient, logger)
+		if err := r.Register("qos", collector); err != nil {
+			return fmt.Errorf("failed to register QoS collector: %w", err)
+		}
+		r.logger.Info("QoS collector registered successfully")
+	}
+
+	if cfg.Reservations.Enabled {
+		collector := NewReservationCollector(slurmClient, logger)
+		if err := r.Register("reservations", collector); err != nil {
+			return fmt.Errorf("failed to register reservation collector: %w", err)
+		}
+		r.logger.Info("Reservations collector registered successfully")
+	}
+
+	// Add other collectors as they are implemented
+	// if cfg.Performance.Enabled { ... }
+	// if cfg.System.Enabled { ... }
+
+	r.logger.WithField("count", len(r.collectors)).Info("Collectors created and registered")
 	return nil
 }

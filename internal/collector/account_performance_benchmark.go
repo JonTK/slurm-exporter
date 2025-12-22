@@ -1621,7 +1621,7 @@ func (c *AccountPerformanceBenchmarkCollector) collectSLACompliance(ctx context.
 		c.slaViolationsTotal.WithLabelValues(account, violationType).Add(float64(count))
 	}
 
-	for slaTarget, credits := range sla.SLACredits {
+	for _, credits := range sla.SLACredits {
 		c.slaCredits.WithLabelValues(account).Set(credits)
 		break // Use first credits value as overall metric
 	}

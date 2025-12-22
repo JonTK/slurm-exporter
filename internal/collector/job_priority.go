@@ -57,7 +57,7 @@ type JobPriorityCollector struct {
 
 // JobPrioritySLURMClient interface for job priority operations
 type JobPrioritySLURMClient interface {
-	CalculateJobPriority(ctx context.Context, jobID string) (*JobPriorityFactors, error)
+	CalculateJobPriority(ctx context.Context, jobID string) (*DetailedJobPriorityFactors, error)
 	PredictJobScheduling(ctx context.Context, jobID string) (*JobSchedulingPrediction, error)
 	GetQueueAnalysis(ctx context.Context, partition string) (*QueueAnalysis, error)
 	GetSystemPriorityStats(ctx context.Context) (*SystemPriorityStats, error)
@@ -65,8 +65,8 @@ type JobPrioritySLURMClient interface {
 	ValidatePriorityPrediction(ctx context.Context, jobID string) (*PriorityPredictionValidation, error)
 }
 
-// JobPriorityFactors represents detailed priority breakdown
-type JobPriorityFactors struct {
+// DetailedJobPriorityFactors represents detailed priority breakdown
+type DetailedJobPriorityFactors struct {
 	JobID           string    `json:"job_id"`
 	UserName        string    `json:"user_name"`
 	AccountName     string    `json:"account_name"`

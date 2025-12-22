@@ -218,7 +218,7 @@ func TestQoSLimitsCollector_Collect_Success(t *testing.T) {
 				Status:          "active",
 				AutoResolved:    false,
 			},
-		],
+		},
 		ViolationsByQoS: map[string]int{
 			"high":   10,
 			"normal": 5,
@@ -792,7 +792,7 @@ func setupViolationMocks(client *MockQoSLimitsSLURMClient) {
 				Duration:       20 * time.Minute,
 				ResolutionTime: time.Now().Add(-10 * time.Minute),
 			},
-		],
+		},
 		ViolationsByQoS:  map[string]int{"high": 12, "normal": 8},
 		ViolationsByType: map[string]int{"cpu_exceeded": 10, "memory_exceeded": 10},
 		ResolutionStats: ViolationResolutionStats{

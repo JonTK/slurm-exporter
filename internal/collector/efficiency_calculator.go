@@ -44,31 +44,7 @@ type EfficiencyConfig struct {
 	OptimalUtilization    float64 `yaml:"optimal_utilization"`     // Target utilization percentage
 }
 
-// EfficiencyMetrics holds calculated efficiency scores
-type EfficiencyMetrics struct {
-	// Individual component efficiencies
-	CPUEfficiency     float64 `json:"cpu_efficiency"`
-	MemoryEfficiency  float64 `json:"memory_efficiency"`
-	IOEfficiency      float64 `json:"io_efficiency"`
-	NetworkEfficiency float64 `json:"network_efficiency"`
-	
-	// Composite efficiency scores
-	ResourceEfficiency  float64 `json:"resource_efficiency"`  // CPU + Memory
-	ThroughputEfficiency float64 `json:"throughput_efficiency"` // I/O + Network
-	OverallEfficiency   float64 `json:"overall_efficiency"`   // Weighted combination
-	
-	// Efficiency categories
-	EfficiencyGrade     string  `json:"efficiency_grade"`     // A, B, C, D, F
-	EfficiencyCategory  string  `json:"efficiency_category"`  // Excellent, Good, Fair, Poor, Critical
-	
-	// Additional metrics
-	WasteRatio          float64 `json:"waste_ratio"`          // Amount of resources wasted
-	OptimalityScore     float64 `json:"optimality_score"`     // How close to optimal configuration
-	ImprovementPotential float64 `json:"improvement_potential"` // Potential for improvement
-	
-	// Recommendations
-	Recommendations []string `json:"recommendations"`
-}
+// Note: EfficiencyMetrics type is defined in common_types.go
 
 // ResourceUtilizationData represents actual resource usage data
 type ResourceUtilizationData struct {
@@ -512,7 +488,7 @@ func CreateResourceUtilizationDataFromJob(job *slurm.Job) *ResourceUtilizationDa
 		MemoryRequested: int64(job.Memory) * 1024 * 1024, // Convert MB to bytes
 		MemoryAllocated: int64(job.Memory) * 1024 * 1024,
 		MemoryUsed:      int64(job.Memory) * 1024 * 1024 * 65 / 100, // Estimate 65% usage
-		JobState:        job.JobState,
+		JobState:        job.State,
 	}
 
 	if job.StartTime != nil {
@@ -520,7 +496,7 @@ func CreateResourceUtilizationDataFromJob(job *slurm.Job) *ResourceUtilizationDa
 		if job.EndTime != nil {
 			data.EndTime = *job.EndTime
 			data.WallTime = job.EndTime.Sub(*job.StartTime).Seconds()
-		} else if job.JobState == "RUNNING" {
+		} else if job.State == "RUNNING" {
 			data.EndTime = time.Now()
 			data.WallTime = time.Since(*job.StartTime).Seconds()
 		}

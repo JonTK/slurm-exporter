@@ -369,7 +369,7 @@ func (uc *UserCollector) collectAccountStats(ctx context.Context, ch chan<- prom
 }
 
 // AccountInfo represents account information structure
-type AccountInfo struct {
+type UserAccountInfo struct {
 	Name         string
 	Organization string
 	Description  string
@@ -388,7 +388,7 @@ type AccountLimits struct {
 }
 
 // AccountUsage represents usage statistics for an account
-type AccountUsage struct {
+type UserAccountUsage struct {
 	JobCount    int
 	CPUHours    float64
 	MemoryHours float64
@@ -425,27 +425,13 @@ func (uc *UserCollector) parseAccountAssociation(data interface{}) (*AccountInfo
 	// In real implementation, this would parse actual SLURM API response
 	// For now, return a mock account info
 	return &AccountInfo{
-		Name:         "example_account",
-		Organization: "Example Organization",
-		Description:  "Example account description",
-		Parent:       "parent_account",
-		Priority:     1000,
-		Limits: AccountLimits{
-			MaxJobs:   50,
-			MaxCPUs:   500,
-			MaxMemory: 1024 * 1024 * 1024 * 1024, // 1TB
-			MaxNodes:  10,
-		},
-		Usage: AccountUsage{
-			JobCount:    25,
-			CPUHours:    1200.5,
-			MemoryHours: 2400.8,
-			NodeHours:   120.3,
-			FairShare:   0.85,
-			RawUsage:    1200.5,
-			NormUsage:   1.2,
-			EffUsage:    1.02,
-		},
+		Name:        "example_account",
+		Description: "Example account description",
+		Status:      "active",
+		CreatedAt:   time.Now().Add(-365 * 24 * time.Hour), // 1 year ago
+		UpdatedAt:   time.Now(),
+		UserCount:   10,
+		JobCount:    25,
 	}, nil
 }
 

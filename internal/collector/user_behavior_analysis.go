@@ -12,7 +12,7 @@ import (
 // needed for user behavior pattern analysis and fair-share optimization
 type UserBehaviorAnalysisSLURMClient interface {
 	// User Behavior Pattern Analysis
-	GetUserBehaviorProfile(ctx context.Context, userName string) (*UserBehaviorProfile, error)
+	GetUserBehaviorProfile(ctx context.Context, userName string) (*UserBehaviorAnalysisProfile, error)
 	GetUserJobSubmissionPatterns(ctx context.Context, userName string, period string) (*JobSubmissionPatterns, error)
 	GetUserResourceUsagePatterns(ctx context.Context, userName string, period string) (*ResourceUsagePatterns, error)
 	GetUserSchedulingBehavior(ctx context.Context, userName string) (*SchedulingBehavior, error)
@@ -36,7 +36,7 @@ type UserBehaviorAnalysisSLURMClient interface {
 }
 
 // UserBehaviorProfile represents comprehensive user behavior characteristics
-type UserBehaviorProfile struct {
+type UserBehaviorAnalysisProfile struct {
 	UserName           string                 `json:"user_name"`
 	AccountName        string                 `json:"account_name"`
 	ProfileVersion     string                 `json:"profile_version"`
@@ -89,6 +89,147 @@ type UserBehaviorProfile struct {
 	DataCompleteness     float64            `json:"data_completeness"`
 	LastUpdated          time.Time          `json:"last_updated"`
 	NextUpdateDue        time.Time          `json:"next_update_due"`
+}
+
+// FairShareOptimization represents fair-share optimization data
+type FairShareOptimization struct {
+	UserName              string                 `json:"user_name"`
+	CurrentFairShare      float64                `json:"current_fair_share"`
+	OptimalFairShare      float64                `json:"optimal_fair_share"`
+	RecommendedAdjustment float64                `json:"recommended_adjustment"`
+	ImpactAnalysis        map[string]float64     `json:"impact_analysis"`
+}
+
+// UserAdaptationMetrics represents user adaptation metrics
+type UserAdaptationMetrics struct {
+	UserName             string                 `json:"user_name"`
+	AdaptationScore      float64                `json:"adaptation_score"`
+	BehaviorChangeRate   float64                `json:"behavior_change_rate"`
+	PolicyCompliance     float64                `json:"policy_compliance"`
+	LearningCurve        []float64              `json:"learning_curve"`
+}
+
+// UserComplianceAnalysis represents user compliance analysis
+type UserComplianceAnalysis struct {
+	UserName             string                 `json:"user_name"`
+	ComplianceScore      float64                `json:"compliance_score"`
+	ViolationCount       int                    `json:"violation_count"`
+	ComplianceHistory    []float64              `json:"compliance_history"`
+	ComplianceTrend      string                 `json:"compliance_trend"`
+}
+
+// UserEfficiencyTrends represents user efficiency trends
+type UserEfficiencyTrends struct {
+	UserName             string                 `json:"user_name"`
+	Period               string                 `json:"period"`
+	EfficiencyScores     []float64              `json:"efficiency_scores"`
+	TrendDirection       string                 `json:"trend_direction"`
+	ImprovementRate      float64                `json:"improvement_rate"`
+}
+
+// UserBehaviorPrediction represents user behavior prediction
+type UserBehaviorPrediction struct {
+	UserName             string                 `json:"user_name"`
+	PredictionType       string                 `json:"prediction_type"`
+	PredictedValue       float64                `json:"predicted_value"`
+	ConfidenceLevel      float64                `json:"confidence_level"`
+	PredictionHorizon    string                 `json:"prediction_horizon"`
+}
+
+// UserClusteringAnalysis represents user clustering analysis
+type UserClusteringAnalysis struct {
+	ClusterCount         int                    `json:"cluster_count"`
+	Clusters             []UserCluster          `json:"clusters"`
+	OptimalClusterCount  int                    `json:"optimal_cluster_count"`
+	SilhouetteScore      float64                `json:"silhouette_score"`
+}
+
+// UserCluster represents a single user cluster
+type UserCluster struct {
+	ClusterID            string                 `json:"cluster_id"`
+	UserCount            int                    `json:"user_count"`
+	CenterPoint          map[string]float64     `json:"center_point"`
+	Members              []string               `json:"members"`
+	Characteristics      []string               `json:"characteristics"`
+}
+
+// BehavioralAnomalies represents detected behavioral anomalies
+type BehavioralAnomalies struct {
+	UserName             string                 `json:"user_name"`
+	AnomalyCount         int                    `json:"anomaly_count"`
+	Anomalies            []BehavioralAnomaly    `json:"anomalies"`
+	AnomalyScore         float64                `json:"anomaly_score"`
+	LastDetected         time.Time              `json:"last_detected"`
+}
+
+// BehavioralAnomaly represents a single behavioral anomaly
+type BehavioralAnomaly struct {
+	Timestamp            time.Time              `json:"timestamp"`
+	Type                 string                 `json:"type"`
+	Severity             string                 `json:"severity"`
+	Description          string                 `json:"description"`
+	Impact               float64                `json:"impact"`
+}
+
+// UserLearningProgress represents user learning progress
+type UserLearningProgress struct {
+	UserName             string                 `json:"user_name"`
+	ProgressScore        float64                `json:"progress_score"`
+	LearningRate         float64                `json:"learning_rate"`
+	MilestonesCompleted  int                    `json:"milestones_completed"`
+	NextMilestone        string                 `json:"next_milestone"`
+}
+
+// PersonalizedRecommendations represents personalized recommendations
+type PersonalizedRecommendations struct {
+	UserName             string                 `json:"user_name"`
+	Recommendations      []Recommendation       `json:"recommendations"`
+	Priority             string                 `json:"priority"`
+	LastGenerated        time.Time              `json:"last_generated"`
+}
+
+// Recommendation represents a single recommendation
+type Recommendation struct {
+	ID                   string                 `json:"id"`
+	Type                 string                 `json:"type"`
+	Title                string                 `json:"title"`
+	Description          string                 `json:"description"`
+	Impact               float64                `json:"impact"`
+	Effort               string                 `json:"effort"`
+}
+
+// BehaviorOptimizationSuggestions represents behavior optimization suggestions
+type BehaviorOptimizationSuggestions struct {
+	UserName             string                 `json:"user_name"`
+	Suggestions          []BehaviorOptimizationSuggestion `json:"suggestions"`
+	EstimatedImprovement float64                `json:"estimated_improvement"`
+	ImplementationPlan   []string               `json:"implementation_plan"`
+}
+
+// BehaviorOptimizationSuggestion represents a single optimization suggestion
+type BehaviorOptimizationSuggestion struct {
+	Category             string                 `json:"category"`
+	Action               string                 `json:"action"`
+	ExpectedBenefit      float64                `json:"expected_benefit"`
+	Priority             int                    `json:"priority"`
+}
+
+// TrainingRecommendations represents training recommendations
+type TrainingRecommendations struct {
+	UserName             string                 `json:"user_name"`
+	SkillGaps            []string               `json:"skill_gaps"`
+	RecommendedCourses   []Course               `json:"recommended_courses"`
+	EstimatedDuration    string                 `json:"estimated_duration"`
+	ExpectedImprovement  float64                `json:"expected_improvement"`
+}
+
+// Course represents a training course
+type Course struct {
+	CourseID             string                 `json:"course_id"`
+	Title                string                 `json:"title"`
+	Level                string                 `json:"level"`
+	Duration             string                 `json:"duration"`
+	Relevance            float64                `json:"relevance"`
 }
 
 // JobSubmissionPatterns represents user job submission behavior patterns
@@ -929,25 +1070,25 @@ func (c *UserBehaviorAnalysisCollector) collectSchedulingBehavior(ctx context.Co
 
 func (c *UserBehaviorAnalysisCollector) collectFairShareOptimization(ctx context.Context, userName string) {
 	// Collect fair-share optimization metrics
-	optimization, err := c.client.AnalyzeUserFairShareOptimization(ctx, userName)
+	_, err := c.client.AnalyzeUserFairShareOptimization(ctx, userName)
 	if err == nil {
 		c.fairShareOptimizationScore.WithLabelValues(userName, "default").Set(0.8) // Mock data
 	}
 
 	// Collect adaptation metrics
-	adaptation, err := c.client.GetUserAdaptationMetrics(ctx, userName)
+	_, err = c.client.GetUserAdaptationMetrics(ctx, userName)
 	if err == nil {
 		c.adaptationEffectiveness.WithLabelValues(userName, "default").Set(0.75) // Mock data
 	}
 
 	// Collect efficiency trends
-	efficiency, err := c.client.GetUserEfficiencyTrends(ctx, userName, "30d")
+	_, err = c.client.GetUserEfficiencyTrends(ctx, userName, "30d")
 	if err == nil {
 		c.efficiencyTrend.WithLabelValues(userName, "default", "overall").Set(0.1) // Mock improving trend
 	}
 
 	// Collect prediction accuracy
-	prediction, err := c.client.PredictUserBehavior(ctx, userName, "7d")
+	_, err = c.client.PredictUserBehavior(ctx, userName, "7d")
 	if err == nil {
 		c.behaviorPredictionAccuracy.WithLabelValues(userName, "default", "submission").Set(0.85) // Mock data
 	}
@@ -960,19 +1101,19 @@ func (c *UserBehaviorAnalysisCollector) collectFairShareOptimization(ctx context
 
 func (c *UserBehaviorAnalysisCollector) collectBehavioralAnalysis(ctx context.Context, userName string) {
 	// Collect clustering analysis
-	clustering, err := c.client.GetUserClusteringAnalysis(ctx)
+	_, err := c.client.GetUserClusteringAnalysis(ctx)
 	if err == nil {
 		c.behaviorClusterAssignment.WithLabelValues(userName, "default", "cluster_1", "efficiency").Set(0.8) // Mock data
 	}
 
 	// Collect anomaly detection
-	anomalies, err := c.client.GetBehavioralAnomalies(ctx, userName)
+	_, err = c.client.GetBehavioralAnomalies(ctx, userName)
 	if err == nil {
 		c.anomalyDetectionScore.WithLabelValues(userName, "default", "submission_pattern").Set(0.1) // Mock low anomaly
 	}
 
 	// Collect learning progress
-	learning, err := c.client.GetUserLearningProgress(ctx, userName)
+	_, err = c.client.GetUserLearningProgress(ctx, userName)
 	if err == nil {
 		c.learningProgressScore.WithLabelValues(userName, "default", "resource_optimization").Set(0.75) // Mock data
 	}

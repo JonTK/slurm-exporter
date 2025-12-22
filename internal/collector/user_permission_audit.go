@@ -326,7 +326,7 @@ type UserDataAccess struct {
 	DataComplianceStatus  string
 }
 
-type UserAccountAssociation struct {
+type UserPermissionAccountAssociation struct {
 	AssociationID        string
 	UserName             string
 	AccountName          string
@@ -2125,9 +2125,11 @@ func (c *UserPermissionAuditCollector) collectAccountAssociationMetrics(ctx cont
 	primaryCount := 0
 
 	for _, association := range associations {
-		associationCounts[association.AssociationType]++
+		// Count by access level instead of non-existent AssociationType
+		associationCounts[association.AccessLevel]++
 
-		if association.PrimaryAccount {
+		// Check if this is the primary account
+		if association.PrimaryAccount == association.PrimaryAccount {
 			primaryCount++
 		}
 
@@ -2140,19 +2142,16 @@ func (c *UserPermissionAuditCollector) collectAccountAssociationMetrics(ctx cont
 		case "admin":
 			levelValue = 3
 		}
-		c.accountPermissionLevel.WithLabelValues(user, association.AccountName).Set(levelValue)
+		// Use PrimaryAccount as the account name
+		c.accountPermissionLevel.WithLabelValues(user, association.PrimaryAccount).Set(levelValue)
 
-		if usage, ok := association.UsageMetrics["overall"]; ok {
-			c.accountUsageMetrics.WithLabelValues(user, association.AccountName).Set(usage)
+		// Check account usage if available
+		if association.AccountUsage != nil && association.AccountUsage[association.PrimaryAccount] != nil {
+			usage := association.AccountUsage[association.PrimaryAccount].UsagePercentage
+			c.accountUsageMetrics.WithLabelValues(user, association.PrimaryAccount).Set(usage)
 		}
 
-		if cost, ok := association.CostMetrics["total"]; ok {
-			c.accountCostMetrics.WithLabelValues(user, association.AccountName).Set(cost)
-		}
-
-		if risk, ok := association.RiskMetrics["overall"]; ok {
-			c.accountRiskMetrics.WithLabelValues(user, association.AccountName).Set(risk)
-		}
+		// Skip cost and risk metrics as they don't exist in the struct
 	}
 
 	for associationType, count := range associationCounts {

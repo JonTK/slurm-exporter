@@ -78,15 +78,9 @@ func (m *MockAccountQuotaSLURMClient) GetSystemQuotaSummary(ctx context.Context)
 
 // Mock structures for missing types
 type UserQuotas struct{}
-type AccountHierarchy struct{}
 type QuotaUsage struct{}
 type QuotaViolations struct{}
-type QuotaTrends struct{}
 type QuotaAlerts struct{}
-type QoSLimits struct{}
-type PartitionLimits struct{}
-type QuotaCompliance struct{}
-type QuotaRecommendations struct{}
 type SystemQuotaSummary struct{}
 
 func TestNewAccountQuotaCollector(t *testing.T) {

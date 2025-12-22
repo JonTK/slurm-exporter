@@ -68,6 +68,7 @@ type CORSConfig struct {
 type SLURMConfig struct {
 	BaseURL       string          `yaml:"base_url"`
 	APIVersion    string          `yaml:"api_version"`
+	UseAdapters   bool            `yaml:"use_adapters"`
 	Auth          AuthConfig      `yaml:"auth"`
 	Timeout       time.Duration   `yaml:"timeout"`
 	RetryAttempts int             `yaml:"retry_attempts"`
@@ -105,15 +106,17 @@ type AuthConfig struct {
 
 // CollectorsConfig holds configuration for metric collectors.
 type CollectorsConfig struct {
-	Global      GlobalCollectorConfig `yaml:"global"`
-	Cluster     CollectorConfig       `yaml:"cluster"`
-	Nodes       CollectorConfig       `yaml:"nodes"`
-	Jobs        CollectorConfig       `yaml:"jobs"`
-	Users       CollectorConfig       `yaml:"users"`
-	Partitions  CollectorConfig       `yaml:"partitions"`
-	Performance CollectorConfig       `yaml:"performance"`
-	System      CollectorConfig       `yaml:"system"`
-	Degradation DegradationConfig     `yaml:"degradation"`
+	Global       GlobalCollectorConfig `yaml:"global"`
+	Cluster      CollectorConfig       `yaml:"cluster"`
+	Nodes        CollectorConfig       `yaml:"nodes"`
+	Jobs         CollectorConfig       `yaml:"jobs"`
+	Users        CollectorConfig       `yaml:"users"`
+	Partitions   CollectorConfig       `yaml:"partitions"`
+	Performance  CollectorConfig       `yaml:"performance"`
+	System       CollectorConfig       `yaml:"system"`
+	QoS          CollectorConfig       `yaml:"qos"`
+	Reservations CollectorConfig       `yaml:"reservations"`
+	Degradation  DegradationConfig     `yaml:"degradation"`
 }
 
 // GlobalCollectorConfig holds global collector settings.
@@ -145,6 +148,10 @@ type FilterConfig struct {
 	ExcludePartitions []string `yaml:"exclude_partitions"`
 	IncludeUsers      []string `yaml:"include_users"`
 	ExcludeUsers      []string `yaml:"exclude_users"`
+	IncludeAccounts   []string `yaml:"include_accounts"`
+	ExcludeAccounts   []string `yaml:"exclude_accounts"`
+	IncludeQoS        []string `yaml:"include_qos"`
+	ExcludeQoS        []string `yaml:"exclude_qos"`
 	JobStates         []string `yaml:"job_states"`
 	NodeStates        []string `yaml:"node_states"`
 }
@@ -233,6 +240,7 @@ func Default() *Config {
 		SLURM: SLURMConfig{
 			BaseURL:       "http://localhost:6820",
 			APIVersion:    "v0.0.42",
+			UseAdapters:   true,
 			Timeout:       30 * time.Second,
 			RetryAttempts: 3,
 			RetryDelay:    5 * time.Second,
@@ -323,6 +331,28 @@ func Default() *Config {
 				},
 			},
 			System: CollectorConfig{
+				Enabled:  true,
+				Interval: 60 * time.Second,
+				Timeout:  10 * time.Second,
+				ErrorHandling: ErrorHandlingConfig{
+					MaxRetries:    3,
+					RetryDelay:    5 * time.Second,
+					BackoffFactor: 2.0,
+					MaxRetryDelay: 60 * time.Second,
+				},
+			},
+			QoS: CollectorConfig{
+				Enabled:  true,
+				Interval: 60 * time.Second,
+				Timeout:  10 * time.Second,
+				ErrorHandling: ErrorHandlingConfig{
+					MaxRetries:    3,
+					RetryDelay:    5 * time.Second,
+					BackoffFactor: 2.0,
+					MaxRetryDelay: 60 * time.Second,
+				},
+			},
+			Reservations: CollectorConfig{
 				Enabled:  true,
 				Interval: 60 * time.Second,
 				Timeout:  10 * time.Second,
@@ -623,6 +653,8 @@ func (c *CollectorsConfig) Validate() error {
 		{"partitions", c.Partitions},
 		{"performance", c.Performance},
 		{"system", c.System},
+		{"qos", c.QoS},
+		{"reservations", c.Reservations},
 	}
 
 	for _, col := range collectors {
@@ -942,6 +974,14 @@ func (c *Config) applySLURMEnvOverrides(prefix string) error {
 		c.SLURM.APIVersion = val
 	}
 
+	if val := os.Getenv(prefix + "USE_ADAPTERS"); val != "" {
+		useAdapters, err := strconv.ParseBool(val)
+		if err != nil {
+			return fmt.Errorf("invalid use adapters value: %w", err)
+		}
+		c.SLURM.UseAdapters = useAdapters
+	}
+
 	if val := os.Getenv(prefix + "TIMEOUT"); val != "" {
 		duration, err := time.ParseDuration(val)
 		if err != nil {
@@ -1069,13 +1109,15 @@ func (c *Config) applyCollectorsEnvOverrides(prefix string) error {
 
 	// Individual collector overrides
 	collectors := map[string]*CollectorConfig{
-		"CLUSTER":     &c.Collectors.Cluster,
-		"NODES":       &c.Collectors.Nodes,
-		"JOBS":        &c.Collectors.Jobs,
-		"USERS":       &c.Collectors.Users,
-		"PARTITIONS":  &c.Collectors.Partitions,
-		"PERFORMANCE": &c.Collectors.Performance,
-		"SYSTEM":      &c.Collectors.System,
+		"CLUSTER":      &c.Collectors.Cluster,
+		"NODES":        &c.Collectors.Nodes,
+		"JOBS":         &c.Collectors.Jobs,
+		"USERS":        &c.Collectors.Users,
+		"PARTITIONS":   &c.Collectors.Partitions,
+		"PERFORMANCE":  &c.Collectors.Performance,
+		"SYSTEM":       &c.Collectors.System,
+		"QOS":          &c.Collectors.QoS,
+		"RESERVATIONS": &c.Collectors.Reservations,
 	}
 
 	for name, collector := range collectors {

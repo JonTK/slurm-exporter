@@ -413,7 +413,7 @@ func TestQuotaComplianceCollector_Collect_Success(t *testing.T) {
 				AverageUsage:    4200.0,
 				TrendConfidence: 0.78,
 			},
-		],
+		},
 		SeasonalPatterns: []*SeasonalPattern{
 			{
 				PatternType:     "WEEKLY",
@@ -509,7 +509,7 @@ func TestQuotaComplianceCollector_Collect_Success(t *testing.T) {
 				RiskLevel:           "LOW",
 				Priority:            "HIGH",
 			},
-		],
+		},
 		PriorityMatrix: &PriorityMatrix{
 			HighPriority:  []string{"memory_quota_increase"},
 			MediumPriority: []string{"cpu_optimization"},

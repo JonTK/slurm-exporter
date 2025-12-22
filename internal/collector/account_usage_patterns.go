@@ -38,18 +38,7 @@ type AccountUsagePatterns struct {
 	LastUpdated          time.Time             `json:"last_updated"`
 }
 
-type TimeSeriesPoint struct {
-	Timestamp    time.Time `json:"timestamp"`
-	CPUHours     float64   `json:"cpu_hours"`
-	MemoryGB     float64   `json:"memory_gb"`
-	GPUHours     float64   `json:"gpu_hours"`
-	JobCount     int64     `json:"job_count"`
-	UserCount    int64     `json:"user_count"`
-	SubmissionCount int64  `json:"submission_count"`
-	WaitTime     float64   `json:"wait_time"`
-	RunTime      float64   `json:"run_time"`
-	CostUSD      float64   `json:"cost_usd"`
-}
+// Note: TimeSeriesPoint type is defined in common_types.go
 
 type DailyUsagePattern struct {
 	Hour              int     `json:"hour"`
@@ -252,34 +241,7 @@ type CostPrediction struct {
 	ConfidenceInterval  float64 `json:"confidence_interval"`
 }
 
-type EfficiencyMetrics struct {
-	OverallEfficiency   float64              `json:"overall_efficiency"`
-	CPUEfficiency       float64              `json:"cpu_efficiency"`
-	MemoryEfficiency    float64              `json:"memory_efficiency"`
-	GPUEfficiency       float64              `json:"gpu_efficiency"`
-	QueueEfficiency     float64              `json:"queue_efficiency"`
-	ResourceWaste       *ResourceWaste       `json:"resource_waste"`
-	PerformanceMetrics  *PerformanceMetrics  `json:"performance_metrics"`
-	OptimizationScore   float64              `json:"optimization_score"`
-}
-
-type ResourceWaste struct {
-	WastedCPUHours      float64 `json:"wasted_cpu_hours"`
-	WastedMemoryGB      float64 `json:"wasted_memory_gb"`
-	WastedGPUHours      float64 `json:"wasted_gpu_hours"`
-	WastePercentage     float64 `json:"waste_percentage"`
-	WasteCost           float64 `json:"waste_cost"`
-	IdleTime            float64 `json:"idle_time"`
-}
-
-type PerformanceMetrics struct {
-	Throughput          float64 `json:"throughput"`
-	Latency             float64 `json:"latency"`
-	QueueTime           float64 `json:"queue_time"`
-	TurnaroundTime      float64 `json:"turnaround_time"`
-	SuccessRate         float64 `json:"success_rate"`
-	ErrorRate           float64 `json:"error_rate"`
-}
+// Note: EfficiencyMetrics, ResourceWaste, and PerformanceMetrics types are defined in common_types.go
 
 type AccountInfo struct {
 	Name        string    `json:"name"`

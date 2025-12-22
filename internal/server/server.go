@@ -114,9 +114,11 @@ type Server struct {
 }
 
 // New creates a new server instance.
-func New(cfg *config.Config, logger *logrus.Logger, registry RegistryInterface) (*Server, error) {
-	// Create Prometheus registry if not provided
-	promRegistry := prometheus.NewRegistry()
+func New(cfg *config.Config, logger *logrus.Logger, registry RegistryInterface, promRegistry *prometheus.Registry) (*Server, error) {
+	// Use provided Prometheus registry or create a new one
+	if promRegistry == nil {
+		promRegistry = prometheus.NewRegistry()
+	}
 
 	// Create HTTP metrics
 	httpMetrics := NewHTTPMetrics()

@@ -10,7 +10,7 @@ import (
 
 // QoSLimitsSLURMClient defines the interface for SLURM client operations related to QoS limits
 type QoSLimitsSLURMClient interface {
-	GetQoSLimits(ctx context.Context, qosName string) (*QoSLimits, error)
+	GetQoSLimits(ctx context.Context, qosName string) (*QoSResourceLimits, error)
 	GetQoSViolations(ctx context.Context, opts *QoSViolationOptions) (*QoSViolations, error)
 	GetQoSUsage(ctx context.Context, qosName string) (*QoSUsage, error)
 	GetQoSConfiguration(ctx context.Context, qosName string) (*QoSConfiguration, error)
@@ -24,8 +24,8 @@ type QoSLimitsSLURMClient interface {
 	GetSystemQoSOverview(ctx context.Context) (*SystemQoSOverview, error)
 }
 
-// QoSLimits represents Quality of Service resource limits
-type QoSLimits struct {
+// QoSResourceLimits represents Quality of Service resource limits
+type QoSResourceLimits struct {
 	QoSName          string
 	Description      string
 	Priority         int
@@ -90,7 +90,7 @@ type QoSViolations struct {
 	CriticalViolations int
 	WarningViolations  int
 	InfoViolations     int
-	Violations         []QoSViolation
+	Violations         []QoSLimitViolation
 	ViolationsByQoS    map[string]int
 	ViolationsByType   map[string]int
 	ViolationsByUser   map[string]int
@@ -98,8 +98,8 @@ type QoSViolations struct {
 	ResolutionStats    ViolationResolutionStats
 }
 
-// QoSViolation represents a single QoS violation
-type QoSViolation struct {
+// QoSLimitViolation represents a single QoS violation
+type QoSLimitViolation struct {
 	ViolationID      string
 	Timestamp        time.Time
 	QoSName          string

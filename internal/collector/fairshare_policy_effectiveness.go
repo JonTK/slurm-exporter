@@ -18,7 +18,7 @@ type FairSharePolicyEffectivenessSLURMClient interface {
 	ValidatePolicyConfiguration(ctx context.Context) (*PolicyConfigurationValidation, error)
 	
 	// Policy Effectiveness Measurement
-	GetPolicyEffectivenessMetrics(ctx context.Context, period string) (*PolicyEffectivenessMetrics, error)
+	GetPolicyEffectivenessMetrics(ctx context.Context, period string) (*FairSharePolicyEffectivenessMetrics, error)
 	GetFairnessDistributionAnalysis(ctx context.Context, period string) (*FairnessDistributionAnalysis, error)
 	GetResourceAllocationEffectiveness(ctx context.Context, period string) (*ResourceAllocationEffectiveness, error)
 	GetUserEquityAnalysis(ctx context.Context, period string) (*UserEquityAnalysis, error)
@@ -94,8 +94,8 @@ type FairSharePolicyConfiguration struct {
 	LastValidated           time.Time              `json:"last_validated"`
 }
 
-// PolicyEffectivenessMetrics represents comprehensive policy effectiveness measurements
-type PolicyEffectivenessMetrics struct {
+// FairSharePolicyEffectivenessMetrics represents comprehensive policy effectiveness measurements
+type FairSharePolicyEffectivenessMetrics struct {
 	PolicyID            string                 `json:"policy_id"`
 	MeasurementPeriod   string                 `json:"measurement_period"`
 	
@@ -140,6 +140,214 @@ type PolicyEffectivenessMetrics struct {
 	LastMeasured            time.Time          `json:"last_measured"`
 }
 
+// PolicyImplementationDetails represents policy implementation details
+type PolicyImplementationDetails struct {
+	PolicyID              string                 `json:"policy_id"`
+	ImplementationStatus  string                 `json:"implementation_status"`
+	ImplementationDate    time.Time              `json:"implementation_date"`
+	Parameters            map[string]interface{} `json:"parameters"`
+	ValidationResults     []string               `json:"validation_results"`
+}
+
+// PolicyParameterAnalysis represents policy parameter analysis
+type PolicyParameterAnalysis struct {
+	Parameters         map[string]interface{} `json:"parameters"`
+	Sensitivity        map[string]float64     `json:"sensitivity"`
+	OptimalRanges      map[string]interface{} `json:"optimal_ranges"`
+	CurrentEfficiency  float64                `json:"current_efficiency"`
+	Recommendations    []string               `json:"recommendations"`
+}
+
+// PolicyConfigurationValidation represents policy configuration validation
+type PolicyConfigurationValidation struct {
+	IsValid           bool                   `json:"is_valid"`
+	ValidationErrors  []string               `json:"validation_errors"`
+	ValidationWarnings []string              `json:"validation_warnings"`
+	ConfigSuggestions []string               `json:"config_suggestions"`
+	LastValidated     time.Time              `json:"last_validated"`
+}
+
+// FairnessDistributionAnalysis represents fairness distribution analysis
+type FairnessDistributionAnalysis struct {
+	Period               string                 `json:"period"`
+	GiniCoefficient      float64                `json:"gini_coefficient"`
+	LorenzCurve          []float64              `json:"lorenz_curve"`
+	FairnessIndex        float64                `json:"fairness_index"`
+	DistributionMetrics  map[string]float64     `json:"distribution_metrics"`
+}
+
+// ResourceAllocationEffectiveness represents resource allocation effectiveness
+type ResourceAllocationEffectiveness struct {
+	Period                    string             `json:"period"`
+	AllocationEfficiency      float64            `json:"allocation_efficiency"`
+	ResourceUtilization       float64            `json:"resource_utilization"`
+	AllocationFairness        float64            `json:"allocation_fairness"`
+	EffectivenessScore        float64            `json:"effectiveness_score"`
+	ImprovementOpportunities  []string           `json:"improvement_opportunities"`
+}
+
+// UserEquityAnalysis represents user equity analysis
+type UserEquityAnalysis struct {
+	Period              string             `json:"period"`
+	EquityScore         float64            `json:"equity_score"`
+	UserDistribution    map[string]float64 `json:"user_distribution"`
+	FairnessMetrics     map[string]float64 `json:"fairness_metrics"`
+	InequalityMetrics   map[string]float64 `json:"inequality_metrics"`
+}
+
+// SystemPerformanceImpact represents system performance impact
+type SystemPerformanceImpact struct {
+	Period               string             `json:"period"`
+	ThroughputChange     float64            `json:"throughput_change"`
+	UtilizationChange    float64            `json:"utilization_change"`
+	EfficiencyChange     float64            `json:"efficiency_change"`
+	PerformanceMetrics   map[string]float64 `json:"performance_metrics"`
+}
+
+// UserSatisfactionMetrics represents user satisfaction metrics
+type UserSatisfactionMetrics struct {
+	Period               string             `json:"period"`
+	SatisfactionScore    float64            `json:"satisfaction_score"`
+	UserFeedback         map[string]float64 `json:"user_feedback"`
+	ComplaintRate        float64            `json:"complaint_rate"`
+	UserRetention        float64            `json:"user_retention"`
+}
+
+// ResourceUtilizationImpact represents resource utilization impact
+type ResourceUtilizationImpact struct {
+	Period                string             `json:"period"`
+	CPUUtilizationChange  float64            `json:"cpu_utilization_change"`
+	MemoryUtilizationChange float64          `json:"memory_utilization_change"`
+	GPUUtilizationChange   float64           `json:"gpu_utilization_change"`
+	OverallUtilizationChange float64         `json:"overall_utilization_change"`
+}
+
+// PolicyOptimizationRecommendations represents policy optimization recommendations
+type PolicyOptimizationRecommendations struct {
+	PolicyID             string               `json:"policy_id"`
+	Recommendations      []string             `json:"recommendations"`
+	PriorityChanges      map[string]float64   `json:"priority_changes"`
+	ParameterChanges     map[string]interface{} `json:"parameter_changes"`
+	ExpectedImprovement  float64              `json:"expected_improvement"`
+}
+
+// PolicyTuningHistory represents policy tuning history
+type PolicyTuningHistory struct {
+	PolicyID         string                        `json:"policy_id"`
+	TuningEvents     []PolicyTuningEvent          `json:"tuning_events"`
+	TotalTunings     int                          `json:"total_tunings"`
+	SuccessRate      float64                      `json:"success_rate"`
+	LastTuned        time.Time                    `json:"last_tuned"`
+}
+
+// PolicyTuningEvent represents a single policy tuning event
+type PolicyTuningEvent struct {
+	Timestamp       time.Time                    `json:"timestamp"`
+	Changes         map[string]interface{}       `json:"changes"`
+	Impact          float64                      `json:"impact"`
+	Success         bool                         `json:"success"`
+}
+
+// PolicyPerformanceComparison represents policy performance comparison
+type PolicyPerformanceComparison struct {
+	ComparisonPeriod    string                      `json:"comparison_period"`
+	Policies            []string                    `json:"policies"`
+	PerformanceMetrics  map[string]map[string]float64 `json:"performance_metrics"`
+	BestPolicy          string                      `json:"best_policy"`
+	ComparisonInsights  []string                    `json:"comparison_insights"`
+}
+
+// OptimalPolicyParameters represents optimal policy parameters
+type OptimalPolicyParameters struct {
+	PolicyID            string                      `json:"policy_id"`
+	OptimalParameters   map[string]interface{}      `json:"optimal_parameters"`
+	ConfidenceLevel     float64                     `json:"confidence_level"`
+	ValidationMetrics   map[string]float64          `json:"validation_metrics"`
+	LastOptimized       time.Time                   `json:"last_optimized"`
+}
+
+// PolicyComplianceMonitoring represents policy compliance monitoring
+type PolicyComplianceMonitoring struct {
+	PolicyID            string                      `json:"policy_id"`
+	ComplianceScore     float64                     `json:"compliance_score"`
+	ViolationCount      int                         `json:"violation_count"`
+	ComplianceMetrics   map[string]float64          `json:"compliance_metrics"`
+	NonCompliantUsers   []string                    `json:"non_compliant_users"`
+}
+
+// PolicyViolationAnalysis represents policy violation analysis
+type PolicyViolationAnalysis struct {
+	PolicyID            string                      `json:"policy_id"`
+	ViolationCount      int                         `json:"violation_count"`
+	ViolationTypes      map[string]int              `json:"violation_types"`
+	ViolationSeverity   map[string]int              `json:"violation_severity"`
+	ViolationTrends     []float64                   `json:"violation_trends"`
+}
+
+// PolicyDriftDetection represents policy drift detection
+type PolicyDriftDetection struct {
+	PolicyID            string                      `json:"policy_id"`
+	DriftDetected       bool                        `json:"drift_detected"`
+	DriftMagnitude      float64                     `json:"drift_magnitude"`
+	DriftDirection      string                      `json:"drift_direction"`
+	LastDetected        time.Time                   `json:"last_detected"`
+}
+
+// PolicyEffectivenessAlerts represents policy effectiveness alerts
+type PolicyEffectivenessAlerts struct {
+	PolicyID            string                      `json:"policy_id"`
+	ActiveAlerts        int                         `json:"active_alerts"`
+	AlertTypes          map[string]int              `json:"alert_types"`
+	AlertSeverity       map[string]int              `json:"alert_severity"`
+	LastAlert           time.Time                   `json:"last_alert"`
+}
+
+// PolicyEffectivenessTrends represents policy effectiveness trends
+type PolicyEffectivenessTrends struct {
+	PolicyID            string                      `json:"policy_id"`
+	Period              string                      `json:"period"`
+	TrendDirection      string                      `json:"trend_direction"`
+	TrendMagnitude      float64                     `json:"trend_magnitude"`
+	TrendData           []float64                   `json:"trend_data"`
+}
+
+// PolicyScenarioAnalysis represents policy scenario analysis
+type PolicyScenarioAnalysis struct {
+	PolicyID            string                      `json:"policy_id"`
+	Scenarios           []PolicyScenario            `json:"scenarios"`
+	BestScenario        string                      `json:"best_scenario"`
+	WorstScenario       string                      `json:"worst_scenario"`
+	RecommendedScenario string                      `json:"recommended_scenario"`
+}
+
+// PolicyScenario represents a single policy scenario
+type PolicyScenario struct {
+	ScenarioID          string                      `json:"scenario_id"`
+	Description         string                      `json:"description"`
+	Parameters          map[string]interface{}      `json:"parameters"`
+	ExpectedOutcome     map[string]float64          `json:"expected_outcome"`
+	Risk                float64                     `json:"risk"`
+}
+
+// PolicyPredictiveModeling represents policy predictive modeling
+type PolicyPredictiveModeling struct {
+	PolicyID            string                      `json:"policy_id"`
+	PredictionHorizon   string                      `json:"prediction_horizon"`
+	PredictedMetrics    map[string]float64          `json:"predicted_metrics"`
+	ConfidenceInterval  float64                     `json:"confidence_interval"`
+	ModelAccuracy       float64                     `json:"model_accuracy"`
+}
+
+// PolicyCostBenefitAnalysis represents policy cost benefit analysis
+type PolicyCostBenefitAnalysis struct {
+	PolicyID            string                      `json:"policy_id"`
+	TotalCost           float64                     `json:"total_cost"`
+	TotalBenefit        float64                     `json:"total_benefit"`
+	NetBenefit          float64                     `json:"net_benefit"`
+	ROI                 float64                     `json:"roi"`
+	PaybackPeriod       string                      `json:"payback_period"`
+}
+
 // PolicyImpactAssessment represents detailed policy impact analysis
 type PolicyImpactAssessment struct {
 	PolicyID            string                 `json:"policy_id"`
@@ -179,6 +387,12 @@ type PolicyImpactAssessment struct {
 	
 	// Risk Assessment
 	ImplementationRisk      float64            `json:"implementation_risk"`
+	
+	// Additional Impact Metrics
+	UserSatisfactionImpact   float64           `json:"user_satisfaction_impact"`
+	SystemPerformanceImpact  float64           `json:"system_performance_impact"`
+	ResourceEfficiencyImpact float64           `json:"resource_efficiency_impact"`
+	CollaborationImpact      float64           `json:"collaboration_impact"`
 	UserAcceptanceRisk      float64            `json:"user_acceptance_risk"`
 	SystemPerformanceRisk   float64            `json:"system_performance_risk"`
 	ComplianceRisk          float64            `json:"compliance_risk"`
@@ -937,7 +1151,7 @@ func (c *FairSharePolicyEffectivenessCollector) collectImpactAssessment(ctx cont
 }
 
 func (c *FairSharePolicyEffectivenessCollector) collectOptimizationMetrics(ctx context.Context) {
-	recommendations, err := c.client.GetPolicyOptimizationRecommendations(ctx)
+	_, err := c.client.GetPolicyOptimizationRecommendations(ctx)
 	if err == nil {
 		c.policyOptimizationPotential.WithLabelValues("policy_1", "parameters").Set(0.3) // Mock data
 		c.policyTuningEffectiveness.WithLabelValues("policy_1", "automated").Set(0.8)   // Mock data
@@ -955,13 +1169,13 @@ func (c *FairSharePolicyEffectivenessCollector) collectOptimizationMetrics(ctx c
 
 func (c *FairSharePolicyEffectivenessCollector) collectAdvancedAnalytics(ctx context.Context) {
 	// Predictive modeling
-	modeling, err := c.client.GetPolicyPredictiveModeling(ctx, "7d")
+	_, err := c.client.GetPolicyPredictiveModeling(ctx, "7d")
 	if err == nil {
 		c.policyPredictiveAccuracy.WithLabelValues("policy_1", "effectiveness", "v1.0").Set(0.88) // Mock data
 	}
 
 	// Cost-benefit analysis
-	costBenefit, err := c.client.GetPolicyCostBenefitAnalysis(ctx, "30d")
+	_, err = c.client.GetPolicyCostBenefitAnalysis(ctx, "30d")
 	if err == nil {
 		c.policyCostEffectiveness.WithLabelValues("policy_1", "operational").Set(0.85)    // Mock data
 		c.policyROIScore.WithLabelValues("policy_1", "efficiency_gains").Set(2.3)        // Mock data

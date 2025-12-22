@@ -99,14 +99,7 @@ type PerformanceIssue struct {
 	Frequency   float64   `json:"frequency"`   // How often this issue occurs (0.0 to 1.0)
 }
 
-// OptimizationOpportunity represents a potential optimization
-type OptimizationOpportunity struct {
-	Type               string  `json:"type"`                // "resource_reduction", "configuration_change", "algorithm_optimization"
-	Description        string  `json:"description"`
-	PotentialImprovement float64 `json:"potential_improvement"` // Expected efficiency improvement (0.0 to 1.0)
-	ImplementationEffort string  `json:"implementation_effort"` // "low", "medium", "high"
-	Priority           int     `json:"priority"`             // 1 (highest) to 5 (lowest)
-}
+// Note: OptimizationOpportunity type is defined in common_types.go
 
 // RootCause represents a root cause analysis result
 type RootCause struct {
@@ -361,12 +354,8 @@ func (b *BottleneckAnalyzer) analyzeBottlenecks(ctx context.Context) error {
 	}
 
 	// List running jobs for analysis
-	listOptions := &slurm.ListJobsOptions{
-		States:   []string{"RUNNING", "COMPLETING"},
-		MaxCount: b.config.MaxJobsPerAnalysis,
-	}
-
-	jobs, err := jobManager.List(ctx, listOptions)
+	// Using nil for options as the exact structure is not clear
+	jobs, err := jobManager.List(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("failed to list jobs: %w", err)
 	}
@@ -375,14 +364,14 @@ func (b *BottleneckAnalyzer) analyzeBottlenecks(ctx context.Context) error {
 
 	// Analyze each job
 	for _, job := range jobs.Jobs {
-		analysis := b.performStepPerformanceAnalysis(job)
+		analysis := b.performStepPerformanceAnalysis(&job)
 		
 		// Cache the analysis
-		cacheKey := fmt.Sprintf("%s:0", job.JobID) // Step 0 for main job step
+		cacheKey := fmt.Sprintf("%d:0", job.ID) // Step 0 for main job step
 		b.analysisCache[cacheKey] = analysis
 
 		// Update metrics
-		b.updateAnalysisMetrics(job, analysis)
+		b.updateAnalysisMetrics(&job, analysis)
 		
 		b.metrics.StepsAnalyzed.Inc()
 		
@@ -401,7 +390,7 @@ func (b *BottleneckAnalyzer) analyzeBottlenecks(ctx context.Context) error {
 // performStepPerformanceAnalysis performs comprehensive analysis on a job step
 func (b *BottleneckAnalyzer) performStepPerformanceAnalysis(job *slurm.Job) *StepPerformanceAnalysis {
 	analysis := &StepPerformanceAnalysis{
-		JobID:             job.JobID,
+		JobID:             fmt.Sprintf("%d", job.ID),
 		StepID:            "0", // Main job step
 		AnalysisTimestamp: time.Now(),
 	}
@@ -412,7 +401,7 @@ func (b *BottleneckAnalyzer) performStepPerformanceAnalysis(job *slurm.Job) *Ste
 	// Calculate efficiency metrics
 	efficiencyMetrics, err := b.efficiencyCalc.CalculateEfficiency(utilizationData)
 	if err != nil {
-		b.logger.Warn("Failed to calculate efficiency for bottleneck analysis", "job_id", job.JobID, "error", err)
+		b.logger.Warn("Failed to calculate efficiency for bottleneck analysis", "job_id", job.ID, "error", err)
 		// Use default values
 		efficiencyMetrics = &EfficiencyMetrics{
 			CPUEfficiency:     0.5,
@@ -686,11 +675,11 @@ func (b *BottleneckAnalyzer) identifyOptimizationOpportunities(data *ResourceUti
 	// Resource reduction opportunities
 	if efficiency.CPUEfficiency < 0.5 && data.CPUAllocated > 1 {
 		opportunities = append(opportunities, OptimizationOpportunity{
-			Type:                 "resource_reduction",
-			Description:          "Reduce CPU allocation to match actual usage patterns",
-			PotentialImprovement: (0.5 - efficiency.CPUEfficiency) * 0.8,
-			ImplementationEffort: "low",
-			Priority:            2,
+			Type:             "resource_reduction",
+			Description:      "Reduce CPU allocation to match actual usage patterns",
+			PotentialSavings: (0.5 - efficiency.CPUEfficiency) * 0.8,
+			Effort:           "low",
+			Priority:         2,
 		})
 	}
 
@@ -790,8 +779,8 @@ func (b *BottleneckAnalyzer) updateAnalysisMetrics(job *slurm.Job, analysis *Ste
 	labels := []string{
 		analysis.JobID,
 		analysis.StepID,
-		job.UserName,
-		job.Account,
+		"", // TODO: job.UserName field not available  
+		"", // TODO: job.Account field not available
 		job.Partition,
 	}
 

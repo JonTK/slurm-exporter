@@ -24,39 +24,7 @@ type AccountHierarchySLURMClient interface {
 	GetAccountConflicts(ctx context.Context) (*AccountConflicts, error)
 }
 
-// AccountHierarchy represents the hierarchical structure of accounts
-type AccountHierarchy struct {
-	RootAccounts       []*AccountNode
-	TotalAccounts      int
-	MaxDepth           int
-	TotalUsers         int
-	TotalAssociations  int
-	HierarchyType      string
-	ValidationStatus   string
-	LastUpdated        time.Time
-	OrganizationalUnits map[string]*OrganizationalUnit
-	CrossReferences    map[string][]string
-}
-
-// AccountNode represents a single account in the hierarchy
-type AccountNode struct {
-	AccountName       string
-	ParentAccount     string
-	ChildAccounts     []string
-	Level             int
-	Path              string
-	UserCount         int
-	ActiveUsers       int
-	QuotaInheritance  bool
-	PermissionModel   string
-	CreatedAt         time.Time
-	ModifiedAt        time.Time
-	Owner             string
-	Department        string
-	CostCenter        string
-	Status            string
-	Tags              map[string]string
-}
+// Note: AccountHierarchy and AccountNode types are defined in common_types.go
 
 // UserAccount represents a user's account association
 type UserAccount struct {
@@ -970,12 +938,10 @@ func (c *AccountHierarchyCollector) collectPermissionMetrics() {
 
 		// Sample effective permissions
 		for user, accounts := range matrix.EffectivePerms {
-			for account, perms := range accounts {
+			for account, hasPerm := range accounts {
 				permCount := 0
-				for _, hasPerm := range perms {
-					if hasPerm {
-						permCount++
-					}
+				if hasPerm {
+					permCount = 1
 				}
 				c.effectivePermissions.WithLabelValues(user, account).Set(float64(permCount))
 			}
@@ -1016,11 +982,11 @@ func (c *AccountHierarchyCollector) collectValidationMetrics() {
 		errorTypes := make(map[string]int)
 		for _, err := range validation.Errors {
 			// Simple categorization based on error message
-			if contains(err, "circular") {
+			if hierarchyContains(err, "circular") {
 				errorTypes["circular"]++
-			} else if contains(err, "orphan") {
+			} else if hierarchyContains(err, "orphan") {
 				errorTypes["orphan"]++
-			} else if contains(err, "conflict") {
+			} else if hierarchyContains(err, "conflict") {
 				errorTypes["conflict"]++
 			} else {
 				errorTypes["other"]++
@@ -1034,9 +1000,9 @@ func (c *AccountHierarchyCollector) collectValidationMetrics() {
 		// Count warnings similarly
 		warningTypes := make(map[string]int)
 		for _, warning := range validation.Warnings {
-			if contains(warning, "performance") {
+			if hierarchyContains(warning, "performance") {
 				warningTypes["performance"]++
-			} else if contains(warning, "security") {
+			} else if hierarchyContains(warning, "security") {
 				warningTypes["security"]++
 			} else {
 				warningTypes["other"]++
@@ -1146,13 +1112,13 @@ func (c *AccountHierarchyCollector) collectOrganizationalMetrics() {
 }
 
 // Helper function to check if a string contains a substring
-func contains(s, substr string) bool {
+func hierarchyContains(s, substr string) bool {
 	return len(s) >= len(substr) && s[:len(substr)] == substr || 
 		   len(s) >= len(substr) && s[len(s)-len(substr):] == substr ||
-		   len(s) > len(substr) && containsMiddle(s, substr)
+		   len(s) > len(substr) && hierarchyContainsMiddle(s, substr)
 }
 
-func containsMiddle(s, substr string) bool {
+func hierarchyContainsMiddle(s, substr string) bool {
 	for i := 1; i < len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {
 			return true

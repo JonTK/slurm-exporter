@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"math"
-	"sort"
 	"sync"
 	"time"
 
@@ -90,81 +88,8 @@ type AccountConfig struct {
 	ReportRetention              time.Duration
 }
 
-// AccountHierarchy represents the complete account hierarchy structure
-type AccountHierarchy struct {
-	RootAccounts      []*AccountNode
-	AccountMap        map[string]*AccountNode
-	LastUpdated       time.Time
-	TotalAccounts     int
-	MaxDepth          int
-	
-	// Hierarchy metrics
-	BalanceScore      float64 // How balanced the hierarchy is (0-1)
-	UtilizationScore  float64 // Overall utilization across hierarchy (0-1)
-	EfficiencyScore   float64 // Resource efficiency across hierarchy (0-1)
-	CoverageScore     float64 // How well accounts cover all users (0-1)
-	
-	// Structural analysis
-	OrphanedAccounts  []string // Accounts without proper parent linkage
-	CircularReferences []string // Accounts with circular dependencies
-	DuplicateNames    []string // Accounts with duplicate names
-	
-	// Usage distribution
-	UsageDistribution map[string]float64 // Usage by account level
-	ShareDistribution map[string]float64 // Share distribution analysis
-	
-	// Quality metrics
-	DataCompleteness  float64 // Completeness of hierarchy data (0-1)
-	DataConsistency   float64 // Consistency of hierarchy data (0-1)
-}
-
-// AccountNode represents a single account in the hierarchy
-type AccountNode struct {
-	AccountName       string
-	Description       string
-	ParentAccount     string
-	Children          []*AccountNode
-	Level             int
-	Path              string // Full path from root
-	
-	// Share allocation
-	RawShares         int64
-	NormalizedShares  float64
-	EffectiveShares   float64
-	InheritedShares   float64
-	
-	// Usage tracking
-	CurrentUsage      *AccountUsage
-	HistoricalUsage   []*AccountUsageSnapshot
-	
-	// User associations
-	DirectUsers       []string // Users directly associated with this account
-	AllUsers          []string // All users including those in child accounts
-	UserCount         int
-	ActiveUserCount   int
-	
-	// Resource limits and quotas
-	ResourceLimits    map[string]*ResourceLimit
-	CurrentQuotas     map[string]*QuotaStatus
-	
-	// Fair-share metrics
-	FairShareFactor   float64
-	Priority          int64
-	TargetUsage       float64
-	ActualUsage       float64
-	UsageRatio        float64
-	
-	// Account status and metadata
-	Status            string    // "active", "inactive", "suspended", "deleted"
-	CreatedAt         time.Time
-	LastModified      time.Time
-	ModifiedBy        string
-	
-	// Quality and validation
-	ValidationStatus  *AccountValidation
-	DataQuality       float64
-	LastValidated     time.Time
-}
+// Note: AccountHierarchy and AccountNode types are defined in common_types.go
+// The common_types.go file contains the unified definitions with all fields
 
 // AccountUsage represents current usage for an account
 type AccountUsage struct {
@@ -420,29 +345,7 @@ type QuotaCompliance struct {
 	ImprovementRate   float64
 }
 
-// QuotaViolation represents a quota violation
-type QuotaViolation struct {
-	ViolationID       string
-	AccountName       string
-	ResourceType      string
-	QuotaValue        float64
-	ActualUsage       float64
-	ExcessUsage       float64
-	ViolationStart    time.Time
-	ViolationEnd      *time.Time
-	Severity          string
-	
-	// Impact and resolution
-	ImpactAssessment  string
-	ResolutionActions []string
-	ResolutionStatus  string
-	ResolvedBy        string
-	
-	// Recurrence
-	IsRecurring       bool
-	RecurrencePattern string
-	PreviousOccurrences int
-}
+// Note: QuotaViolation type is defined in common_types.go
 
 // UserAccountAssociation represents a user's association with accounts
 type UserAccountAssociation struct {
@@ -457,7 +360,7 @@ type UserAccountAssociation struct {
 	AccessRestrictions []string
 	
 	// Usage across accounts
-	AccountUsage      map[string]*UserAccountUsage
+	AccountUsage      map[string]*AccountUserUsage
 	TotalUsage        *UserTotalUsage
 	
 	// Validation status
@@ -470,8 +373,8 @@ type UserAccountAssociation struct {
 	DefaultAccount    string
 }
 
-// UserAccountUsage represents a user's usage within a specific account
-type UserAccountUsage struct {
+// AccountUserUsage represents a user's usage within a specific account
+type AccountUserUsage struct {
 	AccountName       string
 	UsagePercentage   float64
 	ResourceUsage     map[string]float64
@@ -788,20 +691,7 @@ type SeasonalityInfo struct {
 	SeasonalLows        []string
 }
 
-// QuotaRecommendation contains quota optimization recommendations
-type QuotaRecommendation struct {
-	RecommendationID    string
-	ResourceType        string
-	RecommendationType  string // "increase", "decrease", "redistribute", "policy_change"
-	CurrentValue        float64
-	RecommendedValue    float64
-	ExpectedBenefit     float64
-	Justification       string
-	Priority            string
-	ImplementationSteps []string
-	RiskAssessment      string
-	Confidence          float64
-}
+// Note: QuotaRecommendation type is defined in common_types.go
 
 // AccountAccessValidator validates user access to accounts
 type AccountAccessValidator struct {
@@ -958,15 +848,7 @@ type UsageAnalysisResult struct {
 	AnalysisConfidence  float64
 }
 
-// ResourceUsagePattern represents usage patterns for a specific resource
-type ResourceUsagePattern struct {
-	ResourceType        string
-	Pattern             *UsagePattern
-	Efficiency          float64
-	Utilization         float64
-	WasteRatio          float64
-	OptimizationPotential float64
-}
+// Note: ResourceUsagePattern type is defined in common_types.go
 
 // TemporalPattern represents temporal usage patterns
 type TemporalPattern struct {
@@ -1030,18 +912,7 @@ type WasteReductionOpportunity struct {
 	Actions             []string
 }
 
-// OptimizationOpportunity represents an optimization opportunity
-type OptimizationOpportunity struct {
-	OpportunityID       string
-	Category            string // "resource", "timing", "configuration", "policy"
-	Description         string
-	ExpectedBenefit     float64
-	ImplementationEffort string
-	Priority            string
-	Actions             []string
-	ResourceImpact      map[string]float64
-	Confidence          float64
-}
+// Note: OptimizationOpportunity type is defined in common_types.go
 
 // UsageForecast contains usage forecasting information
 type UsageForecast struct {
@@ -2009,15 +1880,8 @@ func (a *AccountCollector) collectAccountHierarchy(ctx context.Context) error {
 		RawShares:         1000,
 		NormalizedShares:  1.0,
 		EffectiveShares:   1.0,
-		DirectUsers:       []string{},
-		AllUsers:          []string{},
+		DirectUsers:       0,
 		UserCount:         0,
-		ActiveUserCount:   0,
-		Status:            "active",
-		CreatedAt:         time.Now().Add(-365 * 24 * time.Hour),
-		LastModified:      time.Now(),
-		DataQuality:       0.95,
-		LastValidated:     time.Now(),
 	}
 	
 	// Add child accounts
@@ -2026,33 +1890,14 @@ func (a *AccountCollector) collectAccountHierarchy(ctx context.Context) error {
 		childAccount := &AccountNode{
 			AccountName:       accountName,
 			Description:       fmt.Sprintf("Account %d", i),
-			ParentAccount:     "root",
+			Parent:     "root",
 			Level:             1,
 			Path:              fmt.Sprintf("root.%s", accountName),
 			RawShares:         200,
 			NormalizedShares:  0.2,
 			EffectiveShares:   0.2,
-			DirectUsers:       []string{fmt.Sprintf("user%d", i), fmt.Sprintf("user%d", i+10)},
-			AllUsers:          []string{fmt.Sprintf("user%d", i), fmt.Sprintf("user%d", i+10)},
+			DirectUsers:       2,
 			UserCount:         2,
-			ActiveUserCount:   2,
-			Status:            "active",
-			CreatedAt:         time.Now().Add(-180 * 24 * time.Hour),
-			LastModified:      time.Now(),
-			DataQuality:       0.90,
-			LastValidated:     time.Now(),
-			CurrentUsage: &AccountUsage{
-				AccountName:       accountName,
-				Timestamp:         time.Now(),
-				CPUHours:          float64(100 + i*50),
-				MemoryMBHours:     float64(1000 + i*500),
-				JobsSubmitted:     int64(20 + i*5),
-				JobsCompleted:     int64(18 + i*4),
-				JobsFailed:        int64(1),
-				EstimatedCost:     float64(500 + i*100),
-				ResourceEfficiency: 0.75 + float64(i)*0.05,
-				WasteRatio:        0.15 - float64(i)*0.02,
-			},
 		}
 		
 		rootAccount.Children = append(rootAccount.Children, childAccount)
@@ -2081,7 +1926,7 @@ func (a *AccountCollector) updateHierarchyMetrics(hierarchy *AccountHierarchy) {
 	
 	// Account-specific metrics
 	for _, account := range hierarchy.AccountMap {
-		labels := []string{account.AccountName, account.ParentAccount}
+		labels := []string{account.AccountName, account.Parent}
 		
 		a.metrics.AccountUserCount.WithLabelValues(append(labels, "total")...).Set(float64(account.UserCount))
 		a.metrics.AccountActiveUsers.WithLabelValues(labels...).Set(float64(account.ActiveUserCount))
@@ -2156,7 +2001,7 @@ func (a *AccountCollector) updateQuotaMetrics(accountName string, quota *Account
 func (a *AccountCollector) collectUserAccountAssociations(ctx context.Context) error {
 	// Simplified user-account association collection
 	for _, account := range a.accountHierarchy.AccountMap {
-		for _, userName := range account.DirectUsers {
+		for _, userName := range account.AllUsers {
 			association := &UserAccountAssociation{
 				UserName:       userName,
 				PrimaryAccount: account.AccountName,
