@@ -124,9 +124,10 @@ type CollectorsConfig struct {
 
 // GlobalCollectorConfig holds global collector settings.
 type GlobalCollectorConfig struct {
-	DefaultInterval     time.Duration `yaml:"default_interval"`
-	DefaultTimeout      time.Duration `yaml:"default_timeout"`
-	MaxConcurrency      int           `yaml:"max_concurrency"`
+	DefaultInterval     time.Duration        `yaml:"default_interval"`
+	DefaultTimeout      time.Duration        `yaml:"default_timeout"`
+	MaxConcurrency      int                  `yaml:"max_concurrency"`
+	BatchProcessing     BatchProcessingConfig `yaml:"batch_processing"`
 	ErrorThreshold      int           `yaml:"error_threshold"`
 	RecoveryDelay       time.Duration `yaml:"recovery_delay"`
 	GracefulDegradation bool          `yaml:"graceful_degradation"`
@@ -196,6 +197,37 @@ type DegradationConfig struct {
 	ResetTimeout     time.Duration `yaml:"reset_timeout"`
 	UseCachedMetrics bool          `yaml:"use_cached_metrics"`
 	CacheTTL         time.Duration `yaml:"cache_ttl"`
+}
+
+// BatchProcessingConfig holds batch processing configuration.
+type BatchProcessingConfig struct {
+	Enabled           bool                       `yaml:"enabled"`
+	MaxBatchSize      int                        `yaml:"max_batch_size"`
+	MaxBatchWait      time.Duration              `yaml:"max_batch_wait"`
+	FlushInterval     time.Duration              `yaml:"flush_interval"`
+	MaxConcurrency    int                        `yaml:"max_concurrency"`
+	EnableCompression bool                       `yaml:"enable_compression"`
+	RetryAttempts     int                        `yaml:"retry_attempts"`
+	RetryDelay        time.Duration              `yaml:"retry_delay"`
+	MetricBatching    MetricBatchingConfig       `yaml:"metric_batching"`
+	EntityBatching    map[string]EntityBatchConfig `yaml:"entity_batching"`
+}
+
+// MetricBatchingConfig holds metric-specific batching configuration.
+type MetricBatchingConfig struct {
+	EnableSampling    bool                `yaml:"enable_sampling"`
+	SamplingRates     map[string]float64  `yaml:"sampling_rates"`
+	EnableAggregation bool                `yaml:"enable_aggregation"`
+	AggregationWindow time.Duration       `yaml:"aggregation_window"`
+	MaxMetricAge      time.Duration       `yaml:"max_metric_age"`
+}
+
+// EntityBatchConfig holds entity-specific batch configuration.
+type EntityBatchConfig struct {
+	Enabled      bool          `yaml:"enabled"`
+	MaxBatchSize int           `yaml:"max_batch_size"`
+	MaxBatchWait time.Duration `yaml:"max_batch_wait"`
+	Priority     int           `yaml:"priority"`
 }
 
 // LoggingConfig holds logging configuration.
@@ -287,6 +319,42 @@ func Default() *Config {
 				ErrorThreshold:      5,
 				RecoveryDelay:       60 * time.Second,
 				GracefulDegradation: true,
+				BatchProcessing: BatchProcessingConfig{
+					Enabled:           true,
+					MaxBatchSize:      100,
+					MaxBatchWait:      5 * time.Second,
+					FlushInterval:     30 * time.Second,
+					MaxConcurrency:    4,
+					EnableCompression: false,
+					RetryAttempts:     3,
+					RetryDelay:        time.Second,
+					MetricBatching: MetricBatchingConfig{
+						EnableSampling:    false,
+						EnableAggregation: true,
+						AggregationWindow: 30 * time.Second,
+						MaxMetricAge:      5 * time.Minute,
+					},
+					EntityBatching: map[string]EntityBatchConfig{
+						"jobs": {
+							Enabled:      true,
+							MaxBatchSize: 200,
+							MaxBatchWait: 3 * time.Second,
+							Priority:     10,
+						},
+						"nodes": {
+							Enabled:      true,
+							MaxBatchSize: 100,
+							MaxBatchWait: 5 * time.Second,
+							Priority:     5,
+						},
+						"partitions": {
+							Enabled:      true,
+							MaxBatchSize: 50,
+							MaxBatchWait: 10 * time.Second,
+							Priority:     3,
+						},
+					},
+				},
 			},
 			Cluster: CollectorConfig{
 				Enabled:  true,
@@ -466,16 +534,13 @@ func Default() *Config {
 				},
 			},
 			Debug: DebugConfig{
-				Enabled:      false, // Enable only when needed
-				AuthRequired: true,
-				Username:     "debug",
-				Password:     "",
-				Endpoints: DebugEndpointsConfig{
-					Collectors:  "/debug/collectors",
-					Trace:       "/debug/trace",
-					Cardinality: "/debug/cardinality",
-					Config:      "/debug/config",
-					Profile:     "/debug/profile",
+				Enabled:     false, // Enable only when needed
+				RequireAuth: true,
+				Username:    "debug",
+				Password:    "",
+				EnabledEndpoints: []string{
+					"collectors", "tracing", "patterns", "scheduler",
+					"health", "runtime", "config", "cache",
 				},
 			},
 			Caching: CachingConfig{
@@ -484,12 +549,23 @@ func Default() *Config {
 				MaxEntries:      50000,
 				CleanupInterval: 5 * time.Minute,
 				ChangeTracking:  true,
+				AdaptiveTTL: AdaptiveTTLConfig{
+					Enabled:          true,
+					MinTTL:           30 * time.Second,
+					MaxTTL:           30 * time.Minute,
+					StabilityWindow:  10 * time.Minute,
+					VarianceThreshold: 0.1,
+					ChangeThreshold:   0.05,
+					ExtensionFactor:   2.0,
+					ReductionFactor:   0.5,
+				},
 			},
 			BatchProcessing: BatchProcessingConfig{
 				Enabled:       true,
-				Size:          1000,
+				MaxBatchSize:  1000,
+				MaxBatchWait:  5 * time.Second,
 				FlushInterval: 10 * time.Second,
-				MaxBatches:    10,
+				MaxConcurrency: 4,
 			},
 		},
 	}
@@ -1652,20 +1728,11 @@ type HealthEndpointsConfig struct {
 
 // DebugConfig holds debug configuration
 type DebugConfig struct {
-	Enabled      bool   `yaml:"enabled"`
-	AuthRequired bool   `yaml:"auth_required"`
-	Username     string `yaml:"username"`
-	Password     string `yaml:"password"`
-	Endpoints    DebugEndpointsConfig `yaml:"endpoints"`
-}
-
-// DebugEndpointsConfig holds debug endpoint configuration
-type DebugEndpointsConfig struct {
-	Collectors    string `yaml:"collectors"`
-	Trace         string `yaml:"trace"`
-	Cardinality   string `yaml:"cardinality"`
-	Config        string `yaml:"config"`
-	Profile       string `yaml:"profile"`
+	Enabled          bool     `yaml:"enabled"`
+	RequireAuth      bool     `yaml:"require_auth"`
+	Username         string   `yaml:"username"`
+	Password         string   `yaml:"password"`
+	EnabledEndpoints []string `yaml:"enabled_endpoints"` // List of enabled endpoints
 }
 
 // CachingConfig holds intelligent caching configuration
@@ -1675,15 +1742,23 @@ type CachingConfig struct {
 	MaxEntries    int           `yaml:"max_entries"`
 	CleanupInterval time.Duration `yaml:"cleanup_interval"`
 	ChangeTracking  bool          `yaml:"change_tracking"`
+	
+	// Adaptive TTL configuration
+	AdaptiveTTL AdaptiveTTLConfig `yaml:"adaptive_ttl"`
 }
 
-// BatchProcessingConfig holds batch processing configuration
-type BatchProcessingConfig struct {
-	Enabled       bool          `yaml:"enabled"`
-	Size          int           `yaml:"size"`
-	FlushInterval time.Duration `yaml:"flush_interval"`
-	MaxBatches    int           `yaml:"max_batches"`
+// AdaptiveTTLConfig holds configuration for adaptive TTL calculation
+type AdaptiveTTLConfig struct {
+	Enabled        bool          `yaml:"enabled"`
+	MinTTL         time.Duration `yaml:"min_ttl"`
+	MaxTTL         time.Duration `yaml:"max_ttl"`
+	StabilityWindow time.Duration `yaml:"stability_window"`
+	VarianceThreshold float64    `yaml:"variance_threshold"`
+	ChangeThreshold   float64    `yaml:"change_threshold"`
+	ExtensionFactor   float64    `yaml:"extension_factor"`
+	ReductionFactor   float64    `yaml:"reduction_factor"`
 }
+
 
 // Validate validates the observability configuration
 func (o *ObservabilityConfig) Validate() error {
@@ -1897,46 +1972,6 @@ func (h *HealthEndpointsConfig) Validate() error {
 	return nil
 }
 
-// Validate validates the debug configuration
-func (d *DebugConfig) Validate() error {
-	if d.Enabled {
-		if d.AuthRequired && d.Username == "" {
-			return fmt.Errorf("username must be specified when auth is required")
-		}
-
-		if d.AuthRequired && d.Password == "" {
-			return fmt.Errorf("password must be specified when auth is required")
-		}
-
-		if err := d.Endpoints.Validate(); err != nil {
-			return fmt.Errorf("endpoints: %w", err)
-		}
-	}
-
-	return nil
-}
-
-// Validate validates the debug endpoints configuration
-func (d *DebugEndpointsConfig) Validate() error {
-	endpoints := []struct {
-		name string
-		path string
-	}{
-		{"collectors", d.Collectors},
-		{"trace", d.Trace},
-		{"cardinality", d.Cardinality},
-		{"config", d.Config},
-		{"profile", d.Profile},
-	}
-
-	for _, endpoint := range endpoints {
-		if endpoint.path == "" {
-			return fmt.Errorf("%s endpoint path cannot be empty", endpoint.name)
-		}
-	}
-
-	return nil
-}
 
 // Validate validates the caching configuration
 func (c *CachingConfig) Validate() error {
@@ -1952,6 +1987,49 @@ func (c *CachingConfig) Validate() error {
 		if c.CleanupInterval <= 0 {
 			return fmt.Errorf("cleanup_interval must be positive, got '%v' (example: '5m')", c.CleanupInterval)
 		}
+
+		if err := c.AdaptiveTTL.Validate(); err != nil {
+			return fmt.Errorf("adaptive_ttl: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// Validate validates the adaptive TTL configuration
+func (a *AdaptiveTTLConfig) Validate() error {
+	if a.Enabled {
+		if a.MinTTL <= 0 {
+			return fmt.Errorf("min_ttl must be positive, got '%v' (example: '30s')", a.MinTTL)
+		}
+
+		if a.MaxTTL <= 0 {
+			return fmt.Errorf("max_ttl must be positive, got '%v' (example: '30m')", a.MaxTTL)
+		}
+
+		if a.MinTTL >= a.MaxTTL {
+			return fmt.Errorf("min_ttl (%v) must be less than max_ttl (%v)", a.MinTTL, a.MaxTTL)
+		}
+
+		if a.StabilityWindow <= 0 {
+			return fmt.Errorf("stability_window must be positive, got '%v' (example: '10m')", a.StabilityWindow)
+		}
+
+		if a.VarianceThreshold < 0 || a.VarianceThreshold > 1 {
+			return fmt.Errorf("variance_threshold must be between 0 and 1, got %f", a.VarianceThreshold)
+		}
+
+		if a.ChangeThreshold < 0 || a.ChangeThreshold > 1 {
+			return fmt.Errorf("change_threshold must be between 0 and 1, got %f", a.ChangeThreshold)
+		}
+
+		if a.ExtensionFactor <= 1 {
+			return fmt.Errorf("extension_factor must be greater than 1, got %f", a.ExtensionFactor)
+		}
+
+		if a.ReductionFactor <= 0 || a.ReductionFactor >= 1 {
+			return fmt.Errorf("reduction_factor must be between 0 and 1, got %f", a.ReductionFactor)
+		}
 	}
 
 	return nil
@@ -1960,18 +2038,50 @@ func (c *CachingConfig) Validate() error {
 // Validate validates the batch processing configuration
 func (b *BatchProcessingConfig) Validate() error {
 	if b.Enabled {
-		if b.Size <= 0 {
-			return fmt.Errorf("size must be positive, got %d", b.Size)
+		if b.MaxBatchSize <= 0 {
+			return fmt.Errorf("max_batch_size must be positive, got %d", b.MaxBatchSize)
+		}
+
+		if b.MaxBatchWait <= 0 {
+			return fmt.Errorf("max_batch_wait must be positive, got '%v' (example: '5s')", b.MaxBatchWait)
 		}
 
 		if b.FlushInterval <= 0 {
-			return fmt.Errorf("flush_interval must be positive, got '%v' (example: '10s')", b.FlushInterval)
+			return fmt.Errorf("flush_interval must be positive, got '%v' (example: '30s')", b.FlushInterval)
 		}
 
-		if b.MaxBatches <= 0 {
-			return fmt.Errorf("max_batches must be positive, got %d", b.MaxBatches)
+		if b.MaxConcurrency <= 0 {
+			return fmt.Errorf("max_concurrency must be positive, got %d", b.MaxConcurrency)
 		}
 	}
 
+	return nil
+}
+
+// Validate validates the debug configuration
+func (d *DebugConfig) Validate() error {
+	if d.Enabled {
+		if d.RequireAuth && (d.Username == "" || d.Password == "") {
+			return fmt.Errorf("username and password must be specified when auth is required")
+		}
+		
+		// Validate enabled endpoints
+		validEndpoints := map[string]bool{
+			"collectors": true,
+			"tracing":    true,
+			"patterns":   true,
+			"scheduler":  true,
+			"health":     true,
+			"runtime":    true,
+			"config":     true,
+		}
+		
+		for _, endpoint := range d.EnabledEndpoints {
+			if !validEndpoints[endpoint] {
+				return fmt.Errorf("invalid endpoint '%s', valid endpoints: collectors, tracing, patterns, scheduler, health, runtime, config", endpoint)
+			}
+		}
+	}
+	
 	return nil
 }

@@ -1,8 +1,6 @@
 package fixtures
 
 import (
-	"time"
-
 	"github.com/jontk/slurm-client"
 )
 
@@ -10,100 +8,84 @@ import (
 func GetTestPartitions() []slurm.Partition {
 	return []slurm.Partition{
 		{
-			Name:              "compute",
-			State:             "up",
-			TotalNodes:        4,
-			TotalCPUs:         256,
-			DefaultTime:       24 * time.Hour,
-			MaxTime:           7 * 24 * time.Hour,
-			DefaultMemPerCPU:  2048, // 2GB per CPU
-			MaxMemPerCPU:      8192, // 8GB per CPU
-			Nodes:             "node[01-04]",
-			AllowGroups:       []string{"all"},
-			AllowAccounts:     []string{"all"},
-			DenyAccounts:      []string{},
-			QOS:               []string{"normal", "high", "low"},
-			DefaultQOS:        "normal",
-			Priority:          100,
-			PreemptMode:       "off",
-			GraceTime:         300, // 5 minutes
+			Name:           "compute",
+			State:          "up",
+			TotalNodes:     4,
+			AvailableNodes: 2,
+			TotalCPUs:      256,
+			IdleCPUs:       64,
+			DefaultTime:    24 * 60, // 24 hours in minutes
+			MaxTime:        7 * 24 * 60, // 7 days in minutes
+			DefaultMemory:  8192, // 8GB default memory
+			MaxMemory:      32768, // 32GB max memory
+			Nodes:          []string{"node01", "node02", "node03", "node04"},
+			AllowedGroups:  []string{"all"},
+			DeniedGroups:   []string{},
+			Priority:       100,
 		},
 		{
-			Name:              "gpu",
-			State:             "up",
-			TotalNodes:        2,
-			TotalCPUs:         64,
-			DefaultTime:       12 * time.Hour,
-			MaxTime:           3 * 24 * time.Hour,
-			DefaultMemPerCPU:  4096, // 4GB per CPU
-			MaxMemPerCPU:      16384, // 16GB per CPU
-			Nodes:             "gpu-node[01-02]",
-			AllowGroups:       []string{"gpu-users"},
-			AllowAccounts:     []string{"research", "engineering"},
-			DenyAccounts:      []string{"finance"},
-			QOS:               []string{"normal", "high"},
-			DefaultQOS:        "normal",
-			Priority:          200,
-			PreemptMode:       "suspend",
-			GraceTime:         600, // 10 minutes
-			Gres:              "gpu:8",
+			Name:           "gpu",
+			State:          "up",
+			TotalNodes:     2,
+			AvailableNodes: 1,
+			TotalCPUs:      64,
+			IdleCPUs:       32,
+			DefaultTime:    12 * 60, // 12 hours in minutes
+			MaxTime:        3 * 24 * 60, // 3 days in minutes
+			DefaultMemory:  16384, // 16GB default memory
+			MaxMemory:      65536, // 64GB max memory
+			Nodes:          []string{"gpu-node01", "gpu-node02"},
+			AllowedGroups:  []string{"gpu-users"},
+			DeniedGroups:   []string{},
+			Priority:       200,
 		},
 		{
-			Name:              "all",
-			State:             "up",
-			TotalNodes:        6,
-			TotalCPUs:         320,
-			DefaultTime:       1 * time.Hour,
-			MaxTime:           24 * time.Hour,
-			DefaultMemPerCPU:  1024, // 1GB per CPU
-			MaxMemPerCPU:      4096, // 4GB per CPU
-			Nodes:             "node[01-04],gpu-node[01-02]",
-			AllowGroups:       []string{"all"},
-			AllowAccounts:     []string{"all"},
-			DenyAccounts:      []string{},
-			QOS:               []string{"normal", "low"},
-			DefaultQOS:        "low",
-			Priority:          50,
-			PreemptMode:       "off",
-			GraceTime:         120, // 2 minutes
+			Name:           "all",
+			State:          "up",
+			TotalNodes:     6,
+			AvailableNodes: 3,
+			TotalCPUs:      320,
+			IdleCPUs:       96,
+			DefaultTime:    1 * 60, // 1 hour in minutes
+			MaxTime:        24 * 60, // 24 hours in minutes
+			DefaultMemory:  4096, // 4GB default memory
+			MaxMemory:      16384, // 16GB max memory
+			Nodes:          []string{"node01", "node02", "node03", "node04", "gpu-node01", "gpu-node02"},
+			AllowedGroups:  []string{"all"},
+			DeniedGroups:   []string{},
+			Priority:       50,
 		},
 		{
-			Name:              "maintenance",
-			State:             "down",
-			TotalNodes:        0,
-			TotalCPUs:         0,
-			DefaultTime:       1 * time.Hour,
-			MaxTime:           4 * time.Hour,
-			DefaultMemPerCPU:  1024,
-			MaxMemPerCPU:      2048,
-			Nodes:             "",
-			AllowGroups:       []string{"admin"},
-			AllowAccounts:     []string{"system"},
-			DenyAccounts:      []string{"all"},
-			QOS:               []string{"maintenance"},
-			DefaultQOS:        "maintenance",
-			Priority:          1000,
-			PreemptMode:       "off",
-			GraceTime:         0,
+			Name:           "maintenance",
+			State:          "down",
+			TotalNodes:     0,
+			AvailableNodes: 0,
+			TotalCPUs:      0,
+			IdleCPUs:       0,
+			DefaultTime:    1 * 60, // 1 hour in minutes
+			MaxTime:        4 * 60, // 4 hours in minutes
+			DefaultMemory:  4096,
+			MaxMemory:      8192,
+			Nodes:          []string{},
+			AllowedGroups:  []string{"admin"},
+			DeniedGroups:   []string{},
+			Priority:       1000,
 		},
 		{
-			Name:              "bigmem",
-			State:             "up",
-			TotalNodes:        1,
-			TotalCPUs:         128,
-			DefaultTime:       48 * time.Hour,
-			MaxTime:           14 * 24 * time.Hour,
-			DefaultMemPerCPU:  16384, // 16GB per CPU
-			MaxMemPerCPU:      32768, // 32GB per CPU
-			Nodes:             "bigmem01",
-			AllowGroups:       []string{"bigmem-users"},
-			AllowAccounts:     []string{"research", "bioinformatics"},
-			DenyAccounts:      []string{},
-			QOS:               []string{"bigmem"},
-			DefaultQOS:        "bigmem",
-			Priority:          150,
-			PreemptMode:       "off",
-			GraceTime:         1800, // 30 minutes
+			Name:           "bigmem",
+			State:          "up",
+			TotalNodes:     1,
+			AvailableNodes: 1,
+			TotalCPUs:      128,
+			IdleCPUs:       128,
+			DefaultTime:    48 * 60, // 48 hours in minutes
+			MaxTime:        14 * 24 * 60, // 14 days in minutes
+			DefaultMemory:  65536, // 64GB default memory
+			MaxMemory:      131072, // 128GB max memory
+			Nodes:          []string{"bigmem01"},
+			AllowedGroups:  []string{"bigmem-users"},
+			DeniedGroups:   []string{},
+			Priority:       150,
 		},
 	}
 }

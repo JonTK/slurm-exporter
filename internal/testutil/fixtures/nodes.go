@@ -10,114 +10,116 @@ import (
 func GetTestNodes() []slurm.Node {
 	return []slurm.Node{
 		{
-			Name:           "node01",
-			State:          "idle",
-			CPUs:           64,
-			AllocatedCPUs:  0,
-			Memory:         131072, // 128GB in MB
-			AllocatedMemory: 0,
-			TmpDisk:        1000000, // 1TB in MB
-			AllocatedTmpDisk: 0,
-			Partitions:     []string{"compute", "all"},
-			Features:       []string{"haswell", "ib"},
-			Gres:           "",
-			Reason:         "",
-			ReasonTime:     nil,
-			Architecture:   "x86_64",
-			OS:             "Linux",
-			KernelVersion:  "5.15.0",
+			Name:         "node01",
+			State:        "idle",
+			CPUs:         64,
+			Memory:       131072, // 128GB in MB
+			Partitions:   []string{"compute", "all"},
+			Features:     []string{"haswell", "ib"},
+			Architecture: "x86_64",
+			Metadata: map[string]interface{}{
+				"allocated_cpus":    0,
+				"allocated_memory":  0,
+				"tmp_disk":          1000000, // 1TB in MB
+				"allocated_tmpDisk": 0,
+				"gres":              "",
+				"os":                "Linux",
+				"kernel_version":    "5.15.0",
+			},
 		},
 		{
-			Name:           "node02",
-			State:          "allocated",
-			CPUs:           64,
-			AllocatedCPUs:  64,
-			Memory:         131072,
-			AllocatedMemory: 65536, // 64GB allocated
-			TmpDisk:        1000000,
-			AllocatedTmpDisk: 500000,
-			Partitions:     []string{"compute", "all"},
-			Features:       []string{"haswell", "ib"},
-			Gres:           "",
-			Reason:         "",
-			ReasonTime:     nil,
-			Architecture:   "x86_64",
-			OS:             "Linux",
-			KernelVersion:  "5.15.0",
+			Name:         "node02",
+			State:        "allocated",
+			CPUs:         64,
+			Memory:       131072,
+			Partitions:   []string{"compute", "all"},
+			Features:     []string{"haswell", "ib"},
+			Architecture: "x86_64",
+			Metadata: map[string]interface{}{
+				"allocated_cpus":    64,
+				"allocated_memory":  65536, // 64GB allocated
+				"tmp_disk":          1000000,
+				"allocated_tmpDisk": 500000,
+				"gres":              "",
+				"os":                "Linux",
+				"kernel_version":    "5.15.0",
+			},
 		},
 		{
-			Name:           "node03",
-			State:          "down",
-			CPUs:           64,
-			AllocatedCPUs:  0,
-			Memory:         131072,
-			AllocatedMemory: 0,
-			TmpDisk:        1000000,
-			AllocatedTmpDisk: 0,
-			Partitions:     []string{"compute", "all"},
-			Features:       []string{"haswell", "ib"},
-			Gres:           "",
-			Reason:         "Hardware failure",
-			ReasonTime:     nil,
-			Architecture:   "x86_64",
-			OS:             "Linux",
-			KernelVersion:  "5.15.0",
+			Name:         "node03",
+			State:        "down",
+			CPUs:         64,
+			Memory:       131072,
+			Partitions:   []string{"compute", "all"},
+			Features:     []string{"haswell", "ib"},
+			Reason:       "Hardware failure",
+			Architecture: "x86_64",
+			Metadata: map[string]interface{}{
+				"allocated_cpus":    0,
+				"allocated_memory":  0,
+				"tmp_disk":          1000000,
+				"allocated_tmpDisk": 0,
+				"gres":              "",
+				"os":                "Linux",
+				"kernel_version":    "5.15.0",
+			},
 		},
 		{
-			Name:           "node04",
-			State:          "mixed",
-			CPUs:           64,
-			AllocatedCPUs:  32,
-			Memory:         131072,
-			AllocatedMemory: 32768, // 32GB allocated
-			TmpDisk:        1000000,
-			AllocatedTmpDisk: 250000,
-			Partitions:     []string{"compute", "all"},
-			Features:       []string{"haswell", "ib"},
-			Gres:           "",
-			Reason:         "",
-			ReasonTime:     nil,
-			Architecture:   "x86_64",
-			OS:             "Linux",
-			KernelVersion:  "5.15.0",
+			Name:         "node04",
+			State:        "mixed",
+			CPUs:         64,
+			Memory:       131072,
+			Partitions:   []string{"compute", "all"},
+			Features:     []string{"haswell", "ib"},
+			Architecture: "x86_64",
+			Metadata: map[string]interface{}{
+				"allocated_cpus":    32,
+				"allocated_memory":  32768, // 32GB allocated
+				"tmp_disk":          1000000,
+				"allocated_tmpDisk": 250000,
+				"gres":              "",
+				"os":                "Linux",
+				"kernel_version":    "5.15.0",
+			},
 		},
 		{
-			Name:           "gpu-node01",
-			State:          "idle",
-			CPUs:           32,
-			AllocatedCPUs:  0,
-			Memory:         262144, // 256GB
-			AllocatedMemory: 0,
-			TmpDisk:        2000000, // 2TB
-			AllocatedTmpDisk: 0,
-			Partitions:     []string{"gpu", "all"},
-			Features:       []string{"skylake", "ib", "gpu"},
-			Gres:           "gpu:4",
-			GresUsed:       "gpu:0",
-			Reason:         "",
-			ReasonTime:     nil,
-			Architecture:   "x86_64",
-			OS:             "Linux",
-			KernelVersion:  "5.15.0",
+			Name:         "gpu-node01",
+			State:        "idle",
+			CPUs:         32,
+			Memory:       262144, // 256GB
+			Partitions:   []string{"gpu", "all"},
+			Features:     []string{"skylake", "ib", "gpu"},
+			Architecture: "x86_64",
+			Metadata: map[string]interface{}{
+				"allocated_cpus":    0,
+				"allocated_memory":  0,
+				"tmp_disk":          2000000, // 2TB
+				"allocated_tmpDisk": 0,
+				"gres":              "gpu:4",
+				"gres_used":         "gpu:0",
+				"os":                "Linux",
+				"kernel_version":    "5.15.0",
+			},
 		},
 		{
-			Name:           "gpu-node02",
-			State:          "drain",
-			CPUs:           32,
-			AllocatedCPUs:  0,
-			Memory:         262144,
-			AllocatedMemory: 0,
-			TmpDisk:        2000000,
-			AllocatedTmpDisk: 0,
-			Partitions:     []string{"gpu", "all"},
-			Features:       []string{"skylake", "ib", "gpu"},
-			Gres:           "gpu:4",
-			GresUsed:       "gpu:0",
-			Reason:         "Maintenance",
-			ReasonTime:     nil,
-			Architecture:   "x86_64",
-			OS:             "Linux",
-			KernelVersion:  "5.15.0",
+			Name:         "gpu-node02",
+			State:        "drain",
+			CPUs:         32,
+			Memory:       262144,
+			Partitions:   []string{"gpu", "all"},
+			Features:     []string{"skylake", "ib", "gpu"},
+			Reason:       "Maintenance",
+			Architecture: "x86_64",
+			Metadata: map[string]interface{}{
+				"allocated_cpus":    0,
+				"allocated_memory":  0,
+				"tmp_disk":          2000000,
+				"allocated_tmpDisk": 0,
+				"gres":              "gpu:4",
+				"gres_used":         "gpu:0",
+				"os":                "Linux",
+				"kernel_version":    "5.15.0",
+			},
 		},
 	}
 }
@@ -174,45 +176,50 @@ func GenerateLargeNodeList(count int) *slurm.NodeList {
 		tmpDisk := 500000 + (i%20)*100000 // 500GB-2.5TB temp disk
 
 		// Calculate allocation based on state
-		var allocatedCPUs uint32
-		var allocatedMemory uint64
-		var allocatedTmpDisk uint64
+		var allocatedCPUs int
+		var allocatedMemory int
+		var allocatedTmpDisk int
 
 		switch state {
 		case "allocated":
-			allocatedCPUs = uint32(cpus)
-			allocatedMemory = uint64(memory)
-			allocatedTmpDisk = uint64(tmpDisk)
+			allocatedCPUs = cpus
+			allocatedMemory = memory
+			allocatedTmpDisk = tmpDisk
 		case "mixed":
-			allocatedCPUs = uint32(cpus / 2)
-			allocatedMemory = uint64(memory / 2)
-			allocatedTmpDisk = uint64(tmpDisk / 2)
+			allocatedCPUs = cpus / 2
+			allocatedMemory = memory / 2
+			allocatedTmpDisk = tmpDisk / 2
 		default:
 			allocatedCPUs = 0
 			allocatedMemory = 0
 			allocatedTmpDisk = 0
 		}
 
+		metadata := map[string]interface{}{
+			"allocated_cpus":    allocatedCPUs,
+			"allocated_memory":  allocatedMemory,
+			"tmp_disk":          tmpDisk,
+			"allocated_tmpDisk": allocatedTmpDisk,
+			"gres":              "",
+			"os":                "Linux",
+			"kernel_version":    "5.15.0",
+		}
+
 		node := slurm.Node{
-			Name:             nodeName,
-			State:            state,
-			CPUs:             uint32(cpus),
-			AllocatedCPUs:    allocatedCPUs,
-			Memory:           uint64(memory),
-			AllocatedMemory:  allocatedMemory,
-			TmpDisk:          uint64(tmpDisk),
-			AllocatedTmpDisk: allocatedTmpDisk,
-			Partitions:       partitions,
-			Features:         []string{"haswell", "ib"},
-			Architecture:     "x86_64",
-			OS:               "Linux",
-			KernelVersion:    "5.15.0",
+			Name:         nodeName,
+			State:        state,
+			CPUs:         cpus,
+			Memory:       memory,
+			Partitions:   partitions,
+			Features:     []string{"haswell", "ib"},
+			Architecture: "x86_64",
+			Metadata:     metadata,
 		}
 
 		// Add GPU nodes for some nodes
 		if i%10 == 0 {
-			node.Gres = "gpu:4"
-			node.GresUsed = fmt.Sprintf("gpu:%d", allocatedCPUs/8) // Assume 8 CPUs per GPU
+			node.Metadata["gres"] = "gpu:4"
+			node.Metadata["gres_used"] = fmt.Sprintf("gpu:%d", allocatedCPUs/8) // Assume 8 CPUs per GPU
 			node.Features = append(node.Features, "gpu")
 		}
 

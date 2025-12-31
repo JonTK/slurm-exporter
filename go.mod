@@ -2,7 +2,7 @@ module github.com/jontk/slurm-exporter
 
 go 1.24.4
 
-replace github.com/jontk/slurm-client => ../slurm-client
+replace github.com/jontk/slurm-client => ../slurm-client-stable
 
 require (
 	github.com/fsnotify/fsnotify v1.9.0

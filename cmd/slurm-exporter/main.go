@@ -116,7 +116,7 @@ func main() {
 	logger.WithComponent("main").Info("Performance monitoring started")
 
 	// Create configuration watcher for hot-reload
-	configWatcher, err := config.NewWatcher(*configFile, config.CreateReloadHandler(registry, logger.Logger), logger.Logger)
+	configWatcher, err := config.NewWatcher(*configFile, config.CreateReloadHandler(registry, logger.WithComponent("config-watcher")), logger.WithComponent("config-watcher"))
 	if err != nil {
 		logger.WithComponent("main").WithError(err).Error("Failed to create config watcher, hot-reload disabled")
 		// Continue without hot-reload

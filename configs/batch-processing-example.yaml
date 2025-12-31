@@ -1,0 +1,188 @@
+# Example configuration demonstrating batch processing capabilities
+# This configuration optimizes metric collection through batching
+
+# Server configuration
+server:
+  address: ":9090"
+  read_timeout: 30s
+  write_timeout: 30s
+
+# SLURM connection
+slurm:
+  base_url: "http://localhost:6817"
+  api_version: "v0.0.43"
+  timeout: 30s
+
+# Collector configuration with batch processing
+collectors:
+  global:
+    default_interval: 30s
+    default_timeout: 10s
+    max_concurrency: 10
+    
+    # Batch processing configuration
+    batch_processing:
+      enabled: true
+      max_batch_size: 200         # Maximum items per batch
+      max_batch_wait: 5s          # Maximum wait before flushing
+      flush_interval: 30s         # Regular flush interval
+      max_concurrency: 6          # Concurrent batch processors
+      enable_compression: true    # Enable batch compression
+      retry_attempts: 3
+      retry_delay: 2s
+      
+      # Metric batching for efficient processing
+      metric_batching:
+        enable_sampling: true     # Enable metric sampling
+        sampling_rates:
+          slurm_job_cpu_seconds_total: 0.5    # Sample 50% of CPU metrics
+          slurm_job_memory_bytes: 0.8         # Sample 80% of memory metrics
+        enable_aggregation: true
+        aggregation_window: 60s   # Aggregate metrics over 1 minute
+        max_metric_age: 10m       # Discard metrics older than 10 minutes
+      
+      # Entity-specific batching
+      entity_batching:
+        jobs:
+          enabled: true
+          max_batch_size: 500     # Process up to 500 jobs at once
+          max_batch_wait: 2s      # Quick flush for job updates
+          priority: 10            # Highest priority
+        
+        nodes:
+          enabled: true
+          max_batch_size: 200
+          max_batch_wait: 5s
+          priority: 8
+        
+        partitions:
+          enabled: true
+          max_batch_size: 50
+          max_batch_wait: 10s
+          priority: 5
+        
+        users:
+          enabled: true
+          max_batch_size: 300
+          max_batch_wait: 10s
+          priority: 3
+        
+        accounts:
+          enabled: true
+          max_batch_size: 100
+          max_batch_wait: 15s
+          priority: 2
+
+  # Job collector with batch optimizations
+  jobs:
+    enabled: true
+    interval: 15s          # Collect frequently
+    timeout: 20s
+    max_concurrency: 5
+    filters:
+      # Only collect active jobs to reduce batch size
+      job_states: ["RUNNING", "PENDING", "COMPLETING"]
+      metrics:
+        skip_histograms: true    # Reduce cardinality
+    error_handling:
+      max_retries: 2
+      retry_delay: 5s
+
+  # Node collector with batch optimizations
+  nodes:
+    enabled: true
+    interval: 30s
+    timeout: 15s
+    filters:
+      # Exclude drained nodes
+      node_states: ["idle", "allocated", "mixed", "completing"]
+      metrics:
+        skip_timing_metrics: true
+
+  # Partition collector
+  partitions:
+    enabled: true
+    interval: 60s          # Less frequent updates
+    timeout: 10s
+
+# Performance monitoring
+performance:
+  monitoring:
+    enabled: true
+    collection_metrics: true
+    api_metrics: true
+    cardinality_tracking: true
+    sla_thresholds:
+      max_collection_duration: 5s
+      max_memory_usage: 500
+      max_goroutines: 100
+
+# Caching with batch-aware configuration
+caching:
+  enabled: true
+  default_ttl: 5m
+  max_entries: 5000
+  max_size_mb: 100
+  
+  # Adaptive TTL works well with batching
+  adaptive_ttl:
+    enabled: true
+    min_ttl: 30s
+    max_ttl: 10m
+    stability_window: 5m
+    
+  # Entity-specific cache settings
+  entity_ttls:
+    jobs: 2m         # Short TTL for frequently changing jobs
+    nodes: 5m        # Medium TTL for nodes
+    partitions: 10m  # Long TTL for stable partitions
+    accounts: 30m    # Very long TTL for rarely changing accounts
+
+# Observability configuration
+observability:
+  # Circuit breaker protects against batch overload
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 10
+    timeout: 30s
+    max_half_open_requests: 5
+  
+  # Smart filtering reduces batch sizes
+  smart_filtering:
+    enabled: true
+    noise_threshold: 0.8
+    learning_window: 50
+    cache_size: 2000
+
+# Metrics configuration
+metrics:
+  cardinality:
+    max_series: 50000      # Increased for batch processing
+    max_labels: 200
+    max_label_size: 128
+    warn_limit: 40000
+
+# Logging
+logging:
+  level: info
+  format: json
+  fields:
+    service: slurm-exporter
+    environment: production
+  
+  # Debug batch processing
+  component_levels:
+    batch_processor: debug
+    metric_batcher: debug
+
+# Debug endpoints
+debug:
+  enabled: true
+  require_auth: true
+  username: "admin"
+  password: "secure-debug-pass"
+  enabled_endpoints:
+    - collectors
+    - runtime
+    - cache
+    - health

@@ -250,12 +250,12 @@ func (pm *PerformanceMonitor) recordError(collector string, stats *CollectorPerf
 	// Categorize error type
 	errorType := "unknown"
 	switch {
-	case isTimeoutError(err):
+	case isTimeoutError(err.Error()):
 		errorType = "timeout"
 		pm.scrapeTimeout.WithLabelValues(collector).Inc()
-	case isConnectionError(err):
+	case isConnectionError(err.Error()):
 		errorType = "connection"
-	case isAuthError(err):
+	case isAuthError(err.Error()):
 		errorType = "authentication"
 	case isAPIError(err):
 		errorType = "api_error"
@@ -495,32 +495,7 @@ func (pm *PerformanceMonitor) generateReport() {
 	}
 }
 
-// Error type checking helpers
-func isTimeoutError(err error) bool {
-	if err == nil {
-		return false
-	}
-	return err == context.DeadlineExceeded || err.Error() == "timeout"
-}
-
-func isConnectionError(err error) bool {
-	if err == nil {
-		return false
-	}
-	// Check for common connection error patterns
-	errStr := err.Error()
-	return errStr == "connection refused" || errStr == "no route to host"
-}
-
-func isAuthError(err error) bool {
-	if err == nil {
-		return false
-	}
-	// Check for authentication error patterns
-	errStr := err.Error()
-	return errStr == "unauthorized" || errStr == "forbidden"
-}
-
+// Error type checking helper
 func isAPIError(err error) bool {
 	if err == nil {
 		return false

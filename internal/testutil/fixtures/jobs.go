@@ -10,107 +10,126 @@ import (
 // GetTestJobs returns test job data
 func GetTestJobs() []slurm.Job {
 	now := time.Now()
+	startTime1 := now.Add(-1 * time.Hour)
+	startTime2 := now.Add(-3 * time.Hour)
+	endTime1 := now.Add(-1 * time.Hour)
+	startTime3 := now.Add(-90 * time.Minute)
+	endTime2 := now.Add(-30 * time.Minute)
+	startTime4 := now.Add(-45 * time.Minute)
+	
 	return []slurm.Job{
 		{
-			ID:          "12345",
-			Name:        "test-job-1",
-			State:       "RUNNING",
-			UserID:      "user1",
-			UserName:    "testuser1",
-			Partition:   "compute",
-			Account:     "research",
-			CPUs:        16,
-			Memory:      32768, // 32GB in MB
-			Priority:    1000,
-			SubmitTime:  now.Add(-2 * time.Hour),
-			StartTime:   now.Add(-1 * time.Hour),
-			TimeLimit:   24 * time.Hour,
-			NodeList:    "node[01-02]",
-			ArrayJobID:  0,
-			ArrayTaskID: 0,
-			QOS:         "normal",
+			ID:         "12345",
+			Name:       "test-job-1",
+			State:      "RUNNING",
+			UserID:     "user1",
+			GroupID:    "group1",
+			Partition:  "compute",
+			Priority:   1000,
+			SubmitTime: now.Add(-2 * time.Hour),
+			StartTime:  &startTime1,
+			CPUs:       16,
+			Memory:     32768, // 32GB in MB
+			TimeLimit:  24 * 60, // 24 hours in minutes
+			WorkingDir: "/home/user1",
+			Command:    "test-job.sh",
+			Nodes:      []string{"node01", "node02"},
+			Metadata: map[string]interface{}{
+				"account":     "research",
+				"qos":         "normal",
+			},
 		},
 		{
-			ID:          "12346",
-			Name:        "test-job-2",
-			State:       "PENDING",
-			UserID:      "user2",
-			UserName:    "testuser2",
-			Partition:   "compute",
-			Account:     "engineering",
-			CPUs:        32,
-			Memory:      65536, // 64GB in MB
-			Priority:    500,
-			SubmitTime:  now.Add(-30 * time.Minute),
-			TimeLimit:   48 * time.Hour,
-			ArrayJobID:  0,
-			ArrayTaskID: 0,
-			QOS:         "high",
-			Reason:      "Resources",
+			ID:         "12346",
+			Name:       "test-job-2",
+			State:      "PENDING",
+			UserID:     "user2",
+			GroupID:    "group2",
+			Partition:  "compute",
+			Priority:   500,
+			SubmitTime: now.Add(-30 * time.Minute),
+			CPUs:       32,
+			Memory:     65536, // 64GB in MB
+			TimeLimit:  48 * 60, // 48 hours in minutes
+			WorkingDir: "/home/user2",
+			Command:    "test-job.sh",
+			Metadata: map[string]interface{}{
+				"account":     "engineering",
+				"qos":         "high",
+				"reason":      "Resources",
+			},
 		},
 		{
-			ID:          "12347",
-			Name:        "test-job-3",
-			State:       "COMPLETED",
-			UserID:      "user1",
-			UserName:    "testuser1",
-			Partition:   "gpu",
-			Account:     "research",
-			CPUs:        8,
-			Memory:      16384, // 16GB in MB
-			GPUs:        2,
-			Priority:    750,
-			SubmitTime:  now.Add(-4 * time.Hour),
-			StartTime:   now.Add(-3 * time.Hour),
-			EndTime:     now.Add(-1 * time.Hour),
-			TimeLimit:   4 * time.Hour,
-			NodeList:    "gpu-node01",
-			ArrayJobID:  0,
-			ArrayTaskID: 0,
-			QOS:         "normal",
-			ExitCode:    0,
+			ID:         "12347",
+			Name:       "test-job-3",
+			State:      "COMPLETED",
+			UserID:     "user1",
+			GroupID:    "group1",
+			Partition:  "gpu",
+			Priority:   750,
+			SubmitTime: now.Add(-4 * time.Hour),
+			StartTime:  &startTime2,
+			EndTime:    &endTime1,
+			CPUs:       8,
+			Memory:     16384, // 16GB in MB
+			TimeLimit:  4 * 60, // 4 hours in minutes
+			WorkingDir: "/home/user1",
+			Command:    "gpu-job.sh",
+			Nodes:      []string{"gpu-node01"},
+			ExitCode:   0,
+			Metadata: map[string]interface{}{
+				"account":     "research",
+				"qos":         "normal",
+				"gpus":        2,
+			},
 		},
 		{
-			ID:          "12348",
-			Name:        "test-job-4",
-			State:       "FAILED",
-			UserID:      "user3",
-			UserName:    "testuser3",
-			Partition:   "compute",
-			Account:     "finance",
-			CPUs:        4,
-			Memory:      8192, // 8GB in MB
-			Priority:    250,
-			SubmitTime:  now.Add(-2 * time.Hour),
-			StartTime:   now.Add(-90 * time.Minute),
-			EndTime:     now.Add(-30 * time.Minute),
-			TimeLimit:   2 * time.Hour,
-			NodeList:    "node03",
-			ArrayJobID:  0,
-			ArrayTaskID: 0,
-			QOS:         "low",
-			ExitCode:    1,
-			Reason:      "NonZeroExitCode",
+			ID:         "12348",
+			Name:       "test-job-4",
+			State:      "FAILED",
+			UserID:     "user3",
+			GroupID:    "group3",
+			Partition:  "compute",
+			Priority:   250,
+			SubmitTime: now.Add(-2 * time.Hour),
+			StartTime:  &startTime3,
+			EndTime:    &endTime2,
+			CPUs:       4,
+			Memory:     8192, // 8GB in MB
+			TimeLimit:  2 * 60, // 2 hours in minutes
+			WorkingDir: "/home/user3",
+			Command:    "test-job.sh",
+			Nodes:      []string{"node03"},
+			ExitCode:   1,
+			Metadata: map[string]interface{}{
+				"account":     "finance",
+				"qos":         "low",
+				"reason":      "NonZeroExitCode",
+			},
 		},
 		{
-			ID:          "12349",
-			Name:        "array-job",
-			State:       "RUNNING",
-			UserID:      "user2",
-			UserName:    "testuser2",
-			Partition:   "compute",
-			Account:     "engineering",
-			CPUs:        2,
-			Memory:      4096, // 4GB in MB
-			Priority:    600,
-			SubmitTime:  now.Add(-1 * time.Hour),
-			StartTime:   now.Add(-45 * time.Minute),
-			TimeLimit:   1 * time.Hour,
-			NodeList:    "node04",
-			ArrayJobID:  12349,
-			ArrayTaskID: 1,
-			ArrayTaskStr: "1-10",
-			QOS:         "normal",
+			ID:         "12349",
+			Name:       "array-job",
+			State:      "RUNNING",
+			UserID:     "user2",
+			GroupID:    "group2",
+			Partition:  "compute",
+			Priority:   600,
+			SubmitTime: now.Add(-1 * time.Hour),
+			StartTime:  &startTime4,
+			CPUs:       2,
+			Memory:     4096, // 4GB in MB
+			TimeLimit:  1 * 60, // 1 hour in minutes
+			WorkingDir: "/home/user2",
+			Command:    "array-job.sh",
+			Nodes:      []string{"node04"},
+			Metadata: map[string]interface{}{
+				"account":        "engineering",
+				"qos":            "normal",
+				"array_job_id":   12349,
+				"array_task_id":  1,
+				"array_task_str": "1-10",
+			},
 		},
 	}
 }
@@ -162,41 +181,56 @@ func GenerateLargeJobList(count int) *slurm.JobList {
 		memory := 1024 + (i%32)*1024 // 1GB-32GB memory
 		runtime := time.Duration(i%3600) * time.Second // 0-1 hour runtime
 
-		jobs[i] = slurm.Job{
+		startTime := time.Now().Add(-runtime)
+		endTime := time.Now()
+		
+		job := slurm.Job{
 			ID:         jobID,
 			Name:       fmt.Sprintf("job_%d", i),
 			State:      state,
 			Partition:  partition,
-			UserName:   user,
 			UserID:     fmt.Sprintf("%d", 1000+i%100),
-			Account:    "default",
-			Priority:   uint32(1000 + (i % 1000)),
-			CPUs:       uint32(cpus),
-			Memory:     uint64(memory),
-			TimeLimit:  24 * time.Hour,
+			GroupID:    fmt.Sprintf("group%d", i%10),
+			Priority:   1000 + (i % 1000),
+			CPUs:       cpus,
+			Memory:     memory,
+			TimeLimit:  24 * 60, // 24 hours in minutes
 			SubmitTime: time.Now().Add(-time.Duration(i) * time.Minute),
-			StartTime:  time.Now().Add(-runtime),
-			EndTime:    time.Now(),
-			NodeList:   fmt.Sprintf("node%02d", (i%10)+1),
-			QOS:        "normal",
+			WorkingDir: fmt.Sprintf("/home/%s", user),
+			Command:    fmt.Sprintf("job_%d.sh", i),
+			Nodes:      []string{fmt.Sprintf("node%02d", (i%10)+1)},
 			ExitCode:   0,
+			Metadata: map[string]interface{}{
+				"account": "default",
+				"qos":     "normal",
+			},
+		}
+		
+		// Add start/end times for non-pending jobs
+		if state != "PENDING" {
+			job.StartTime = &startTime
+		}
+		if state == "COMPLETED" || state == "FAILED" || state == "CANCELLED" {
+			job.EndTime = &endTime
 		}
 
 		// Add some variety to failed jobs
 		if state == "FAILED" {
-			jobs[i].ExitCode = 1
+			job.ExitCode = 1
 		}
 
 		// Add GPU requirements for GPU partition
 		if partition == "gpu" {
-			jobs[i].GPUs = uint32(1 + (i % 4))
+			job.Metadata["gpus"] = 1 + (i % 4)
 		}
 
 		// Add array job information for some jobs
 		if i%10 == 0 {
-			jobs[i].ArrayJobID = uint64(100000 + i)
-			jobs[i].ArrayTaskID = uint64(i % 5)
+			job.Metadata["array_job_id"] = 100000 + i
+			job.Metadata["array_task_id"] = i % 5
 		}
+		
+		jobs[i] = job
 	}
 
 	return &slurm.JobList{
@@ -214,25 +248,40 @@ func GenerateJobBatch(count int, stateFilter string, partitionFilter string) *sl
 		jobID := fmt.Sprintf("%d", 200000+i)
 		user := users[i%len(users)]
 
-		jobs[i] = slurm.Job{
+		startTime := time.Now().Add(-time.Duration(i) * time.Second)
+		endTime := time.Now()
+		
+		job := slurm.Job{
 			ID:         jobID,
 			Name:       fmt.Sprintf("batch_job_%d", i),
 			State:      stateFilter,
 			Partition:  partitionFilter,
-			UserName:   user,
 			UserID:     fmt.Sprintf("%d", 2000+i%50),
-			Account:    "batch",
-			Priority:   uint32(500 + i),
-			CPUs:       uint32(1 + (i % 32)),
-			Memory:     uint64(2048 + (i%16)*1024),
-			TimeLimit:  12 * time.Hour,
+			GroupID:    fmt.Sprintf("group%d", i%5),
+			Priority:   500 + i,
+			CPUs:       1 + (i % 32),
+			Memory:     2048 + (i%16)*1024,
+			TimeLimit:  12 * 60, // 12 hours in minutes
 			SubmitTime: time.Now().Add(-time.Duration(i) * time.Second),
-			StartTime:  time.Now().Add(-time.Duration(i) * time.Second),
-			EndTime:    time.Now(),
-			NodeList:   fmt.Sprintf("node%02d", (i%20)+1),
-			QOS:        "normal",
+			WorkingDir: fmt.Sprintf("/home/%s", user),
+			Command:    fmt.Sprintf("batch_job_%d.sh", i),
+			Nodes:      []string{fmt.Sprintf("node%02d", (i%20)+1)},
 			ExitCode:   0,
+			Metadata: map[string]interface{}{
+				"account": "batch",
+				"qos":     "normal",
+			},
 		}
+		
+		// Add start/end times based on state
+		if stateFilter != "PENDING" {
+			job.StartTime = &startTime
+		}
+		if stateFilter == "COMPLETED" || stateFilter == "FAILED" || stateFilter == "CANCELLED" {
+			job.EndTime = &endTime
+		}
+		
+		jobs[i] = job
 	}
 
 	return &slurm.JobList{

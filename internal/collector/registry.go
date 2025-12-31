@@ -428,47 +428,47 @@ func (r *Registry) ReconfigureCollectors(cfg *config.CollectorsConfig) error {
 		case "jobs":
 			enabled = cfg.Jobs.Enabled
 			filterConfig = cfg.Jobs.Filters
-			customLabels = cfg.Jobs.CustomLabels
+			customLabels = cfg.Jobs.Labels
 		case "nodes":
 			enabled = cfg.Nodes.Enabled
 			filterConfig = cfg.Nodes.Filters
-			customLabels = cfg.Nodes.CustomLabels
+			customLabels = cfg.Nodes.Labels
 		case "partitions":
 			enabled = cfg.Partitions.Enabled
 			filterConfig = cfg.Partitions.Filters
-			customLabels = cfg.Partitions.CustomLabels
+			customLabels = cfg.Partitions.Labels
 		case "accounts":
 			enabled = cfg.Accounts.Enabled
 			filterConfig = cfg.Accounts.Filters
-			customLabels = cfg.Accounts.CustomLabels
+			customLabels = cfg.Accounts.Labels
 		case "users":
 			enabled = cfg.Users.Enabled
 			filterConfig = cfg.Users.Filters
-			customLabels = cfg.Users.CustomLabels
+			customLabels = cfg.Users.Labels
 		case "qos":
 			enabled = cfg.QoS.Enabled
 			filterConfig = cfg.QoS.Filters
-			customLabels = cfg.QoS.CustomLabels
+			customLabels = cfg.QoS.Labels
 		case "reservations":
 			enabled = cfg.Reservations.Enabled
 			filterConfig = cfg.Reservations.Filters
-			customLabels = cfg.Reservations.CustomLabels
+			customLabels = cfg.Reservations.Labels
 		case "associations":
 			enabled = cfg.Associations.Enabled
 			filterConfig = cfg.Associations.Filters
-			customLabels = cfg.Associations.CustomLabels
+			customLabels = cfg.Associations.Labels
 		case "cluster":
 			enabled = cfg.Cluster.Enabled
 			filterConfig = cfg.Cluster.Filters
-			customLabels = cfg.Cluster.CustomLabels
+			customLabels = cfg.Cluster.Labels
 		case "performance":
 			enabled = cfg.Performance.Enabled
 			filterConfig = cfg.Performance.Filters
-			customLabels = cfg.Performance.CustomLabels
+			customLabels = cfg.Performance.Labels
 		case "system":
 			enabled = cfg.System.Enabled
 			filterConfig = cfg.System.Filters
-			customLabels = cfg.System.CustomLabels
+			customLabels = cfg.System.Labels
 		default:
 			r.logger.WithField("collector", name).Warn("Unknown collector in registry")
 			continue
@@ -497,15 +497,7 @@ func (r *Registry) ReconfigureCollectors(cfg *config.CollectorsConfig) error {
 	}
 
 	// Update cardinality limits
-	if r.cardinalityManager != nil && cfg.CardinalityLimits != nil {
-		for metric, limit := range cfg.CardinalityLimits {
-			r.cardinalityManager.SetLimit(metric, metrics.CardinalityLimit{
-				MaxLabels:        limit.MaxLabels,
-				MaxSeriesPerLabel: limit.MaxSeriesPerLabel,
-				Action:           metrics.CardinalityAction(limit.Action),
-			})
-		}
-	}
+	// TODO: Implement cardinality limit updates when configuration structure is defined
 
 	if len(errors) > 0 {
 		return fmt.Errorf("reconfiguration errors: %v", errors)

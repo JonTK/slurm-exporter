@@ -157,12 +157,12 @@ func (m *MockInfoManager) Stats(ctx context.Context) (*slurm.ClusterStats, error
 }
 
 // Version returns SLURM version information
-func (m *MockInfoManager) Version(ctx context.Context) (*slurm.VersionInfo, error) {
+func (m *MockInfoManager) Version(ctx context.Context) (*slurm.APIVersion, error) {
 	args := m.Called(ctx)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*slurm.VersionInfo), args.Error(1)
+	return args.Get(0).(*slurm.APIVersion), args.Error(1)
 }
 
 // MockCollectorInterface for testing collector interfaces

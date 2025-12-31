@@ -1,0 +1,120 @@
+# SLURM Exporter Configuration with Collection Profiling
+# This example shows how to enable and configure collection profiling
+
+# Basic exporter configuration
+exporter:
+  address: ":9090"
+  path: "/metrics"
+  timeout: 30s
+
+# SLURM API configuration
+slurm:
+  url: "http://slurm-api:6820"
+  auth:
+    type: "token"
+    token: "${SLURM_TOKEN}"
+
+# Enable specific collectors
+collectors:
+  - jobs
+  - nodes
+  - partitions
+  - cluster
+
+# Collection profiling configuration
+observability:
+  # Collection profiling for performance analysis
+  profiling:
+    enabled: true
+    
+    # CPU profiling rate (Hz) - how many times per second to sample CPU
+    cpu_profile_rate: 100
+    
+    # Memory profiling rate (bytes) - profile every N bytes allocated
+    memory_profile_rate: 524288  # 512KB
+    
+    # Block profiling rate (nanoseconds) - profile blocking events longer than N ns
+    block_profile_rate: 1000000  # 1ms
+    
+    # Mutex profiling fraction - profile 1 out of N mutex contention events
+    mutex_profile_fraction: 100
+    
+    # Automatic profiling triggers
+    auto_profile:
+      enabled: true
+      # Automatically profile collections that take longer than this
+      duration_threshold: "5s"
+      # Automatically profile collections that allocate more than this
+      memory_threshold: 10485760  # 10MB
+      # Profile collections that have high error rates
+      error_rate_threshold: 0.1  # 10%
+      # Profile collections with high CPU usage
+      cpu_usage_threshold: 0.8   # 80%
+      # Always profile slow collections
+      profile_on_slow_collection: true
+    
+    # Profile storage configuration
+    storage:
+      # Storage type: "memory" or "file"
+      type: "file"
+      # Base path for file storage
+      path: "/var/lib/slurm-exporter/profiles"
+      # Maximum total size of stored profiles
+      max_size: 104857600  # 100MB
+      # How long to keep profiles
+      retention: "24h"
+    
+    # Continuous profiling for baseline analysis
+    continuous_profiling:
+      enabled: true
+      # How often to take continuous profiles
+      interval: "5m"
+      # Duration of CPU profiling
+      cpu_duration: "30s"
+      # Include heap profiles
+      include_heap: true
+      # Include goroutine profiles
+      include_goroutine: true
+
+# Debug endpoints configuration
+debug:
+  enabled: true
+  address: ":8080"
+  authentication:
+    enabled: true
+    type: "basic"
+    username: "admin"
+    password: "admin"
+  
+  # Enable profiling debug endpoints
+  endpoints:
+    - "status"
+    - "collectors"
+    - "cache"
+    - "health"
+    - "profiling"  # Enables /debug/profiling endpoints
+
+# Example: Enable profiling only for specific collectors
+# You can selectively enable/disable profiling per collector via the API:
+# POST /debug/profiling/collector/jobs/enable
+# POST /debug/profiling/collector/nodes/disable
+
+# Example: View profiling status and profiles
+# GET /debug/profiling - View profiling status for all collectors
+# GET /debug/profiling/list - List all saved profiles
+# GET /debug/profiling/profile/{id} - View specific profile details
+# GET /debug/profiling/download/{id} - Download profile as zip
+
+# Using profiles with go tool pprof:
+# 1. Download a profile: curl -o profile.zip http://localhost:8080/debug/profiling/download/jobs_1234567890
+# 2. Extract the zip file: unzip profile.zip
+# 3. Analyze CPU profile: go tool pprof cpu.pprof
+# 4. Analyze heap profile: go tool pprof heap.pprof
+# 5. View trace: go tool trace trace.out
+
+# Performance tips when profiling is enabled:
+# - CPU profiling has minimal overhead (~2-5%)
+# - Memory profiling can increase allocations slightly
+# - Block/mutex profiling should be used sparingly in production
+# - Continuous profiling helps establish performance baselines
+# - Auto-profiling captures anomalies without constant overhead
