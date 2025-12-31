@@ -1,0 +1,192 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: slurm-exporter
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: network-security
+spec:
+  podSelector:
+    matchLabels:
+      app: slurm-exporter
+  
+  policyTypes:
+  - Ingress
+  - Egress
+  
+  # Ingress rules - what can connect to SLURM exporter
+  ingress:
+  # Allow Prometheus to scrape metrics
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    - namespaceSelector:
+        matchLabels:
+          name: prometheus
+    - podSelector:
+        matchLabels:
+          app: prometheus
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: prometheus
+    ports:
+    - protocol: TCP
+      port: 8080
+  
+  # Allow health checks from ingress controllers
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    - namespaceSelector:
+        matchLabels:
+          name: istio-system
+    - podSelector:
+        matchLabels:
+          app: nginx-ingress
+    - podSelector:
+        matchLabels:
+          app: istio-proxy
+    ports:
+    - protocol: TCP
+      port: 8080
+  
+  # Allow load balancer health checks
+  - from: []  # Allow from any source for LB health checks
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 8081
+  
+  # Allow inter-pod communication within namespace
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: slurm-exporter
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 6060  # pprof endpoint for debugging
+  
+  # Egress rules - what SLURM exporter can connect to
+  egress:
+  # Allow DNS resolution
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  
+  # Allow HTTPS for external services (cert validation, etc.)
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  
+  # Allow connection to SLURM REST API
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: slurm-cluster
+    - podSelector:
+        matchLabels:
+          app: slurm-rest
+    ports:
+    - protocol: TCP
+      port: 6820
+    - protocol: TCP
+      port: 6821
+    - protocol: TCP
+      port: 443
+  
+  # Allow connection to external SLURM clusters
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 6820  # Standard SLURM REST API port
+    - protocol: TCP
+      port: 6821  # Alternative SLURM REST API port
+  
+  # Allow connection to Kubernetes API server
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 6443
+    - protocol: TCP
+      port: 443
+
+---
+# Additional network policy for monitoring namespace access
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-monitoring-access
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: monitoring-access
+spec:
+  podSelector:
+    matchLabels:
+      app: slurm-exporter
+  
+  policyTypes:
+  - Ingress
+  
+  ingress:
+  # Allow all monitoring tools
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          monitoring: "true"
+    ports:
+    - protocol: TCP
+      port: 8080
+  
+  # Allow Grafana dashboards
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: grafana
+    - podSelector:
+        matchLabels:
+          app: grafana
+    ports:
+    - protocol: TCP
+      port: 8080
+  
+  # Allow alerting systems
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: alertmanager
+    - podSelector:
+        matchLabels:
+          app: alertmanager
+    ports:
+    - protocol: TCP
+      port: 8080
+
+---
+# Strict network policy for production security
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-except-allowed
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: security
+spec:
+  podSelector: {}  # Apply to all pods in namespace
+  
+  policyTypes:
+  - Ingress
+  - Egress
+  
+  # Default deny all - only explicitly allowed traffic passes

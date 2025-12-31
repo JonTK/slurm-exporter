@@ -1,0 +1,200 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: slurm-exporter-production
+  annotations:
+    config.kubernetes.io/local-config: "true"
+
+# Resources to include in the deployment
+resources:
+- namespace.yaml
+- configmap.yaml
+- secrets.yaml
+- serviceaccount.yaml
+- deployment.yaml
+- service.yaml
+- hpa.yaml
+- networkpolicy.yaml
+- monitoring.yaml
+- ingress.yaml
+
+# Common labels to apply to all resources
+commonLabels:
+  app: slurm-exporter
+  environment: production
+  managed-by: kustomize
+
+# Common annotations
+commonAnnotations:
+  deployment.kubernetes.io/revision: "1"
+  config.kubernetes.io/origin: |
+    path: deployment/production/kubernetes-ha/kustomization.yaml
+
+# Images to customize (use specific versions in production)
+images:
+- name: ghcr.io/jontk/slurm-exporter
+  newTag: v1.0.0
+- name: curlimages/curl
+  newTag: 8.4.0
+
+# ConfigMap generator for environment-specific configs
+configMapGenerator:
+- name: slurm-exporter-env-generated
+  literals:
+  - cluster-name=production-cluster
+  - environment=production
+  - log-level=info
+  - aws-region=us-west-2
+  options:
+    disableNameSuffixHash: true
+
+# Secret generator for placeholder secrets
+secretGenerator:
+- name: slurm-credentials-template
+  type: Opaque
+  literals:
+  - rest-url=https://slurm-head.cluster.local:6820
+  - auth-type=jwt
+  options:
+    disableNameSuffixHash: true
+
+# Namespace
+namespace: slurm-exporter
+
+# Resource transformations
+transformers:
+- |-
+  apiVersion: builtin
+  kind: AnnotationsTransformer
+  metadata:
+    name: add-deployment-annotations
+  annotations:
+    deployment.timestamp: $(date +%Y%m%d%H%M%S)
+  fieldSpecs:
+  - path: metadata/annotations
+    create: true
+
+# Patches for environment-specific customizations
+patches:
+# Patch deployment for production-specific settings
+- target:
+    kind: Deployment
+    name: slurm-exporter
+  patch: |-
+    - op: replace
+      path: /spec/replicas
+      value: 3
+    - op: add
+      path: /spec/template/metadata/annotations/config.hash
+      value: "production-$(date +%s)"
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/requests/memory
+      value: "256Mi"
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/limits/memory
+      value: "1Gi"
+
+# Patch service for production load balancer
+- target:
+    kind: Service
+    name: slurm-exporter-loadbalancer
+  patch: |-
+    - op: add
+      path: /metadata/annotations/service.beta.kubernetes.io~1aws-load-balancer-subnets
+      value: "subnet-12345,subnet-67890"
+    - op: add
+      path: /metadata/annotations/service.beta.kubernetes.io~1aws-load-balancer-security-groups
+      value: "sg-abcdef123456"
+
+# Patch HPA for production scaling
+- target:
+    kind: HorizontalPodAutoscaler
+    name: slurm-exporter
+  patch: |-
+    - op: replace
+      path: /spec/minReplicas
+      value: 3
+    - op: replace
+      path: /spec/maxReplicas
+      value: 15
+
+# Patch ingress for production domain
+- target:
+    kind: Ingress
+    name: slurm-exporter
+  patch: |-
+    - op: replace
+      path: /spec/rules/0/host
+      value: "slurm-exporter.prod.example.com"
+    - op: replace
+      path: /spec/rules/1/host
+      value: "slurm-metrics.prod.example.com"
+    - op: replace
+      path: /spec/tls/0/hosts/0
+      value: "slurm-exporter.prod.example.com"
+    - op: replace
+      path: /spec/tls/0/hosts/1
+      value: "slurm-metrics.prod.example.com"
+
+# Replicas for various environments
+replicas:
+- name: slurm-exporter
+  count: 3
+
+# Strategic merge patches
+patchesStrategicMerge:
+- |-
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: slurm-exporter
+    namespace: slurm-exporter
+  spec:
+    template:
+      spec:
+        containers:
+        - name: slurm-exporter
+          env:
+          - name: ENVIRONMENT
+            value: "production"
+          - name: LOG_LEVEL
+            value: "info"
+          - name: ENABLE_PPROF
+            value: "false"
+
+# JSON patches for specific modifications
+patchesJson6902:
+- target:
+    version: v1
+    kind: Secret
+    name: slurm-credentials
+    namespace: slurm-exporter
+  patch: |-
+    - op: add
+      path: /metadata/annotations/reloader.stakater.com~1match
+      value: "true"
+
+# Variable substitutions (if using envsubst or similar)
+vars:
+- name: CLUSTER_NAME
+  objref:
+    kind: ConfigMap
+    name: slurm-exporter-env
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.cluster-name
+- name: ENVIRONMENT
+  objref:
+    kind: ConfigMap
+    name: slurm-exporter-env
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.environment
+
+# Build metadata
+buildMetadata:
+- project: slurm-exporter
+  version: v1.0.0
+  environment: production
+  cluster: main

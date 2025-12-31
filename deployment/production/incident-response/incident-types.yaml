@@ -1,0 +1,563 @@
+# Incident Types and Classification for SLURM Exporter
+# This file defines incident categories, severity levels, and response procedures
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: incident-classification
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: incident-response
+data:
+  incident-types.yaml: |
+    # Incident Classification Framework
+    incident_types:
+      # Security Incidents
+      security:
+        - type: "security_breach"
+          description: "Unauthorized access or data breach detected"
+          severity: "critical"
+          indicators:
+            - "Unauthorized API access attempts"
+            - "Anomalous data access patterns"
+            - "Suspicious container behavior"
+            - "Privilege escalation attempts"
+          response_time: "15 minutes"
+          escalation: "immediate"
+        
+        - type: "vulnerability_exploit"
+          description: "Active exploitation of known vulnerabilities"
+          severity: "critical"
+          indicators:
+            - "Exploit signatures in logs"
+            - "Abnormal process execution"
+            - "Unexpected network connections"
+          response_time: "30 minutes"
+          escalation: "immediate"
+        
+        - type: "malware_detection"
+          description: "Malicious software detected in container"
+          severity: "critical"
+          indicators:
+            - "Known malware signatures"
+            - "Crypto-mining activity"
+            - "Command and control communication"
+          response_time: "15 minutes"
+          escalation: "immediate"
+        
+        - type: "compliance_violation"
+          description: "Security compliance policy violations"
+          severity: "high"
+          indicators:
+            - "Failed compliance scans"
+            - "Policy violations detected"
+            - "Configuration drift"
+          response_time: "2 hours"
+          escalation: "standard"
+      
+      # Operational Incidents
+      operational:
+        - type: "service_outage"
+          description: "Complete service unavailability"
+          severity: "critical"
+          indicators:
+            - "All health checks failing"
+            - "No metrics being collected"
+            - "All pods in CrashLoopBackOff"
+          response_time: "15 minutes"
+          escalation: "immediate"
+        
+        - type: "performance_degradation"
+          description: "Significant performance issues"
+          severity: "high"
+          indicators:
+            - "Response time > 10s"
+            - "Error rate > 5%"
+            - "Memory usage > 90%"
+          response_time: "1 hour"
+          escalation: "standard"
+        
+        - type: "data_loss"
+          description: "Loss of metrics or configuration data"
+          severity: "high"
+          indicators:
+            - "Missing metric data"
+            - "Corrupted storage"
+            - "Failed backups"
+          response_time: "30 minutes"
+          escalation: "immediate"
+        
+        - type: "api_failure"
+          description: "SLURM API connectivity issues"
+          severity: "medium"
+          indicators:
+            - "API timeout errors"
+            - "Authentication failures"
+            - "Network connectivity issues"
+          response_time: "2 hours"
+          escalation: "standard"
+      
+      # Infrastructure Incidents
+      infrastructure:
+        - type: "cluster_failure"
+          description: "Kubernetes cluster issues affecting service"
+          severity: "critical"
+          indicators:
+            - "Node failures"
+            - "Control plane issues"
+            - "Storage unavailability"
+          response_time: "30 minutes"
+          escalation: "immediate"
+        
+        - type: "resource_exhaustion"
+          description: "System resources exhausted"
+          severity: "high"
+          indicators:
+            - "OOMKilled pods"
+            - "CPU throttling"
+            - "Disk space exhaustion"
+          response_time: "1 hour"
+          escalation: "standard"
+        
+        - type: "network_partition"
+          description: "Network segmentation or isolation"
+          severity: "high"
+          indicators:
+            - "Split-brain scenarios"
+            - "Network policy conflicts"
+            - "DNS resolution failures"
+          response_time: "1 hour"
+          escalation: "standard"
+    
+    # Severity Definitions
+    severity_levels:
+      critical:
+        description: "Immediate threat to service availability or security"
+        response_time: "15 minutes"
+        notification:
+          - "on-call engineer"
+          - "security team"
+          - "management"
+        communication: "immediate"
+      
+      high:
+        description: "Significant impact on service or security posture"
+        response_time: "1 hour"
+        notification:
+          - "on-call engineer"
+          - "team lead"
+        communication: "within 2 hours"
+      
+      medium:
+        description: "Moderate impact with workaround available"
+        response_time: "4 hours"
+        notification:
+          - "on-call engineer"
+        communication: "within 8 hours"
+      
+      low:
+        description: "Minor issues with minimal impact"
+        response_time: "24 hours"
+        notification:
+          - "team"
+        communication: "next business day"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: incident-response-runbooks
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: incident-response
+data:
+  security-breach-runbook.md: |
+    # Security Breach Response Runbook
+    
+    ## Incident Type: Security Breach
+    **Severity**: Critical
+    **Response Time**: 15 minutes
+    
+    ## Initial Response (0-15 minutes)
+    
+    ### 1. Assess the Situation
+    ```bash
+    # Check for active threats
+    kubectl logs -l app=falco -n falco-system --tail=100 | grep slurm-exporter
+    
+    # Review recent security events
+    kubectl get events -n slurm-exporter --field-selector type=Warning --sort-by='.lastTimestamp'
+    
+    # Check for unauthorized access
+    kubectl logs deployment/slurm-exporter -n slurm-exporter --tail=1000 | grep -E "(401|403|auth|forbidden)"
+    ```
+    
+    ### 2. Immediate Containment
+    ```bash
+    # Scale down the deployment to prevent further damage
+    kubectl scale deployment slurm-exporter --replicas=0 -n slurm-exporter
+    
+    # Revoke potentially compromised credentials
+    kubectl delete secret slurm-credentials -n slurm-exporter
+    
+    # Apply emergency network policy
+    kubectl apply -f - <<EOF
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: emergency-isolation
+      namespace: slurm-exporter
+    spec:
+      podSelector: {}
+      policyTypes:
+      - Ingress
+      - Egress
+    EOF
+    ```
+    
+    ### 3. Evidence Collection
+    ```bash
+    # Capture pod logs before deletion
+    for pod in $(kubectl get pods -n slurm-exporter -o name); do
+      kubectl logs $pod -n slurm-exporter --all-containers > incident-$(date +%s)-${pod##*/}.log
+    done
+    
+    # Export pod descriptions
+    kubectl get pods -n slurm-exporter -o yaml > incident-pods-$(date +%s).yaml
+    
+    # Capture network connections
+    kubectl exec deployment/slurm-exporter -n slurm-exporter -- ss -tuln > incident-network-$(date +%s).txt
+    ```
+    
+    ## Investigation Phase (15-60 minutes)
+    
+    ### 4. Root Cause Analysis
+    ```bash
+    # Analyze authentication logs
+    grep -E "(auth|token|credential)" incident-*.log
+    
+    # Check for exploitation attempts
+    grep -E "(exec|shell|bash|curl|wget)" incident-*.log
+    
+    # Review container modifications
+    kubectl exec deployment/slurm-exporter -n slurm-exporter -- find / -mtime -1 -type f
+    ```
+    
+    ### 5. Impact Assessment
+    - Determine compromised credentials
+    - Identify affected data and systems
+    - Assess lateral movement possibilities
+    - Document timeline of events
+    
+    ## Recovery Phase (1-4 hours)
+    
+    ### 6. Remediation
+    ```bash
+    # Rotate all secrets
+    kubectl create job --from=cronjob/secrets-rotation emergency-rotation-$(date +%s) -n slurm-exporter
+    
+    # Deploy updated security policies
+    kubectl apply -f deployment/production/security/pod-security-standards.yaml
+    kubectl apply -f deployment/production/security/network-security.yaml
+    
+    # Run security scans
+    kubectl create job --from=cronjob/container-vulnerability-scan emergency-scan-$(date +%s) -n slurm-exporter
+    ```
+    
+    ### 7. Service Restoration
+    ```bash
+    # Deploy with enhanced monitoring
+    kubectl set env deployment/slurm-exporter SECURITY_MODE=paranoid -n slurm-exporter
+    
+    # Scale up gradually
+    kubectl scale deployment slurm-exporter --replicas=1 -n slurm-exporter
+    
+    # Monitor for anomalies
+    kubectl logs deployment/slurm-exporter -n slurm-exporter -f
+    ```
+    
+    ## Post-Incident (4+ hours)
+    
+    ### 8. Lessons Learned
+    - Document incident timeline
+    - Identify security gaps
+    - Update security policies
+    - Improve detection mechanisms
+    
+    ### 9. Preventive Measures
+    - Implement additional security controls
+    - Update incident response procedures
+    - Conduct security training
+    - Schedule penetration testing
+  
+  service-outage-runbook.md: |
+    # Service Outage Response Runbook
+    
+    ## Incident Type: Service Outage
+    **Severity**: Critical
+    **Response Time**: 15 minutes
+    
+    ## Initial Response (0-15 minutes)
+    
+    ### 1. Verify the Outage
+    ```bash
+    # Check service health
+    curl -f http://slurm-exporter.slurm-exporter:8080/health || echo "Service is down"
+    
+    # Check pod status
+    kubectl get pods -n slurm-exporter
+    kubectl describe pods -n slurm-exporter
+    
+    # Check recent events
+    kubectl get events -n slurm-exporter --sort-by='.lastTimestamp' | tail -20
+    ```
+    
+    ### 2. Quick Diagnostics
+    ```bash
+    # Check for CrashLoopBackOff
+    kubectl get pods -n slurm-exporter | grep -E "(CrashLoop|Error|Evicted)"
+    
+    # Review error logs
+    kubectl logs deployment/slurm-exporter -n slurm-exporter --tail=100 --all-containers
+    
+    # Check resource availability
+    kubectl top nodes
+    kubectl describe nodes | grep -A 5 "Allocated resources"
+    ```
+    
+    ### 3. Immediate Actions
+    ```bash
+    # Try pod restart
+    kubectl rollout restart deployment/slurm-exporter -n slurm-exporter
+    
+    # If persistent, try previous version
+    kubectl rollout undo deployment/slurm-exporter -n slurm-exporter
+    
+    # Check rollout status
+    kubectl rollout status deployment/slurm-exporter -n slurm-exporter
+    ```
+    
+    ## Troubleshooting Phase (15-60 minutes)
+    
+    ### 4. Resource Issues
+    ```bash
+    # Check for OOM kills
+    kubectl get events -n slurm-exporter | grep OOMKilled
+    
+    # Increase resources if needed
+    kubectl patch deployment slurm-exporter -n slurm-exporter -p '
+    {
+      "spec": {
+        "template": {
+          "spec": {
+            "containers": [{
+              "name": "slurm-exporter",
+              "resources": {
+                "limits": {
+                  "memory": "2Gi",
+                  "cpu": "2000m"
+                }
+              }
+            }]
+          }
+        }
+      }
+    }'
+    ```
+    
+    ### 5. Configuration Issues
+    ```bash
+    # Verify configuration
+    kubectl get configmap slurm-exporter-config -n slurm-exporter -o yaml
+    
+    # Check secrets
+    kubectl get secrets -n slurm-exporter
+    
+    # Test SLURM connectivity
+    kubectl run test-slurm --image=alpine:3.18 --rm -it -- \
+      wget -qO- --timeout=5 "$SLURM_REST_URL/slurm/v0.0.39/ping"
+    ```
+    
+    ### 6. Dependency Issues
+    ```bash
+    # Check Prometheus connectivity
+    kubectl exec deployment/slurm-exporter -n slurm-exporter -- \
+      curl -f http://prometheus:9090/-/healthy
+    
+    # Verify network policies
+    kubectl get networkpolicies -n slurm-exporter
+    
+    # Test DNS resolution
+    kubectl exec deployment/slurm-exporter -n slurm-exporter -- \
+      nslookup slurm-api.example.com
+    ```
+    
+    ## Recovery Phase (1-4 hours)
+    
+    ### 7. Service Restoration
+    ```bash
+    # Deploy with debug logging
+    kubectl set env deployment/slurm-exporter LOG_LEVEL=debug -n slurm-exporter
+    
+    # Monitor startup
+    kubectl logs deployment/slurm-exporter -n slurm-exporter -f
+    
+    # Verify metrics collection
+    curl http://slurm-exporter.slurm-exporter:8080/metrics | grep slurm_
+    ```
+    
+    ### 8. Validation
+    ```bash
+    # Run health checks
+    for i in {1..10}; do
+      curl -f http://slurm-exporter.slurm-exporter:8080/health && echo " - OK" || echo " - FAIL"
+      sleep 5
+    done
+    
+    # Verify Prometheus scraping
+    kubectl exec prometheus-0 -n monitoring -- \
+      promtool query instant 'up{job="slurm-exporter"}'
+    ```
+    
+    ## Post-Incident (4+ hours)
+    
+    ### 9. Root Cause Analysis
+    - Review logs from incident timeframe
+    - Identify failure patterns
+    - Document configuration issues
+    - Update monitoring thresholds
+    
+    ### 10. Preventive Measures
+    - Implement circuit breakers
+    - Add retry mechanisms
+    - Improve health checks
+    - Update resource limits
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: incident-response-automation
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: incident-response
+data:
+  auto-response.sh: |
+    #!/bin/bash
+    # Automated Incident Response Script
+    
+    set -e
+    
+    INCIDENT_TYPE="$1"
+    SEVERITY="$2"
+    NAMESPACE="slurm-exporter"
+    
+    # Logging function
+    log() {
+      echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+    }
+    
+    # Send notification
+    notify() {
+      local message="$1"
+      local severity="$2"
+      
+      if [ -n "$SLACK_WEBHOOK" ]; then
+        curl -X POST "$SLACK_WEBHOOK" \
+          -H 'Content-type: application/json' \
+          --data "{
+            \"text\": \"🚨 Incident Response Activated\",
+            \"attachments\": [{
+              \"color\": \"$([ $severity = 'critical' ] && echo 'danger' || echo 'warning')\",
+              \"text\": \"$message\"
+            }]
+          }" || true
+      fi
+    }
+    
+    # Security incident response
+    handle_security_incident() {
+      log "Handling security incident"
+      
+      # Immediate containment
+      kubectl scale deployment slurm-exporter --replicas=0 -n $NAMESPACE
+      
+      # Collect evidence
+      mkdir -p /tmp/incident-${INCIDENT_ID}
+      kubectl logs deployment/slurm-exporter -n $NAMESPACE --all-containers > /tmp/incident-${INCIDENT_ID}/logs.txt
+      kubectl get events -n $NAMESPACE > /tmp/incident-${INCIDENT_ID}/events.txt
+      
+      # Notify security team
+      notify "Security incident detected: $INCIDENT_TYPE" "critical"
+    }
+    
+    # Operational incident response
+    handle_operational_incident() {
+      log "Handling operational incident"
+      
+      case "$INCIDENT_TYPE" in
+        "service_outage")
+          # Attempt automatic recovery
+          kubectl rollout restart deployment/slurm-exporter -n $NAMESPACE
+          sleep 30
+          
+          # Check if recovered
+          if ! curl -f http://slurm-exporter.$NAMESPACE:8080/health; then
+            log "Automatic recovery failed, attempting rollback"
+            kubectl rollout undo deployment/slurm-exporter -n $NAMESPACE
+          fi
+          ;;
+        
+        "performance_degradation")
+          # Increase resources
+          kubectl patch deployment slurm-exporter -n $NAMESPACE -p '
+          {
+            "spec": {
+              "template": {
+                "spec": {
+                  "containers": [{
+                    "name": "slurm-exporter",
+                    "resources": {
+                      "limits": {
+                        "memory": "2Gi",
+                        "cpu": "2000m"
+                      }
+                    }
+                  }]
+                }
+              }
+            }
+          }'
+          ;;
+      esac
+      
+      notify "Operational incident: $INCIDENT_TYPE - automatic recovery attempted" "warning"
+    }
+    
+    # Main incident handler
+    INCIDENT_ID=$(date +%s)
+    log "Incident response initiated - Type: $INCIDENT_TYPE, Severity: $SEVERITY"
+    
+    case "$SEVERITY" in
+      "critical")
+        if [[ "$INCIDENT_TYPE" == security_* ]]; then
+          handle_security_incident
+        else
+          handle_operational_incident
+        fi
+        ;;
+      
+      "high"|"medium")
+        handle_operational_incident
+        ;;
+      
+      "low")
+        log "Low severity incident - logging only"
+        notify "Low severity incident: $INCIDENT_TYPE" "info"
+        ;;
+    esac
+    
+    log "Incident response completed - ID: $INCIDENT_ID"

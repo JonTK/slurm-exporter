@@ -1,0 +1,617 @@
+# Security Compliance Automation for SLURM Exporter
+# This file implements automated compliance monitoring and reporting
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: compliance-automation-config
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: compliance-automation
+data:
+  compliance-policy.yaml: |
+    # Security Compliance Policy Configuration
+    compliance_frameworks:
+      # SOC 2 Type II Compliance
+      soc2:
+        description: "SOC 2 Type II compliance for security and availability"
+        controls:
+          - id: "CC6.1"
+            name: "Logical and Physical Access Controls"
+            requirement: "Implement logical access security measures"
+            validation: "RBAC policies, pod security standards"
+            automation: true
+          
+          - id: "CC6.2"
+            name: "Data Transmission and Disposal"
+            requirement: "Encrypt data in transit and at rest"
+            validation: "TLS enforcement, secrets encryption"
+            automation: true
+          
+          - id: "CC6.3"
+            name: "System Monitoring"
+            requirement: "Monitor system activities and access"
+            validation: "Audit logging, security monitoring"
+            automation: true
+          
+          - id: "CC7.1"
+            name: "Detection of Security Events"
+            requirement: "Implement threat detection and response"
+            validation: "Falco rules, security alerts"
+            automation: true
+      
+      # CIS Kubernetes Benchmark
+      cis_kubernetes:
+        description: "CIS Kubernetes Benchmark v1.6"
+        version: "1.6.0"
+        sections:
+          - id: "4.1"
+            name: "Worker Node Configuration"
+            checks: ["kubelet-config", "kernel-defaults", "protect-kernel-defaults"]
+          
+          - id: "4.2"
+            name: "Kubelet"
+            checks: ["anonymous-auth", "authorization-mode", "client-ca-file"]
+          
+          - id: "5.1"
+            name: "RBAC and Service Accounts"
+            checks: ["default-service-accounts", "minimize-wildcards"]
+          
+          - id: "5.7"
+            name: "Pod Security Standards"
+            checks: ["security-context", "privileged-containers"]
+      
+      # NIST Cybersecurity Framework
+      nist_csf:
+        description: "NIST Cybersecurity Framework"
+        functions:
+          identify:
+            categories: ["asset-management", "risk-assessment"]
+          protect:
+            categories: ["access-control", "data-security", "protective-technology"]
+          detect:
+            categories: ["anomalies-and-events", "security-monitoring"]
+          respond:
+            categories: ["response-planning", "incident-analysis"]
+          recover:
+            categories: ["recovery-planning", "improvements"]
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: compliance-assessment
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: compliance-automation
+spec:
+  schedule: "0 4 * * 1"  # Weekly on Monday at 4 AM
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 4
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: slurm-exporter
+            component: compliance-automation
+        spec:
+          restartPolicy: Never
+          serviceAccountName: compliance-scanner
+          
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            fsGroup: 65534
+          
+          containers:
+          - name: compliance-scanner
+            image: aquasec/kube-bench:latest
+            imagePullPolicy: IfNotPresent
+            
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 65534
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                - ALL
+            
+            env:
+            - name: SLACK_WEBHOOK
+              valueFrom:
+                secretKeyRef:
+                  name: compliance-notifications
+                  key: slack-webhook
+            - name: COMPLIANCE_DATE
+              value: "$(date +%Y-%m-%d)"
+            
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              
+              echo "Starting comprehensive compliance assessment"
+              
+              # Function to send notifications
+              send_notification() {
+                local message="$1"
+                local status="$2"
+                
+                if [ "$status" = "fail" ]; then
+                  emoji=":rotating_light:"
+                  color="danger"
+                elif [ "$status" = "warn" ]; then
+                  emoji=":warning:"
+                  color="warning"
+                else
+                  emoji=":shield:"
+                  color="good"
+                fi
+                
+                curl -X POST "$SLACK_WEBHOOK" \
+                  -H 'Content-type: application/json' \
+                  --data "{
+                    \"attachments\": [{
+                      \"color\": \"$color\",
+                      \"text\": \"$emoji Security Compliance Assessment\\n$message\"
+                    }]
+                  }" || true
+              }
+              
+              # Create compliance report directory
+              mkdir -p /tmp/compliance-reports
+              
+              # 1. CIS Kubernetes Benchmark
+              echo "Running CIS Kubernetes Benchmark..."
+              kube-bench --json > /tmp/compliance-reports/cis-benchmark.json
+              
+              # Parse CIS results
+              TOTAL_CHECKS=$(cat /tmp/compliance-reports/cis-benchmark.json | jq '[.Controls[]?.tests[]?.results[]?] | length')
+              PASS_COUNT=$(cat /tmp/compliance-reports/cis-benchmark.json | jq '[.Controls[]?.tests[]?.results[]? | select(.test_result == "PASS")] | length')
+              FAIL_COUNT=$(cat /tmp/compliance-reports/cis-benchmark.json | jq '[.Controls[]?.tests[]?.results[]? | select(.test_result == "FAIL")] | length')
+              WARN_COUNT=$(cat /tmp/compliance-reports/cis-benchmark.json | jq '[.Controls[]?.tests[]?.results[]? | select(.test_result == "WARN")] | length')
+              
+              if [ "$TOTAL_CHECKS" -gt 0 ]; then
+                CIS_PASS_RATE=$((PASS_COUNT * 100 / TOTAL_CHECKS))
+              else
+                CIS_PASS_RATE=0
+              fi
+              
+              # 2. Pod Security Standards Assessment
+              echo "Assessing Pod Security Standards compliance..."
+              
+              # Check namespace enforcement
+              PSS_ENFORCEMENT=$(kubectl get namespace slurm-exporter -o jsonpath='{.metadata.labels.pod-security\.kubernetes\.io/enforce}' || echo "none")
+              PSS_AUDIT=$(kubectl get namespace slurm-exporter -o jsonpath='{.metadata.labels.pod-security\.kubernetes\.io/audit}' || echo "none")
+              
+              # Check pod security contexts
+              PODS_WITH_SECURITY_CONTEXT=$(kubectl get pods -n slurm-exporter -o json | jq '[.items[] | select(.spec.securityContext.runAsNonRoot == true)] | length')
+              TOTAL_PODS=$(kubectl get pods -n slurm-exporter -o json | jq '.items | length')
+              
+              if [ "$TOTAL_PODS" -gt 0 ]; then
+                PSS_COMPLIANCE_RATE=$((PODS_WITH_SECURITY_CONTEXT * 100 / TOTAL_PODS))
+              else
+                PSS_COMPLIANCE_RATE=0
+              fi
+              
+              # 3. RBAC Assessment
+              echo "Assessing RBAC compliance..."
+              
+              # Check for overly permissive roles
+              WILDCARD_ROLES=$(kubectl get clusterroles,roles --all-namespaces -o json | \
+                jq '[.items[] | select(.rules[]?.resources[]? == "*" or .rules[]?.verbs[]? == "*")] | length')
+              
+              # Check service account usage
+              DEFAULT_SA_USAGE=$(kubectl get pods -n slurm-exporter -o json | \
+                jq '[.items[] | select(.spec.serviceAccountName == "default" or .spec.serviceAccountName == null)] | length')
+              
+              # 4. Network Policy Assessment
+              echo "Assessing network security policies..."
+              
+              NETWORK_POLICIES=$(kubectl get networkpolicies -n slurm-exporter -o json | jq '.items | length')
+              PODS_COVERED=$(kubectl get pods -n slurm-exporter -l app=slurm-exporter -o json | jq '.items | length')
+              
+              # 5. Secrets Management Assessment
+              echo "Assessing secrets management compliance..."
+              
+              # Check for secrets encryption
+              ENCRYPTED_SECRETS=$(kubectl get secrets -n slurm-exporter -o json | \
+                jq '[.items[] | select(.metadata.annotations."encryption.kubernetes.io/provider" != null)] | length')
+              TOTAL_SECRETS=$(kubectl get secrets -n slurm-exporter -o json | jq '.items | length')
+              
+              if [ "$TOTAL_SECRETS" -gt 0 ]; then
+                SECRETS_ENCRYPTION_RATE=$((ENCRYPTED_SECRETS * 100 / TOTAL_SECRETS))
+              else
+                SECRETS_ENCRYPTION_RATE=0
+              fi
+              
+              # Generate comprehensive compliance report
+              cat > /tmp/compliance-reports/compliance-summary.json << EOF
+              {
+                "assessment_date": "${COMPLIANCE_DATE}",
+                "frameworks": {
+                  "cis_kubernetes": {
+                    "total_checks": ${TOTAL_CHECKS},
+                    "passed": ${PASS_COUNT},
+                    "failed": ${FAIL_COUNT},
+                    "warnings": ${WARN_COUNT},
+                    "pass_rate": ${CIS_PASS_RATE},
+                    "status": "$([ $CIS_PASS_RATE -ge 80 ] && echo 'COMPLIANT' || echo 'NON_COMPLIANT')"
+                  },
+                  "pod_security_standards": {
+                    "enforcement_level": "${PSS_ENFORCEMENT}",
+                    "audit_level": "${PSS_AUDIT}",
+                    "compliant_pods": ${PODS_WITH_SECURITY_CONTEXT},
+                    "total_pods": ${TOTAL_PODS},
+                    "compliance_rate": ${PSS_COMPLIANCE_RATE},
+                    "status": "$([ $PSS_COMPLIANCE_RATE -eq 100 ] && echo 'COMPLIANT' || echo 'NON_COMPLIANT')"
+                  },
+                  "rbac": {
+                    "wildcard_roles": ${WILDCARD_ROLES},
+                    "default_sa_usage": ${DEFAULT_SA_USAGE},
+                    "status": "$([ $WILDCARD_ROLES -eq 0 ] && [ $DEFAULT_SA_USAGE -eq 0 ] && echo 'COMPLIANT' || echo 'NON_COMPLIANT')"
+                  },
+                  "network_security": {
+                    "network_policies": ${NETWORK_POLICIES},
+                    "pods_covered": ${PODS_COVERED},
+                    "status": "$([ $NETWORK_POLICIES -gt 0 ] && echo 'COMPLIANT' || echo 'NON_COMPLIANT')"
+                  },
+                  "secrets_management": {
+                    "encrypted_secrets": ${ENCRYPTED_SECRETS},
+                    "total_secrets": ${TOTAL_SECRETS},
+                    "encryption_rate": ${SECRETS_ENCRYPTION_RATE},
+                    "status": "$([ $SECRETS_ENCRYPTION_RATE -ge 100 ] && echo 'COMPLIANT' || echo 'PARTIAL_COMPLIANT')"
+                  }
+                }
+              }
+              EOF
+              
+              # Calculate overall compliance score
+              COMPLIANCE_ISSUES=0
+              
+              # Check each framework
+              if [ "$CIS_PASS_RATE" -lt 80 ]; then
+                COMPLIANCE_ISSUES=$((COMPLIANCE_ISSUES + 1))
+              fi
+              
+              if [ "$PSS_COMPLIANCE_RATE" -lt 100 ]; then
+                COMPLIANCE_ISSUES=$((COMPLIANCE_ISSUES + 1))
+              fi
+              
+              if [ "$WILDCARD_ROLES" -gt 0 ] || [ "$DEFAULT_SA_USAGE" -gt 0 ]; then
+                COMPLIANCE_ISSUES=$((COMPLIANCE_ISSUES + 1))
+              fi
+              
+              if [ "$NETWORK_POLICIES" -eq 0 ]; then
+                COMPLIANCE_ISSUES=$((COMPLIANCE_ISSUES + 1))
+              fi
+              
+              if [ "$SECRETS_ENCRYPTION_RATE" -lt 100 ]; then
+                COMPLIANCE_ISSUES=$((COMPLIANCE_ISSUES + 1))
+              fi
+              
+              # Generate compliance report
+              echo "Compliance Assessment Results:"
+              echo "============================="
+              echo "CIS Kubernetes Benchmark: $CIS_PASS_RATE% (${PASS_COUNT}/${TOTAL_CHECKS})"
+              echo "Pod Security Standards: $PSS_COMPLIANCE_RATE% (${PODS_WITH_SECURITY_CONTEXT}/${TOTAL_PODS})"
+              echo "RBAC: $([ $WILDCARD_ROLES -eq 0 ] && [ $DEFAULT_SA_USAGE -eq 0 ] && echo 'COMPLIANT' || echo 'NON_COMPLIANT')"
+              echo "Network Security: $([ $NETWORK_POLICIES -gt 0 ] && echo 'COMPLIANT' || echo 'NON_COMPLIANT')"
+              echo "Secrets Management: $SECRETS_ENCRYPTION_RATE% (${ENCRYPTED_SECRETS}/${TOTAL_SECRETS})"
+              
+              # Send notifications based on compliance status
+              if [ "$COMPLIANCE_ISSUES" -eq 0 ]; then
+                SUMMARY="✅ Full compliance achieved across all frameworks\\n"
+                SUMMARY="${SUMMARY}CIS Kubernetes: $CIS_PASS_RATE% | PSS: $PSS_COMPLIANCE_RATE% | Network: ${NETWORK_POLICIES} policies"
+                send_notification "$SUMMARY" "success"
+                echo "COMPLIANCE ASSESSMENT PASSED"
+              elif [ "$COMPLIANCE_ISSUES" -le 2 ]; then
+                SUMMARY="⚠️ Minor compliance issues detected ($COMPLIANCE_ISSUES frameworks)\\n"
+                SUMMARY="${SUMMARY}CIS: $CIS_PASS_RATE% | PSS: $PSS_COMPLIANCE_RATE% | RBAC: $([ $WILDCARD_ROLES -gt 0 ] && echo 'Issues' || echo 'OK')"
+                send_notification "$SUMMARY" "warn"
+                echo "COMPLIANCE ASSESSMENT WARNING"
+              else
+                SUMMARY="🚨 Major compliance issues detected ($COMPLIANCE_ISSUES frameworks)\\n"
+                SUMMARY="${SUMMARY}CIS: $CIS_PASS_RATE% | PSS: $PSS_COMPLIANCE_RATE% | Critical security gaps identified"
+                send_notification "$SUMMARY" "fail"
+                echo "COMPLIANCE ASSESSMENT FAILED"
+                exit 1
+              fi
+            
+            resources:
+              requests:
+                cpu: 200m
+                memory: 256Mi
+              limits:
+                cpu: 1000m
+                memory: 1Gi
+            
+            volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          
+          volumes:
+          - name: tmp
+            emptyDir:
+              sizeLimit: 500Mi
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: security-audit-logging
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: security-audit
+spec:
+  schedule: "0 6 * * *"  # Daily at 6 AM
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: slurm-exporter
+            component: security-audit
+        spec:
+          restartPolicy: Never
+          serviceAccountName: security-auditor
+          
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            fsGroup: 65534
+          
+          containers:
+          - name: audit-collector
+            image: alpine:3.18
+            imagePullPolicy: IfNotPresent
+            
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 65534
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                - ALL
+            
+            env:
+            - name: AUDIT_DATE
+              value: "$(date +%Y-%m-%d)"
+            
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              
+              echo "Starting security audit log collection"
+              
+              # Create audit directory
+              mkdir -p /tmp/audit-logs
+              
+              # Collect security events from the last 24 hours
+              echo "Collecting Kubernetes audit events..."
+              
+              # Secrets access events
+              kubectl get events --all-namespaces --field-selector reason=SecretAccess \
+                --sort-by='.lastTimestamp' > /tmp/audit-logs/secrets-access.log || true
+              
+              # RBAC denial events
+              kubectl get events --all-namespaces --field-selector reason=Forbidden \
+                --sort-by='.lastTimestamp' > /tmp/audit-logs/rbac-denials.log || true
+              
+              # Pod creation/modification events
+              kubectl get events -n slurm-exporter --field-selector involvedObject.kind=Pod \
+                --sort-by='.lastTimestamp' > /tmp/audit-logs/pod-events.log || true
+              
+              # Service account usage
+              kubectl get events --all-namespaces --field-selector involvedObject.kind=ServiceAccount \
+                --sort-by='.lastTimestamp' > /tmp/audit-logs/serviceaccount-events.log || true
+              
+              # Generate audit summary
+              SECRETS_EVENTS=$(wc -l < /tmp/audit-logs/secrets-access.log || echo 0)
+              RBAC_DENIALS=$(wc -l < /tmp/audit-logs/rbac-denials.log || echo 0)
+              POD_EVENTS=$(wc -l < /tmp/audit-logs/pod-events.log || echo 0)
+              
+              cat > /tmp/audit-logs/audit-summary.json << EOF
+              {
+                "audit_date": "${AUDIT_DATE}",
+                "period": "24_hours",
+                "events": {
+                  "secrets_access": ${SECRETS_EVENTS},
+                  "rbac_denials": ${RBAC_DENIALS},
+                  "pod_events": ${POD_EVENTS}
+                },
+                "status": "$([ $RBAC_DENIALS -lt 10 ] && echo 'NORMAL' || echo 'ELEVATED')"
+              }
+              EOF
+              
+              echo "Security audit collection completed"
+              echo "Events collected: Secrets=$SECRETS_EVENTS, RBAC Denials=$RBAC_DENIALS, Pod Events=$POD_EVENTS"
+            
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+              limits:
+                cpu: 200m
+                memory: 256Mi
+            
+            volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          
+          volumes:
+          - name: tmp
+            emptyDir:
+              sizeLimit: 200Mi
+
+---
+# RBAC for compliance automation
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: compliance-scanner
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: compliance-automation
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: security-auditor
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: security-audit
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: compliance-scanner
+  labels:
+    app: slurm-exporter
+    component: compliance-automation
+rules:
+# Read access for compliance scanning
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps", "secrets", "namespaces", "events"]
+  verbs: ["get", "list"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "daemonsets"]
+  verbs: ["get", "list"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["get", "list"]
+- apiGroups: ["policy"]
+  resources: ["podsecuritypolicies"]
+  verbs: ["get", "list"]
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["roles", "rolebindings", "clusterroles", "clusterrolebindings"]
+  verbs: ["get", "list"]
+- apiGroups: ["security.openshift.io"]
+  resources: ["securitycontextconstraints"]
+  verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: security-auditor
+  labels:
+    app: slurm-exporter
+    component: security-audit
+rules:
+# Read access for audit logging
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps"]
+  verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: compliance-scanner
+  labels:
+    app: slurm-exporter
+    component: compliance-automation
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: compliance-scanner
+subjects:
+- kind: ServiceAccount
+  name: compliance-scanner
+  namespace: slurm-exporter
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: security-auditor
+  labels:
+    app: slurm-exporter
+    component: security-audit
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: security-auditor
+subjects:
+- kind: ServiceAccount
+  name: security-auditor
+  namespace: slurm-exporter
+
+---
+# Compliance monitoring and alerting
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: compliance-alerts
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: compliance-automation
+spec:
+  groups:
+  - name: compliance-monitoring
+    rules:
+    - alert: ComplianceAssessmentFailed
+      expr: kube_job_status_failed{job_name=~"compliance-assessment.*"} > 0
+      for: 0m
+      labels:
+        severity: critical
+        component: compliance
+      annotations:
+        summary: "Security compliance assessment failed"
+        description: "Compliance assessment job has failed"
+        action: "Review compliance report and address security gaps"
+    
+    - alert: ComplianceIssuesDetected
+      expr: slurm_compliance_issues_total > 0
+      for: 5m
+      labels:
+        severity: warning
+        component: compliance
+      annotations:
+        summary: "Security compliance issues detected"
+        description: "{{ $value }} compliance issues found in security assessment"
+        action: "Review compliance report and remediate issues"
+    
+    - alert: SecurityAuditOverdue
+      expr: (time() - kube_job_status_completion_time{job_name=~"security-audit-logging.*"}) > 172800  # 48 hours
+      for: 0m
+      labels:
+        severity: warning
+        component: security-audit
+      annotations:
+        summary: "Security audit logging overdue"
+        description: "Security audit collection has not completed in over 48 hours"
+        action: "Check audit job status and troubleshoot if necessary"
+    
+    - alert: ElevatedSecurityEvents
+      expr: increase(kube_audit_total{verb="create",objectRef_resource="secrets"}[1h]) > 10
+      for: 5m
+      labels:
+        severity: warning
+        component: security-audit
+      annotations:
+        summary: "Elevated security event activity"
+        description: "High frequency of security-sensitive operations detected"
+        action: "Review security audit logs for unusual activity"

@@ -1,0 +1,258 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: slurm-exporter-config
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: config
+data:
+  config.yaml: |
+    # SLURM Exporter Production Configuration
+    server:
+      address: ":8080"
+      metrics_path: "/metrics"
+      health_path: "/health"
+      ready_path: "/ready"
+      read_timeout: 30s
+      write_timeout: 30s
+      idle_timeout: 120s
+      max_request_size: 10485760
+      enable_pprof: false  # Disabled in production
+      enable_cors: false
+      cors_origins: []
+
+    # SLURM connection configuration
+    slurm:
+      base_url: "${SLURM_REST_URL}"
+      timeout: 30s
+      retry_count: 3
+      retry_delay: 5s
+      max_concurrent_requests: 10
+      rate_limit: 100  # requests per minute
+      
+      auth:
+        type: "${SLURM_AUTH_TYPE}"
+        jwt_path: "${SLURM_JWT_PATH}"
+        api_key: "${SLURM_API_KEY}"
+        username: "${SLURM_USERNAME}"
+        password: "${SLURM_PASSWORD}"
+
+    # Logging configuration
+    logging:
+      level: "info"
+      format: "json"
+      output: "stdout"
+      enable_caller: false
+      enable_stacktrace: false
+
+    # Collectors configuration - optimized for production
+    collectors:
+      jobs:
+        enabled: true
+        collection_interval: 30s
+        timeout: 15s
+        max_age: 300s
+        filters:
+          metric_filter:
+            enable_all: false
+            include_metrics:
+              - "slurm_job_state"
+              - "slurm_job_cpus_allocated"
+              - "slurm_job_memory_allocated"
+              - "slurm_job_priority"
+              - "slurm_job_queue_time_seconds"
+              - "slurm_job_run_time_seconds"
+            exclude_metrics: []
+            skip_histograms: false
+            skip_timing_metrics: false
+        cardinality:
+          max_labels: 5000
+          sample_rate: 1.0
+          max_series_per_label: 100
+        custom_labels:
+          cluster_name: "${CLUSTER_NAME}"
+          environment: "production"
+          region: "${AWS_REGION}"
+
+      nodes:
+        enabled: true
+        collection_interval: 60s
+        timeout: 30s
+        max_age: 600s
+        filters:
+          metric_filter:
+            enable_all: true
+            exclude_metrics:
+              - "slurm_node_feature_*"  # High cardinality
+            skip_timing_metrics: true
+        cardinality:
+          max_labels: 2000
+          sample_rate: 1.0
+        custom_labels:
+          cluster_name: "${CLUSTER_NAME}"
+          environment: "production"
+
+      partitions:
+        enabled: true
+        collection_interval: 120s
+        timeout: 30s
+        max_age: 1200s
+        filters:
+          metric_filter:
+            enable_all: true
+        custom_labels:
+          cluster_name: "${CLUSTER_NAME}"
+          environment: "production"
+
+      system:
+        enabled: true
+        collection_interval: 60s
+        timeout: 30s
+        custom_labels:
+          cluster_name: "${CLUSTER_NAME}"
+
+      performance:
+        enabled: true
+        collection_interval: 30s
+        custom_labels:
+          instance: "${HOSTNAME}"
+
+    # Performance optimization
+    performance:
+      memory_optimizer:
+        enabled: true
+        gc_percent: 100
+        memory_limit: 512MB
+        cleanup_interval: 300s
+      
+      connection_pool:
+        enabled: true
+        min_connections: 2
+        max_connections: 10
+        max_idle_time: 600s
+        connection_ttl: 3600s
+      
+      caching:
+        enabled: true
+        default_ttl: 30s
+        max_size: 1000
+        cleanup_interval: 300s
+      
+      cardinality_optimizer:
+        enabled: true
+        max_cardinality: 50000
+        sample_rate: 0.9
+        cleanup_interval: 600s
+
+    # Health check configuration
+    health:
+      enabled: true
+      check_interval: 30s
+      timeout: 10s
+      checks:
+        - name: "slurm_api"
+          type: "http"
+          endpoint: "${SLURM_REST_URL}/slurm/v0.0.39/ping"
+          timeout: 5s
+        - name: "memory_usage"
+          type: "memory"
+          threshold: 80
+        - name: "collection_errors"
+          type: "error_rate"
+          threshold: 5.0
+          window: 300s
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: slurm-exporter-scripts
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: scripts
+data:
+  healthcheck.sh: |
+    #!/bin/bash
+    set -e
+    
+    # Health check script for SLURM Exporter
+    ENDPOINT="${1:-http://localhost:8080}"
+    
+    echo "Checking SLURM Exporter health at $ENDPOINT"
+    
+    # Check health endpoint
+    if ! curl -f -s "$ENDPOINT/health" > /dev/null; then
+        echo "Health check failed"
+        exit 1
+    fi
+    
+    # Check ready endpoint
+    if ! curl -f -s "$ENDPOINT/ready" > /dev/null; then
+        echo "Ready check failed"
+        exit 1
+    fi
+    
+    # Check metrics endpoint returns data
+    if ! curl -f -s "$ENDPOINT/metrics" | grep -q "slurm_"; then
+        echo "Metrics check failed - no SLURM metrics found"
+        exit 1
+    fi
+    
+    echo "All health checks passed"
+    exit 0
+
+  startup-probe.sh: |
+    #!/bin/bash
+    set -e
+    
+    # Startup probe - more lenient for initial startup
+    ENDPOINT="${1:-http://localhost:8080}"
+    MAX_RETRIES="${2:-30}"
+    RETRY_DELAY="${3:-2}"
+    
+    for i in $(seq 1 $MAX_RETRIES); do
+        echo "Startup check attempt $i/$MAX_RETRIES"
+        
+        if curl -f -s "$ENDPOINT/health" > /dev/null; then
+            echo "Startup probe successful"
+            exit 0
+        fi
+        
+        if [ $i -lt $MAX_RETRIES ]; then
+            echo "Startup check failed, retrying in ${RETRY_DELAY}s..."
+            sleep $RETRY_DELAY
+        fi
+    done
+    
+    echo "Startup probe failed after $MAX_RETRIES attempts"
+    exit 1
+
+  preStop.sh: |
+    #!/bin/bash
+    set -e
+    
+    # Pre-stop hook for graceful shutdown
+    echo "Initiating graceful shutdown..."
+    
+    # Send SIGTERM to allow graceful shutdown
+    PID=$(pgrep slurm-exporter || echo "")
+    if [ -n "$PID" ]; then
+        echo "Sending SIGTERM to process $PID"
+        kill -TERM $PID
+        
+        # Wait for graceful shutdown (max 30 seconds)
+        for i in $(seq 1 30); do
+            if ! kill -0 $PID 2>/dev/null; then
+                echo "Process terminated gracefully"
+                exit 0
+            fi
+            sleep 1
+        done
+        
+        echo "Process did not terminate gracefully, forcing shutdown"
+        kill -KILL $PID
+    fi
+    
+    echo "Graceful shutdown complete"

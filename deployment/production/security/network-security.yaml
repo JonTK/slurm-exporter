@@ -1,0 +1,607 @@
+# Network Security Configuration for SLURM Exporter
+# This file implements comprehensive network security policies
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: slurm-exporter-default-deny
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: network-security
+    policy-type: default-deny
+spec:
+  podSelector: {}  # Apply to all pods in namespace
+  policyTypes:
+  - Ingress
+  - Egress
+  # Default deny all - explicit allow rules will be added
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: slurm-exporter-ingress-monitoring
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: network-security
+    policy-type: ingress-monitoring
+spec:
+  podSelector:
+    matchLabels:
+      app: slurm-exporter
+      component: exporter
+  
+  policyTypes:
+  - Ingress
+  
+  ingress:
+  # Allow Prometheus scraping
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    - namespaceSelector:
+        matchLabels:
+          name: prometheus
+    - podSelector:
+        matchLabels:
+          app: prometheus
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: prometheus
+    ports:
+    - protocol: TCP
+      port: 8080
+  
+  # Allow Grafana access
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: grafana
+    - podSelector:
+        matchLabels:
+          app: grafana
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: grafana
+    ports:
+    - protocol: TCP
+      port: 8080
+  
+  # Allow Alertmanager access
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: alertmanager
+    - podSelector:
+        matchLabels:
+          app: alertmanager
+    ports:
+    - protocol: TCP
+      port: 8080
+  
+  # Allow ingress controllers (with IP restrictions)
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    - namespaceSelector:
+        matchLabels:
+          name: istio-system
+    - podSelector:
+        matchLabels:
+          app: nginx-ingress
+    - podSelector:
+        matchLabels:
+          app: istio-proxy
+    - ipBlock:
+        cidr: 10.0.0.0/8
+        except:
+        - 10.0.1.0/24  # Exclude untrusted subnet
+    - ipBlock:
+        cidr: 172.16.0.0/12
+    - ipBlock:
+        cidr: 192.168.0.0/16
+    ports:
+    - protocol: TCP
+      port: 8080
+  
+  # Allow load balancer health checks (AWS ALB/NLB)
+  - from:
+    - ipBlock:
+        cidr: 10.0.0.0/8
+    - ipBlock:
+        cidr: 172.16.0.0/12
+    - ipBlock:
+        cidr: 192.168.0.0/16
+    ports:
+    - protocol: TCP
+      port: 8080
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: slurm-exporter-egress-allowed
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: network-security
+    policy-type: egress-allowed
+spec:
+  podSelector:
+    matchLabels:
+      app: slurm-exporter
+      component: exporter
+  
+  policyTypes:
+  - Egress
+  
+  egress:
+  # Allow DNS resolution
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  
+  # Allow NTP (time synchronization)
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 123
+  
+  # Allow HTTPS for certificate validation and external APIs
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  
+  # Allow SLURM REST API - specific network ranges
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: slurm-cluster
+    - podSelector:
+        matchLabels:
+          app: slurm-rest
+    - ipBlock:
+        cidr: 10.0.100.0/24  # SLURM cluster subnet
+    - ipBlock:
+        cidr: 192.168.100.0/24  # Alternative SLURM subnet
+    ports:
+    - protocol: TCP
+      port: 6820
+    - protocol: TCP
+      port: 6821
+    - protocol: TCP
+      port: 443
+  
+  # Allow communication with Kubernetes API server
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    - podSelector:
+        matchLabels:
+          component: kube-apiserver
+    ports:
+    - protocol: TCP
+      port: 6443
+    - protocol: TCP
+      port: 443
+  
+  # Allow inter-pod communication within namespace
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: slurm-exporter
+    ports:
+    - protocol: TCP
+      port: 8080
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: slurm-exporter-backup-egress
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: network-security
+    policy-type: backup-egress
+spec:
+  podSelector:
+    matchLabels:
+      component: backup
+  
+  policyTypes:
+  - Egress
+  
+  egress:
+  # Allow DNS
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+  
+  # Allow S3 API access for backups
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  
+  # Allow Kubernetes API access for backup operations
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: TCP
+      port: 6443
+
+---
+# Istio Security Policies (if using Istio service mesh)
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: slurm-exporter-mtls
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: istio-security
+spec:
+  selector:
+    matchLabels:
+      app: slurm-exporter
+  mtls:
+    mode: STRICT  # Require mutual TLS
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: slurm-exporter-authz
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: istio-security
+spec:
+  selector:
+    matchLabels:
+      app: slurm-exporter
+      component: exporter
+  
+  rules:
+  # Allow Prometheus scraping
+  - from:
+    - source:
+        namespaces: ["monitoring", "prometheus"]
+    - source:
+        principals: ["cluster.local/ns/monitoring/sa/prometheus"]
+    to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/metrics", "/health", "/ready"]
+  
+  # Allow Grafana access
+  - from:
+    - source:
+        namespaces: ["grafana"]
+    - source:
+        principals: ["cluster.local/ns/grafana/sa/grafana"]
+    to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/metrics"]
+  
+  # Allow load balancer health checks
+  - from:
+    - source:
+        notPrincipals: ["*"]  # Allow anonymous for health checks
+    to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/health", "/ready"]
+    when:
+    - key: source.ip
+      values: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
+
+---
+# Calico Network Policy (if using Calico CNI)
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: slurm-exporter-calico-security
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: calico-security
+spec:
+  selector: app == "slurm-exporter"
+  
+  types:
+  - Ingress
+  - Egress
+  
+  ingress:
+  # Allow monitoring systems
+  - action: Allow
+    protocol: TCP
+    source:
+      namespaceSelector: name == "monitoring"
+    destination:
+      ports:
+      - 8080
+  
+  # Rate limit incoming connections
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+      - 10.0.0.0/8
+      - 172.16.0.0/12
+      - 192.168.0.0/16
+    destination:
+      ports:
+      - 8080
+    metadata:
+      annotations:
+        rate-limit: "100/minute"
+  
+  egress:
+  # Allow DNS
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports:
+      - 53
+  
+  # Allow SLURM API with connection limits
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 10.0.100.0/24  # SLURM cluster
+      ports:
+      - 6820
+      - 6821
+      - 443
+    metadata:
+      annotations:
+        connection-limit: "10"
+
+---
+# Network Security Monitoring
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: network-security-config
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: network-security
+data:
+  security-rules.yaml: |
+    # Network Security Monitoring Rules
+    security_monitoring:
+      # Traffic analysis
+      traffic_rules:
+        - name: "unexpected_outbound_connections"
+          description: "Detect connections to unexpected destinations"
+          pattern: "egress traffic not matching allowed policies"
+          severity: "high"
+          action: "alert"
+        
+        - name: "port_scanning_detection"
+          description: "Detect potential port scanning activities"
+          pattern: "multiple connection attempts to different ports"
+          severity: "critical"
+          action: "block"
+        
+        - name: "data_exfiltration_detection"
+          description: "Detect unusual data transfer patterns"
+          pattern: "high volume outbound transfers"
+          severity: "high"
+          action: "alert"
+      
+      # Access control monitoring
+      access_rules:
+        - name: "unauthorized_access_attempts"
+          description: "Monitor for unauthorized access attempts"
+          pattern: "rejected connections by network policies"
+          severity: "medium"
+          action: "log"
+        
+        - name: "privilege_escalation_network"
+          description: "Detect network-based privilege escalation"
+          pattern: "connections to administrative services"
+          severity: "critical"
+          action: "block"
+      
+      # Protocol analysis
+      protocol_rules:
+        - name: "non_http_traffic"
+          description: "Monitor for unexpected protocols"
+          pattern: "non-HTTP traffic on HTTP ports"
+          severity: "medium"
+          action: "alert"
+        
+        - name: "encrypted_tunnel_detection"
+          description: "Detect encrypted tunneling attempts"
+          pattern: "encrypted traffic to unexpected destinations"
+          severity: "high"
+          action: "alert"
+
+---
+# Service Mesh Security Configuration
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: slurm-exporter-security
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: service-mesh-security
+spec:
+  values:
+    global:
+      # Enable mutual TLS by default
+      mtls:
+        auto: true
+      
+      # Security-focused proxy configuration
+      proxy:
+        # Disable unnecessary features
+        enableCoreDump: false
+        
+        # Security headers
+        headers:
+          requestHeaders:
+            X-Forwarded-Proto: https
+          responseHeaders:
+            X-Content-Type-Options: nosniff
+            X-Frame-Options: DENY
+            X-XSS-Protection: "1; mode=block"
+            Strict-Transport-Security: "max-age=31536000; includeSubDomains"
+        
+        # Resource limits for sidecars
+        resources:
+          requests:
+            cpu: 10m
+            memory: 40Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+      
+      # Telemetry and monitoring
+      defaultConfig:
+        gatewayTopology:
+          numTrustedProxies: 1
+        
+        # Security logging
+        accessLogFile: /dev/stdout
+        accessLogFormat: |
+          {
+            "timestamp": "%START_TIME%",
+            "method": "%REQ(:METHOD)%",
+            "path": "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%",
+            "protocol": "%PROTOCOL%",
+            "response_code": "%RESPONSE_CODE%",
+            "response_flags": "%RESPONSE_FLAGS%",
+            "bytes_received": "%BYTES_RECEIVED%",
+            "bytes_sent": "%BYTES_SENT%",
+            "duration": "%DURATION%",
+            "upstream_service_time": "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%",
+            "x_forwarded_for": "%REQ(X-FORWARDED-FOR)%",
+            "user_agent": "%REQ(USER-AGENT)%",
+            "request_id": "%REQ(X-REQUEST-ID)%",
+            "authority": "%REQ(:AUTHORITY)%",
+            "upstream_host": "%UPSTREAM_HOST%",
+            "upstream_cluster": "%UPSTREAM_CLUSTER%",
+            "upstream_local_address": "%UPSTREAM_LOCAL_ADDRESS%",
+            "downstream_local_address": "%DOWNSTREAM_LOCAL_ADDRESS%",
+            "downstream_remote_address": "%DOWNSTREAM_REMOTE_ADDRESS%",
+            "requested_server_name": "%REQUESTED_SERVER_NAME%"
+          }
+
+---
+# Falco Rules for Network Security Monitoring
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: falco-network-rules
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: falco-security
+data:
+  network_rules.yaml: |
+    # Falco rules for SLURM Exporter network security
+    - rule: Unexpected outbound connection from SLURM Exporter
+      desc: Detect unexpected outbound connections
+      condition: >
+        (k8s_ns=slurm-exporter and k8s_pod_label_app=slurm-exporter) and
+        (outbound) and
+        (not fd.sip in (slurm_api_servers)) and
+        (not fd.sport in (53, 443, 6820, 6821))
+      output: >
+        Unexpected outbound connection from SLURM Exporter
+        (user=%user.name command=%proc.cmdline connection=%fd.name)
+      priority: HIGH
+      tags: [network, slurm-exporter, suspicious]
+    
+    - rule: SLURM Exporter network policy violation
+      desc: Detect network policy violations
+      condition: >
+        (k8s_ns=slurm-exporter and k8s_pod_label_app=slurm-exporter) and
+        (inbound) and
+        (not fd.cip in (monitoring_networks)) and
+        (fd.sport=8080)
+      output: >
+        Network policy violation in SLURM Exporter
+        (client_ip=%fd.cip client_port=%fd.cport server_port=%fd.sport)
+      priority: MEDIUM
+      tags: [network, policy, violation]
+    
+    - rule: Potential data exfiltration from SLURM Exporter
+      desc: Detect potential data exfiltration
+      condition: >
+        (k8s_ns=slurm-exporter and k8s_pod_label_app=slurm-exporter) and
+        (outbound) and
+        (fd.bytes > 10485760)  # 10MB threshold
+      output: >
+        Large outbound data transfer from SLURM Exporter
+        (bytes=%fd.bytes destination=%fd.sip:%fd.sport)
+      priority: HIGH
+      tags: [network, data-exfiltration, suspicious]
+
+---
+# Network monitoring and alerting
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: network-security-alerts
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: network-security
+spec:
+  groups:
+  - name: network-security
+    rules:
+    - alert: NetworkPolicyViolation
+      expr: increase(falco_events_total{rule_name=~".*network.*policy.*violation.*"}[5m]) > 0
+      for: 0m
+      labels:
+        severity: warning
+        component: network-security
+      annotations:
+        summary: "Network policy violation detected"
+        description: "Network policy violation detected for SLURM Exporter"
+        action: "Investigate network access patterns"
+    
+    - alert: UnexpectedNetworkConnection
+      expr: increase(falco_events_total{rule_name=~".*unexpected.*outbound.*connection.*"}[5m]) > 0
+      for: 0m
+      labels:
+        severity: critical
+        component: network-security
+      annotations:
+        summary: "Unexpected network connection from SLURM Exporter"
+        description: "SLURM Exporter made unexpected outbound connection"
+        action: "Immediate investigation required"
+    
+    - alert: HighNetworkTraffic
+      expr: rate(container_network_transmit_bytes_total{pod=~"slurm-exporter-.*"}[5m]) > 10485760  # 10MB/s
+      for: 10m
+      labels:
+        severity: warning
+        component: network-security
+      annotations:
+        summary: "High network traffic from SLURM Exporter"
+        description: "SLURM Exporter is generating high network traffic: {{ $value | humanize }}B/s"
+        action: "Check for data exfiltration or performance issues"

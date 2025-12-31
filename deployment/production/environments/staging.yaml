@@ -1,0 +1,295 @@
+# Staging Environment Configuration
+# This file contains staging-specific settings for SLURM Exporter
+
+# Environment metadata
+environment:
+  name: staging
+  cluster: staging-cluster
+  region: us-west-2
+  compliance_level: medium
+  security_tier: standard
+
+# SLURM cluster configuration
+slurm:
+  clusters:
+    staging:
+      rest_url: "https://slurm-head.staging.example.com:6820"
+      auth_type: jwt
+      timeout: 30s
+      retry_count: 3
+      retry_delay: 5s
+      max_concurrent_requests: 5
+      rate_limit: 50  # Lower rate limit for staging
+      
+      # Reduced connection pooling for staging
+      connection_pool:
+        min_connections: 1
+        max_connections: 5
+        max_idle_time: 300s
+        connection_ttl: 1800s
+
+# Server configuration for staging
+server:
+  address: ":8080"
+  metrics_path: "/metrics"
+  health_path: "/health"
+  ready_path: "/ready"
+  read_timeout: 30s
+  write_timeout: 30s
+  idle_timeout: 120s
+  max_request_size: 10485760
+  enable_pprof: true  # Enabled for debugging in staging
+  enable_cors: true   # More permissive for testing
+  cors_origins: ["*"]
+  
+  # TLS optional in staging
+  tls:
+    enabled: false
+
+# Logging configuration
+logging:
+  level: "debug"  # More verbose logging for staging
+  format: "json"
+  output: "stdout"
+  enable_caller: true
+  enable_stacktrace: true
+  
+  fields:
+    service: "slurm-exporter"
+    environment: "staging"
+    cluster: "staging-cluster"
+    version: "${VERSION}"
+
+# Collectors configuration for staging testing
+collectors:
+  jobs:
+    enabled: true
+    collection_interval: 30s
+    timeout: 15s
+    max_age: 300s
+    
+    # More permissive filtering for testing
+    filters:
+      metric_filter:
+        enable_all: true  # Enable all metrics for testing
+        exclude_metrics: []
+        skip_histograms: false
+        skip_timing_metrics: false
+    
+    # Higher cardinality limits for testing
+    cardinality:
+      max_labels: 10000
+      sample_rate: 1.0
+      max_series_per_label: 200
+    
+    custom_labels:
+      cluster_name: "staging-cluster"
+      environment: "staging"
+      region: "us-west-2"
+
+  nodes:
+    enabled: true
+    collection_interval: 60s
+    timeout: 30s
+    max_age: 600s
+    
+    filters:
+      metric_filter:
+        enable_all: true  # Include all metrics for testing
+    
+    cardinality:
+      max_labels: 5000
+      sample_rate: 1.0
+    
+    custom_labels:
+      cluster_name: "staging-cluster"
+      environment: "staging"
+
+  partitions:
+    enabled: true
+    collection_interval: 120s
+    timeout: 30s
+    max_age: 1200s
+    
+    custom_labels:
+      cluster_name: "staging-cluster"
+      environment: "staging"
+
+  system:
+    enabled: true
+    collection_interval: 60s
+    timeout: 30s
+    
+    custom_labels:
+      cluster_name: "staging-cluster"
+      environment: "staging"
+
+  performance:
+    enabled: true
+    collection_interval: 30s
+    
+    custom_labels:
+      instance: "${HOSTNAME}"
+      environment: "staging"
+
+# Performance settings adjusted for staging
+performance:
+  memory_optimizer:
+    enabled: true
+    gc_percent: 200  # Less aggressive GC for testing
+    memory_limit: 256MB  # Lower limit for staging
+    cleanup_interval: 300s
+  
+  connection_pool:
+    enabled: true
+    min_connections: 1
+    max_connections: 5
+    max_idle_time: 300s
+    connection_ttl: 1800s
+  
+  caching:
+    enabled: true
+    default_ttl: 30s
+    max_size: 500  # Smaller cache for staging
+    cleanup_interval: 300s
+  
+  cardinality_optimizer:
+    enabled: true
+    max_cardinality: 20000  # Lower threshold for staging
+    sample_rate: 1.0  # No sampling in staging
+    cleanup_interval: 300s
+
+# Health check configuration
+health:
+  enabled: true
+  check_interval: 30s
+  timeout: 10s
+  
+  checks:
+    - name: "slurm_api"
+      type: "http"
+      endpoint: "${SLURM_REST_URL}/slurm/v0.0.39/ping"
+      timeout: 5s
+      headers:
+        X-SLURM-USER-TOKEN: "${SLURM_JWT_TOKEN}"
+      expected_status: 200
+    
+    - name: "memory_usage"
+      type: "memory"
+      threshold: 85  # Higher threshold for staging
+    
+    - name: "collection_errors"
+      type: "error_rate"
+      threshold: 10.0  # More tolerant error rate
+      window: 300s
+
+# Security configuration - relaxed for staging
+security:
+  authentication:
+    enabled: false
+    type: "none"
+  
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 500  # Lower rate limit
+    burst_size: 50
+  
+  validation:
+    max_request_size: 1MB
+    allowed_methods: ["GET", "HEAD", "OPTIONS"]  # Allow OPTIONS for CORS
+    allowed_paths:
+      - "/metrics"
+      - "/health"
+      - "/ready"
+      - "/debug/pprof/*"  # Allow profiling endpoints
+
+# Monitoring configuration
+monitoring:
+  prometheus:
+    enabled: true
+    namespace: "slurm_exporter"
+    subsystem: "staging"
+    
+    custom_metrics:
+      - name: "build_info"
+        help: "Build information"
+        type: "gauge"
+        labels:
+          version: "${VERSION}"
+          environment: "staging"
+          cluster: "staging-cluster"
+  
+  # Enable tracing for debugging
+  tracing:
+    enabled: true
+    jaeger_endpoint: "http://jaeger-collector:14268/api/traces"
+    sample_rate: 0.1  # Higher sampling rate for staging
+
+# Staging-specific features
+features:
+  config_validation:
+    enabled: true
+    strict_mode: false  # More lenient validation
+  
+  hot_reload:
+    enabled: true
+    watch_interval: 10s  # More frequent checks for development
+    config_paths:
+      - "/etc/slurm-exporter/config.yaml"
+  
+  graceful_shutdown:
+    enabled: true
+    timeout: 15s  # Shorter timeout for faster iteration
+    drain_timeout: 5s
+  
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 10  # More tolerant in staging
+    recovery_timeout: 15s
+    half_open_max_calls: 5
+
+# Resource limits - smaller for staging
+resources:
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+    ephemeral_storage: "1Gi"
+  
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+    ephemeral_storage: "50Mi"
+
+# Staging overrides
+overrides:
+  high_availability:
+    enabled: false  # Single instance for staging
+    min_replicas: 1
+    max_replicas: 3
+  
+  backup:
+    enabled: false  # No backup in staging
+  
+  compliance:
+    enabled: false  # Relaxed compliance in staging
+    audit_logging: false
+    data_retention: "30d"
+    encryption_at_rest: false
+    encryption_in_transit: false
+
+# Integration settings for staging
+integrations:
+  service_mesh:
+    enabled: false
+  
+  secrets_manager:
+    enabled: false
+  
+  log_aggregation:
+    enabled: true
+    type: "stdout"  # Simple logging for staging
+  
+  metrics_aggregation:
+    enabled: true
+    federation:
+      enabled: false  # No federation in staging

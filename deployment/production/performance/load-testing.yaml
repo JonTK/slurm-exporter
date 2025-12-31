@@ -1,0 +1,545 @@
+# Load Testing Framework for SLURM Exporter
+# This file defines comprehensive load testing scenarios and automation
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: load-test-config
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: performance-testing
+data:
+  load-test-scenarios.yaml: |
+    # Load Testing Scenarios Configuration
+    load_testing:
+      # Test scenarios
+      scenarios:
+        baseline:
+          name: "Baseline Performance Test"
+          description: "Normal operational load simulation"
+          duration: "10m"
+          virtual_users: 10
+          ramp_up: "2m"
+          target_rps: 50
+          
+        stress:
+          name: "Stress Test"
+          description: "High load stress testing"
+          duration: "15m"
+          virtual_users: 100
+          ramp_up: "5m"
+          target_rps: 500
+          
+        spike:
+          name: "Spike Test"
+          description: "Sudden load spike simulation"
+          duration: "5m"
+          virtual_users: 200
+          ramp_up: "30s"
+          target_rps: 1000
+          
+        endurance:
+          name: "Endurance Test"
+          description: "Long-running stability test"
+          duration: "60m"
+          virtual_users: 50
+          ramp_up: "5m"
+          target_rps: 100
+          
+        capacity:
+          name: "Capacity Test"
+          description: "Maximum capacity determination"
+          duration: "20m"
+          virtual_users: 500
+          ramp_up: "10m"
+          target_rps: 2000
+      
+      # SLA thresholds
+      sla_thresholds:
+        response_time_p95: 5000ms    # 95th percentile < 5s
+        response_time_p99: 10000ms   # 99th percentile < 10s
+        error_rate: 1%               # Error rate < 1%
+        availability: 99.9%          # Availability > 99.9%
+        throughput_min: 45           # Minimum 45 RPS for baseline
+        
+      # Test endpoints
+      endpoints:
+        - path: "/metrics"
+          method: "GET"
+          weight: 80
+          timeout: 30s
+          
+        - path: "/health"
+          method: "GET"
+          weight: 15
+          timeout: 5s
+          
+        - path: "/ready"
+          method: "GET"
+          weight: 5
+          timeout: 5s
+      
+      # Monitoring during tests
+      monitoring:
+        metrics:
+          - "slurm_exporter_scrape_duration_seconds"
+          - "slurm_exporter_collection_errors_total"
+          - "process_resident_memory_bytes"
+          - "go_gc_duration_seconds"
+          - "prometheus_http_requests_total"
+        
+        system_metrics:
+          - "container_cpu_usage_seconds_total"
+          - "container_memory_working_set_bytes"
+          - "container_network_receive_bytes_total"
+          - "container_network_transmit_bytes_total"
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: load-test-baseline
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: performance-testing
+    test-type: baseline
+spec:
+  template:
+    metadata:
+      labels:
+        app: slurm-exporter
+        component: performance-testing
+        test-type: baseline
+    spec:
+      restartPolicy: Never
+      
+      containers:
+      - name: k6-load-test
+        image: grafana/k6:latest
+        imagePullPolicy: IfNotPresent
+        
+        env:
+        - name: TEST_TARGET
+          value: "http://slurm-exporter.slurm-exporter:8080"
+        - name: TEST_SCENARIO
+          value: "baseline"
+        - name: PROMETHEUS_URL
+          value: "http://prometheus.monitoring:9090"
+        - name: TEST_RESULTS_BUCKET
+          value: "slurm-exporter-test-results"
+        
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          
+          echo "Starting load test: ${TEST_SCENARIO}"
+          echo "Target: ${TEST_TARGET}"
+          echo "Start time: $(date)"
+          
+          # Create K6 test script
+          cat > /tmp/load-test.js << 'EOF'
+          import http from 'k6/http';
+          import { check, sleep } from 'k6';
+          import { Rate, Trend, Counter } from 'k6/metrics';
+          
+          // Custom metrics
+          export let errorRate = new Rate('errors');
+          export let responseTime = new Trend('response_time');
+          export let requestCounter = new Counter('total_requests');
+          
+          // Test configuration
+          export let options = {
+            scenarios: {
+              baseline: {
+                executor: 'ramping-vus',
+                startVUs: 1,
+                stages: [
+                  { duration: '2m', target: 10 },   // Ramp up
+                  { duration: '6m', target: 10 },   // Stay at 10 VUs
+                  { duration: '2m', target: 0 },    // Ramp down
+                ],
+              },
+            },
+            thresholds: {
+              'http_req_duration{status:200}': ['p(95)<5000', 'p(99)<10000'],
+              'http_req_failed': ['rate<0.01'],  // Error rate < 1%
+              'http_reqs': ['rate>45'],          // Throughput > 45 RPS
+            },
+          };
+          
+          const BASE_URL = __ENV.TEST_TARGET || 'http://slurm-exporter.slurm-exporter:8080';
+          
+          // Weighted endpoint selection
+          const endpoints = [
+            { path: '/metrics', weight: 80, timeout: 30 },
+            { path: '/health', weight: 15, timeout: 5 },
+            { path: '/ready', weight: 5, timeout: 5 },
+          ];
+          
+          function selectEndpoint() {
+            const random = Math.random() * 100;
+            let cumulative = 0;
+            
+            for (let endpoint of endpoints) {
+              cumulative += endpoint.weight;
+              if (random <= cumulative) {
+                return endpoint;
+              }
+            }
+            return endpoints[0]; // fallback
+          }
+          
+          export default function() {
+            const endpoint = selectEndpoint();
+            const url = `${BASE_URL}${endpoint.path}`;
+            
+            const params = {
+              timeout: `${endpoint.timeout}s`,
+              tags: { endpoint: endpoint.path },
+            };
+            
+            const startTime = Date.now();
+            const response = http.get(url, params);
+            const duration = Date.now() - startTime;
+            
+            // Record custom metrics
+            requestCounter.add(1);
+            responseTime.add(duration);
+            
+            // Checks
+            const success = check(response, {
+              'status is 200': (r) => r.status === 200,
+              'response time < threshold': (r) => duration < endpoint.timeout * 1000,
+              'has content': (r) => r.body.length > 0,
+            });
+            
+            errorRate.add(!success);
+            
+            // Small delay between requests
+            sleep(0.1);
+          }
+          
+          export function handleSummary(data) {
+            const summary = {
+              test_type: 'baseline',
+              start_time: new Date().toISOString(),
+              duration: data.metrics.http_req_duration.values,
+              error_rate: data.metrics.http_req_failed.values,
+              throughput: data.metrics.http_reqs.values,
+              vus: data.metrics.vus.values,
+              checks: data.metrics.checks.values,
+            };
+            
+            return {
+              'stdout': JSON.stringify(summary, null, 2),
+              '/tmp/results.json': JSON.stringify(data, null, 2),
+            };
+          }
+          EOF
+          
+          # Run K6 load test
+          k6 run /tmp/load-test.js --out json=/tmp/k6-results.json
+          
+          # Parse and analyze results
+          echo "Analyzing test results..."
+          
+          # Extract key metrics
+          RESPONSE_TIME_P95=$(cat /tmp/k6-results.json | jq -r '.metrics.http_req_duration.values.p(95)')
+          RESPONSE_TIME_P99=$(cat /tmp/k6-results.json | jq -r '.metrics.http_req_duration.values.p(99)')
+          ERROR_RATE=$(cat /tmp/k6-results.json | jq -r '.metrics.http_req_failed.values.rate')
+          THROUGHPUT=$(cat /tmp/k6-results.json | jq -r '.metrics.http_reqs.values.rate')
+          
+          echo "=== LOAD TEST RESULTS ==="
+          echo "Response Time P95: ${RESPONSE_TIME_P95}ms"
+          echo "Response Time P99: ${RESPONSE_TIME_P99}ms"
+          echo "Error Rate: ${ERROR_RATE}"
+          echo "Throughput: ${THROUGHPUT} RPS"
+          
+          # Check SLA compliance
+          SLA_VIOLATIONS=0
+          
+          if (( $(echo "$RESPONSE_TIME_P95 > 5000" | bc -l) )); then
+            echo "❌ SLA VIOLATION: P95 response time > 5s"
+            SLA_VIOLATIONS=$((SLA_VIOLATIONS + 1))
+          else
+            echo "✅ P95 response time within SLA"
+          fi
+          
+          if (( $(echo "$ERROR_RATE > 0.01" | bc -l) )); then
+            echo "❌ SLA VIOLATION: Error rate > 1%"
+            SLA_VIOLATIONS=$((SLA_VIOLATIONS + 1))
+          else
+            echo "✅ Error rate within SLA"
+          fi
+          
+          if (( $(echo "$THROUGHPUT < 45" | bc -l) )); then
+            echo "❌ SLA VIOLATION: Throughput < 45 RPS"
+            SLA_VIOLATIONS=$((SLA_VIOLATIONS + 1))
+          else
+            echo "✅ Throughput within SLA"
+          fi
+          
+          # Generate summary report
+          cat > /tmp/test-summary.json << EOF
+          {
+            "test_type": "baseline",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "target": "${TEST_TARGET}",
+            "duration": "10m",
+            "virtual_users": 10,
+            "results": {
+              "response_time_p95_ms": ${RESPONSE_TIME_P95},
+              "response_time_p99_ms": ${RESPONSE_TIME_P99},
+              "error_rate": ${ERROR_RATE},
+              "throughput_rps": ${THROUGHPUT}
+            },
+            "sla_compliance": {
+              "violations": ${SLA_VIOLATIONS},
+              "status": "$([ $SLA_VIOLATIONS -eq 0 ] && echo 'PASS' || echo 'FAIL')"
+            }
+          }
+          EOF
+          
+          echo "Test completed at: $(date)"
+          echo "SLA Violations: $SLA_VIOLATIONS"
+          
+          if [ $SLA_VIOLATIONS -gt 0 ]; then
+            echo "❌ LOAD TEST FAILED - SLA violations detected"
+            exit 1
+          else
+            echo "✅ LOAD TEST PASSED - All SLAs met"
+          fi
+        
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        
+        volumeMounts:
+        - name: test-results
+          mountPath: /tmp/results
+      
+      volumes:
+      - name: test-results
+        emptyDir: {}
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: load-test-stress
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: performance-testing
+    test-type: stress
+spec:
+  template:
+    metadata:
+      labels:
+        app: slurm-exporter
+        component: performance-testing
+        test-type: stress
+    spec:
+      restartPolicy: Never
+      
+      containers:
+      - name: k6-stress-test
+        image: grafana/k6:latest
+        imagePullPolicy: IfNotPresent
+        
+        env:
+        - name: TEST_TARGET
+          value: "http://slurm-exporter.slurm-exporter:8080"
+        - name: TEST_SCENARIO
+          value: "stress"
+        
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          
+          echo "Starting stress test"
+          
+          # Create stress test script
+          cat > /tmp/stress-test.js << 'EOF'
+          import http from 'k6/http';
+          import { check, sleep } from 'k6';
+          import { Rate, Trend, Counter } from 'k6/metrics';
+          
+          export let errorRate = new Rate('errors');
+          export let responseTime = new Trend('response_time');
+          
+          export let options = {
+            scenarios: {
+              stress: {
+                executor: 'ramping-vus',
+                startVUs: 1,
+                stages: [
+                  { duration: '5m', target: 100 },  // Ramp up to 100 VUs
+                  { duration: '5m', target: 100 },  // Stay at 100 VUs
+                  { duration: '5m', target: 0 },    // Ramp down
+                ],
+              },
+            },
+            thresholds: {
+              'http_req_duration{status:200}': ['p(95)<10000'], // More lenient for stress
+              'http_req_failed': ['rate<0.05'],  // Allow 5% error rate under stress
+            },
+          };
+          
+          const BASE_URL = __ENV.TEST_TARGET || 'http://slurm-exporter.slurm-exporter:8080';
+          
+          export default function() {
+            const response = http.get(`${BASE_URL}/metrics`);
+            
+            check(response, {
+              'status is 200': (r) => r.status === 200,
+              'response time < 10s': (r) => r.timings.duration < 10000,
+            });
+            
+            errorRate.add(response.status !== 200);
+            responseTime.add(response.timings.duration);
+            
+            sleep(0.5); // Shorter sleep for higher load
+          }
+          EOF
+          
+          # Run stress test
+          k6 run /tmp/stress-test.js --out json=/tmp/stress-results.json
+          
+          echo "Stress test completed"
+        
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: 2000m
+            memory: 2Gi
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: performance-validation
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: performance-testing
+spec:
+  schedule: "0 1 * * 0"  # Weekly on Sunday at 1 AM
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: slurm-exporter
+            component: performance-testing
+            test-type: validation
+        spec:
+          restartPolicy: Never
+          
+          containers:
+          - name: performance-validator
+            image: grafana/k6:latest
+            imagePullPolicy: IfNotPresent
+            
+            env:
+            - name: TEST_TARGET
+              value: "http://slurm-exporter.slurm-exporter:8080"
+            - name: PROMETHEUS_URL
+              value: "http://prometheus.monitoring:9090"
+            - name: SLACK_WEBHOOK
+              valueFrom:
+                secretKeyRef:
+                  name: performance-notifications
+                  key: slack-webhook
+            
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              
+              echo "Starting weekly performance validation"
+              
+              # Function to send Slack notification
+              send_notification() {
+                local message="$1"
+                local status="$2"
+                
+                if [ "$status" = "error" ]; then
+                  emoji=":x:"
+                  color="danger"
+                elif [ "$status" = "warning" ]; then
+                  emoji=":warning:"
+                  color="warning"
+                else
+                  emoji=":white_check_mark:"
+                  color="good"
+                fi
+                
+                curl -X POST "$SLACK_WEBHOOK" \
+                  -H 'Content-type: application/json' \
+                  --data "{
+                    \"attachments\": [{
+                      \"color\": \"$color\",
+                      \"text\": \"$emoji SLURM Exporter Performance Validation\\n$message\"
+                    }]
+                  }" || true
+              }
+              
+              # Run baseline performance test
+              cat > /tmp/validation-test.js << 'EOF'
+              import http from 'k6/http';
+              import { check } from 'k6';
+              
+              export let options = {
+                vus: 10,
+                duration: '5m',
+                thresholds: {
+                  'http_req_duration': ['p(95)<5000'],
+                  'http_req_failed': ['rate<0.01'],
+                },
+              };
+              
+              const BASE_URL = __ENV.TEST_TARGET;
+              
+              export default function() {
+                const response = http.get(`${BASE_URL}/metrics`);
+                check(response, {
+                  'status is 200': (r) => r.status === 200,
+                  'response time OK': (r) => r.timings.duration < 5000,
+                });
+              }
+              EOF
+              
+              # Run validation test
+              if k6 run /tmp/validation-test.js; then
+                send_notification "Weekly performance validation PASSED. All metrics within SLA thresholds." "success"
+                echo "Performance validation passed"
+              else
+                send_notification "Weekly performance validation FAILED. Performance degradation detected." "error"
+                echo "Performance validation failed"
+                exit 1
+              fi
+            
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi

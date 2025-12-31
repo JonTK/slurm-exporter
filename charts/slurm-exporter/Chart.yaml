@@ -3,7 +3,7 @@ name: slurm-exporter
 description: A Helm chart for SLURM Prometheus Exporter - collect and expose SLURM workload manager metrics
 type: application
 version: 0.1.0
-appVersion: "1.0.0"
+appVersion: "v0.1.0"
 home: https://github.com/jontk/slurm-exporter
 sources:
   - https://github.com/jontk/slurm-exporter
@@ -17,9 +17,27 @@ keywords:
   - hpc
   - metrics
   - exporter
+  - workload-manager
 annotations:
   category: Monitoring
   licenses: Apache-2.0
+  artifacthub.io/operator: "false"
+  artifacthub.io/prerelease: "false"
+  artifacthub.io/containsSecurityUpdates: "false"
+  artifacthub.io/changes: |
+    - Initial release of SLURM Exporter Helm chart
+    - Support for multiple collector types (jobs, nodes, partitions)
+    - Configurable authentication methods (JWT, API key, basic auth)
+    - Performance optimization and caching
+    - Multi-cluster support with custom labels
+    - Comprehensive monitoring and alerting integration
+  artifacthub.io/links: |
+    - name: Documentation
+      url: https://github.com/jontk/slurm-exporter/tree/main/docs
+    - name: Source Code
+      url: https://github.com/jontk/slurm-exporter
+    - name: Container Images
+      url: https://github.com/jontk/slurm-exporter/pkgs/container/slurm-exporter
 icon: https://raw.githubusercontent.com/prometheus/prometheus/main/web/ui/static/img/prometheus_logo.svg
 dependencies: []
 kubeVersion: ">=1.19.0"

@@ -1,0 +1,323 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slurm-exporter
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: exporter
+    version: v1.0.0
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: slurm-exporter
+      component: exporter
+  template:
+    metadata:
+      labels:
+        app: slurm-exporter
+        component: exporter
+        version: v1.0.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+        config/checksum: "{{ checksum }}"  # Updated by CI/CD
+    spec:
+      # Security context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534  # nobody
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      
+      # Service account
+      serviceAccountName: slurm-exporter
+      
+      # Pod anti-affinity for high availability
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - slurm-exporter
+              topologyKey: kubernetes.io/hostname
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - slurm-exporter
+              topologyKey: topology.kubernetes.io/zone
+      
+      # Node selection
+      nodeSelector:
+        kubernetes.io/os: linux
+      
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Equal
+        effect: NoSchedule
+      
+      # Init container for connectivity check
+      initContainers:
+      - name: connectivity-check
+        image: curlimages/curl:8.4.0
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65534
+          runAsGroup: 65534
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        env:
+        - name: SLURM_REST_URL
+          valueFrom:
+            secretKeyRef:
+              name: slurm-credentials
+              key: rest-url
+        command:
+        - sh
+        - -c
+        - |
+          echo "Checking SLURM REST API connectivity..."
+          timeout 30s sh -c 'until curl -f -k "$SLURM_REST_URL/slurm/v0.0.39/ping" >/dev/null 2>&1; do
+            echo "Waiting for SLURM API..."
+            sleep 5
+          done'
+          echo "SLURM API is accessible"
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            cpu: 100m
+            memory: 32Mi
+      
+      containers:
+      - name: slurm-exporter
+        image: ghcr.io/jontk/slurm-exporter:v1.0.0
+        imagePullPolicy: IfNotPresent
+        
+        # Security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65534
+          runAsGroup: 65534
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        
+        # Command and args
+        args:
+        - --config=/etc/slurm-exporter/config.yaml
+        - --log-level=info
+        - --log-format=json
+        
+        # Environment variables
+        env:
+        - name: SLURM_REST_URL
+          valueFrom:
+            secretKeyRef:
+              name: slurm-credentials
+              key: rest-url
+        - name: SLURM_AUTH_TYPE
+          valueFrom:
+            secretKeyRef:
+              name: slurm-credentials
+              key: auth-type
+        - name: SLURM_JWT_PATH
+          value: "/etc/slurm-credentials/jwt-token"
+        - name: SLURM_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: slurm-credentials
+              key: api-key
+              optional: true
+        - name: SLURM_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: slurm-credentials
+              key: username
+              optional: true
+        - name: SLURM_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: slurm-credentials
+              key: password
+              optional: true
+        - name: CLUSTER_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: slurm-exporter-env
+              key: cluster-name
+        - name: AWS_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: slurm-exporter-env
+              key: aws-region
+              optional: true
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        
+        # Ports
+        ports:
+        - name: http-metrics
+          containerPort: 8080
+          protocol: TCP
+        - name: http-health
+          containerPort: 8080
+          protocol: TCP
+        - name: pprof
+          containerPort: 6060
+          protocol: TCP
+        
+        # Volume mounts
+        volumeMounts:
+        - name: config
+          mountPath: /etc/slurm-exporter
+          readOnly: true
+        - name: scripts
+          mountPath: /etc/slurm-scripts
+          readOnly: true
+        - name: jwt-token
+          mountPath: /etc/slurm-credentials
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+        - name: cache
+          mountPath: /var/cache/slurm-exporter
+        
+        # Resource requirements
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+            ephemeral-storage: 100Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+            ephemeral-storage: 1Gi
+        
+        # Health checks
+        startupProbe:
+          httpGet:
+            path: /health
+            port: http-health
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 30
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http-health
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http-health
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        
+        # Lifecycle hooks
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - /etc/slurm-scripts/preStop.sh
+      
+      # Volumes
+      volumes:
+      - name: config
+        configMap:
+          name: slurm-exporter-config
+          defaultMode: 0644
+      - name: scripts
+        configMap:
+          name: slurm-exporter-scripts
+          defaultMode: 0755
+      - name: jwt-token
+        secret:
+          secretName: slurm-credentials
+          defaultMode: 0600
+          items:
+          - key: jwt-token
+            path: jwt-token
+      - name: tmp
+        emptyDir:
+          sizeLimit: 100Mi
+      - name: cache
+        emptyDir:
+          sizeLimit: 500Mi
+      
+      # DNS policy
+      dnsPolicy: ClusterFirst
+      
+      # Restart policy
+      restartPolicy: Always
+      
+      # Termination grace period
+      terminationGracePeriodSeconds: 30
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: slurm-exporter
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: slurm-exporter
+      component: exporter

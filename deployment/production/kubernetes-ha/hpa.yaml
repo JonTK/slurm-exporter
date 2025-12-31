@@ -1,0 +1,105 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: slurm-exporter
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: autoscaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: slurm-exporter
+  
+  minReplicas: 3
+  maxReplicas: 10
+  
+  # Scaling policies
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300  # 5 minutes
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: 60   # 1 minute
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+      selectPolicy: Max
+  
+  # Metrics for autoscaling
+  metrics:
+  # CPU utilization target
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  
+  # Memory utilization target
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  
+  # Custom metrics (if Prometheus adapter is available)
+  - type: Pods
+    pods:
+      metric:
+        name: slurm_exporter_scrape_duration_seconds
+      target:
+        type: AverageValue
+        averageValue: "10"  # Scale up if scrape duration > 10s
+  
+  - type: Pods
+    pods:
+      metric:
+        name: slurm_exporter_collection_errors_total
+      target:
+        type: AverageValue
+        averageValue: "5"   # Scale up if error rate increases
+
+---
+apiVersion: autoscaling/v2
+kind: VerticalPodAutoscaler
+metadata:
+  name: slurm-exporter
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: vpa
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: slurm-exporter
+  
+  updatePolicy:
+    updateMode: "Auto"  # Auto-update pod resources
+  
+  resourcePolicy:
+    containerPolicies:
+    - containerName: slurm-exporter
+      maxAllowed:
+        cpu: "2"
+        memory: 2Gi
+      minAllowed:
+        cpu: 50m
+        memory: 64Mi
+      controlledResources:
+      - cpu
+      - memory

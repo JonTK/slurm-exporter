@@ -1,0 +1,610 @@
+# Incident Response Playbooks for SLURM Exporter
+# This file contains detailed playbooks for various incident scenarios
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: incident-playbooks
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: incident-response
+data:
+  01-security-breach-playbook.md: |
+    # Security Breach Response Playbook
+    
+    ## Incident Classification
+    - **Type**: Security Breach
+    - **Severity**: Critical
+    - **Response Time**: 15 minutes
+    - **Escalation**: Immediate
+    
+    ## Response Team
+    - **Lead**: Security Engineer
+    - **Support**: DevOps Engineer, Platform Engineer
+    - **Stakeholders**: Security Team Lead, Engineering Manager, CISO
+    
+    ## Phase 1: Detection & Initial Response (0-15 minutes)
+    
+    ### 1.1 Confirm the Breach
+    ```bash
+    # Check Falco alerts
+    kubectl logs -l app=falco -n falco-system --tail=200 | grep -i "slurm-exporter"
+    
+    # Review authentication logs
+    kubectl logs deployment/slurm-exporter -n slurm-exporter --tail=1000 | \
+      grep -E "(401|403|Unauthorized|Forbidden|auth.*fail)"
+    
+    # Check for suspicious processes
+    kubectl exec deployment/slurm-exporter -n slurm-exporter -- ps aux
+    
+    # Review network connections
+    kubectl exec deployment/slurm-exporter -n slurm-exporter -- ss -tuln
+    ```
+    
+    ### 1.2 Immediate Containment
+    ```bash
+    # Stop the service to prevent further damage
+    kubectl scale deployment slurm-exporter --replicas=0 -n slurm-exporter
+    
+    # Create emergency network isolation
+    cat <<EOF | kubectl apply -f -
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: emergency-lockdown-$(date +%s)
+      namespace: slurm-exporter
+    spec:
+      podSelector: {}
+      policyTypes:
+      - Ingress
+      - Egress
+      ingress: []
+      egress:
+      - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+        ports:
+        - protocol: TCP
+          port: 443
+    EOF
+    
+    # Preserve evidence
+    INCIDENT_DIR="/tmp/incident-$(date +%Y%m%d-%H%M%S)"
+    mkdir -p "$INCIDENT_DIR"
+    
+    # Capture all pod logs
+    for pod in $(kubectl get pods -n slurm-exporter -o name); do
+      kubectl logs $pod -n slurm-exporter --all-containers > "$INCIDENT_DIR/${pod##*/}.log"
+    done
+    
+    # Export pod specifications
+    kubectl get pods -n slurm-exporter -o yaml > "$INCIDENT_DIR/pods.yaml"
+    
+    # Capture events
+    kubectl get events -n slurm-exporter --sort-by='.lastTimestamp' > "$INCIDENT_DIR/events.txt"
+    ```
+    
+    ### 1.3 Initial Communication
+    - [ ] Notify Security Team via PagerDuty
+    - [ ] Create incident channel in Slack (#incident-YYYYMMDD-HHMM)
+    - [ ] Send initial notification to stakeholders
+    - [ ] Start incident documentation
+    
+    ## Phase 2: Investigation (15-60 minutes)
+    
+    ### 2.1 Forensic Analysis
+    ```bash
+    # Analyze authentication patterns
+    grep -E "token|jwt|auth|credential" "$INCIDENT_DIR"/*.log | \
+      awk '{print $1, $2, $3}' | sort | uniq -c | sort -nr
+    
+    # Check for command injection attempts
+    grep -E "exec|shell|bash|sh -c|curl|wget|nc|python|perl" "$INCIDENT_DIR"/*.log
+    
+    # Look for data exfiltration
+    grep -E "SELECT.*FROM|COPY.*TO|tar|zip|base64|POST|PUT" "$INCIDENT_DIR"/*.log
+    
+    # Analyze container modifications
+    for pod in $(kubectl get pods -n slurm-exporter -o name); do
+      echo "=== Checking $pod for modifications ==="
+      kubectl exec $pod -n slurm-exporter -- find / -type f -mtime -1 2>/dev/null || true
+    done
+    ```
+    
+    ### 2.2 Scope Assessment
+    - [ ] Identify compromised credentials
+    - [ ] Determine data accessed/exfiltrated
+    - [ ] Check for lateral movement
+    - [ ] Assess impact on connected systems
+    - [ ] Review audit logs for timeline
+    
+    ### 2.3 Attack Vector Analysis
+    ```bash
+    # Check for known vulnerabilities
+    kubectl create job --from=cronjob/container-vulnerability-scan \
+      emergency-vuln-scan-$(date +%s) -n slurm-exporter
+    
+    # Review recent changes
+    kubectl rollout history deployment/slurm-exporter -n slurm-exporter
+    
+    # Check for configuration changes
+    kubectl diff -f deployment/production/
+    ```
+    
+    ## Phase 3: Eradication (1-4 hours)
+    
+    ### 3.1 Remove Threat
+    ```bash
+    # Delete compromised pods
+    kubectl delete pods -l app=slurm-exporter -n slurm-exporter
+    
+    # Revoke all credentials
+    kubectl delete secret slurm-credentials -n slurm-exporter
+    kubectl delete secret slurm-exporter-tls-cert -n slurm-exporter
+    
+    # Force credential rotation
+    kubectl create job --from=cronjob/secrets-rotation \
+      forced-rotation-$(date +%s) -n slurm-exporter
+    ```
+    
+    ### 3.2 Security Hardening
+    ```bash
+    # Apply enhanced security policies
+    kubectl apply -f deployment/production/security/pod-security-standards.yaml
+    kubectl apply -f deployment/production/security/network-security.yaml
+    
+    # Update RBAC to least privilege
+    kubectl apply -f - <<EOF
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      name: slurm-exporter-minimal
+      namespace: slurm-exporter
+    rules:
+    - apiGroups: [""]
+      resources: ["configmaps"]
+      resourceNames: ["slurm-exporter-config"]
+      verbs: ["get"]
+    EOF
+    ```
+    
+    ### 3.3 Patch Vulnerabilities
+    - [ ] Update container image to latest secure version
+    - [ ] Apply security patches
+    - [ ] Update dependencies
+    - [ ] Implement additional security controls
+    
+    ## Phase 4: Recovery (4-8 hours)
+    
+    ### 4.1 Service Restoration
+    ```bash
+    # Deploy with enhanced monitoring
+    kubectl set env deployment/slurm-exporter \
+      SECURITY_MODE=paranoid \
+      AUDIT_LOGGING=verbose \
+      -n slurm-exporter
+    
+    # Start with single replica
+    kubectl scale deployment slurm-exporter --replicas=1 -n slurm-exporter
+    
+    # Monitor closely
+    kubectl logs deployment/slurm-exporter -n slurm-exporter -f &
+    
+    # Verify health
+    for i in {1..10}; do
+      curl -f http://slurm-exporter.slurm-exporter:8080/health && echo " - OK" || echo " - FAIL"
+      sleep 30
+    done
+    ```
+    
+    ### 4.2 Gradual Restoration
+    ```bash
+    # If stable, scale to normal capacity
+    kubectl scale deployment slurm-exporter --replicas=3 -n slurm-exporter
+    
+    # Remove emergency network policy
+    kubectl delete networkpolicy emergency-lockdown-* -n slurm-exporter
+    
+    # Apply production network policies
+    kubectl apply -f deployment/production/security/network-security.yaml
+    ```
+    
+    ## Phase 5: Lessons Learned (Post-Incident)
+    
+    ### 5.1 Incident Report
+    - [ ] Document timeline of events
+    - [ ] Identify root cause
+    - [ ] Assess total impact
+    - [ ] List remediation actions taken
+    - [ ] Provide recommendations
+    
+    ### 5.2 Security Improvements
+    - [ ] Update security policies
+    - [ ] Enhance monitoring and alerting
+    - [ ] Improve incident response procedures
+    - [ ] Schedule security training
+    - [ ] Plan penetration testing
+    
+    ### 5.3 Prevention Measures
+    ```yaml
+    # Additional security controls to implement
+    security_enhancements:
+      - implement_waf: true
+      - enable_audit_logging: enhanced
+      - deploy_ids: true
+      - increase_monitoring: true
+      - mandatory_2fa: true
+      - security_scanning:
+          frequency: daily
+          scope: comprehensive
+    ```
+  
+  02-service-degradation-playbook.md: |
+    # Service Degradation Response Playbook
+    
+    ## Incident Classification
+    - **Type**: Performance Degradation
+    - **Severity**: High
+    - **Response Time**: 1 hour
+    - **Escalation**: Standard
+    
+    ## Response Team
+    - **Lead**: Platform Engineer
+    - **Support**: SRE, DevOps Engineer
+    - **Stakeholders**: Service Owner, User Representatives
+    
+    ## Phase 1: Detection & Assessment (0-15 minutes)
+    
+    ### 1.1 Verify Performance Issues
+    ```bash
+    # Check current response times
+    curl -w "@curl-format.txt" -o /dev/null -s http://slurm-exporter.slurm-exporter:8080/metrics
+    
+    # Review error rates
+    kubectl exec prometheus-0 -n monitoring -- \
+      promtool query instant 'rate(slurm_exporter_collection_errors_total[5m])'
+    
+    # Check resource utilization
+    kubectl top pods -n slurm-exporter
+    kubectl describe nodes | grep -A 5 "Allocated resources"
+    ```
+    
+    ### 1.2 Identify Bottlenecks
+    ```bash
+    # CPU profiling
+    kubectl port-forward deployment/slurm-exporter 6060:6060 -n slurm-exporter &
+    go tool pprof http://localhost:6060/debug/pprof/profile?seconds=30
+    
+    # Memory profiling
+    go tool pprof http://localhost:6060/debug/pprof/heap
+    
+    # Goroutine analysis
+    curl http://localhost:6060/debug/pprof/goroutine?debug=1
+    ```
+    
+    ### 1.3 Check Dependencies
+    ```bash
+    # Test SLURM API performance
+    kubectl exec deployment/slurm-exporter -n slurm-exporter -- \
+      curl -w "%{time_total}" "$SLURM_REST_URL/slurm/v0.0.39/jobs"
+    
+    # Check DNS resolution
+    kubectl exec deployment/slurm-exporter -n slurm-exporter -- \
+      time nslookup slurm-api.example.com
+    
+    # Verify network latency
+    kubectl exec deployment/slurm-exporter -n slurm-exporter -- \
+      ping -c 10 slurm-api.example.com
+    ```
+    
+    ## Phase 2: Immediate Mitigation (15-30 minutes)
+    
+    ### 2.1 Quick Fixes
+    ```bash
+    # Increase resource limits
+    kubectl patch deployment slurm-exporter -n slurm-exporter -p '
+    {
+      "spec": {
+        "template": {
+          "spec": {
+            "containers": [{
+              "name": "slurm-exporter",
+              "resources": {
+                "requests": {
+                  "cpu": "500m",
+                  "memory": "512Mi"
+                },
+                "limits": {
+                  "cpu": "2000m",
+                  "memory": "2Gi"
+                }
+              }
+            }]
+          }
+        }
+      }
+    }'
+    
+    # Reduce collection frequency temporarily
+    kubectl patch configmap slurm-exporter-config -n slurm-exporter --type='json' -p='[
+      {"op": "replace", "path": "/data/config.yaml", "value": "updated-config-with-longer-intervals"}
+    ]'
+    ```
+    
+    ### 2.2 Scale Horizontally
+    ```bash
+    # Increase replicas
+    kubectl scale deployment slurm-exporter --replicas=5 -n slurm-exporter
+    
+    # Verify load distribution
+    kubectl get endpoints slurm-exporter -n slurm-exporter
+    ```
+    
+    ## Phase 3: Root Cause Analysis (30-90 minutes)
+    
+    ### 3.1 Historical Analysis
+    ```bash
+    # Query historical metrics
+    kubectl exec prometheus-0 -n monitoring -- \
+      promtool query range \
+        --start="$(date -d '6 hours ago' --iso-8601)" \
+        --end="$(date --iso-8601)" \
+        --step=5m \
+        'histogram_quantile(0.95, rate(slurm_exporter_scrape_duration_seconds_bucket[5m]))'
+    ```
+    
+    ### 3.2 Cardinality Analysis
+    ```bash
+    # Check metric cardinality
+    curl -s http://slurm-exporter.slurm-exporter:8080/metrics | \
+      grep -E "^slurm_" | cut -d'{' -f1 | sort | uniq -c | sort -nr | head -20
+    
+    # Identify high-cardinality labels
+    curl -s http://slurm-exporter.slurm-exporter:8080/metrics | \
+      grep -oE '{[^}]+}' | sort | uniq -c | sort -nr | head -20
+    ```
+    
+    ## Phase 4: Optimization (2-4 hours)
+    
+    ### 4.1 Configuration Tuning
+    ```yaml
+    # Optimized configuration
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: slurm-exporter-optimized
+      namespace: slurm-exporter
+    data:
+      config.yaml: |
+        collectors:
+          # Disable expensive collectors
+          - name: jobs
+            interval: 60s  # Increased from 30s
+            filters:
+              states: ["RUNNING", "PENDING"]  # Exclude completed jobs
+          
+          - name: nodes
+            interval: 120s  # Less frequent for stable data
+            cache_duration: 60s
+          
+        performance:
+          connection_pool_size: 20
+          timeout: 30s
+          retry_max: 2
+          circuit_breaker:
+            enabled: true
+            threshold: 5
+            timeout: 60s
+    ```
+    
+    ### 4.2 Caching Implementation
+    ```bash
+    # Enable Redis caching
+    kubectl apply -f - <<EOF
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: redis-cache
+      namespace: slurm-exporter
+    spec:
+      selector:
+        matchLabels:
+          app: redis-cache
+      template:
+        metadata:
+          labels:
+            app: redis-cache
+        spec:
+          containers:
+          - name: redis
+            image: redis:7-alpine
+            ports:
+            - containerPort: 6379
+            resources:
+              limits:
+                memory: 256Mi
+                cpu: 200m
+    EOF
+    ```
+    
+    ## Phase 5: Validation & Monitoring (4-6 hours)
+    
+    ### 5.1 Performance Testing
+    ```bash
+    # Run load test
+    kubectl create job --from=job/load-test-baseline \
+      performance-validation-$(date +%s) -n slurm-exporter
+    
+    # Monitor improvements
+    watch -n 5 'kubectl exec prometheus-0 -n monitoring -- \
+      promtool query instant "histogram_quantile(0.95, rate(slurm_exporter_scrape_duration_seconds_bucket[5m]))"'
+    ```
+    
+    ### 5.2 Long-term Monitoring
+    ```yaml
+    # Enhanced monitoring alerts
+    apiVersion: monitoring.coreos.com/v1
+    kind: PrometheusRule
+    metadata:
+      name: performance-monitoring-enhanced
+      namespace: slurm-exporter
+    spec:
+      groups:
+      - name: performance
+        rules:
+        - alert: ResponseTimeP95High
+          expr: histogram_quantile(0.95, rate(slurm_exporter_scrape_duration_seconds_bucket[5m])) > 3
+          for: 10m
+          annotations:
+            summary: "Response time P95 exceeds 3 seconds"
+            action: "Review cardinality and collection frequency"
+    ```
+
+  03-disaster-recovery-playbook.md: |
+    # Disaster Recovery Playbook
+    
+    ## Incident Classification
+    - **Type**: Complete Service Failure / Data Loss
+    - **Severity**: Critical
+    - **Response Time**: 30 minutes
+    - **Escalation**: Immediate
+    
+    ## Response Team
+    - **Lead**: Platform Lead
+    - **Support**: Entire Platform Team
+    - **Stakeholders**: VP Engineering, Service Owners
+    
+    ## Phase 1: Assessment (0-30 minutes)
+    
+    ### 1.1 Determine Failure Scope
+    ```bash
+    # Check cluster health
+    kubectl get nodes
+    kubectl get pods --all-namespaces | grep -v Running
+    
+    # Verify namespace existence
+    kubectl get namespace slurm-exporter
+    
+    # Check persistent volumes
+    kubectl get pv,pvc -n slurm-exporter
+    ```
+    
+    ### 1.2 Data Loss Assessment
+    ```bash
+    # Check backup availability
+    kubectl get cronjobs -n slurm-exporter | grep backup
+    
+    # Verify S3 backups
+    aws s3 ls s3://slurm-exporter-backups/ --recursive | tail -20
+    
+    # Check configuration backups
+    git status
+    git log --oneline -10
+    ```
+    
+    ## Phase 2: Recovery Initiation (30-60 minutes)
+    
+    ### 2.1 Namespace Recreation
+    ```bash
+    # Recreate namespace if needed
+    kubectl create namespace slurm-exporter
+    
+    # Apply security labels
+    kubectl label namespace slurm-exporter \
+      pod-security.kubernetes.io/enforce=restricted \
+      pod-security.kubernetes.io/audit=restricted \
+      pod-security.kubernetes.io/warn=restricted
+    ```
+    
+    ### 2.2 Restore Core Components
+    ```bash
+    # Restore RBAC
+    kubectl apply -f deployment/production/rbac/
+    
+    # Restore network policies
+    kubectl apply -f deployment/production/security/network-security.yaml
+    
+    # Restore secrets from backup
+    kubectl create secret generic slurm-credentials \
+      --from-file=backup/secrets/slurm-credentials.yaml \
+      -n slurm-exporter
+    ```
+    
+    ## Phase 3: Service Restoration (1-2 hours)
+    
+    ### 3.1 Deploy Application
+    ```bash
+    # Apply all production configurations
+    kubectl apply -f deployment/production/
+    
+    # Verify deployments
+    kubectl get deployments -n slurm-exporter
+    kubectl rollout status deployment/slurm-exporter -n slurm-exporter
+    ```
+    
+    ### 3.2 Data Recovery
+    ```bash
+    # Restore from latest backup
+    LATEST_BACKUP=$(aws s3 ls s3://slurm-exporter-backups/ | tail -1 | awk '{print $4}')
+    
+    kubectl create job restore-$(date +%s) -n slurm-exporter --from=- <<EOF
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: restore-$(date +%s)
+    spec:
+      template:
+        spec:
+          containers:
+          - name: restore
+            image: amazon/aws-cli:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              aws s3 cp s3://slurm-exporter-backups/$LATEST_BACKUP /tmp/backup.tar.gz
+              tar -xzf /tmp/backup.tar.gz -C /data/
+          restartPolicy: Never
+    EOF
+    ```
+    
+    ## Phase 4: Validation (2-3 hours)
+    
+    ### 4.1 Service Verification
+    ```bash
+    # Health checks
+    for i in {1..10}; do
+      curl -f http://slurm-exporter.slurm-exporter:8080/health
+      sleep 10
+    done
+    
+    # Metrics validation
+    curl http://slurm-exporter.slurm-exporter:8080/metrics | grep -c "^slurm_"
+    
+    # Integration testing
+    kubectl exec prometheus-0 -n monitoring -- \
+      promtool query instant 'up{job="slurm-exporter"}'
+    ```
+    
+    ### 4.2 Data Integrity
+    ```bash
+    # Compare metrics with backup
+    # Verify critical dashboards
+    # Check alert rules are active
+    ```
+    
+    ## Phase 5: Post-Recovery (3+ hours)
+    
+    ### 5.1 Root Cause Analysis
+    - [ ] Identify failure trigger
+    - [ ] Document failure timeline
+    - [ ] Assess preventability
+    - [ ] Update DR procedures
+    
+    ### 5.2 Improvements
+    - [ ] Enhance backup frequency
+    - [ ] Implement multi-region backups
+    - [ ] Add automated DR testing
+    - [ ] Improve monitoring coverage

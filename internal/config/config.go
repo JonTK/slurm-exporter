@@ -17,11 +17,12 @@ import (
 
 // Config represents the application configuration.
 type Config struct {
-	Server     ServerConfig     `yaml:"server"`
-	SLURM      SLURMConfig      `yaml:"slurm"`
-	Collectors CollectorsConfig `yaml:"collectors"`
-	Logging    LoggingConfig    `yaml:"logging"`
-	Metrics    MetricsConfig    `yaml:"metrics"`
+	Server        ServerConfig        `yaml:"server"`
+	SLURM         SLURMConfig         `yaml:"slurm"`
+	Collectors    CollectorsConfig    `yaml:"collectors"`
+	Logging       LoggingConfig       `yaml:"logging"`
+	Metrics       MetricsConfig       `yaml:"metrics"`
+	Observability ObservabilityConfig `yaml:"observability"`
 }
 
 // ServerConfig holds HTTP server configuration.
@@ -417,6 +418,80 @@ func Default() *Config {
 				WarnLimit:    8000,
 			},
 		},
+		Observability: ObservabilityConfig{
+			PerformanceMonitoring: PerformanceMonitoringConfig{
+				Enabled:           true,
+				Interval:          30 * time.Second,
+				MemoryThreshold:   100 * 1024 * 1024, // 100MB
+				CPUThreshold:      80.0,              // 80%
+				CardinalityUpdate: 60 * time.Second,  // 1 minute
+			},
+			Tracing: TracingConfig{
+				Enabled:    false,        // Disabled by default for performance
+				SampleRate: 0.01,         // 1% sampling when enabled
+				Endpoint:   "localhost:4317",
+				Insecure:   true,
+			},
+			AdaptiveCollection: AdaptiveCollectionConfig{
+				Enabled:      true,
+				MinInterval:  30 * time.Second,
+				MaxInterval:  5 * time.Minute,
+				BaseInterval: 1 * time.Minute,
+				ScoreWindow:  10 * time.Minute,
+			},
+			SmartFiltering: SmartFilteringConfig{
+				Enabled:         true,
+				NoiseThreshold:  0.8,
+				CacheSize:       10000,
+				LearningWindow:  100,
+				VarianceLimit:   0.8,
+				CorrelationMin:  0.2,
+			},
+			CircuitBreaker: CircuitBreakerConfig{
+				Enabled:          true,
+				FailureThreshold: 5,
+				ResetTimeout:     30 * time.Second,
+				HalfOpenRequests: 3,
+			},
+			Health: HealthConfig{
+				Enabled:  true,
+				Interval: 30 * time.Second,
+				Timeout:  10 * time.Second,
+				Checks:   []string{"slurm_api", "collectors", "memory"},
+				Endpoints: HealthEndpointsConfig{
+					Enabled:   true,
+					Path:      "/health",
+					ReadyPath: "/ready",
+					LivePath:  "/live",
+				},
+			},
+			Debug: DebugConfig{
+				Enabled:      false, // Enable only when needed
+				AuthRequired: true,
+				Username:     "debug",
+				Password:     "",
+				Endpoints: DebugEndpointsConfig{
+					Collectors:  "/debug/collectors",
+					Trace:       "/debug/trace",
+					Cardinality: "/debug/cardinality",
+					Config:      "/debug/config",
+					Profile:     "/debug/profile",
+				},
+			},
+			Caching: CachingConfig{
+				Intelligent:     true,
+				BaseTTL:         1 * time.Minute,
+				MaxEntries:      50000,
+				CleanupInterval: 5 * time.Minute,
+				ChangeTracking:  true,
+			},
+			BatchProcessing: BatchProcessingConfig{
+				Enabled:       true,
+				Size:          1000,
+				FlushInterval: 10 * time.Second,
+				MaxBatches:    10,
+			},
+		},
 	}
 }
 
@@ -489,6 +564,10 @@ func (c *Config) Validate() error {
 
 	if err := c.Metrics.Validate(); err != nil {
 		return fmt.Errorf("metrics configuration: %w", err)
+	}
+
+	if err := c.Observability.Validate(); err != nil {
+		return fmt.Errorf("observability configuration: %w", err)
 	}
 
 	return nil
@@ -1478,4 +1557,421 @@ func validateAPIVersion(version string) error {
 		}
 	}
 	return fmt.Errorf("unsupported SLURM API version '%s' (supported: %s)", version, strings.Join(supportedVersions, ", "))
+}
+
+// ObservabilityConfig holds observability configuration for the exporter
+type ObservabilityConfig struct {
+	// Performance monitoring
+	PerformanceMonitoring PerformanceMonitoringConfig `yaml:"performance_monitoring"`
+	
+	// Collection tracing
+	Tracing TracingConfig `yaml:"tracing"`
+	
+	// Adaptive collection
+	AdaptiveCollection AdaptiveCollectionConfig `yaml:"adaptive_collection"`
+	
+	// Smart filtering
+	SmartFiltering SmartFilteringConfig `yaml:"smart_filtering"`
+	
+	// Circuit breaker
+	CircuitBreaker CircuitBreakerConfig `yaml:"circuit_breaker"`
+	
+	// Health checks
+	Health HealthConfig `yaml:"health"`
+	
+	// Debug endpoints
+	Debug DebugConfig `yaml:"debug"`
+	
+	// Intelligent caching
+	Caching CachingConfig `yaml:"caching"`
+	
+	// Batch processing
+	BatchProcessing BatchProcessingConfig `yaml:"batch_processing"`
+}
+
+// PerformanceMonitoringConfig holds performance monitoring configuration
+type PerformanceMonitoringConfig struct {
+	Enabled           bool          `yaml:"enabled"`
+	Interval          time.Duration `yaml:"interval"`
+	MemoryThreshold   int64         `yaml:"memory_threshold"`   // bytes
+	CPUThreshold      float64       `yaml:"cpu_threshold"`      // percentage
+	CardinalityUpdate time.Duration `yaml:"cardinality_update"` // interval for cardinality updates
+}
+
+// TracingConfig holds tracing configuration
+type TracingConfig struct {
+	Enabled    bool    `yaml:"enabled"`
+	SampleRate float64 `yaml:"sample_rate"`
+	Endpoint   string  `yaml:"endpoint"`
+	Insecure   bool    `yaml:"insecure"`
+}
+
+// AdaptiveCollectionConfig holds adaptive collection configuration
+type AdaptiveCollectionConfig struct {
+	Enabled      bool          `yaml:"enabled"`
+	MinInterval  time.Duration `yaml:"min_interval"`
+	MaxInterval  time.Duration `yaml:"max_interval"`
+	BaseInterval time.Duration `yaml:"base_interval"`
+	ScoreWindow  time.Duration `yaml:"score_window"`
+}
+
+// SmartFilteringConfig holds smart filtering configuration
+type SmartFilteringConfig struct {
+	Enabled         bool    `yaml:"enabled"`
+	NoiseThreshold  float64 `yaml:"noise_threshold"`
+	CacheSize       int     `yaml:"cache_size"`
+	LearningWindow  int     `yaml:"learning_window"`
+	VarianceLimit   float64 `yaml:"variance_limit"`
+	CorrelationMin  float64 `yaml:"correlation_min"`
+}
+
+// CircuitBreakerConfig holds circuit breaker configuration
+type CircuitBreakerConfig struct {
+	Enabled          bool          `yaml:"enabled"`
+	FailureThreshold int           `yaml:"failure_threshold"`
+	ResetTimeout     time.Duration `yaml:"reset_timeout"`
+	HalfOpenRequests int           `yaml:"half_open_requests"`
+}
+
+// HealthConfig holds health monitoring configuration
+type HealthConfig struct {
+	Enabled   bool          `yaml:"enabled"`
+	Interval  time.Duration `yaml:"interval"`
+	Timeout   time.Duration `yaml:"timeout"`
+	Checks    []string      `yaml:"checks"`
+	Endpoints HealthEndpointsConfig `yaml:"endpoints"`
+}
+
+// HealthEndpointsConfig holds health endpoint configuration
+type HealthEndpointsConfig struct {
+	Enabled    bool   `yaml:"enabled"`
+	Path       string `yaml:"path"`
+	ReadyPath  string `yaml:"ready_path"`
+	LivePath   string `yaml:"live_path"`
+}
+
+// DebugConfig holds debug configuration
+type DebugConfig struct {
+	Enabled      bool   `yaml:"enabled"`
+	AuthRequired bool   `yaml:"auth_required"`
+	Username     string `yaml:"username"`
+	Password     string `yaml:"password"`
+	Endpoints    DebugEndpointsConfig `yaml:"endpoints"`
+}
+
+// DebugEndpointsConfig holds debug endpoint configuration
+type DebugEndpointsConfig struct {
+	Collectors    string `yaml:"collectors"`
+	Trace         string `yaml:"trace"`
+	Cardinality   string `yaml:"cardinality"`
+	Config        string `yaml:"config"`
+	Profile       string `yaml:"profile"`
+}
+
+// CachingConfig holds intelligent caching configuration
+type CachingConfig struct {
+	Intelligent   bool          `yaml:"intelligent"`
+	BaseTTL       time.Duration `yaml:"base_ttl"`
+	MaxEntries    int           `yaml:"max_entries"`
+	CleanupInterval time.Duration `yaml:"cleanup_interval"`
+	ChangeTracking  bool          `yaml:"change_tracking"`
+}
+
+// BatchProcessingConfig holds batch processing configuration
+type BatchProcessingConfig struct {
+	Enabled       bool          `yaml:"enabled"`
+	Size          int           `yaml:"size"`
+	FlushInterval time.Duration `yaml:"flush_interval"`
+	MaxBatches    int           `yaml:"max_batches"`
+}
+
+// Validate validates the observability configuration
+func (o *ObservabilityConfig) Validate() error {
+	if err := o.PerformanceMonitoring.Validate(); err != nil {
+		return fmt.Errorf("performance_monitoring: %w", err)
+	}
+
+	if err := o.Tracing.Validate(); err != nil {
+		return fmt.Errorf("tracing: %w", err)
+	}
+
+	if err := o.AdaptiveCollection.Validate(); err != nil {
+		return fmt.Errorf("adaptive_collection: %w", err)
+	}
+
+	if err := o.SmartFiltering.Validate(); err != nil {
+		return fmt.Errorf("smart_filtering: %w", err)
+	}
+
+	if err := o.CircuitBreaker.Validate(); err != nil {
+		return fmt.Errorf("circuit_breaker: %w", err)
+	}
+
+	if err := o.Health.Validate(); err != nil {
+		return fmt.Errorf("health: %w", err)
+	}
+
+	if err := o.Debug.Validate(); err != nil {
+		return fmt.Errorf("debug: %w", err)
+	}
+
+	if err := o.Caching.Validate(); err != nil {
+		return fmt.Errorf("caching: %w", err)
+	}
+
+	if err := o.BatchProcessing.Validate(); err != nil {
+		return fmt.Errorf("batch_processing: %w", err)
+	}
+
+	return nil
+}
+
+// Validate validates the performance monitoring configuration
+func (p *PerformanceMonitoringConfig) Validate() error {
+	if p.Enabled {
+		if p.Interval <= 0 {
+			return fmt.Errorf("interval must be positive when enabled, got '%v' (example: '30s', '1m')", p.Interval)
+		}
+
+		if p.MemoryThreshold < 0 {
+			return fmt.Errorf("memory_threshold cannot be negative, got %d bytes", p.MemoryThreshold)
+		}
+
+		if p.CPUThreshold < 0 || p.CPUThreshold > 100 {
+			return fmt.Errorf("cpu_threshold must be between 0 and 100, got %.2f", p.CPUThreshold)
+		}
+
+		if p.CardinalityUpdate <= 0 {
+			return fmt.Errorf("cardinality_update must be positive, got '%v' (example: '60s', '5m')", p.CardinalityUpdate)
+		}
+	}
+
+	return nil
+}
+
+// Validate validates the tracing configuration
+func (t *TracingConfig) Validate() error {
+	if t.Enabled {
+		if t.SampleRate < 0 || t.SampleRate > 1 {
+			return fmt.Errorf("sample_rate must be between 0 and 1, got %.4f", t.SampleRate)
+		}
+
+		if t.Endpoint == "" {
+			return fmt.Errorf("endpoint must be specified when tracing is enabled (example: 'localhost:4317')")
+		}
+	}
+
+	return nil
+}
+
+// Validate validates the adaptive collection configuration
+func (a *AdaptiveCollectionConfig) Validate() error {
+	if a.Enabled {
+		if a.MinInterval <= 0 {
+			return fmt.Errorf("min_interval must be positive, got '%v' (example: '30s')", a.MinInterval)
+		}
+
+		if a.MaxInterval <= 0 {
+			return fmt.Errorf("max_interval must be positive, got '%v' (example: '5m')", a.MaxInterval)
+		}
+
+		if a.BaseInterval <= 0 {
+			return fmt.Errorf("base_interval must be positive, got '%v' (example: '1m')", a.BaseInterval)
+		}
+
+		if a.MinInterval >= a.MaxInterval {
+			return fmt.Errorf("min_interval (%v) must be less than max_interval (%v)", a.MinInterval, a.MaxInterval)
+		}
+
+		if a.BaseInterval < a.MinInterval || a.BaseInterval > a.MaxInterval {
+			return fmt.Errorf("base_interval (%v) must be between min_interval (%v) and max_interval (%v)", a.BaseInterval, a.MinInterval, a.MaxInterval)
+		}
+
+		if a.ScoreWindow <= 0 {
+			return fmt.Errorf("score_window must be positive, got '%v' (example: '10m')", a.ScoreWindow)
+		}
+	}
+
+	return nil
+}
+
+// Validate validates the smart filtering configuration
+func (s *SmartFilteringConfig) Validate() error {
+	if s.Enabled {
+		if s.NoiseThreshold < 0 || s.NoiseThreshold > 1 {
+			return fmt.Errorf("noise_threshold must be between 0 and 1, got %.2f", s.NoiseThreshold)
+		}
+
+		if s.CacheSize <= 0 {
+			return fmt.Errorf("cache_size must be positive, got %d", s.CacheSize)
+		}
+
+		if s.LearningWindow <= 0 {
+			return fmt.Errorf("learning_window must be positive, got %d", s.LearningWindow)
+		}
+
+		if s.VarianceLimit < 0 || s.VarianceLimit > 1 {
+			return fmt.Errorf("variance_limit must be between 0 and 1, got %.2f", s.VarianceLimit)
+		}
+
+		if s.CorrelationMin < 0 || s.CorrelationMin > 1 {
+			return fmt.Errorf("correlation_min must be between 0 and 1, got %.2f", s.CorrelationMin)
+		}
+	}
+
+	return nil
+}
+
+// Validate validates the circuit breaker configuration
+func (c *CircuitBreakerConfig) Validate() error {
+	if c.Enabled {
+		if c.FailureThreshold <= 0 {
+			return fmt.Errorf("failure_threshold must be positive, got %d", c.FailureThreshold)
+		}
+
+		if c.ResetTimeout <= 0 {
+			return fmt.Errorf("reset_timeout must be positive, got '%v' (example: '30s', '1m')", c.ResetTimeout)
+		}
+
+		if c.HalfOpenRequests <= 0 {
+			return fmt.Errorf("half_open_requests must be positive, got %d", c.HalfOpenRequests)
+		}
+	}
+
+	return nil
+}
+
+// Validate validates the health configuration
+func (h *HealthConfig) Validate() error {
+	if h.Enabled {
+		if h.Interval <= 0 {
+			return fmt.Errorf("interval must be positive, got '%v' (example: '30s')", h.Interval)
+		}
+
+		if h.Timeout <= 0 {
+			return fmt.Errorf("timeout must be positive, got '%v' (example: '10s')", h.Timeout)
+		}
+
+		if h.Timeout >= h.Interval {
+			return fmt.Errorf("timeout (%v) must be less than interval (%v)", h.Timeout, h.Interval)
+		}
+
+		validChecks := map[string]bool{
+			"slurm_api":  true,
+			"collectors": true,
+			"memory":     true,
+			"disk":       true,
+			"network":    true,
+		}
+
+		for _, check := range h.Checks {
+			if !validChecks[check] {
+				return fmt.Errorf("invalid health check '%s' (valid: slurm_api, collectors, memory, disk, network)", check)
+			}
+		}
+
+		if err := h.Endpoints.Validate(); err != nil {
+			return fmt.Errorf("endpoints: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// Validate validates the health endpoints configuration
+func (h *HealthEndpointsConfig) Validate() error {
+	if h.Enabled {
+		if h.Path == "" {
+			return fmt.Errorf("path cannot be empty when endpoints are enabled")
+		}
+
+		if h.ReadyPath == "" {
+			return fmt.Errorf("ready_path cannot be empty when endpoints are enabled")
+		}
+
+		if h.LivePath == "" {
+			return fmt.Errorf("live_path cannot be empty when endpoints are enabled")
+		}
+	}
+
+	return nil
+}
+
+// Validate validates the debug configuration
+func (d *DebugConfig) Validate() error {
+	if d.Enabled {
+		if d.AuthRequired && d.Username == "" {
+			return fmt.Errorf("username must be specified when auth is required")
+		}
+
+		if d.AuthRequired && d.Password == "" {
+			return fmt.Errorf("password must be specified when auth is required")
+		}
+
+		if err := d.Endpoints.Validate(); err != nil {
+			return fmt.Errorf("endpoints: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// Validate validates the debug endpoints configuration
+func (d *DebugEndpointsConfig) Validate() error {
+	endpoints := []struct {
+		name string
+		path string
+	}{
+		{"collectors", d.Collectors},
+		{"trace", d.Trace},
+		{"cardinality", d.Cardinality},
+		{"config", d.Config},
+		{"profile", d.Profile},
+	}
+
+	for _, endpoint := range endpoints {
+		if endpoint.path == "" {
+			return fmt.Errorf("%s endpoint path cannot be empty", endpoint.name)
+		}
+	}
+
+	return nil
+}
+
+// Validate validates the caching configuration
+func (c *CachingConfig) Validate() error {
+	if c.Intelligent {
+		if c.BaseTTL <= 0 {
+			return fmt.Errorf("base_ttl must be positive, got '%v' (example: '1m')", c.BaseTTL)
+		}
+
+		if c.MaxEntries <= 0 {
+			return fmt.Errorf("max_entries must be positive, got %d", c.MaxEntries)
+		}
+
+		if c.CleanupInterval <= 0 {
+			return fmt.Errorf("cleanup_interval must be positive, got '%v' (example: '5m')", c.CleanupInterval)
+		}
+	}
+
+	return nil
+}
+
+// Validate validates the batch processing configuration
+func (b *BatchProcessingConfig) Validate() error {
+	if b.Enabled {
+		if b.Size <= 0 {
+			return fmt.Errorf("size must be positive, got %d", b.Size)
+		}
+
+		if b.FlushInterval <= 0 {
+			return fmt.Errorf("flush_interval must be positive, got '%v' (example: '10s')", b.FlushInterval)
+		}
+
+		if b.MaxBatches <= 0 {
+			return fmt.Errorf("max_batches must be positive, got %d", b.MaxBatches)
+		}
+	}
+
+	return nil
 }

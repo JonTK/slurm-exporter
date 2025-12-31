@@ -1,0 +1,405 @@
+global:
+  # Global configuration
+  smtp_smarthost: 'smtp.example.com:587'
+  smtp_from: 'alerts@example.com'
+  smtp_auth_username: 'alerts@example.com'
+  smtp_auth_password: 'smtp-password'
+  slack_api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+
+# Templates for alerts
+templates:
+- '/etc/alertmanager/templates/*.tmpl'
+
+# Routing tree
+route:
+  # Root route
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 5m
+  repeat_interval: 12h
+  receiver: 'default'
+  
+  # Child routes for specific services and severities
+  routes:
+  
+  # Critical P0 alerts - immediate escalation
+  - match:
+      service: slurm-exporter
+      priority: P0
+    receiver: 'critical-alerts'
+    group_wait: 0s
+    group_interval: 1m
+    repeat_interval: 5m
+    continue: true
+  
+  # SLA breach alerts - executive notification
+  - match:
+      service: slurm-exporter
+      sla: availability
+    receiver: 'sla-breach'
+    group_wait: 0s
+    repeat_interval: 30m
+    continue: true
+  
+  # Warning P1 alerts - standard workflow
+  - match:
+      service: slurm-exporter
+      priority: P1
+    receiver: 'warning-alerts'
+    group_wait: 5m
+    group_interval: 10m
+    repeat_interval: 2h
+  
+  # Capacity planning P2 alerts - business hours only
+  - match:
+      service: slurm-exporter
+      priority: P2
+    receiver: 'capacity-alerts'
+    group_wait: 15m
+    group_interval: 1h
+    repeat_interval: 24h
+    active_time_intervals:
+    - business-hours
+  
+  # Security alerts - immediate security team notification
+  - match:
+      service: slurm-exporter
+      component: security
+    receiver: 'security-alerts'
+    group_wait: 0s
+    repeat_interval: 15m
+    continue: true
+  
+  # Kubernetes infrastructure alerts
+  - match:
+      service: slurm-exporter
+      component: kubernetes
+    receiver: 'infrastructure-alerts'
+    group_wait: 10m
+    repeat_interval: 4h
+
+# Time intervals
+time_intervals:
+- name: business-hours
+  time_intervals:
+  - times:
+    - start_time: '09:00'
+      end_time: '17:00'
+    weekdays: ['monday:friday']
+    location: 'America/New_York'
+
+# Alert receivers
+receivers:
+
+# Default receiver - low priority alerts
+- name: 'default'
+  slack_configs:
+  - api_url: '{{ template "slack.default.api_url" . }}'
+    channel: '#slurm-monitoring'
+    username: 'AlertManager'
+    icon_emoji: ':warning:'
+    title: 'SLURM Exporter Alert'
+    text: |
+      {{ range .Alerts }}
+      *Alert:* {{ .Annotations.summary }}
+      *Description:* {{ .Annotations.description }}
+      *Severity:* {{ .Labels.severity }}
+      *Instance:* {{ .Labels.instance }}
+      {{ end }}
+    send_resolved: true
+    actions:
+    - type: button
+      text: 'View Runbook'
+      url: '{{ (index .Alerts 0).Annotations.runbook_url }}'
+    - type: button
+      text: 'View Grafana'
+      url: 'https://grafana.example.com/d/slurm-exporter'
+
+# Critical alerts - immediate response required
+- name: 'critical-alerts'
+  # PagerDuty integration
+  pagerduty_configs:
+  - routing_key: 'YOUR_PAGERDUTY_INTEGRATION_KEY'
+    description: '{{ (index .Alerts 0).Annotations.summary }}'
+    severity: 'critical'
+    details:
+      alert_count: '{{ len .Alerts }}'
+      service: '{{ (index .Alerts 0).Labels.service }}'
+      instance: '{{ (index .Alerts 0).Labels.instance }}'
+      runbook: '{{ (index .Alerts 0).Annotations.runbook_url }}'
+    links:
+    - href: '{{ (index .Alerts 0).Annotations.runbook_url }}'
+      text: 'Runbook'
+    - href: 'https://grafana.example.com/d/slurm-exporter'
+      text: 'Dashboard'
+  
+  # Slack notification for critical alerts
+  slack_configs:
+  - api_url: '{{ template "slack.default.api_url" . }}'
+    channel: '#slurm-critical'
+    username: 'AlertManager-CRITICAL'
+    icon_emoji: ':rotating_light:'
+    title: ':rotating_light: CRITICAL SLURM Exporter Alert :rotating_light:'
+    title_link: 'https://grafana.example.com/d/slurm-exporter'
+    color: 'danger'
+    text: |
+      <!channel> 
+      {{ range .Alerts }}
+      *CRITICAL ALERT:* {{ .Annotations.summary }}
+      *Description:* {{ .Annotations.description }}
+      *Impact:* {{ .Annotations.impact }}
+      *Action Required:* {{ .Annotations.action_required }}
+      *Instance:* {{ .Labels.instance }}
+      *Priority:* {{ .Labels.priority }}
+      {{ end }}
+    fields:
+    - title: 'Service'
+      value: '{{ (index .Alerts 0).Labels.service }}'
+      short: true
+    - title: 'Component'
+      value: '{{ (index .Alerts 0).Labels.component }}'
+      short: true
+    - title: 'Instance'
+      value: '{{ (index .Alerts 0).Labels.instance }}'
+      short: true
+    - title: 'Priority'
+      value: '{{ (index .Alerts 0).Labels.priority }}'
+      short: true
+    actions:
+    - type: button
+      text: 'Runbook :book:'
+      url: '{{ (index .Alerts 0).Annotations.runbook_url }}'
+      style: 'primary'
+    - type: button
+      text: 'Dashboard :chart_with_upwards_trend:'
+      url: 'https://grafana.example.com/d/slurm-exporter'
+    - type: button
+      text: 'Silence :mute:'
+      url: 'http://alertmanager.example.com/#/silences/new'
+    send_resolved: true
+  
+  # Email notification for critical alerts
+  email_configs:
+  - to: 'oncall@example.com,sre-team@example.com'
+    from: 'alerts@example.com'
+    subject: '[CRITICAL] SLURM Exporter Alert - {{ (index .Alerts 0).Annotations.summary }}'
+    body: |
+      CRITICAL ALERT NOTIFICATION
+      
+      Service: {{ (index .Alerts 0).Labels.service }}
+      Component: {{ (index .Alerts 0).Labels.component }}
+      Priority: {{ (index .Alerts 0).Labels.priority }}
+      
+      {{ range .Alerts }}
+      Alert: {{ .Annotations.summary }}
+      Description: {{ .Annotations.description }}
+      Impact: {{ .Annotations.impact }}
+      Action Required: {{ .Annotations.action_required }}
+      Instance: {{ .Labels.instance }}
+      
+      Runbook: {{ .Annotations.runbook_url }}
+      Dashboard: https://grafana.example.com/d/slurm-exporter
+      {{ end }}
+      
+      This is an automated alert from the SLURM monitoring system.
+    headers:
+      X-Priority: '1'
+      X-MSMail-Priority: 'High'
+
+# SLA breach alerts - executive notification
+- name: 'sla-breach'
+  # Executive team notification
+  email_configs:
+  - to: 'executives@example.com,sre-team@example.com'
+    from: 'alerts@example.com'
+    subject: '[SLA BREACH] SLURM Exporter Service Level Agreement Violation'
+    body: |
+      SLA BREACH NOTIFICATION
+      
+      A Service Level Agreement breach has been detected for the SLURM Exporter service.
+      
+      {{ range .Alerts }}
+      SLA Type: {{ .Labels.sla }}
+      Current Value: {{ .Annotations.description }}
+      Impact: {{ .Annotations.impact }}
+      
+      This breach requires immediate attention and investigation.
+      
+      Runbook: {{ .Annotations.runbook_url }}
+      Dashboard: https://grafana.example.com/d/slurm-exporter
+      {{ end }}
+      
+      The SRE team has been notified and is responding to this incident.
+    headers:
+      X-Priority: '1'
+      X-MSMail-Priority: 'High'
+  
+  # Slack notification for SLA breach
+  slack_configs:
+  - api_url: '{{ template "slack.default.api_url" . }}'
+    channel: '#sla-monitoring'
+    username: 'SLA-Monitor'
+    icon_emoji: ':chart_with_downwards_trend:'
+    title: ':chart_with_downwards_trend: SLA BREACH - SLURM Exporter'
+    color: 'danger'
+    text: |
+      <!here> SLA breach detected for SLURM Exporter service.
+      {{ range .Alerts }}
+      *SLA Type:* {{ .Labels.sla }}
+      *Description:* {{ .Annotations.description }}
+      *Impact:* {{ .Annotations.impact }}
+      {{ end }}
+
+# Warning alerts - standard operational notifications
+- name: 'warning-alerts'
+  slack_configs:
+  - api_url: '{{ template "slack.default.api_url" . }}'
+    channel: '#slurm-monitoring'
+    username: 'AlertManager'
+    icon_emoji: ':warning:'
+    title: 'SLURM Exporter Warning'
+    color: 'warning'
+    text: |
+      {{ range .Alerts }}
+      *Warning:* {{ .Annotations.summary }}
+      *Description:* {{ .Annotations.description }}
+      *Instance:* {{ .Labels.instance }}
+      {{ if .Annotations.troubleshooting }}
+      *Troubleshooting:*
+      ```{{ .Annotations.troubleshooting }}```
+      {{ end }}
+      {{ end }}
+    actions:
+    - type: button
+      text: 'Runbook'
+      url: '{{ (index .Alerts 0).Annotations.runbook_url }}'
+    - type: button
+      text: 'Dashboard'
+      url: 'https://grafana.example.com/d/slurm-exporter'
+    send_resolved: true
+
+# Capacity planning alerts - business hours only
+- name: 'capacity-alerts'
+  slack_configs:
+  - api_url: '{{ template "slack.default.api_url" . }}'
+    channel: '#capacity-planning'
+    username: 'Capacity-Monitor'
+    icon_emoji: ':bar_chart:'
+    title: 'SLURM Exporter Capacity Alert'
+    color: '#36a64f'
+    text: |
+      {{ range .Alerts }}
+      *Capacity Alert:* {{ .Annotations.summary }}
+      *Description:* {{ .Annotations.description }}
+      *Action Required:* {{ .Annotations.action_required }}
+      {{ end }}
+  
+  email_configs:
+  - to: 'capacity-team@example.com'
+    subject: '[CAPACITY] SLURM Exporter Capacity Planning Alert'
+    body: |
+      {{ range .Alerts }}
+      Capacity Alert: {{ .Annotations.summary }}
+      Description: {{ .Annotations.description }}
+      Action Required: {{ .Annotations.action_required }}
+      
+      Runbook: {{ .Annotations.runbook_url }}
+      {{ end }}
+
+# Security alerts - immediate security team notification
+- name: 'security-alerts'
+  # Security team PagerDuty
+  pagerduty_configs:
+  - routing_key: 'YOUR_SECURITY_PAGERDUTY_KEY'
+    description: 'Security Alert: {{ (index .Alerts 0).Annotations.summary }}'
+    severity: 'critical'
+    details:
+      component: '{{ (index .Alerts 0).Labels.component }}'
+      service: '{{ (index .Alerts 0).Labels.service }}'
+      security_event: true
+  
+  # Security team Slack
+  slack_configs:
+  - api_url: '{{ template "slack.security.api_url" . }}'
+    channel: '#security-alerts'
+    username: 'Security-Monitor'
+    icon_emoji: ':shield:'
+    title: ':shield: SECURITY ALERT - SLURM Exporter'
+    color: 'danger'
+    text: |
+      <!channel> Security alert detected.
+      {{ range .Alerts }}
+      *Alert:* {{ .Annotations.summary }}
+      *Description:* {{ .Annotations.description }}
+      *Impact:* {{ .Annotations.impact }}
+      *Escalation:* {{ .Annotations.escalation_policy }}
+      {{ end }}
+  
+  # Security team email
+  email_configs:
+  - to: 'security-team@example.com,soc@example.com'
+    subject: '[SECURITY] SLURM Exporter Security Alert'
+    body: |
+      SECURITY ALERT - Immediate Attention Required
+      
+      {{ range .Alerts }}
+      Alert: {{ .Annotations.summary }}
+      Description: {{ .Annotations.description }}
+      Impact: {{ .Annotations.impact }}
+      Escalation Policy: {{ .Annotations.escalation_policy }}
+      
+      Instance: {{ .Labels.instance }}
+      Component: {{ .Labels.component }}
+      {{ end }}
+    headers:
+      X-Priority: '1'
+
+# Infrastructure alerts - Kubernetes and platform issues
+- name: 'infrastructure-alerts'
+  slack_configs:
+  - api_url: '{{ template "slack.default.api_url" . }}'
+    channel: '#infrastructure'
+    username: 'Infra-Monitor'
+    icon_emoji: ':gear:'
+    title: 'SLURM Exporter Infrastructure Alert'
+    color: '#ff9900'
+    text: |
+      {{ range .Alerts }}
+      *Infrastructure Alert:* {{ .Annotations.summary }}
+      *Description:* {{ .Annotations.description }}
+      *Component:* {{ .Labels.component }}
+      {{ if .Annotations.troubleshooting }}
+      *Troubleshooting Steps:*
+      ```{{ .Annotations.troubleshooting }}```
+      {{ end }}
+      {{ end }}
+
+# Inhibition rules - prevent duplicate alerts
+inhibit_rules:
+# Inhibit warning alerts when critical alerts are firing
+- source_matchers:
+  - severity=critical
+  target_matchers:
+  - severity=warning
+  equal: ['alertname', 'instance', 'service']
+
+# Inhibit individual component alerts when service is down
+- source_matchers:
+  - alertname=SlurmExporterDown
+  target_matchers:
+  - service=slurm-exporter
+  equal: ['instance']
+
+# Inhibit performance alerts when authentication is failing
+- source_matchers:
+  - alertname=SlurmExporterAuthenticationFailure
+  target_matchers:
+  - component=performance
+  equal: ['instance']
+
+# Inhibit data freshness alerts when API is down
+- source_matchers:
+  - component=slurm-integration
+  target_matchers:
+  - component=data-quality
+  equal: ['instance']

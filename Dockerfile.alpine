@@ -1,5 +1,5 @@
-# Multi-stage Dockerfile for SLURM Prometheus Exporter
-# Stage 1: Build stage
+# Alpine-based Dockerfile for SLURM Prometheus Exporter
+# Smaller footprint with shell access for debugging
 FROM golang:1.21-alpine AS builder
 
 # Build arguments for version info
@@ -25,22 +25,24 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Build the application with version info and platform-specific optimizations
+# Build the application with version info
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
-    -ldflags="-w -s -extldflags '-static' -X main.version=${VERSION} -X main.commit=${COMMIT} -X main.buildTime=${BUILD_TIME}" \
+    -ldflags="-w -s -X main.version=${VERSION} -X main.commit=${COMMIT} -X main.buildTime=${BUILD_TIME}" \
     -a -installsuffix cgo \
     -trimpath \
     -o slurm-exporter \
     ./cmd/slurm-exporter
 
-# Stage 2: Runtime stage
-FROM scratch AS runtime
+# Runtime stage - Alpine for smaller size but with shell
+FROM alpine:3.19
 
-# Copy CA certificates from builder stage
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-
-# Copy timezone data from builder stage
-COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+# Install runtime dependencies
+RUN apk add --no-cache \
+    ca-certificates \
+    tzdata \
+    curl \
+    && addgroup -g 65534 -S slurm-exporter \
+    && adduser -u 65534 -D -S -G slurm-exporter slurm-exporter
 
 # Copy the binary from builder stage
 COPY --from=builder /build/slurm-exporter /usr/local/bin/slurm-exporter
@@ -48,9 +50,12 @@ COPY --from=builder /build/slurm-exporter /usr/local/bin/slurm-exporter
 # Copy example configuration
 COPY --from=builder /build/configs/config.yaml /etc/slurm-exporter/config.yaml
 
-# Create a non-root user (note: we can't use adduser in scratch)
-# The application should handle running as a specific UID/GID
-USER 65534:65534
+# Create directories
+RUN mkdir -p /var/lib/slurm-exporter /var/log/slurm-exporter \
+    && chown -R slurm-exporter:slurm-exporter /var/lib/slurm-exporter /var/log/slurm-exporter /etc/slurm-exporter
+
+# Switch to non-root user
+USER slurm-exporter
 
 # Expose default port
 EXPOSE 8080
@@ -60,7 +65,7 @@ ENV SLURM_EXPORTER_CONFIG_FILE=/etc/slurm-exporter/config.yaml
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD ["/usr/local/bin/slurm-exporter", "--health-check"]
+    CMD curl -f http://localhost:8080/health || exit 1
 
 # Set entrypoint
 ENTRYPOINT ["/usr/local/bin/slurm-exporter"]

@@ -1,0 +1,637 @@
+# Automated Incident Response System for SLURM Exporter
+# This file implements automated detection and response capabilities
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: incident-responder
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: incident-response
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: incident-responder
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: incident-response
+rules:
+# Pod management for incident response
+- apiGroups: [""]
+  resources: ["pods", "pods/log", "pods/exec"]
+  verbs: ["get", "list", "delete", "create"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "deployments/scale", "deployments/rollback"]
+  verbs: ["get", "list", "update", "patch"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["get", "list", "create"]
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "create", "update"]
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "create"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["get", "list", "create", "update"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: incident-responder
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: incident-response
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: incident-responder
+subjects:
+- kind: ServiceAccount
+  name: incident-responder
+  namespace: slurm-exporter
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: incident-response-controller
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: incident-response
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: incident-response-controller
+  template:
+    metadata:
+      labels:
+        app: incident-response-controller
+        component: incident-response
+    spec:
+      serviceAccountName: incident-responder
+      
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+      
+      containers:
+      - name: incident-controller
+        image: alpine:3.18
+        imagePullPolicy: IfNotPresent
+        
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65534
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        
+        env:
+        - name: NAMESPACE
+          value: "slurm-exporter"
+        - name: SLACK_WEBHOOK
+          valueFrom:
+            secretKeyRef:
+              name: incident-notifications
+              key: slack-webhook
+              optional: true
+        - name: PAGERDUTY_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: incident-notifications
+              key: pagerduty-token
+              optional: true
+        
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Install required tools
+          apk add --no-cache curl jq kubectl
+          
+          # Main incident detection loop
+          while true; do
+            echo "[$(date '+%Y-%m-%d %H:%M:%S')] Checking for incidents..."
+            
+            # Check for security incidents
+            SECURITY_EVENTS=$(kubectl get events -n slurm-exporter \
+              --field-selector type=Warning \
+              -o json | jq '[.items[] | select(.message | contains("security"))] | length')
+            
+            if [ "$SECURITY_EVENTS" -gt 5 ]; then
+              echo "Security incident detected - triggering response"
+              /scripts/respond.sh "security_anomaly" "high"
+            fi
+            
+            # Check for service health
+            if ! curl -f -s http://slurm-exporter:8080/health > /dev/null; then
+              echo "Service health check failed - triggering response"
+              /scripts/respond.sh "service_outage" "critical"
+            fi
+            
+            # Check for performance issues
+            RESPONSE_TIME=$(curl -w "%{time_total}" -o /dev/null -s http://slurm-exporter:8080/metrics || echo "999")
+            if [ $(echo "$RESPONSE_TIME > 5" | bc -l) -eq 1 ]; then
+              echo "Performance degradation detected - response time: ${RESPONSE_TIME}s"
+              /scripts/respond.sh "performance_degradation" "high"
+            fi
+            
+            # Check for pod failures
+            FAILED_PODS=$(kubectl get pods -n slurm-exporter \
+              -o json | jq '[.items[] | select(.status.phase != "Running")] | length')
+            
+            if [ "$FAILED_PODS" -gt 0 ]; then
+              echo "Failed pods detected: $FAILED_PODS"
+              /scripts/respond.sh "pod_failure" "medium"
+            fi
+            
+            sleep 60
+          done
+        
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        
+        volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+        - name: tmp
+          mountPath: /tmp
+        - name: incident-data
+          mountPath: /var/incident-response
+      
+      volumes:
+      - name: scripts
+        configMap:
+          name: incident-response-scripts
+          defaultMode: 0755
+      - name: tmp
+        emptyDir:
+          sizeLimit: 100Mi
+      - name: incident-data
+        emptyDir:
+          sizeLimit: 1Gi
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: incident-response-scripts
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: incident-response
+data:
+  respond.sh: |
+    #!/bin/sh
+    # Automated incident response script
+    
+    INCIDENT_TYPE="$1"
+    SEVERITY="$2"
+    TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+    INCIDENT_ID=$(date +%s)
+    
+    log() {
+      echo "[$TIMESTAMP] $1"
+    }
+    
+    # Create incident record
+    create_incident() {
+      cat > /var/incident-response/incident-${INCIDENT_ID}.json << EOF
+    {
+      "id": "${INCIDENT_ID}",
+      "type": "${INCIDENT_TYPE}",
+      "severity": "${SEVERITY}",
+      "timestamp": "${TIMESTAMP}",
+      "status": "active",
+      "actions": []
+    }
+    EOF
+    }
+    
+    # Send notifications
+    notify() {
+      local message="$1"
+      local priority="$2"
+      
+      # Slack notification
+      if [ -n "$SLACK_WEBHOOK" ]; then
+        curl -X POST "$SLACK_WEBHOOK" \
+          -H 'Content-type: application/json' \
+          --data "{
+            \"text\": \"🚨 Incident #${INCIDENT_ID}\",
+            \"attachments\": [{
+              \"color\": \"$([ $priority = 'critical' ] && echo 'danger' || echo 'warning')\",
+              \"fields\": [
+                {\"title\": \"Type\", \"value\": \"${INCIDENT_TYPE}\", \"short\": true},
+                {\"title\": \"Severity\", \"value\": \"${SEVERITY}\", \"short\": true},
+                {\"title\": \"Message\", \"value\": \"${message}\", \"short\": false}
+              ]
+            }]
+          }" 2>/dev/null || true
+      fi
+      
+      # PagerDuty notification for critical incidents
+      if [ "$priority" = "critical" ] && [ -n "$PAGERDUTY_TOKEN" ]; then
+        curl -X POST "https://events.pagerduty.com/v2/enqueue" \
+          -H "Authorization: Token token=$PAGERDUTY_TOKEN" \
+          -H "Content-Type: application/json" \
+          --data "{
+            \"routing_key\": \"$PAGERDUTY_TOKEN\",
+            \"event_action\": \"trigger\",
+            \"payload\": {
+              \"summary\": \"SLURM Exporter: ${INCIDENT_TYPE}\",
+              \"severity\": \"error\",
+              \"source\": \"slurm-exporter\",
+              \"custom_details\": {
+                \"incident_id\": \"${INCIDENT_ID}\",
+                \"type\": \"${INCIDENT_TYPE}\"
+              }
+            }
+          }" 2>/dev/null || true
+      fi
+    }
+    
+    # Execute response actions based on incident type
+    case "$INCIDENT_TYPE" in
+      "security_anomaly")
+        log "Responding to security anomaly"
+        create_incident
+        
+        # Collect security evidence
+        kubectl logs -l app=slurm-exporter -n slurm-exporter --tail=1000 > /var/incident-response/security-logs-${INCIDENT_ID}.txt
+        kubectl get events -n slurm-exporter --field-selector type=Warning > /var/incident-response/security-events-${INCIDENT_ID}.txt
+        
+        # Apply restrictive network policy
+        kubectl apply -f - <<EOF
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: incident-${INCIDENT_ID}-restriction
+      namespace: slurm-exporter
+    spec:
+      podSelector:
+        matchLabels:
+          app: slurm-exporter
+      policyTypes:
+      - Egress
+      egress:
+      - to:
+        - namespaceSelector:
+            matchLabels:
+              name: slurm-exporter
+    EOF
+        
+        notify "Security anomaly detected - network restrictions applied" "$SEVERITY"
+        ;;
+      
+      "service_outage")
+        log "Responding to service outage"
+        create_incident
+        
+        # Capture diagnostics
+        kubectl describe pods -l app=slurm-exporter -n slurm-exporter > /var/incident-response/pod-describe-${INCIDENT_ID}.txt
+        kubectl logs -l app=slurm-exporter -n slurm-exporter --tail=500 > /var/incident-response/pod-logs-${INCIDENT_ID}.txt
+        
+        # Attempt automatic recovery
+        log "Attempting automatic recovery"
+        kubectl rollout restart deployment/slurm-exporter -n slurm-exporter
+        
+        # Wait and check
+        sleep 30
+        if curl -f -s http://slurm-exporter:8080/health > /dev/null; then
+          log "Service recovered after restart"
+          notify "Service outage resolved automatically" "info"
+        else
+          log "Service still down - attempting rollback"
+          kubectl rollout undo deployment/slurm-exporter -n slurm-exporter
+          notify "Service outage - automatic recovery failed, rollback initiated" "$SEVERITY"
+        fi
+        ;;
+      
+      "performance_degradation")
+        log "Responding to performance degradation"
+        create_incident
+        
+        # Collect performance metrics
+        kubectl top pods -n slurm-exporter > /var/incident-response/pod-resources-${INCIDENT_ID}.txt
+        
+        # Increase resources temporarily
+        kubectl patch deployment slurm-exporter -n slurm-exporter -p '
+        {
+          "spec": {
+            "template": {
+              "spec": {
+                "containers": [{
+                  "name": "slurm-exporter",
+                  "resources": {
+                    "limits": {
+                      "cpu": "2000m",
+                      "memory": "2Gi"
+                    }
+                  }
+                }]
+              }
+            }
+          }
+        }'
+        
+        notify "Performance degradation - resources increased" "$SEVERITY"
+        ;;
+      
+      "pod_failure")
+        log "Responding to pod failures"
+        create_incident
+        
+        # Get failed pod details
+        kubectl get pods -n slurm-exporter -o json | \
+          jq -r '.items[] | select(.status.phase != "Running") | .metadata.name' | \
+          while read pod; do
+            kubectl describe pod $pod -n slurm-exporter > /var/incident-response/failed-pod-${pod}-${INCIDENT_ID}.txt
+            kubectl logs $pod -n slurm-exporter --previous > /var/incident-response/failed-pod-logs-${pod}-${INCIDENT_ID}.txt 2>/dev/null || true
+          done
+        
+        # Delete failed pods to trigger recreation
+        kubectl delete pods -n slurm-exporter --field-selector status.phase!=Running
+        
+        notify "Pod failures detected and cleared" "$SEVERITY"
+        ;;
+    esac
+    
+    log "Incident response completed for #${INCIDENT_ID}"
+
+  escalate.sh: |
+    #!/bin/sh
+    # Incident escalation script
+    
+    INCIDENT_ID="$1"
+    ESCALATION_LEVEL="$2"
+    
+    case "$ESCALATION_LEVEL" in
+      "1")
+        # Level 1: Team notification
+        echo "Escalating to team level"
+        ;;
+      
+      "2")
+        # Level 2: Management notification
+        echo "Escalating to management"
+        ;;
+      
+      "3")
+        # Level 3: Emergency response
+        echo "Initiating emergency response protocol"
+        # Page on-call engineer
+        # Create war room channel
+        # Notify executives
+        ;;
+    esac
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: incident-detection-rules
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: incident-response
+spec:
+  groups:
+  - name: incident-detection
+    interval: 30s
+    rules:
+    # Security incident detection
+    - alert: SecurityIncidentDetected
+      expr: |
+        (
+          increase(falco_events_total{k8s_ns="slurm-exporter", severity="critical"}[5m]) > 0
+          or
+          increase(slurm_exporter_auth_failures_total[5m]) > 10
+        )
+      for: 0m
+      labels:
+        severity: critical
+        incident_type: security_breach
+        component: incident-response
+      annotations:
+        summary: "Security incident detected in SLURM Exporter"
+        description: "Critical security events or authentication failures detected"
+        runbook_url: "https://runbooks.example.com/slurm-exporter/security-incident"
+        action: "Immediate investigation required - check security logs"
+    
+    # Service availability incidents
+    - alert: ServiceOutageDetected
+      expr: up{job="slurm-exporter"} == 0
+      for: 2m
+      labels:
+        severity: critical
+        incident_type: service_outage
+        component: incident-response
+      annotations:
+        summary: "SLURM Exporter service is down"
+        description: "Service has been unavailable for 2 minutes"
+        runbook_url: "https://runbooks.example.com/slurm-exporter/service-outage"
+        action: "Check pod status and logs"
+    
+    # Performance degradation
+    - alert: PerformanceDegradation
+      expr: |
+        histogram_quantile(0.95, rate(slurm_exporter_scrape_duration_seconds_bucket[5m])) > 5
+        or
+        rate(slurm_exporter_collection_errors_total[5m]) > 0.05
+      for: 10m
+      labels:
+        severity: high
+        incident_type: performance_degradation
+        component: incident-response
+      annotations:
+        summary: "Performance degradation detected"
+        description: "Response time P95 > 5s or error rate > 5%"
+        runbook_url: "https://runbooks.example.com/slurm-exporter/performance"
+        action: "Review resource usage and SLURM API performance"
+    
+    # Resource exhaustion
+    - alert: ResourceExhaustion
+      expr: |
+        (
+          container_memory_usage_bytes{pod=~"slurm-exporter-.*"} 
+          / container_spec_memory_limit_bytes{pod=~"slurm-exporter-.*"} > 0.9
+        )
+        or
+        (
+          rate(container_cpu_usage_seconds_total{pod=~"slurm-exporter-.*"}[5m]) > 0.9
+        )
+      for: 5m
+      labels:
+        severity: high
+        incident_type: resource_exhaustion
+        component: incident-response
+      annotations:
+        summary: "Resource exhaustion imminent"
+        description: "Memory or CPU usage exceeds 90%"
+        runbook_url: "https://runbooks.example.com/slurm-exporter/resources"
+        action: "Scale resources or optimize configuration"
+    
+    # Data loss risk
+    - alert: BackupFailure
+      expr: |
+        time() - slurm_exporter_last_successful_backup_timestamp > 86400
+      for: 0m
+      labels:
+        severity: high
+        incident_type: data_loss_risk
+        component: incident-response
+      annotations:
+        summary: "Backup failure detected"
+        description: "No successful backup in the last 24 hours"
+        runbook_url: "https://runbooks.example.com/slurm-exporter/backup"
+        action: "Check backup job status and storage"
+    
+    # Compliance violations
+    - alert: ComplianceViolation
+      expr: |
+        slurm_compliance_score < 80
+        or
+        slurm_security_policy_violations_total > 0
+      for: 30m
+      labels:
+        severity: medium
+        incident_type: compliance_violation
+        component: incident-response
+      annotations:
+        summary: "Compliance violation detected"
+        description: "Security compliance score below threshold or policy violations"
+        runbook_url: "https://runbooks.example.com/slurm-exporter/compliance"
+        action: "Review compliance report and remediate violations"
+
+---
+# Incident response webhook receiver
+apiVersion: v1
+kind: Service
+metadata:
+  name: incident-webhook
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: incident-response
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: webhook
+  selector:
+    app: incident-webhook
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: incident-webhook
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: incident-response
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: incident-webhook
+  template:
+    metadata:
+      labels:
+        app: incident-webhook
+        component: incident-response
+    spec:
+      serviceAccountName: incident-responder
+      
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+      
+      containers:
+      - name: webhook-receiver
+        image: alpine:3.18
+        imagePullPolicy: IfNotPresent
+        
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65534
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Simple webhook receiver for AlertManager
+          apk add --no-cache socat jq
+          
+          while true; do
+            echo -e "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n{\"status\":\"ok\"}" | \
+            socat TCP-LISTEN:8080,fork,reuseaddr SYSTEM:'
+              read request
+              while read header && [ "$header" != $'"'"'\r'"'"' ]; do :; done
+              
+              # Parse alert from stdin
+              alert=$(cat)
+              
+              # Extract incident details
+              incident_type=$(echo "$alert" | jq -r ".alerts[0].labels.incident_type // \"unknown\"")
+              severity=$(echo "$alert" | jq -r ".alerts[0].labels.severity // \"medium\"")
+              
+              # Trigger incident response
+              /scripts/respond.sh "$incident_type" "$severity"
+              
+              echo "Processed incident: $incident_type ($severity)"
+            '
+          done
+        
+        ports:
+        - containerPort: 8080
+          name: webhook
+        
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+        
+        volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+        - name: tmp
+          mountPath: /tmp
+      
+      volumes:
+      - name: scripts
+        configMap:
+          name: incident-response-scripts
+          defaultMode: 0755
+      - name: tmp
+        emptyDir:
+          sizeLimit: 100Mi

@@ -1,0 +1,552 @@
+# SLURM Exporter Disaster Recovery Configuration
+# This file defines disaster recovery procedures and automation
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: disaster-recovery-plan
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: disaster-recovery
+data:
+  dr-plan.yaml: |
+    # Disaster Recovery Plan
+    disaster_recovery:
+      # Recovery objectives
+      objectives:
+        rpo: "1h"          # Recovery Point Objective
+        rto: "30m"         # Recovery Time Objective
+        mttr: "15m"        # Mean Time To Recovery
+        availability: "99.9%"
+        
+      # Disaster scenarios
+      scenarios:
+        - name: "single_pod_failure"
+          probability: "high"
+          impact: "low"
+          detection_time: "1m"
+          recovery_time: "5m"
+          automation: "full"
+          
+        - name: "deployment_failure"
+          probability: "medium"
+          impact: "medium"
+          detection_time: "2m"
+          recovery_time: "10m"
+          automation: "semi-automatic"
+          
+        - name: "namespace_deletion"
+          probability: "low"
+          impact: "high"
+          detection_time: "1m"
+          recovery_time: "30m"
+          automation: "manual"
+          
+        - name: "cluster_failure"
+          probability: "very_low"
+          impact: "critical"
+          detection_time: "5m"
+          recovery_time: "2h"
+          automation: "manual"
+          
+        - name: "region_failure"
+          probability: "very_low"
+          impact: "critical"
+          detection_time: "10m"
+          recovery_time: "4h"
+          automation: "manual"
+      
+      # Recovery procedures
+      procedures:
+        automated:
+          - "pod_restart"
+          - "deployment_rollback"
+          - "config_restore"
+          - "health_check_recovery"
+          
+        semi_automatic:
+          - "namespace_recreation"
+          - "secret_restoration"
+          - "monitoring_setup"
+          
+        manual:
+          - "cluster_failover"
+          - "region_failover"
+          - "data_migration"
+          - "dns_updates"
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: disaster-recovery
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: disaster-recovery
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: disaster-recovery
+  labels:
+    app: slurm-exporter
+    component: disaster-recovery
+rules:
+# Full access for disaster recovery operations
+- apiGroups: [""]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["apps"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["monitoring.coreos.com"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["policy"]
+  resources: ["*"]
+  verbs: ["*"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: disaster-recovery
+  labels:
+    app: slurm-exporter
+    component: disaster-recovery
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: disaster-recovery
+subjects:
+- kind: ServiceAccount
+  name: disaster-recovery
+  namespace: slurm-exporter
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: disaster-recovery-restore
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: disaster-recovery
+    operation: restore
+spec:
+  template:
+    metadata:
+      labels:
+        app: slurm-exporter
+        component: disaster-recovery
+        operation: restore
+    spec:
+      restartPolicy: Never
+      serviceAccountName: disaster-recovery
+      
+      containers:
+      - name: dr-restore
+        image: amazon/aws-cli:latest
+        imagePullPolicy: IfNotPresent
+        
+        env:
+        - name: DR_SCENARIO
+          value: "${DR_SCENARIO:-deployment_failure}"
+        - name: BACKUP_TIMESTAMP
+          value: "${BACKUP_TIMESTAMP:-latest}"
+        - name: S3_BUCKET
+          value: "slurm-exporter-backup-primary"
+        - name: S3_BACKUP_BUCKET
+          value: "slurm-exporter-backup-secondary"
+        - name: ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: backup-encryption
+              key: encryption-key
+        - name: SLACK_WEBHOOK
+          valueFrom:
+            secretKeyRef:
+              name: backup-notifications
+              key: slack-webhook
+        
+        command:
+        - /bin/bash
+        - -c
+        - |
+          set -euo pipefail
+          
+          # Disaster Recovery Script
+          echo "Starting disaster recovery for scenario: $DR_SCENARIO"
+          echo "Backup timestamp: $BACKUP_TIMESTAMP"
+          echo "Recovery started at: $(date)"
+          
+          # Logging function
+          log() {
+            echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a /tmp/dr-log.txt
+          }
+          
+          # Notification function
+          notify() {
+            local message="$1"
+            local status="$2"
+            
+            if [ "$status" = "error" ]; then
+              emoji=":x:"
+              color="danger"
+            elif [ "$status" = "warning" ]; then
+              emoji=":warning:"
+              color="warning"
+            else
+              emoji=":white_check_mark:"
+              color="good"
+            fi
+            
+            curl -X POST "$SLACK_WEBHOOK" \
+              -H 'Content-type: application/json' \
+              --data "{
+                \"attachments\": [{
+                  \"color\": \"$color\",
+                  \"text\": \"$emoji SLURM Exporter Disaster Recovery\\n$message\"
+                }]
+              }" || true
+          }
+          
+          # Get latest backup if timestamp not specified
+          if [ "$BACKUP_TIMESTAMP" = "latest" ]; then
+            log "Finding latest backup..."
+            BACKUP_TIMESTAMP=$(aws s3 ls "s3://${S3_BUCKET}/configuration/" | \
+              sort | tail -1 | awk '{print $4}' | \
+              sed 's/config-backup-//' | sed 's/.tar.gz.enc//')
+            log "Latest backup timestamp: $BACKUP_TIMESTAMP"
+          fi
+          
+          # Download and decrypt backup
+          log "Downloading backup from S3..."
+          BACKUP_FILE="config-backup-${BACKUP_TIMESTAMP}.tar.gz.enc"
+          
+          # Try primary location first
+          if aws s3 cp "s3://${S3_BUCKET}/configuration/$BACKUP_FILE" "/tmp/$BACKUP_FILE"; then
+            log "Downloaded backup from primary location"
+          elif aws s3 cp "s3://${S3_BACKUP_BUCKET}/configuration/$BACKUP_FILE" "/tmp/$BACKUP_FILE" --region us-east-1; then
+            log "Downloaded backup from secondary location"
+          else
+            log "ERROR: Failed to download backup from both locations"
+            notify "Failed to download backup for timestamp $BACKUP_TIMESTAMP" "error"
+            exit 1
+          fi
+          
+          # Decrypt backup
+          log "Decrypting backup..."
+          if ! openssl enc -aes-256-cbc -d -salt \
+              -in "/tmp/$BACKUP_FILE" \
+              -out "/tmp/backup.tar.gz" \
+              -pass pass:"$ENCRYPTION_KEY"; then
+            log "ERROR: Failed to decrypt backup"
+            notify "Failed to decrypt backup" "error"
+            exit 1
+          fi
+          
+          # Extract backup
+          log "Extracting backup..."
+          mkdir -p /tmp/restore
+          if ! tar -xzf "/tmp/backup.tar.gz" -C /tmp/restore; then
+            log "ERROR: Failed to extract backup"
+            notify "Failed to extract backup" "error"
+            exit 1
+          fi
+          
+          # Find backup directory
+          BACKUP_DIR=$(find /tmp/restore -name "backup-*" -type d | head -1)
+          if [ -z "$BACKUP_DIR" ]; then
+            log "ERROR: Could not find backup directory"
+            notify "Invalid backup format" "error"
+            exit 1
+          fi
+          
+          log "Backup extracted to: $BACKUP_DIR"
+          
+          # Disaster recovery based on scenario
+          case "$DR_SCENARIO" in
+            "deployment_failure")
+              log "Recovering from deployment failure..."
+              
+              # Delete existing deployment if it exists
+              kubectl delete deployment slurm-exporter -n slurm-exporter --ignore-not-found=true
+              
+              # Restore configuration
+              log "Restoring ConfigMaps..."
+              if [ -f "$BACKUP_DIR/configmaps.yaml" ]; then
+                kubectl apply -f "$BACKUP_DIR/configmaps.yaml"
+              fi
+              
+              # Restore secrets (be careful with this)
+              log "Restoring Secrets..."
+              if [ -f "$BACKUP_DIR/secrets.yaml" ]; then
+                # Filter out service account tokens and other auto-generated secrets
+                kubectl apply -f "$BACKUP_DIR/secrets.yaml" || true
+              fi
+              
+              # Wait a moment for configs to propagate
+              sleep 10
+              
+              # Restore main deployment
+              log "Restoring Deployment..."
+              if [ -f "$BACKUP_DIR/kubernetes-resources.yaml" ]; then
+                # Extract just the deployment
+                kubectl apply -f "$BACKUP_DIR/kubernetes-resources.yaml" || true
+              fi
+              ;;
+              
+            "namespace_deletion")
+              log "Recovering from namespace deletion..."
+              
+              # Recreate namespace
+              kubectl create namespace slurm-exporter || true
+              kubectl label namespace slurm-exporter name=slurm-exporter || true
+              
+              # Apply all resources
+              log "Restoring all resources..."
+              kubectl apply -f "$BACKUP_DIR/kubernetes-resources.yaml" || true
+              kubectl apply -f "$BACKUP_DIR/configmaps.yaml" || true
+              kubectl apply -f "$BACKUP_DIR/secrets.yaml" || true
+              kubectl apply -f "$BACKUP_DIR/networkpolicies.yaml" || true
+              kubectl apply -f "$BACKUP_DIR/servicemonitors.yaml" || true
+              kubectl apply -f "$BACKUP_DIR/prometheusrules.yaml" || true
+              ;;
+              
+            "cluster_failure")
+              log "Recovering from cluster failure..."
+              notify "Manual cluster recovery required. Backup ready at $BACKUP_DIR" "warning"
+              
+              # This would typically involve:
+              # 1. Setting up new cluster
+              # 2. Configuring networking and storage
+              # 3. Restoring all resources
+              # 4. DNS updates
+              # 5. Certificate updates
+              
+              echo "Manual recovery steps:"
+              echo "1. Ensure new cluster is ready"
+              echo "2. Apply: kubectl apply -f $BACKUP_DIR/"
+              echo "3. Update DNS and certificates"
+              echo "4. Verify connectivity"
+              ;;
+              
+            *)
+              log "Unknown disaster recovery scenario: $DR_SCENARIO"
+              notify "Unknown DR scenario: $DR_SCENARIO" "error"
+              exit 1
+              ;;
+          esac
+          
+          # Wait for deployment to be ready
+          if [ "$DR_SCENARIO" != "cluster_failure" ]; then
+            log "Waiting for deployment to be ready..."
+            kubectl wait --for=condition=available deployment/slurm-exporter -n slurm-exporter --timeout=300s || true
+            
+            # Check pod status
+            READY_PODS=$(kubectl get pods -n slurm-exporter -l app=slurm-exporter --field-selector=status.phase=Running | grep -c Running || echo "0")
+            log "Ready pods: $READY_PODS"
+            
+            if [ "$READY_PODS" -gt 0 ]; then
+              # Test health endpoint
+              log "Testing service health..."
+              if kubectl exec deployment/slurm-exporter -n slurm-exporter -- curl -f http://localhost:8080/health; then
+                log "Service health check passed"
+                notify "Disaster recovery completed successfully for $DR_SCENARIO" "success"
+              else
+                log "WARNING: Service health check failed"
+                notify "Disaster recovery completed but service health check failed" "warning"
+              fi
+            else
+              log "WARNING: No ready pods found"
+              notify "Disaster recovery completed but no pods are ready" "warning"
+            fi
+          fi
+          
+          # Save recovery log
+          log "Disaster recovery completed at: $(date)"
+          
+          # Upload recovery log
+          aws s3 cp /tmp/dr-log.txt "s3://${S3_BUCKET}/recovery-logs/dr-log-${DR_SCENARIO}-$(date +%Y%m%d-%H%M%S).txt" || true
+          
+          echo "Disaster recovery operation completed"
+        
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        
+        volumeMounts:
+        - name: kubectl-config
+          mountPath: /root/.kube
+          readOnly: true
+      
+      volumes:
+      - name: kubectl-config
+        secret:
+          secretName: backup-kubeconfig
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dr-scripts
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: disaster-recovery
+data:
+  quick-restore.sh: |
+    #!/bin/bash
+    # Quick disaster recovery script for common scenarios
+    
+    set -euo pipefail
+    
+    SCENARIO="${1:-deployment_failure}"
+    TIMESTAMP="${2:-latest}"
+    
+    echo "Starting quick disaster recovery"
+    echo "Scenario: $SCENARIO"
+    echo "Timestamp: $TIMESTAMP"
+    
+    # Create disaster recovery job
+    kubectl create job --from=job/disaster-recovery-restore \
+      dr-restore-$(date +%s) \
+      -n slurm-exporter \
+      --dry-run=client -o yaml | \
+      sed "s/DR_SCENARIO:-deployment_failure/DR_SCENARIO:-$SCENARIO/" | \
+      sed "s/BACKUP_TIMESTAMP:-latest/BACKUP_TIMESTAMP:-$TIMESTAMP/" | \
+      kubectl apply -f -
+    
+    echo "Disaster recovery job started"
+    echo "Monitor with: kubectl logs -f job/dr-restore-$(date +%s) -n slurm-exporter"
+  
+  health-check.sh: |
+    #!/bin/bash
+    # Health check script for post-recovery validation
+    
+    set -e
+    
+    echo "Running post-recovery health checks..."
+    
+    # Check deployment status
+    echo "Checking deployment status..."
+    kubectl get deployment slurm-exporter -n slurm-exporter
+    
+    # Check pod status
+    echo "Checking pod status..."
+    kubectl get pods -n slurm-exporter -l app=slurm-exporter
+    
+    # Check service endpoints
+    echo "Checking service endpoints..."
+    kubectl get endpoints slurm-exporter -n slurm-exporter
+    
+    # Test health endpoint
+    echo "Testing health endpoint..."
+    if kubectl exec deployment/slurm-exporter -n slurm-exporter -- curl -f http://localhost:8080/health; then
+      echo "✓ Health check passed"
+    else
+      echo "✗ Health check failed"
+      exit 1
+    fi
+    
+    # Test metrics endpoint
+    echo "Testing metrics endpoint..."
+    if kubectl exec deployment/slurm-exporter -n slurm-exporter -- curl -f http://localhost:8080/metrics | head -5; then
+      echo "✓ Metrics endpoint accessible"
+    else
+      echo "✗ Metrics endpoint failed"
+      exit 1
+    fi
+    
+    # Check SLURM connectivity
+    echo "Testing SLURM connectivity..."
+    if kubectl exec deployment/slurm-exporter -n slurm-exporter -- \
+        curl -f "$SLURM_REST_URL/slurm/v0.0.39/ping" 2>/dev/null; then
+      echo "✓ SLURM connectivity verified"
+    else
+      echo "⚠ SLURM connectivity test failed (may be expected)"
+    fi
+    
+    echo "Health checks completed"
+  
+  rollback.sh: |
+    #!/bin/bash
+    # Rollback script for failed disaster recovery
+    
+    set -e
+    
+    echo "Starting rollback procedure..."
+    
+    # Get previous deployment revision
+    PREVIOUS_REVISION=$(kubectl rollout history deployment/slurm-exporter -n slurm-exporter | \
+      tail -2 | head -1 | awk '{print $1}')
+    
+    if [ -n "$PREVIOUS_REVISION" ]; then
+      echo "Rolling back to revision: $PREVIOUS_REVISION"
+      kubectl rollout undo deployment/slurm-exporter -n slurm-exporter --to-revision="$PREVIOUS_REVISION"
+      
+      # Wait for rollback to complete
+      kubectl rollout status deployment/slurm-exporter -n slurm-exporter --timeout=300s
+      
+      echo "Rollback completed successfully"
+    else
+      echo "No previous revision found for rollback"
+      exit 1
+    fi
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: disaster-recovery-alerts
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: disaster-recovery
+spec:
+  groups:
+  - name: disaster-recovery
+    rules:
+    - alert: DisasterRecoveryRequired
+      expr: up{job="slurm-exporter"} == 0
+      for: 5m
+      labels:
+        severity: critical
+        component: disaster-recovery
+      annotations:
+        summary: "SLURM Exporter requires disaster recovery"
+        description: "SLURM Exporter has been down for more than 5 minutes"
+        action: "Initiate disaster recovery procedure"
+        
+    - alert: DisasterRecoveryJobFailed
+      expr: kube_job_status_failed{job_name=~"dr-restore-.*"} > 0
+      for: 0m
+      labels:
+        severity: critical
+        component: disaster-recovery
+      annotations:
+        summary: "Disaster recovery job failed"
+        description: "DR job {{ $labels.job_name }} has failed"
+        action: "Check DR job logs and investigate failure"
+        
+    - alert: BackupValidationFailed
+      expr: kube_job_status_failed{job_name=~"backup-validation.*"} > 0
+      for: 0m
+      labels:
+        severity: warning
+        component: disaster-recovery
+      annotations:
+        summary: "Backup validation failed"
+        description: "Backup validation job has failed"
+        action: "Investigate backup integrity issues"

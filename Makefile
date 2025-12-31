@@ -231,6 +231,48 @@ check-version:
 		exit 1; \
 	}
 
+# Release build (optimized)
+release: clean
+	@echo "Building release version..."
+	CGO_ENABLED=0 $(GOBUILD) $(LDFLAGS) -a -installsuffix cgo -o $(BINARY_NAME) ./cmd/slurm-exporter
+
+# Build release artifacts
+build-release:
+	@echo "Building release artifacts..."
+	./scripts/build-release.sh
+
+# Version management
+version-current:
+	@./scripts/version.sh current
+
+version-bump-patch:
+	@./scripts/version.sh bump patch
+
+version-bump-minor:
+	@./scripts/version.sh bump minor
+
+version-bump-major:
+	@./scripts/version.sh bump major
+
+version-set:
+	@echo "Usage: make version-set VERSION=v1.2.3"
+	@if [ -z "$(VERSION)" ]; then echo "Error: VERSION required"; exit 1; fi
+	@./scripts/version.sh set $(VERSION)
+
+# Release preparation
+prepare-release-patch:
+	@./scripts/version.sh release patch
+
+prepare-release-minor:
+	@./scripts/version.sh release minor
+
+prepare-release-major:
+	@./scripts/version.sh release major
+
+# Generate changelog
+changelog:
+	@./scripts/version.sh changelog
+
 # Release preparation
 release-prep: check-version clean tidy fmt vet lint test
 	@echo "Release preparation complete"
@@ -238,28 +280,63 @@ release-prep: check-version clean tidy fmt vet lint test
 # Show help
 help:
 	@echo "Available targets:"
+	@echo ""
+	@echo "Build targets:"
 	@echo "  build           - Build the binary"
-	@echo "  run             - Run the application"
-	@echo "  test            - Run tests"
+	@echo "  release         - Build optimized release binary"
+	@echo "  build-release   - Build all release artifacts"
+	@echo "  clean           - Clean build artifacts"
+	@echo ""
+	@echo "Testing targets:"
+	@echo "  test            - Run all tests"
+	@echo "  test-short      - Run short tests (no integration)"
+	@echo "  test-unit       - Run unit tests only"
+	@echo "  test-integration - Run integration tests only"
 	@echo "  test-coverage   - Run tests with coverage report"
+	@echo "  coverage        - Run comprehensive coverage analysis"
 	@echo "  benchmark       - Run benchmarks"
+	@echo "  bench-performance - Run performance benchmarks"
+	@echo ""
+	@echo "Quality targets:"
 	@echo "  lint            - Run linter"
 	@echo "  fmt             - Format code"
 	@echo "  vet             - Run go vet"
-	@echo "  clean           - Clean build artifacts"
-	@echo "  install-tools   - Install development tools"
-	@echo "  tidy            - Tidy up dependencies"
-	@echo "  update          - Update dependencies"
 	@echo "  security        - Run security audit"
 	@echo "  check           - Run all checks (fmt, vet, lint, test)"
+	@echo ""
+	@echo "Performance targets:"
+	@echo "  load-test       - Run load tests"
+	@echo "  profile-cpu     - Run CPU profiling"
+	@echo "  profile-memory  - Run memory profiling"
+	@echo "  profile-all     - Run all profiling"
+	@echo ""
+	@echo "Version management:"
+	@echo "  version-current - Show current version"
+	@echo "  version-bump-patch - Bump patch version"
+	@echo "  version-bump-minor - Bump minor version"
+	@echo "  version-bump-major - Bump major version"
+	@echo "  version-set     - Set specific version (VERSION=v1.2.3)"
+	@echo ""
+	@echo "Release targets:"
+	@echo "  prepare-release-patch - Prepare patch release"
+	@echo "  prepare-release-minor - Prepare minor release"
+	@echo "  prepare-release-major - Prepare major release"
+	@echo "  changelog       - Generate changelog"
+	@echo "  release-prep    - Run all release preparation checks"
+	@echo ""
+	@echo "Docker targets:"
 	@echo "  docker-build    - Build Docker image"
 	@echo "  docker-push     - Push Docker image"
 	@echo "  docker-run      - Run Docker container"
 	@echo "  docker-compose-up   - Start services with Docker Compose"
 	@echo "  docker-compose-down - Stop services with Docker Compose"
+	@echo ""
+	@echo "Utility targets:"
+	@echo "  run             - Run the application"
 	@echo "  install         - Install the binary locally"
+	@echo "  install-tools   - Install development tools"
 	@echo "  mocks           - Generate mock files"
-	@echo "  integration-test - Run integration tests (requires SLURM_REST_URL)"
+	@echo "  tidy            - Tidy up dependencies"
+	@echo "  update          - Update dependencies"
 	@echo "  check-version   - Check Go version"
-	@echo "  release-prep    - Prepare for release"
 	@echo "  help            - Show this help message"

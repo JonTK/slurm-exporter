@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: slurm-exporter
+  labels:
+    name: slurm-exporter
+    environment: production
+    component: monitoring
+  annotations:
+    description: "SLURM Exporter production namespace"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: slurm-exporter-quota
+  namespace: slurm-exporter
+spec:
+  hard:
+    requests.cpu: "2"
+    requests.memory: 4Gi
+    limits.cpu: "4"
+    limits.memory: 8Gi
+    persistentvolumeclaims: "3"
+    services: "5"
+    secrets: "10"
+    configmaps: "10"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: slurm-exporter-limits
+  namespace: slurm-exporter
+spec:
+  limits:
+  - default:
+      cpu: 500m
+      memory: 512Mi
+    defaultRequest:
+      cpu: 100m
+      memory: 128Mi
+    type: Container
+  - max:
+      cpu: "2"
+      memory: 2Gi
+    min:
+      cpu: 50m
+      memory: 64Mi
+    type: Container

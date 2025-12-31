@@ -1,0 +1,496 @@
+# Pod Security Standards Configuration for SLURM Exporter
+# This file implements comprehensive pod security hardening
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: slurm-exporter
+  labels:
+    name: slurm-exporter
+    environment: production
+    component: monitoring
+    # Pod Security Standards enforcement
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+    # Additional security labels
+    security.kubernetes.io/hardened: "true"
+    security.kubernetes.io/compliance: "restricted"
+  annotations:
+    pod-security.kubernetes.io/enforce-version: "latest"
+    pod-security.kubernetes.io/audit-version: "latest"
+    pod-security.kubernetes.io/warn-version: "latest"
+    description: "SLURM Exporter production namespace with restricted security policy"
+
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: slurm-exporter-restricted
+  labels:
+    app: slurm-exporter
+    component: security
+    security-level: restricted
+spec:
+  # Privilege escalation controls
+  privileged: false
+  allowPrivilegeEscalation: false
+  
+  # Required security contexts
+  requiredDropCapabilities:
+    - ALL
+  allowedCapabilities: []
+  
+  # User and group controls
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  runAsGroup:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1000
+        max: 65535
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1000
+        max: 65535
+  
+  # File system controls
+  readOnlyRootFilesystem: true
+  
+  # Volume controls
+  volumes:
+    - 'configMap'
+    - 'secret'
+    - 'emptyDir'
+    - 'projected'
+    - 'downwardAPI'
+  
+  # Host controls (all denied)
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  hostPorts: []
+  
+  # SELinux (if applicable)
+  seLinux:
+    rule: 'RunAsAny'
+  
+  # AppArmor (if applicable)
+  annotations:
+    apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'
+    apparmor.security.beta.kubernetes.io/defaultProfileName: 'runtime/default'
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: slurm-exporter-psp
+  labels:
+    app: slurm-exporter
+    component: security
+rules:
+- apiGroups: ['policy']
+  resources: ['podsecuritypolicies']
+  verbs: ['use']
+  resourceNames:
+  - slurm-exporter-restricted
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: slurm-exporter-psp
+  labels:
+    app: slurm-exporter
+    component: security
+roleRef:
+  kind: ClusterRole
+  name: slurm-exporter-psp
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: slurm-exporter
+  namespace: slurm-exporter
+
+---
+# Security Context Constraints for OpenShift (if applicable)
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: slurm-exporter-restricted
+  labels:
+    app: slurm-exporter
+    component: security
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegedContainer: false
+allowedCapabilities: []
+defaultAddCapabilities: []
+requiredDropCapabilities:
+- ALL
+allowedUnsafeSysctls: []
+forbiddenSysctls:
+- "*"
+fsGroup:
+  type: MustRunAs
+  ranges:
+  - min: 1000
+    max: 65535
+readOnlyRootFilesystem: true
+runAsUser:
+  type: MustRunAsNonRoot
+seLinuxContext:
+  type: MustRunAs
+users:
+- system:serviceaccount:slurm-exporter:slurm-exporter
+volumes:
+- configMap
+- secret
+- emptyDir
+- projected
+- downwardAPI
+
+---
+# Enhanced Deployment with security hardening
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slurm-exporter-secure
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: exporter
+    security-hardened: "true"
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    security.kubernetes.io/hardening-applied: "true"
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: slurm-exporter
+      component: exporter
+  template:
+    metadata:
+      labels:
+        app: slurm-exporter
+        component: exporter
+        security-hardened: "true"
+      annotations:
+        # Security annotations
+        container.apparmor.security.beta.kubernetes.io/slurm-exporter: runtime/default
+        seccomp.security.alpha.kubernetes.io/pod: runtime/default
+        # Prometheus scraping
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      # Security context for the pod
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534  # nobody user
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+        sysctls: []  # No custom sysctls allowed
+      
+      # Service account with minimal permissions
+      serviceAccountName: slurm-exporter
+      automountServiceAccountToken: true
+      
+      # Pod anti-affinity for security distribution
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - slurm-exporter
+              topologyKey: kubernetes.io/hostname
+      
+      # Node selector for secure nodes
+      nodeSelector:
+        kubernetes.io/os: linux
+        security.kubernetes.io/hardened: "true"  # Only on hardened nodes
+      
+      # Tolerations for security constraints
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Equal
+        effect: NoSchedule
+      - key: security.kubernetes.io/restricted
+        operator: Equal
+        effect: NoSchedule
+      
+      # Init container for security validation
+      initContainers:
+      - name: security-validator
+        image: alpine:3.18
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65534
+          runAsGroup: 65534
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Running security validation checks..."
+          
+          # Check we're running as non-root
+          if [ "$(id -u)" = "0" ]; then
+            echo "ERROR: Running as root user"
+            exit 1
+          fi
+          
+          # Check filesystem is read-only
+          if touch /test-file 2>/dev/null; then
+            echo "ERROR: Filesystem is not read-only"
+            exit 1
+          fi
+          
+          # Check no capabilities
+          if [ -f /proc/self/status ]; then
+            caps=$(grep Cap /proc/self/status)
+            if echo "$caps" | grep -v "0000000000000000"; then
+              echo "ERROR: Container has capabilities"
+              exit 1
+            fi
+          fi
+          
+          echo "Security validation passed"
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            cpu: 50m
+            memory: 32Mi
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      
+      containers:
+      - name: slurm-exporter
+        image: ghcr.io/jontk/slurm-exporter:v1.0.0
+        imagePullPolicy: IfNotPresent
+        
+        # Enhanced security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65534
+          runAsGroup: 65534
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+          seccompProfile:
+            type: RuntimeDefault
+          # Additional hardening
+          procMount: Default
+        
+        # Command and args with security flags
+        args:
+        - --config=/etc/slurm-exporter/config.yaml
+        - --log-level=info
+        - --log-format=json
+        - --security-mode=strict
+        - --disable-debug-endpoints
+        
+        # Environment variables (security-focused)
+        env:
+        - name: SLURM_REST_URL
+          valueFrom:
+            secretKeyRef:
+              name: slurm-credentials
+              key: rest-url
+        - name: SLURM_AUTH_TYPE
+          valueFrom:
+            secretKeyRef:
+              name: slurm-credentials
+              key: auth-type
+        - name: SLURM_JWT_PATH
+          value: "/etc/slurm-credentials/jwt-token"
+        - name: CLUSTER_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: slurm-exporter-env
+              key: cluster-name
+        - name: SECURITY_MODE
+          value: "strict"
+        - name: ENABLE_PPROF
+          value: "false"
+        - name: DISABLE_DEBUG
+          value: "true"
+        
+        # Ports
+        ports:
+        - name: http-metrics
+          containerPort: 8080
+          protocol: TCP
+        - name: http-health
+          containerPort: 8080
+          protocol: TCP
+        
+        # Enhanced volume mounts with security
+        volumeMounts:
+        - name: config
+          mountPath: /etc/slurm-exporter
+          readOnly: true
+        - name: jwt-token
+          mountPath: /etc/slurm-credentials
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+        - name: cache
+          mountPath: /var/cache/slurm-exporter
+        - name: run
+          mountPath: /var/run/slurm-exporter
+        
+        # Resource limits (security-conscious)
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+            ephemeral-storage: 100Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+            ephemeral-storage: 1Gi
+        
+        # Enhanced health checks
+        startupProbe:
+          httpGet:
+            path: /health
+            port: http-health
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 30
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http-health
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http-health
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        
+        # Lifecycle hooks for graceful shutdown
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - |
+                echo "Initiating graceful shutdown"
+                kill -TERM 1
+                sleep 10
+      
+      # Volumes with security constraints
+      volumes:
+      - name: config
+        configMap:
+          name: slurm-exporter-config
+          defaultMode: 0444  # Read-only for owner and group
+          items:
+          - key: config.yaml
+            path: config.yaml
+            mode: 0444
+      - name: jwt-token
+        secret:
+          secretName: slurm-credentials
+          defaultMode: 0400  # Read-only for owner only
+          items:
+          - key: jwt-token
+            path: jwt-token
+            mode: 0400
+      - name: tmp
+        emptyDir:
+          sizeLimit: 100Mi
+          medium: Memory  # Use memory for temporary files
+      - name: cache
+        emptyDir:
+          sizeLimit: 500Mi
+      - name: run
+        emptyDir:
+          sizeLimit: 10Mi
+      
+      # DNS and networking
+      dnsPolicy: ClusterFirst
+      dnsConfig:
+        options:
+        - name: ndots
+          value: "2"
+        - name: edns0
+      
+      # Security constraints
+      hostNetwork: false
+      hostPID: false
+      hostIPC: false
+      shareProcessNamespace: false
+      
+      # Pod-level constraints
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      
+      # Priority and scheduling
+      priorityClassName: system-cluster-critical
+      schedulerName: default-scheduler
+
+---
+# Pod Disruption Budget with security considerations
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: slurm-exporter-secure
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: security
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: slurm-exporter
+      component: exporter
+      security-hardened: "true"

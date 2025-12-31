@@ -1,0 +1,818 @@
+# Capacity Planning Framework for SLURM Exporter
+# This file defines capacity planning automation and resource prediction
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: capacity-planning-config
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: capacity-planning
+data:
+  capacity-models.yaml: |
+    # Capacity Planning Models
+    capacity_planning:
+      # Resource prediction models
+      models:
+        cpu_utilization:
+          name: "CPU Utilization Prediction"
+          metric: "container_cpu_usage_seconds_total"
+          prediction_horizon: "30d"
+          growth_rate_threshold: 15  # % per month
+          capacity_threshold: 80     # % utilization
+          
+        memory_utilization:
+          name: "Memory Utilization Prediction"
+          metric: "container_memory_working_set_bytes"
+          prediction_horizon: "30d"
+          growth_rate_threshold: 20  # % per month
+          capacity_threshold: 85     # % utilization
+          
+        cardinality_growth:
+          name: "Metric Cardinality Growth"
+          metric: "slurm_exporter_cardinality_current"
+          prediction_horizon: "60d"
+          growth_rate_threshold: 25  # % per month
+          capacity_threshold: 40000  # Max cardinality
+          
+        request_volume:
+          name: "Request Volume Growth"
+          metric: "prometheus_http_requests_total"
+          prediction_horizon: "45d"
+          growth_rate_threshold: 30  # % per month
+          capacity_threshold: 1000   # RPS
+          
+        storage_usage:
+          name: "Storage Usage Growth"
+          metric: "kubelet_volume_stats_used_bytes"
+          prediction_horizon: "90d"
+          growth_rate_threshold: 10  # % per month
+          capacity_threshold: 80     # % of volume
+      
+      # Scaling recommendations
+      scaling:
+        cpu:
+          current_limit: "1000m"
+          recommended_increment: "500m"
+          max_limit: "4000m"
+          
+        memory:
+          current_limit: "1Gi"
+          recommended_increment: "512Mi"
+          max_limit: "8Gi"
+          
+        replicas:
+          current_min: 3
+          current_max: 10
+          recommended_max: 20
+          
+        storage:
+          current_size: "100Gi"
+          recommended_increment: "50Gi"
+          max_size: "1Ti"
+      
+      # Cost optimization
+      cost_optimization:
+        enabled: true
+        target_utilization: 70  # Target 70% utilization
+        scale_down_threshold: 50  # Scale down below 50%
+        scale_up_threshold: 85    # Scale up above 85%
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: capacity-analysis
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: capacity-planning
+spec:
+  schedule: "0 3 1 * *"  # Monthly on 1st day at 3 AM
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: slurm-exporter
+            component: capacity-planning
+            analysis-type: monthly
+        spec:
+          restartPolicy: Never
+          
+          containers:
+          - name: capacity-analyzer
+            image: python:3.11-slim
+            imagePullPolicy: IfNotPresent
+            
+            env:
+            - name: PROMETHEUS_URL
+              value: "http://prometheus.monitoring:9090"
+            - name: SLACK_WEBHOOK
+              valueFrom:
+                secretKeyRef:
+                  name: capacity-notifications
+                  key: slack-webhook
+            - name: ANALYSIS_TYPE
+              value: "monthly"
+            
+            command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              
+              echo "Starting monthly capacity analysis"
+              
+              # Install required packages
+              pip install requests pandas numpy scipy scikit-learn matplotlib seaborn
+              
+              # Create capacity analysis script
+              cat > /tmp/capacity_analyzer.py << 'EOF'
+              import requests
+              import json
+              import pandas as pd
+              import numpy as np
+              from datetime import datetime, timedelta
+              import os
+              from sklearn.linear_model import LinearRegression
+              from sklearn.preprocessing import PolynomialFeatures
+              import warnings
+              warnings.filterwarnings('ignore')
+              
+              class CapacityPlanner:
+                  def __init__(self, prometheus_url, slack_webhook):
+                      self.prometheus_url = prometheus_url
+                      self.slack_webhook = slack_webhook
+                      self.prediction_accuracy_threshold = 0.7  # R² threshold
+                  
+                  def query_prometheus_range(self, query, days_back=30):
+                      """Query Prometheus for historical data"""
+                      end_time = datetime.now()
+                      start_time = end_time - timedelta(days=days_back)
+                      
+                      params = {
+                          'query': query,
+                          'start': start_time.isoformat() + 'Z',
+                          'end': end_time.isoformat() + 'Z',
+                          'step': '1h'  # 1-hour intervals
+                      }
+                      
+                      try:
+                          response = requests.get(
+                              f"{self.prometheus_url}/api/v1/query_range",
+                              params=params,
+                              timeout=30
+                          )
+                          
+                          if response.status_code == 200:
+                              return response.json()['data']['result']
+                          else:
+                              print(f"Prometheus query failed: {response.status_code}")
+                              return []
+                      except Exception as e:
+                          print(f"Error querying Prometheus: {e}")
+                          return []
+                  
+                  def analyze_resource_trends(self):
+                      """Analyze resource utilization trends"""
+                      print("Analyzing resource utilization trends...")
+                      
+                      # Define metrics to analyze
+                      metrics = {
+                          'CPU Usage': 'rate(container_cpu_usage_seconds_total{pod=~"slurm-exporter-.*"}[5m]) * 100',
+                          'Memory Usage': 'container_memory_working_set_bytes{pod=~"slurm-exporter-.*"} / 1024 / 1024 / 1024',
+                          'Network RX': 'rate(container_network_receive_bytes_total{pod=~"slurm-exporter-.*"}[5m]) / 1024 / 1024',
+                          'Network TX': 'rate(container_network_transmit_bytes_total{pod=~"slurm-exporter-.*"}[5m]) / 1024 / 1024',
+                          'Request Rate': 'rate(prometheus_http_requests_total{job="slurm-exporter"}[5m])',
+                          'Cardinality': 'slurm_exporter_cardinality_current',
+                      }
+                      
+                      analysis_results = {}
+                      
+                      for metric_name, query in metrics.items():
+                          print(f"Analyzing {metric_name}...")
+                          
+                          data = self.query_prometheus_range(query, days_back=30)
+                          if not data or not data[0].get('values'):
+                              print(f"No data available for {metric_name}")
+                              continue
+                          
+                          # Convert to DataFrame
+                          timestamps = []
+                          values = []
+                          
+                          for value in data[0]['values']:
+                              timestamp = datetime.fromtimestamp(float(value[0]))
+                              val = float(value[1])
+                              if not np.isnan(val) and val >= 0:  # Filter invalid values
+                                  timestamps.append(timestamp)
+                                  values.append(val)
+                          
+                          if len(values) < 10:  # Need minimum data points
+                              print(f"Insufficient data points for {metric_name}")
+                              continue
+                          
+                          df = pd.DataFrame({'timestamp': timestamps, 'value': values})
+                          df['hour'] = range(len(df))
+                          
+                          # Trend analysis
+                          trend_result = self.calculate_trend(df, metric_name)
+                          analysis_results[metric_name] = trend_result
+                      
+                      return analysis_results
+                  
+                  def calculate_trend(self, df, metric_name):
+                      """Calculate trend and predict future values"""
+                      try:
+                          X = df[['hour']].values
+                          y = df['value'].values
+                          
+                          # Linear regression
+                          model = LinearRegression()
+                          model.fit(X, y)
+                          
+                          # Calculate R² score
+                          r2_score = model.score(X, y)
+                          
+                          # Predict next 30 days (720 hours)
+                          future_hours = np.array([[max(X)[0] + i] for i in range(1, 721)])
+                          future_predictions = model.predict(future_hours)
+                          
+                          # Calculate growth rate (per month)
+                          current_avg = np.mean(y[-168:]) if len(y) >= 168 else np.mean(y)  # Last week average
+                          predicted_month = np.mean(future_predictions[-168:])  # Last week of prediction
+                          
+                          growth_rate = ((predicted_month - current_avg) / current_avg * 100) if current_avg > 0 else 0
+                          
+                          # Determine capacity status
+                          current_max = np.max(y[-168:]) if len(y) >= 168 else np.max(y)
+                          predicted_max = np.max(future_predictions)
+                          
+                          return {
+                              'current_average': current_avg,
+                              'current_max': current_max,
+                              'predicted_average': predicted_month,
+                              'predicted_max': predicted_max,
+                              'growth_rate_percent': growth_rate,
+                              'r2_score': r2_score,
+                              'trend': 'increasing' if growth_rate > 5 else 'stable' if growth_rate > -5 else 'decreasing',
+                              'prediction_confidence': 'high' if r2_score > 0.7 else 'medium' if r2_score > 0.5 else 'low'
+                          }
+                      
+                      except Exception as e:
+                          print(f"Error calculating trend for {metric_name}: {e}")
+                          return None
+                  
+                  def generate_scaling_recommendations(self, analysis_results):
+                      """Generate scaling recommendations based on trends"""
+                      recommendations = []
+                      
+                      # CPU recommendations
+                      if 'CPU Usage' in analysis_results:
+                          cpu_data = analysis_results['CPU Usage']
+                          if cpu_data and cpu_data['predicted_max'] > 80:  # > 80% CPU
+                              recommendations.append({
+                                  'component': 'CPU',
+                                  'action': 'scale_up',
+                                  'current': f"{cpu_data['current_max']:.1f}%",
+                                  'predicted': f"{cpu_data['predicted_max']:.1f}%",
+                                  'recommendation': 'Increase CPU limits from 1000m to 1500m',
+                                  'urgency': 'high' if cpu_data['predicted_max'] > 90 else 'medium'
+                              })
+                      
+                      # Memory recommendations
+                      if 'Memory Usage' in analysis_results:
+                          mem_data = analysis_results['Memory Usage']
+                          if mem_data and mem_data['predicted_max'] > 0.8:  # > 0.8 GB
+                              recommendations.append({
+                                  'component': 'Memory',
+                                  'action': 'scale_up',
+                                  'current': f"{mem_data['current_max']:.2f}GB",
+                                  'predicted': f"{mem_data['predicted_max']:.2f}GB",
+                                  'recommendation': 'Increase memory limits from 1Gi to 2Gi',
+                                  'urgency': 'high' if mem_data['predicted_max'] > 1.5 else 'medium'
+                              })
+                      
+                      # Cardinality recommendations
+                      if 'Cardinality' in analysis_results:
+                          card_data = analysis_results['Cardinality']
+                          if card_data and card_data['predicted_max'] > 40000:
+                              recommendations.append({
+                                  'component': 'Cardinality',
+                                  'action': 'optimize',
+                                  'current': f"{card_data['current_max']:.0f}",
+                                  'predicted': f"{card_data['predicted_max']:.0f}",
+                                  'recommendation': 'Implement stricter metric filtering or sampling',
+                                  'urgency': 'high' if card_data['predicted_max'] > 50000 else 'medium'
+                              })
+                      
+                      # Request rate recommendations
+                      if 'Request Rate' in analysis_results:
+                          req_data = analysis_results['Request Rate']
+                          if req_data and req_data['predicted_max'] > 500:  # > 500 RPS
+                              recommendations.append({
+                                  'component': 'Replicas',
+                                  'action': 'scale_out',
+                                  'current': f"{req_data['current_max']:.1f} RPS",
+                                  'predicted': f"{req_data['predicted_max']:.1f} RPS",
+                                  'recommendation': 'Increase max replicas from 10 to 15',
+                                  'urgency': 'medium'
+                              })
+                      
+                      return recommendations
+                  
+                  def send_capacity_report(self, analysis_results, recommendations):
+                      """Send capacity planning report via Slack"""
+                      # Create summary
+                      summary = "📊 **Monthly Capacity Planning Report**\n\n"
+                      
+                      # Add trend analysis
+                      summary += "**Resource Trends (30-day projection):**\n"
+                      for metric, data in analysis_results.items():
+                          if data:
+                              trend_emoji = "📈" if data['trend'] == 'increasing' else "📉" if data['trend'] == 'decreasing' else "➡️"
+                              confidence_emoji = "🟢" if data['prediction_confidence'] == 'high' else "🟡" if data['prediction_confidence'] == 'medium' else "🔴"
+                              
+                              summary += f"{trend_emoji} {metric}: {data['growth_rate_percent']:+.1f}% growth {confidence_emoji}\n"
+                      
+                      # Add recommendations
+                      if recommendations:
+                          summary += f"\n**Scaling Recommendations ({len(recommendations)}):**\n"
+                          for rec in recommendations:
+                              urgency_emoji = "🔴" if rec['urgency'] == 'high' else "🟡"
+                              summary += f"{urgency_emoji} {rec['component']}: {rec['recommendation']}\n"
+                      else:
+                          summary += "\n✅ **No scaling required** - All resources within capacity"
+                      
+                      # Send notification
+                      payload = {
+                          "attachments": [{
+                              "color": "warning" if recommendations else "good",
+                              "text": summary
+                          }]
+                      }
+                      
+                      try:
+                          requests.post(self.slack_webhook, json=payload)
+                          print("Capacity report sent to Slack")
+                      except Exception as e:
+                          print(f"Failed to send Slack notification: {e}")
+                  
+                  def save_analysis_results(self, analysis_results, recommendations):
+                      """Save analysis results to file"""
+                      report = {
+                          'timestamp': datetime.now().isoformat(),
+                          'analysis_type': 'monthly_capacity_planning',
+                          'resource_trends': analysis_results,
+                          'scaling_recommendations': recommendations,
+                          'summary': {
+                              'total_metrics_analyzed': len(analysis_results),
+                              'recommendations_count': len(recommendations),
+                              'high_urgency_items': len([r for r in recommendations if r['urgency'] == 'high'])
+                          }
+                      }
+                      
+                      with open('/tmp/capacity-analysis-report.json', 'w') as f:
+                          json.dump(report, f, indent=2, default=str)
+                      
+                      print("Analysis results saved to /tmp/capacity-analysis-report.json")
+                  
+                  def run_capacity_analysis(self):
+                      """Run complete capacity planning analysis"""
+                      print("Starting comprehensive capacity analysis...")
+                      
+                      # Analyze resource trends
+                      analysis_results = self.analyze_resource_trends()
+                      
+                      # Generate recommendations
+                      recommendations = self.generate_scaling_recommendations(analysis_results)
+                      
+                      # Send report
+                      self.send_capacity_report(analysis_results, recommendations)
+                      
+                      # Save results
+                      self.save_analysis_results(analysis_results, recommendations)
+                      
+                      print(f"Capacity analysis complete. Found {len(recommendations)} recommendations.")
+                      
+                      # Return success status
+                      return len([r for r in recommendations if r['urgency'] == 'high']) == 0
+              
+              if __name__ == "__main__":
+                  prometheus_url = os.getenv('PROMETHEUS_URL', 'http://prometheus.monitoring:9090')
+                  slack_webhook = os.getenv('SLACK_WEBHOOK')
+                  
+                  planner = CapacityPlanner(prometheus_url, slack_webhook)
+                  success = planner.run_capacity_analysis()
+                  
+                  if not success:
+                      print("High-urgency capacity issues detected")
+                      exit(1)
+                  else:
+                      print("Capacity analysis completed successfully")
+              EOF
+              
+              # Run capacity analysis
+              python /tmp/capacity_analyzer.py
+              
+              echo "Monthly capacity analysis completed"
+            
+            resources:
+              requests:
+                cpu: 500m
+                memory: 512Mi
+              limits:
+                cpu: 2000m
+                memory: 2Gi
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: capacity-simulation
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: capacity-planning
+    simulation-type: cluster-growth
+spec:
+  template:
+    metadata:
+      labels:
+        app: slurm-exporter
+        component: capacity-planning
+        simulation-type: cluster-growth
+    spec:
+      restartPolicy: Never
+      
+      containers:
+      - name: capacity-simulator
+        image: python:3.11-slim
+        imagePullPolicy: IfNotPresent
+        
+        env:
+        - name: SIMULATION_TYPE
+          value: "cluster_growth"
+        - name: PROMETHEUS_URL
+          value: "http://prometheus.monitoring:9090"
+        
+        command:
+        - /bin/bash
+        - -c
+        - |
+          set -e
+          
+          echo "Starting capacity simulation for cluster growth scenarios"
+          
+          # Install required packages
+          pip install numpy pandas matplotlib seaborn
+          
+          # Create simulation script
+          cat > /tmp/capacity_simulator.py << 'EOF'
+          import numpy as np
+          import pandas as pd
+          import json
+          from datetime import datetime, timedelta
+          
+          class ClusterGrowthSimulator:
+              def __init__(self):
+                  # Current cluster baseline (estimated)
+                  self.current_nodes = 1000
+                  self.current_jobs_per_hour = 500
+                  self.current_users = 100
+                  
+                  # Performance characteristics per node/job
+                  self.metrics_per_node = 50      # metrics per node
+                  self.metrics_per_job = 20       # metrics per job
+                  self.cardinality_per_user = 10  # additional cardinality per user
+                  
+                  # Resource consumption models
+                  self.cpu_per_1k_metrics = 50    # mCPU per 1000 metrics
+                  self.memory_per_1k_metrics = 10  # MB per 1000 metrics
+                  self.network_per_1k_metrics = 5  # KB/s per 1000 metrics
+              
+              def simulate_growth_scenario(self, node_growth_rate, job_growth_rate, user_growth_rate, months=12):
+                  """Simulate cluster growth over time"""
+                  results = []
+                  
+                  current_nodes = self.current_nodes
+                  current_jobs_per_hour = self.current_jobs_per_hour
+                  current_users = self.current_users
+                  
+                  for month in range(months + 1):
+                      # Calculate growth
+                      nodes = int(current_nodes * (1 + node_growth_rate/100) ** month)
+                      jobs_per_hour = int(current_jobs_per_hour * (1 + job_growth_rate/100) ** month)
+                      users = int(current_users * (1 + user_growth_rate/100) ** month)
+                      
+                      # Calculate metrics
+                      node_metrics = nodes * self.metrics_per_node
+                      job_metrics = jobs_per_hour * self.metrics_per_job
+                      total_metrics = node_metrics + job_metrics
+                      
+                      # Calculate cardinality (with user factor)
+                      base_cardinality = total_metrics
+                      user_factor = 1 + (users * self.cardinality_per_user / 1000)
+                      total_cardinality = int(base_cardinality * user_factor)
+                      
+                      # Calculate resource requirements
+                      cpu_required = (total_metrics / 1000) * self.cpu_per_1k_metrics  # mCPU
+                      memory_required = (total_metrics / 1000) * self.memory_per_1k_metrics  # MB
+                      network_required = (total_metrics / 1000) * self.network_per_1k_metrics  # KB/s
+                      
+                      # Calculate instance requirements (assuming 1000mCPU and 1GB per instance)
+                      instances_needed = max(
+                          int(np.ceil(cpu_required / 1000)),
+                          int(np.ceil(memory_required / 1024))
+                      )
+                      
+                      result = {
+                          'month': month,
+                          'nodes': nodes,
+                          'jobs_per_hour': jobs_per_hour,
+                          'users': users,
+                          'total_metrics': total_metrics,
+                          'total_cardinality': total_cardinality,
+                          'cpu_required_mcpu': cpu_required,
+                          'memory_required_mb': memory_required,
+                          'network_required_kbps': network_required,
+                          'instances_needed': instances_needed,
+                          'growth_factor': {
+                              'nodes': nodes / self.current_nodes,
+                              'jobs': jobs_per_hour / self.current_jobs_per_hour,
+                              'users': users / self.current_users
+                          }
+                      }
+                      
+                      results.append(result)
+                  
+                  return results
+              
+              def run_scenarios(self):
+                  """Run multiple growth scenarios"""
+                  scenarios = [
+                      {
+                          'name': 'Conservative Growth',
+                          'node_growth': 5,    # 5% per month
+                          'job_growth': 8,     # 8% per month
+                          'user_growth': 3     # 3% per month
+                      },
+                      {
+                          'name': 'Moderate Growth',
+                          'node_growth': 10,   # 10% per month
+                          'job_growth': 15,    # 15% per month
+                          'user_growth': 7     # 7% per month
+                      },
+                      {
+                          'name': 'Aggressive Growth',
+                          'node_growth': 20,   # 20% per month
+                          'job_growth': 25,    # 25% per month
+                          'user_growth': 15    # 15% per month
+                      },
+                      {
+                          'name': 'Extreme Growth',
+                          'node_growth': 35,   # 35% per month
+                          'job_growth': 40,    # 40% per month
+                          'user_growth': 25    # 25% per month
+                      }
+                  ]
+                  
+                  all_results = {}
+                  
+                  for scenario in scenarios:
+                      print(f"Running {scenario['name']} scenario...")
+                      results = self.simulate_growth_scenario(
+                          scenario['node_growth'],
+                          scenario['job_growth'],
+                          scenario['user_growth'],
+                          months=12
+                      )
+                      all_results[scenario['name']] = results
+                  
+                  return all_results
+              
+              def analyze_scaling_points(self, results):
+                  """Analyze when scaling actions are needed"""
+                  scaling_analysis = {}
+                  
+                  for scenario_name, scenario_results in results.items():
+                      scaling_points = []
+                      
+                      for result in scenario_results:
+                          month = result['month']
+                          
+                          # Check scaling thresholds
+                          scaling_needed = []
+                          
+                          # CPU scaling threshold (80% of current capacity)
+                          if result['cpu_required_mcpu'] > 800:  # 800 mCPU (80% of 1000)
+                              scaling_needed.append('cpu')
+                          
+                          # Memory scaling threshold (80% of current capacity)
+                          if result['memory_required_mb'] > 819:  # 819 MB (80% of 1024)
+                              scaling_needed.append('memory')
+                          
+                          # Cardinality threshold
+                          if result['total_cardinality'] > 40000:
+                              scaling_needed.append('cardinality')
+                          
+                          # Instance scaling
+                          if result['instances_needed'] > 1:
+                              scaling_needed.append('horizontal_scaling')
+                          
+                          if scaling_needed:
+                              scaling_points.append({
+                                  'month': month,
+                                  'scaling_required': scaling_needed,
+                                  'metrics': result
+                              })
+                      
+                      scaling_analysis[scenario_name] = scaling_points
+                  
+                  return scaling_analysis
+              
+              def generate_recommendations(self, scaling_analysis):
+                  """Generate capacity planning recommendations"""
+                  recommendations = {}
+                  
+                  for scenario_name, scaling_points in scaling_analysis.items():
+                      scenario_recommendations = []
+                      
+                      if not scaling_points:
+                          scenario_recommendations.append({
+                              'action': 'monitor',
+                              'description': 'Current capacity sufficient for 12 months',
+                              'urgency': 'low'
+                          })
+                      else:
+                          first_scaling = scaling_points[0]
+                          
+                          if first_scaling['month'] <= 3:
+                              urgency = 'high'
+                              timeline = 'immediate'
+                          elif first_scaling['month'] <= 6:
+                              urgency = 'medium'
+                              timeline = 'short-term'
+                          else:
+                              urgency = 'low'
+                              timeline = 'long-term'
+                          
+                          for scaling_need in first_scaling['scaling_required']:
+                              if scaling_need == 'cpu':
+                                  scenario_recommendations.append({
+                                      'action': 'increase_cpu_limits',
+                                      'description': f'Increase CPU limits by month {first_scaling["month"]}',
+                                      'urgency': urgency,
+                                      'timeline': timeline
+                                  })
+                              elif scaling_need == 'memory':
+                                  scenario_recommendations.append({
+                                      'action': 'increase_memory_limits',
+                                      'description': f'Increase memory limits by month {first_scaling["month"]}',
+                                      'urgency': urgency,
+                                      'timeline': timeline
+                                  })
+                              elif scaling_need == 'cardinality':
+                                  scenario_recommendations.append({
+                                      'action': 'optimize_cardinality',
+                                      'description': f'Implement cardinality controls by month {first_scaling["month"]}',
+                                      'urgency': urgency,
+                                      'timeline': timeline
+                                  })
+                              elif scaling_need == 'horizontal_scaling':
+                                  scenario_recommendations.append({
+                                      'action': 'horizontal_scaling',
+                                      'description': f'Enable horizontal scaling by month {first_scaling["month"]}',
+                                      'urgency': urgency,
+                                      'timeline': timeline
+                                  })
+                      
+                      recommendations[scenario_name] = scenario_recommendations
+                  
+                  return recommendations
+              
+              def save_simulation_results(self, results, scaling_analysis, recommendations):
+                  """Save all simulation results"""
+                  report = {
+                      'timestamp': datetime.now().isoformat(),
+                      'simulation_type': 'cluster_growth_capacity_planning',
+                      'baseline': {
+                          'current_nodes': self.current_nodes,
+                          'current_jobs_per_hour': self.current_jobs_per_hour,
+                          'current_users': self.current_users
+                      },
+                      'scenarios': results,
+                      'scaling_analysis': scaling_analysis,
+                      'recommendations': recommendations,
+                      'summary': {
+                          'scenarios_analyzed': len(results),
+                          'immediate_action_required': any(
+                              any(rec['urgency'] == 'high' for rec in recs)
+                              for recs in recommendations.values()
+                          )
+                      }
+                  }
+                  
+                  with open('/tmp/capacity-simulation-report.json', 'w') as f:
+                      json.dump(report, f, indent=2, default=str)
+                  
+                  print("Simulation results saved to /tmp/capacity-simulation-report.json")
+                  
+                  return report
+          
+          if __name__ == "__main__":
+              simulator = ClusterGrowthSimulator()
+              
+              print("Running cluster growth capacity simulations...")
+              
+              # Run scenarios
+              results = simulator.run_scenarios()
+              
+              # Analyze scaling points
+              scaling_analysis = simulator.analyze_scaling_points(results)
+              
+              # Generate recommendations
+              recommendations = simulator.generate_recommendations(scaling_analysis)
+              
+              # Save results
+              report = simulator.save_simulation_results(results, scaling_analysis, recommendations)
+              
+              # Print summary
+              print("\n=== CAPACITY SIMULATION SUMMARY ===")
+              for scenario_name, recs in recommendations.items():
+                  print(f"\n{scenario_name}:")
+                  for rec in recs:
+                      urgency_indicator = "🔴" if rec['urgency'] == 'high' else "🟡" if rec['urgency'] == 'medium' else "🟢"
+                      print(f"  {urgency_indicator} {rec['action']}: {rec['description']}")
+              
+              # Check if immediate action is required
+              if report['summary']['immediate_action_required']:
+                  print("\n⚠️  IMMEDIATE ACTION REQUIRED - High urgency scaling needs detected")
+                  exit(1)
+              else:
+                  print("\n✅ Capacity simulation completed - No immediate scaling required")
+          EOF
+          
+          # Run capacity simulation
+          python /tmp/capacity_simulator.py
+          
+          echo "Capacity simulation completed"
+        
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: capacity-planning-alerts
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: capacity-planning
+spec:
+  groups:
+  - name: capacity-planning
+    rules:
+    - alert: CapacityPlanningAnalysisRequired
+      expr: (time() - slurm_exporter_last_capacity_analysis_timestamp) > 2678400  # 31 days
+      for: 0m
+      labels:
+        severity: warning
+        component: capacity-planning
+      annotations:
+        summary: "Capacity planning analysis overdue"
+        description: "Monthly capacity analysis has not run in over 31 days"
+        action: "Run capacity planning analysis job"
+        
+    - alert: HighResourceGrowthRate
+      expr: predict_linear(container_cpu_usage_seconds_total{pod=~"slurm-exporter-.*"}[7d], 2592000) > 0.8
+      for: 30m
+      labels:
+        severity: warning
+        component: capacity-planning
+      annotations:
+        summary: "High CPU growth rate detected"
+        description: "CPU usage growth rate suggests capacity limits will be reached within 30 days"
+        action: "Review scaling recommendations and implement capacity increases"
+        
+    - alert: CardinalityGrowthAlert
+      expr: predict_linear(slurm_exporter_cardinality_current[7d], 2592000) > 45000
+      for: 30m
+      labels:
+        severity: warning
+        component: capacity-planning
+      annotations:
+        summary: "High cardinality growth rate"
+        description: "Metric cardinality growth suggests limits will be exceeded within 30 days"
+        action: "Implement cardinality controls and filtering"

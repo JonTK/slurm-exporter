@@ -1,0 +1,233 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: slurm-exporter
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: monitoring
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: slurm-exporter
+      component: service
+  
+  endpoints:
+  - port: http-metrics
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 15s
+    honorLabels: true
+    
+    # Metric relabeling
+    metricRelabelings:
+    - sourceLabels: [__name__]
+      regex: go_.*
+      action: drop
+    - sourceLabels: [__name__]
+      regex: promhttp_.*
+      action: drop
+    
+    # Target relabeling
+    relabelings:
+    - sourceLabels: [__meta_kubernetes_pod_name]
+      targetLabel: pod
+    - sourceLabels: [__meta_kubernetes_pod_node_name]
+      targetLabel: node
+    - sourceLabels: [__meta_kubernetes_namespace]
+      targetLabel: namespace
+    - sourceLabels: [__meta_kubernetes_service_name]
+      targetLabel: service
+    - targetLabel: cluster
+      replacement: production
+  
+  namespaceSelector:
+    matchNames:
+    - slurm-exporter
+  
+  jobLabel: slurm-exporter
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: slurm-exporter
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: alerts
+    prometheus: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+  - name: slurm-exporter.rules
+    interval: 30s
+    rules:
+    
+    # Service availability alerts
+    - alert: SlurmExporterDown
+      expr: up{job="slurm-exporter"} == 0
+      for: 5m
+      labels:
+        severity: critical
+        service: slurm-exporter
+      annotations:
+        summary: "SLURM Exporter is down"
+        description: "SLURM Exporter has been down for more than 5 minutes on {{ $labels.instance }}"
+        runbook_url: "https://docs.example.com/runbooks/slurm-exporter-down"
+    
+    - alert: SlurmExporterHighErrorRate
+      expr: rate(slurm_exporter_collection_errors_total[5m]) > 0.1
+      for: 10m
+      labels:
+        severity: warning
+        service: slurm-exporter
+      annotations:
+        summary: "SLURM Exporter high error rate"
+        description: "SLURM Exporter error rate is {{ $value | humanizePercentage }} on {{ $labels.instance }}"
+        runbook_url: "https://docs.example.com/runbooks/slurm-exporter-errors"
+    
+    # Performance alerts
+    - alert: SlurmExporterHighScrapeDuration
+      expr: slurm_exporter_scrape_duration_seconds > 30
+      for: 15m
+      labels:
+        severity: warning
+        service: slurm-exporter
+      annotations:
+        summary: "SLURM Exporter slow scrapes"
+        description: "SLURM Exporter scrape duration is {{ $value }}s on {{ $labels.instance }}"
+        runbook_url: "https://docs.example.com/runbooks/slurm-exporter-slow"
+    
+    - alert: SlurmExporterHighMemoryUsage
+      expr: process_resident_memory_bytes{job="slurm-exporter"} / (1024*1024) > 400
+      for: 15m
+      labels:
+        severity: warning
+        service: slurm-exporter
+      annotations:
+        summary: "SLURM Exporter high memory usage"
+        description: "SLURM Exporter memory usage is {{ $value | humanize }}MB on {{ $labels.instance }}"
+        runbook_url: "https://docs.example.com/runbooks/slurm-exporter-memory"
+    
+    # SLURM connectivity alerts
+    - alert: SlurmApiConnectivityIssue
+      expr: slurm_exporter_slurm_api_errors_total > 0
+      for: 5m
+      labels:
+        severity: critical
+        service: slurm-exporter
+        component: slurm-api
+      annotations:
+        summary: "SLURM API connectivity issues"
+        description: "SLURM Exporter cannot connect to SLURM API on {{ $labels.instance }}"
+        runbook_url: "https://docs.example.com/runbooks/slurm-api-connectivity"
+    
+    - alert: SlurmDataStaleness
+      expr: time() - slurm_exporter_last_successful_scrape_timestamp > 300
+      for: 10m
+      labels:
+        severity: warning
+        service: slurm-exporter
+        component: data-freshness
+      annotations:
+        summary: "SLURM data is stale"
+        description: "SLURM data hasn't been updated for {{ $value | humanizeDuration }} on {{ $labels.instance }}"
+        runbook_url: "https://docs.example.com/runbooks/slurm-data-stale"
+    
+    # Cardinality alerts
+    - alert: SlurmExporterHighCardinality
+      expr: slurm_exporter_cardinality_current > 45000
+      for: 15m
+      labels:
+        severity: warning
+        service: slurm-exporter
+        component: cardinality
+      annotations:
+        summary: "SLURM Exporter high metric cardinality"
+        description: "SLURM Exporter metric cardinality is {{ $value }} on {{ $labels.instance }}"
+        runbook_url: "https://docs.example.com/runbooks/slurm-exporter-cardinality"
+    
+    # Kubernetes alerts
+    - alert: SlurmExporterPodRestarts
+      expr: increase(kube_pod_container_status_restarts_total{container="slurm-exporter"}[1h]) > 3
+      for: 0m
+      labels:
+        severity: warning
+        service: slurm-exporter
+        component: kubernetes
+      annotations:
+        summary: "SLURM Exporter pod restarting frequently"
+        description: "SLURM Exporter pod has restarted {{ $value }} times in the last hour"
+        runbook_url: "https://docs.example.com/runbooks/slurm-exporter-restarts"
+    
+    - alert: SlurmExporterPodNotReady
+      expr: kube_pod_status_ready{condition="false", pod=~"slurm-exporter-.*"} == 1
+      for: 5m
+      labels:
+        severity: warning
+        service: slurm-exporter
+        component: kubernetes
+      annotations:
+        summary: "SLURM Exporter pod not ready"
+        description: "SLURM Exporter pod {{ $labels.pod }} is not ready"
+        runbook_url: "https://docs.example.com/runbooks/slurm-exporter-not-ready"
+
+  - name: slurm-cluster.rules
+    interval: 60s
+    rules:
+    
+    # SLURM cluster health recording rules
+    - record: slurm:cluster_health_score
+      expr: |
+        (
+          (slurm_nodes_total{state="idle"} + slurm_nodes_total{state="mixed"} + slurm_nodes_total{state="allocated"}) 
+          / slurm_nodes_total
+        ) * 100
+    
+    - record: slurm:job_queue_depth
+      expr: slurm_jobs_total{state="pending"}
+    
+    - record: slurm:cluster_utilization_percent
+      expr: |
+        (
+          slurm_cpus_total{state="allocated"} 
+          / slurm_cpus_total
+        ) * 100
+    
+    # SLA recording rules
+    - record: slurm:exporter_availability_5m
+      expr: avg_over_time(up{job="slurm-exporter"}[5m]) * 100
+    
+    - record: slurm:exporter_availability_1h
+      expr: avg_over_time(up{job="slurm-exporter"}[1h]) * 100
+    
+    - record: slurm:exporter_availability_24h
+      expr: avg_over_time(up{job="slurm-exporter"}[24h]) * 100
+
+---
+# PodMonitor for additional pod-level metrics
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: slurm-exporter
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: pod-monitoring
+spec:
+  selector:
+    matchLabels:
+      app: slurm-exporter
+      component: exporter
+  
+  podMetricsEndpoints:
+  - port: http-metrics
+    path: /metrics
+    interval: 30s
+    
+  - port: pprof
+    path: /debug/pprof/heap
+    interval: 300s  # Less frequent profiling
+    scheme: http

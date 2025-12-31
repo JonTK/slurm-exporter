@@ -1,0 +1,337 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: slurm-exporter-operational
+  namespace: monitoring
+  labels:
+    app: slurm-exporter
+    component: operational-alerts
+    prometheus: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+  
+  # SLA and Service Level Objectives
+  - name: slurm-exporter.sla
+    interval: 60s
+    rules:
+    
+    # Availability SLO: 99.9% uptime
+    - alert: SlurmExporterSLABreach
+      expr: slurm:exporter_availability_24h < 99.9
+      for: 5m
+      labels:
+        severity: critical
+        service: slurm-exporter
+        sla: availability
+        priority: P0
+      annotations:
+        summary: "SLURM Exporter SLA breach - availability below 99.9%"
+        description: "SLURM Exporter availability is {{ $value | humanizePercentage }} over last 24h (SLA: 99.9%)"
+        impact: "Critical monitoring data loss affecting SLURM cluster observability"
+        action_required: "Immediate investigation and remediation required"
+        escalation_policy: "Page on-call engineer immediately"
+        runbook_url: "https://docs.example.com/runbooks/slurm-exporter-sla-breach"
+    
+    # Response Time SLO: 95% of requests < 5s
+    - alert: SlurmExporterResponseTimeSLO
+      expr: histogram_quantile(0.95, rate(slurm_exporter_scrape_duration_seconds_bucket[5m])) > 5
+      for: 10m
+      labels:
+        severity: warning
+        service: slurm-exporter
+        sla: performance
+        priority: P1
+      annotations:
+        summary: "SLURM Exporter response time SLO degradation"
+        description: "95th percentile response time is {{ $value }}s (SLO: <5s)"
+        impact: "Slower metrics collection affecting monitoring responsiveness"
+        action_required: "Performance analysis and optimization"
+        runbook_url: "https://docs.example.com/runbooks/slurm-exporter-performance"
+    
+    # Error Rate SLO: <1% error rate
+    - alert: SlurmExporterErrorRateSLO
+      expr: (rate(slurm_exporter_collection_errors_total[5m]) / rate(slurm_exporter_collections_total[5m])) * 100 > 1
+      for: 15m
+      labels:
+        severity: warning
+        service: slurm-exporter
+        sla: reliability
+        priority: P1
+      annotations:
+        summary: "SLURM Exporter error rate SLO degradation"
+        description: "Error rate is {{ $value | humanizePercentage }} (SLO: <1%)"
+        impact: "Increased failure rate affecting data reliability"
+        action_required: "Error analysis and remediation"
+        runbook_url: "https://docs.example.com/runbooks/slurm-exporter-errors"
+
+  # Operational Health Monitoring
+  - name: slurm-exporter.operational
+    interval: 30s
+    rules:
+    
+    # Service Discovery Issues
+    - alert: SlurmExporterServiceDiscoveryFailure
+      expr: up{job="slurm-exporter"} == 0
+      for: 2m
+      labels:
+        severity: critical
+        service: slurm-exporter
+        component: service-discovery
+        priority: P0
+      annotations:
+        summary: "SLURM Exporter service discovery failure"
+        description: "Prometheus cannot discover SLURM Exporter instances on {{ $labels.instance }}"
+        impact: "Complete loss of metrics from affected instance"
+        action_required: "Check service registration and network connectivity"
+        troubleshooting: |
+          1. Verify pod is running: kubectl get pods -n slurm-exporter
+          2. Check service endpoints: kubectl get endpoints -n slurm-exporter
+          3. Verify ServiceMonitor: kubectl get servicemonitor -n slurm-exporter
+          4. Check network policies: kubectl get networkpolicy -n slurm-exporter
+        runbook_url: "https://docs.example.com/runbooks/service-discovery-failure"
+    
+    # Certificate Expiration
+    - alert: SlurmExporterCertificateExpiry
+      expr: (slurm_exporter_cert_expiry_timestamp - time()) / 86400 < 30
+      for: 0m
+      labels:
+        severity: warning
+        service: slurm-exporter
+        component: certificates
+        priority: P2
+      annotations:
+        summary: "SLURM Exporter certificate expiring soon"
+        description: "Certificate for {{ $labels.instance }} expires in {{ $value }} days"
+        impact: "Service disruption when certificate expires"
+        action_required: "Renew certificates before expiration"
+        runbook_url: "https://docs.example.com/runbooks/certificate-renewal"
+    
+    # Configuration Drift Detection
+    - alert: SlurmExporterConfigurationDrift
+      expr: slurm_exporter_config_hash != on(instance) group_left() slurm_exporter_expected_config_hash
+      for: 5m
+      labels:
+        severity: warning
+        service: slurm-exporter
+        component: configuration
+        priority: P2
+      annotations:
+        summary: "SLURM Exporter configuration drift detected"
+        description: "Configuration on {{ $labels.instance }} differs from expected state"
+        impact: "Inconsistent behavior across instances"
+        action_required: "Verify and reconcile configuration"
+        runbook_url: "https://docs.example.com/runbooks/configuration-drift"
+    
+    # Kubernetes Resource Constraints
+    - alert: SlurmExporterPodPendingTooLong
+      expr: kube_pod_status_phase{phase="Pending", pod=~"slurm-exporter-.*"} == 1
+      for: 10m
+      labels:
+        severity: warning
+        service: slurm-exporter
+        component: kubernetes
+        priority: P1
+      annotations:
+        summary: "SLURM Exporter pod pending for too long"
+        description: "Pod {{ $labels.pod }} has been pending for more than 10 minutes"
+        impact: "Reduced capacity and potential availability impact"
+        action_required: "Check resource availability and scheduling constraints"
+        troubleshooting: |
+          1. Check pod status: kubectl describe pod {{ $labels.pod }} -n slurm-exporter
+          2. Check node resources: kubectl top nodes
+          3. Check resource quotas: kubectl get resourcequota -n slurm-exporter
+          4. Check pod disruption budgets: kubectl get pdb -n slurm-exporter
+        runbook_url: "https://docs.example.com/runbooks/pod-scheduling-issues"
+    
+    # Auto-scaling Issues
+    - alert: SlurmExporterHPAMaxReplicasReached
+      expr: kube_horizontalpodautoscaler_status_current_replicas{horizontalpodautoscaler="slurm-exporter"} >= kube_horizontalpodautoscaler_spec_max_replicas{horizontalpodautoscaler="slurm-exporter"}
+      for: 15m
+      labels:
+        severity: warning
+        service: slurm-exporter
+        component: autoscaling
+        priority: P2
+      annotations:
+        summary: "SLURM Exporter HPA reached maximum replicas"
+        description: "HPA has scaled to maximum {{ $value }} replicas but load is still high"
+        impact: "Cannot scale further to handle increased load"
+        action_required: "Review scaling limits and resource allocation"
+        runbook_url: "https://docs.example.com/runbooks/hpa-max-replicas"
+
+  # Business Logic and Data Quality
+  - name: slurm-exporter.business-logic
+    interval: 60s
+    rules:
+    
+    # Data Freshness
+    - alert: SlurmExporterStaleData
+      expr: time() - slurm_exporter_last_successful_scrape_timestamp > 600
+      for: 5m
+      labels:
+        severity: warning
+        service: slurm-exporter
+        component: data-quality
+        priority: P1
+      annotations:
+        summary: "SLURM Exporter data is stale"
+        description: "Last successful scrape was {{ $value | humanizeDuration }} ago on {{ $labels.instance }}"
+        impact: "Outdated metrics affecting monitoring accuracy"
+        action_required: "Check SLURM API connectivity and exporter health"
+        runbook_url: "https://docs.example.com/runbooks/stale-data"
+    
+    # Metric Cardinality Explosion
+    - alert: SlurmExporterCardinalityExplosion
+      expr: slurm_exporter_cardinality_current > 100000
+      for: 30m
+      labels:
+        severity: critical
+        service: slurm-exporter
+        component: cardinality
+        priority: P0
+      annotations:
+        summary: "SLURM Exporter metric cardinality explosion"
+        description: "Metric cardinality is {{ $value }} on {{ $labels.instance }} (threshold: 100,000)"
+        impact: "Performance degradation and potential memory exhaustion"
+        action_required: "Immediate cardinality reduction required"
+        troubleshooting: |
+          1. Check top metrics: curl {{ $labels.instance }}:8080/metrics | grep -c "^slurm_"
+          2. Review cardinality limits in configuration
+          3. Check for label explosion in job or node metrics
+          4. Consider metric filtering or sampling
+        runbook_url: "https://docs.example.com/runbooks/cardinality-explosion"
+    
+    # Unexpected Metric Drops
+    - alert: SlurmExporterMetricDrop
+      expr: rate(prometheus_tsdb_symbol_table_size_bytes[5m]) < -1000000
+      for: 10m
+      labels:
+        severity: warning
+        service: slurm-exporter
+        component: data-quality
+        priority: P1
+      annotations:
+        summary: "SLURM Exporter metric drop detected"
+        description: "Significant drop in metric volume detected on {{ $labels.instance }}"
+        impact: "Potential data loss or configuration issue"
+        action_required: "Investigate metric collection issues"
+        runbook_url: "https://docs.example.com/runbooks/metric-drop"
+
+  # Integration and Dependency Health
+  - name: slurm-exporter.dependencies
+    interval: 60s
+    rules:
+    
+    # SLURM Cluster Health
+    - alert: SlurmClusterUnhealthy
+      expr: slurm:cluster_health_score < 80
+      for: 15m
+      labels:
+        severity: critical
+        service: slurm-exporter
+        component: slurm-integration
+        priority: P0
+      annotations:
+        summary: "SLURM cluster health degraded"
+        description: "SLURM cluster health score is {{ $value }}% (threshold: 80%)"
+        impact: "Reduced cluster capacity affecting workload execution"
+        action_required: "Check SLURM cluster status and node health"
+        escalation_policy: "Notify SLURM administrators"
+        runbook_url: "https://docs.example.com/runbooks/slurm-cluster-health"
+    
+    # SLURM API Authentication Issues
+    - alert: SlurmExporterAuthenticationFailure
+      expr: increase(slurm_exporter_auth_failures_total[10m]) > 5
+      for: 0m
+      labels:
+        severity: critical
+        service: slurm-exporter
+        component: authentication
+        priority: P0
+      annotations:
+        summary: "SLURM Exporter authentication failures"
+        description: "Multiple authentication failures detected on {{ $labels.instance }}"
+        impact: "Unable to collect SLURM metrics"
+        action_required: "Check credentials and authentication configuration"
+        troubleshooting: |
+          1. Verify JWT token validity: scontrol token
+          2. Check secret configuration: kubectl get secret slurm-credentials -o yaml
+          3. Test manual API access: curl -H "X-SLURM-USER-TOKEN: $TOKEN" $SLURM_URL/ping
+          4. Review SLURM REST API logs
+        runbook_url: "https://docs.example.com/runbooks/authentication-failure"
+
+  # Performance and Capacity Planning
+  - name: slurm-exporter.capacity
+    interval: 300s
+    rules:
+    
+    # Resource Utilization Trends
+    - alert: SlurmExporterResourceTrendWarning
+      expr: predict_linear(process_resident_memory_bytes{job="slurm-exporter"}[1h], 24*3600) > 1073741824
+      for: 30m
+      labels:
+        severity: warning
+        service: slurm-exporter
+        component: capacity-planning
+        priority: P2
+      annotations:
+        summary: "SLURM Exporter memory usage trend warning"
+        description: "Memory usage trending toward 1GB limit on {{ $labels.instance }}"
+        impact: "Potential OOM kills in the future"
+        action_required: "Review memory usage patterns and consider scaling"
+        runbook_url: "https://docs.example.com/runbooks/capacity-planning"
+    
+    # Collection Queue Buildup
+    - alert: SlurmExporterQueueBuildup
+      expr: slurm_exporter_collection_queue_size > 100
+      for: 20m
+      labels:
+        severity: warning
+        service: slurm-exporter
+        component: performance
+        priority: P1
+      annotations:
+        summary: "SLURM Exporter collection queue buildup"
+        description: "Collection queue has {{ $value }} pending items on {{ $labels.instance }}"
+        impact: "Delayed metric collection and potential data loss"
+        action_required: "Check collection performance and queue processing"
+        runbook_url: "https://docs.example.com/runbooks/queue-buildup"
+
+  # Security and Compliance
+  - name: slurm-exporter.security
+    interval: 300s
+    rules:
+    
+    # Unusual Access Patterns
+    - alert: SlurmExporterUnusualAccessPattern
+      expr: rate(slurm_exporter_http_requests_total[5m]) > 100
+      for: 15m
+      labels:
+        severity: warning
+        service: slurm-exporter
+        component: security
+        priority: P2
+      annotations:
+        summary: "SLURM Exporter unusual access pattern"
+        description: "High request rate detected: {{ $value }} req/s on {{ $labels.instance }}"
+        impact: "Potential DoS attack or misconfigured scraping"
+        action_required: "Review access logs and source IP addresses"
+        runbook_url: "https://docs.example.com/runbooks/unusual-access"
+    
+    # Security Context Violations
+    - alert: SlurmExporterSecurityViolation
+      expr: kube_pod_security_policy_violations_total{pod=~"slurm-exporter-.*"} > 0
+      for: 0m
+      labels:
+        severity: critical
+        service: slurm-exporter
+        component: security
+        priority: P0
+      annotations:
+        summary: "SLURM Exporter security policy violation"
+        description: "Security policy violation detected for pod {{ $labels.pod }}"
+        impact: "Potential security breach or misconfiguration"
+        action_required: "Immediate security review and remediation"
+        escalation_policy: "Notify security team immediately"
+        runbook_url: "https://docs.example.com/runbooks/security-violation"

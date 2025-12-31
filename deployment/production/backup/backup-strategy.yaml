@@ -1,0 +1,510 @@
+# SLURM Exporter Backup and Recovery Strategy
+# This file defines the comprehensive backup and recovery procedures
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-strategy
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: backup
+data:
+  strategy.yaml: |
+    # Backup Strategy Configuration
+    backup:
+      # Overall strategy
+      strategy:
+        name: "comprehensive-backup"
+        version: "1.0"
+        retention_policy: "3-2-1"  # 3 copies, 2 different media, 1 offsite
+        
+      # Recovery Point Objective (RPO) and Recovery Time Objective (RTO)
+      sla:
+        rpo: "1h"        # Maximum data loss: 1 hour
+        rto: "30m"       # Maximum recovery time: 30 minutes
+        availability: "99.9%"
+        
+      # Backup components
+      components:
+        configuration:
+          enabled: true
+          schedule: "0 */6 * * *"  # Every 6 hours
+          retention: "90d"
+          encryption: true
+          compression: true
+          
+        monitoring_data:
+          enabled: true
+          schedule: "0 2 * * *"    # Daily at 2 AM
+          retention: "30d"
+          encryption: true
+          
+        deployment_state:
+          enabled: true
+          schedule: "0 */12 * * *" # Every 12 hours
+          retention: "30d"
+          
+        certificates:
+          enabled: true
+          schedule: "0 1 * * 0"    # Weekly on Sunday
+          retention: "365d"
+          
+        logs:
+          enabled: true
+          schedule: "0 3 * * *"    # Daily at 3 AM
+          retention: "7d"          # Short retention for logs
+          
+      # Storage destinations
+      destinations:
+        primary:
+          type: "s3"
+          bucket: "slurm-exporter-backup-primary"
+          region: "us-west-2"
+          encryption: "AES256"
+          versioning: true
+          
+        secondary:
+          type: "s3"
+          bucket: "slurm-exporter-backup-secondary"
+          region: "us-east-1"      # Different region
+          encryption: "AES256"
+          versioning: true
+          
+        local:
+          type: "pvc"
+          storage_class: "fast-ssd"
+          size: "100Gi"
+          retention: "7d"          # Short local retention
+          
+      # Backup validation
+      validation:
+        enabled: true
+        schedule: "0 4 * * *"      # Daily validation at 4 AM
+        test_restore: true         # Perform test restores
+        integrity_check: true      # Verify backup integrity
+        notification: true         # Send validation results
+        
+      # Disaster recovery
+      disaster_recovery:
+        enabled: true
+        cross_region: true
+        automation_level: "semi-automatic"
+        failover_time: "30m"
+        rollback_time: "15m"
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: configuration-backup
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: backup
+    backup-type: configuration
+spec:
+  schedule: "0 */6 * * *"  # Every 6 hours
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: slurm-exporter
+            component: backup
+            backup-type: configuration
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: slurm-exporter-backup
+          
+          containers:
+          - name: backup-config
+            image: amazon/aws-cli:latest
+            imagePullPolicy: IfNotPresent
+            
+            env:
+            - name: BACKUP_TIMESTAMP
+              value: "$(date +%Y%m%d-%H%M%S)"
+            - name: AWS_DEFAULT_REGION
+              value: "us-west-2"
+            - name: S3_BUCKET
+              value: "slurm-exporter-backup-primary"
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backup-encryption
+                  key: encryption-key
+            
+            command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+              
+              echo "Starting configuration backup at $(date)"
+              
+              # Create backup directory
+              BACKUP_DIR="/tmp/backup-${BACKUP_TIMESTAMP}"
+              mkdir -p "$BACKUP_DIR"
+              
+              # Backup Kubernetes configurations
+              echo "Backing up Kubernetes configurations..."
+              kubectl get all -n slurm-exporter -o yaml > "$BACKUP_DIR/kubernetes-resources.yaml"
+              kubectl get configmaps -n slurm-exporter -o yaml > "$BACKUP_DIR/configmaps.yaml"
+              kubectl get secrets -n slurm-exporter -o yaml > "$BACKUP_DIR/secrets.yaml"
+              kubectl get networkpolicies -n slurm-exporter -o yaml > "$BACKUP_DIR/networkpolicies.yaml"
+              kubectl get servicemonitors -n slurm-exporter -o yaml > "$BACKUP_DIR/servicemonitors.yaml"
+              kubectl get prometheusrules -n slurm-exporter -o yaml > "$BACKUP_DIR/prometheusrules.yaml"
+              
+              # Backup application configuration
+              echo "Backing up application configuration..."
+              kubectl get configmap slurm-exporter-config -n slurm-exporter -o jsonpath='{.data.config\.yaml}' > "$BACKUP_DIR/app-config.yaml"
+              
+              # Create metadata
+              cat > "$BACKUP_DIR/metadata.json" <<EOF
+              {
+                "backup_type": "configuration",
+                "timestamp": "${BACKUP_TIMESTAMP}",
+                "kubernetes_version": "$(kubectl version --short --client)",
+                "namespace": "slurm-exporter",
+                "components": [
+                  "kubernetes-resources",
+                  "configmaps", 
+                  "secrets",
+                  "networkpolicies",
+                  "servicemonitors",
+                  "prometheusrules",
+                  "app-config"
+                ]
+              }
+              EOF
+              
+              # Compress backup
+              echo "Compressing backup..."
+              tar czf "/tmp/config-backup-${BACKUP_TIMESTAMP}.tar.gz" -C "/tmp" "backup-${BACKUP_TIMESTAMP}/"
+              
+              # Encrypt backup
+              echo "Encrypting backup..."
+              openssl enc -aes-256-cbc -salt -in "/tmp/config-backup-${BACKUP_TIMESTAMP}.tar.gz" \
+                -out "/tmp/config-backup-${BACKUP_TIMESTAMP}.tar.gz.enc" \
+                -pass pass:"$ENCRYPTION_KEY"
+              
+              # Upload to S3
+              echo "Uploading to S3..."
+              aws s3 cp "/tmp/config-backup-${BACKUP_TIMESTAMP}.tar.gz.enc" \
+                "s3://${S3_BUCKET}/configuration/config-backup-${BACKUP_TIMESTAMP}.tar.gz.enc" \
+                --storage-class STANDARD_IA
+              
+              # Upload to secondary location
+              aws s3 cp "/tmp/config-backup-${BACKUP_TIMESTAMP}.tar.gz.enc" \
+                "s3://slurm-exporter-backup-secondary/configuration/config-backup-${BACKUP_TIMESTAMP}.tar.gz.enc" \
+                --region us-east-1 \
+                --storage-class STANDARD_IA
+              
+              # Cleanup old backups (keep last 90 days)
+              echo "Cleaning up old backups..."
+              aws s3 ls "s3://${S3_BUCKET}/configuration/" | \
+                awk '{print $4}' | \
+                head -n -360 | \
+                xargs -I {} aws s3 rm "s3://${S3_BUCKET}/configuration/{}"
+              
+              echo "Configuration backup completed successfully"
+            
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi
+            
+            volumeMounts:
+            - name: kubectl-config
+              mountPath: /root/.kube
+              readOnly: true
+          
+          volumes:
+          - name: kubectl-config
+            secret:
+              secretName: backup-kubeconfig
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: monitoring-data-backup
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: backup
+    backup-type: monitoring
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: slurm-exporter
+            component: backup
+            backup-type: monitoring
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: slurm-exporter-backup
+          
+          containers:
+          - name: backup-monitoring
+            image: prom/prometheus:latest
+            imagePullPolicy: IfNotPresent
+            
+            env:
+            - name: BACKUP_TIMESTAMP
+              value: "$(date +%Y%m%d-%H%M%S)"
+            - name: PROMETHEUS_URL
+              value: "http://prometheus.monitoring:9090"
+            
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              
+              echo "Starting monitoring data backup at $(date)"
+              
+              # Create backup directory
+              BACKUP_DIR="/tmp/monitoring-backup-${BACKUP_TIMESTAMP}"
+              mkdir -p "$BACKUP_DIR"
+              
+              # Export Prometheus data for SLURM metrics
+              echo "Exporting Prometheus data..."
+              
+              # Export SLURM Exporter metrics (last 7 days)
+              promtool query range \
+                --start="$(date -d '7 days ago' +%s)" \
+                --end="$(date +%s)" \
+                --step=300s \
+                'up{job="slurm-exporter"}' \
+                "$PROMETHEUS_URL" > "$BACKUP_DIR/slurm_exporter_up.json"
+              
+              promtool query range \
+                --start="$(date -d '7 days ago' +%s)" \
+                --end="$(date +%s)" \
+                --step=300s \
+                'slurm_exporter_scrape_duration_seconds' \
+                "$PROMETHEUS_URL" > "$BACKUP_DIR/slurm_exporter_duration.json"
+              
+              # Export alerting rules and recording rules
+              curl -s "$PROMETHEUS_URL/api/v1/rules" > "$BACKUP_DIR/prometheus_rules.json"
+              
+              # Export targets configuration
+              curl -s "$PROMETHEUS_URL/api/v1/targets" > "$BACKUP_DIR/prometheus_targets.json"
+              
+              # Create metadata
+              cat > "$BACKUP_DIR/metadata.json" <<EOF
+              {
+                "backup_type": "monitoring",
+                "timestamp": "${BACKUP_TIMESTAMP}",
+                "prometheus_url": "${PROMETHEUS_URL}",
+                "time_range": "7 days",
+                "metrics": [
+                  "slurm_exporter_up",
+                  "slurm_exporter_duration",
+                  "prometheus_rules",
+                  "prometheus_targets"
+                ]
+              }
+              EOF
+              
+              # Compress and upload
+              tar czf "/tmp/monitoring-backup-${BACKUP_TIMESTAMP}.tar.gz" -C "/tmp" "monitoring-backup-${BACKUP_TIMESTAMP}/"
+              
+              echo "Monitoring data backup completed"
+            
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                cpu: 500m
+                memory: 1Gi
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup-validation
+  namespace: slurm-exporter
+  labels:
+    app: slurm-exporter
+    component: backup
+    backup-type: validation
+spec:
+  schedule: "0 4 * * *"  # Daily at 4 AM
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: slurm-exporter
+            component: backup
+            backup-type: validation
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: slurm-exporter-backup
+          
+          containers:
+          - name: backup-validator
+            image: amazon/aws-cli:latest
+            imagePullPolicy: IfNotPresent
+            
+            env:
+            - name: S3_BUCKET
+              value: "slurm-exporter-backup-primary"
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backup-encryption
+                  key: encryption-key
+            - name: SLACK_WEBHOOK
+              valueFrom:
+                secretKeyRef:
+                  name: backup-notifications
+                  key: slack-webhook
+            
+            command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              
+              echo "Starting backup validation at $(date)"
+              
+              VALIDATION_RESULTS="/tmp/validation-results.txt"
+              ERRORS=0
+              
+              # Function to send Slack notification
+              send_notification() {
+                local message="$1"
+                local status="$2"
+                
+                if [ "$status" = "error" ]; then
+                  emoji=":x:"
+                  color="danger"
+                else
+                  emoji=":white_check_mark:"
+                  color="good"
+                fi
+                
+                curl -X POST "$SLACK_WEBHOOK" \
+                  -H 'Content-type: application/json' \
+                  --data "{
+                    \"attachments\": [{
+                      \"color\": \"$color\",
+                      \"text\": \"$emoji SLURM Exporter Backup Validation\\n$message\"
+                    }]
+                  }"
+              }
+              
+              # Validate recent backups exist
+              echo "Validating backup existence..." | tee -a "$VALIDATION_RESULTS"
+              
+              # Check configuration backups (should have one from last 8 hours)
+              CONFIG_BACKUPS=$(aws s3 ls "s3://${S3_BUCKET}/configuration/" | \
+                awk -v date="$(date -d '8 hours ago' '+%Y-%m-%d %H')" '$1" "$2 > date' | wc -l)
+              
+              if [ "$CONFIG_BACKUPS" -eq 0 ]; then
+                echo "ERROR: No configuration backups found in last 8 hours" | tee -a "$VALIDATION_RESULTS"
+                ERRORS=$((ERRORS + 1))
+              else
+                echo "✓ Configuration backups: $CONFIG_BACKUPS found" | tee -a "$VALIDATION_RESULTS"
+              fi
+              
+              # Check monitoring backups (should have one from last 26 hours)
+              MONITORING_BACKUPS=$(aws s3 ls "s3://${S3_BUCKET}/monitoring/" | \
+                awk -v date="$(date -d '26 hours ago' '+%Y-%m-%d %H')" '$1" "$2 > date' | wc -l)
+              
+              if [ "$MONITORING_BACKUPS" -eq 0 ]; then
+                echo "ERROR: No monitoring backups found in last 26 hours" | tee -a "$VALIDATION_RESULTS"
+                ERRORS=$((ERRORS + 1))
+              else
+                echo "✓ Monitoring backups: $MONITORING_BACKUPS found" | tee -a "$VALIDATION_RESULTS"
+              fi
+              
+              # Test restore of latest configuration backup
+              echo "Testing configuration backup restore..." | tee -a "$VALIDATION_RESULTS"
+              
+              LATEST_CONFIG=$(aws s3 ls "s3://${S3_BUCKET}/configuration/" | \
+                sort | tail -1 | awk '{print $4}')
+              
+              if [ -n "$LATEST_CONFIG" ]; then
+                # Download and test decrypt
+                aws s3 cp "s3://${S3_BUCKET}/configuration/$LATEST_CONFIG" "/tmp/$LATEST_CONFIG"
+                
+                if openssl enc -aes-256-cbc -d -salt \
+                    -in "/tmp/$LATEST_CONFIG" \
+                    -out "/tmp/test-restore.tar.gz" \
+                    -pass pass:"$ENCRYPTION_KEY" 2>/dev/null; then
+                  
+                  # Test extraction
+                  if tar -tzf "/tmp/test-restore.tar.gz" >/dev/null 2>&1; then
+                    echo "✓ Configuration backup restore test successful" | tee -a "$VALIDATION_RESULTS"
+                  else
+                    echo "ERROR: Configuration backup is corrupted" | tee -a "$VALIDATION_RESULTS"
+                    ERRORS=$((ERRORS + 1))
+                  fi
+                else
+                  echo "ERROR: Configuration backup decryption failed" | tee -a "$VALIDATION_RESULTS"
+                  ERRORS=$((ERRORS + 1))
+                fi
+                
+                # Cleanup test files
+                rm -f "/tmp/$LATEST_CONFIG" "/tmp/test-restore.tar.gz"
+              else
+                echo "ERROR: No configuration backups found for testing" | tee -a "$VALIDATION_RESULTS"
+                ERRORS=$((ERRORS + 1))
+              fi
+              
+              # Check backup retention compliance
+              echo "Checking backup retention compliance..." | tee -a "$VALIDATION_RESULTS"
+              
+              # Count backups older than retention period (90 days for config)
+              OLD_BACKUPS=$(aws s3 ls "s3://${S3_BUCKET}/configuration/" | \
+                awk -v cutoff="$(date -d '90 days ago' '+%Y-%m-%d')" '$1 < cutoff' | wc -l)
+              
+              if [ "$OLD_BACKUPS" -gt 0 ]; then
+                echo "WARNING: $OLD_BACKUPS configuration backups exceed retention period" | tee -a "$VALIDATION_RESULTS"
+              else
+                echo "✓ Backup retention compliance verified" | tee -a "$VALIDATION_RESULTS"
+              fi
+              
+              # Final validation summary
+              echo "Validation Summary:" | tee -a "$VALIDATION_RESULTS"
+              echo "Errors found: $ERRORS" | tee -a "$VALIDATION_RESULTS"
+              echo "Validation completed at $(date)" | tee -a "$VALIDATION_RESULTS"
+              
+              # Send notification
+              if [ "$ERRORS" -eq 0 ]; then
+                send_notification "$(cat $VALIDATION_RESULTS)" "success"
+                echo "All backup validations passed"
+              else
+                send_notification "$(cat $VALIDATION_RESULTS)" "error"
+                echo "Backup validation failed with $ERRORS errors"
+                exit 1
+              fi
+            
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi
