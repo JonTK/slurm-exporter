@@ -48,8 +48,13 @@ jobs:
     - name: Verify dependencies
       run: go mod verify
 
-    - name: Run tests
+    - name: Run tests (with race detector)
+      if: matrix.os != 'windows-latest'
       run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+    - name: Run tests (Windows)
+      if: matrix.os == 'windows-latest'
+      run: go test -v -coverprofile=coverage.txt -covermode=atomic ./...
 
     - name: Upload coverage to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.go-version == env.GO_VERSION_STABLE
