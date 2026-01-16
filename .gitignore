@@ -16,7 +16,6 @@ validate-config
 *.out
 coverage.html
 coverage.xml
-coverage.txt
 
 # Dependency directories (remove the comment below to include it)
 # vendor/

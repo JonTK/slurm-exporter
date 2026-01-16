@@ -50,17 +50,18 @@ jobs:
 
     - name: Run tests (with race detector)
       if: matrix.os != 'windows-latest'
-      run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+      run: go test -v -race -covermode=atomic -coverprofile coverage.out ./...
 
     - name: Run tests (Windows)
       if: matrix.os == 'windows-latest'
-      run: go test -v -coverprofile=coverage.txt -covermode=atomic ./...
+      run: |
+        go test -v -covermode=atomic -coverprofile coverage.out ./...
 
     - name: Upload coverage to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.go-version == env.GO_VERSION_STABLE
       uses: codecov/codecov-action@v4
       with:
-        file: ./coverage.txt
+        file: ./coverage.out
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
