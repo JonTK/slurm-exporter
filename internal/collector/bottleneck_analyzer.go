@@ -367,7 +367,7 @@ func (b *BottleneckAnalyzer) analyzeBottlenecks(ctx context.Context) error {
 		analysis := b.performStepPerformanceAnalysis(&job)
 
 		// Cache the analysis
-		cacheKey := fmt.Sprintf("%d:0", job.ID) // Step 0 for main job step
+		cacheKey := fmt.Sprintf("%s:0", job.ID) // Step 0 for main job step
 		b.analysisCache[cacheKey] = analysis
 
 		// Update metrics
@@ -390,7 +390,7 @@ func (b *BottleneckAnalyzer) analyzeBottlenecks(ctx context.Context) error {
 // performStepPerformanceAnalysis performs comprehensive analysis on a job step
 func (b *BottleneckAnalyzer) performStepPerformanceAnalysis(job *slurm.Job) *StepPerformanceAnalysis {
 	analysis := &StepPerformanceAnalysis{
-		JobID:             fmt.Sprintf("%d", job.ID),
+		JobID:             fmt.Sprintf("%s", job.ID),
 		StepID:            "0", // Main job step
 		AnalysisTimestamp: time.Now(),
 	}

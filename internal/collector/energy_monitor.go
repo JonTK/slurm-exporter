@@ -613,7 +613,7 @@ func (e *EnergyMonitor) collectEnergyMetrics(ctx context.Context) error {
 		}
 
 		// Accumulate cluster totals
-		jobID := fmt.Sprintf("%d", job.ID)
+		jobID := fmt.Sprintf("%s", job.ID)
 		if energyData, exists := e.energyData[jobID]; exists {
 			clusterTotalEnergy += energyData.TotalEnergyWh
 			clusterTotalPower += energyData.AveragePowerW
@@ -647,14 +647,14 @@ func (e *EnergyMonitor) processJobEnergyMetrics(ctx context.Context, job *slurm.
 
 	// Track efficiency trends if enabled
 	if e.config.EnableEfficiencyTracking {
-		e.efficiencyTracker.trackEnergyEfficiency(fmt.Sprintf("%d", job.ID), energyData.PowerEfficiency)
+		e.efficiencyTracker.trackEnergyEfficiency(fmt.Sprintf("%s", job.ID), energyData.PowerEfficiency)
 	}
 
 	// Store data
 	e.mu.Lock()
-	e.energyData[fmt.Sprintf("%d", job.ID)] = energyData
+	e.energyData[fmt.Sprintf("%s", job.ID)] = energyData
 	if carbonData != nil {
-		e.carbonData[fmt.Sprintf("%d", job.ID)] = carbonData
+		e.carbonData[fmt.Sprintf("%s", job.ID)] = carbonData
 	}
 	e.mu.Unlock()
 
@@ -714,7 +714,7 @@ func (e *EnergyMonitor) calculateJobEnergyConsumption(job *slurm.Job) *JobEnergy
 	costEfficiency := e.calculateCostEfficiency(energyCostUSD, totalEnergyWh, powerEfficiency)
 
 	return &JobEnergyData{
-		JobID:              fmt.Sprintf("%d", job.ID),
+		JobID:              fmt.Sprintf("%s", job.ID),
 		Timestamp:          now,
 		TotalEnergyWh:      totalEnergyWh,
 		CPUEnergyWh:        cpuEnergyWh,
@@ -972,7 +972,7 @@ func (c *CarbonFootprintCalculator) calculateCarbonFootprint(job *slurm.Job, ene
 	environmentalImpact := c.calculateEnvironmentalImpact(totalCO2grams, energyData.TotalEnergyWh)
 
 	return &CarbonFootprintData{
-		JobID:                    fmt.Sprintf("%d", job.ID),
+		JobID:                    fmt.Sprintf("%s", job.ID),
 		Timestamp:                now,
 		TotalCO2grams:            totalCO2grams,
 		CO2PerCPUHour:            co2PerCPUHour,
@@ -1146,7 +1146,7 @@ func (t *EnergyEfficiencyTracker) calculateTrend(scores []float64) (string, floa
 
 // updateJobEnergyMetrics updates Prometheus metrics for a job
 func (e *EnergyMonitor) updateJobEnergyMetrics(job *slurm.Job, energyData *JobEnergyData, carbonData *CarbonFootprintData) {
-	labels := []string{fmt.Sprintf("%d", job.ID), "", "", job.Partition} // TODO: job.UserName and job.Account fields not available
+	labels := []string{fmt.Sprintf("%s", job.ID), "", "", job.Partition} // TODO: job.UserName and job.Account fields not available
 
 	// Update energy metrics
 	e.metrics.JobEnergyConsumption.WithLabelValues(labels...).Set(energyData.TotalEnergyWh)

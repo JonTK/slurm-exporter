@@ -922,7 +922,7 @@ func (t *TaskUtilizationMonitor) processStepTasks(ctx context.Context, job *slur
 	var stepTaskData []*JobStepTaskData
 
 	// TODO: job.JobID field not available in current slurm-client version
-	jobID := fmt.Sprintf("job_%d", job.ID)
+	jobID := fmt.Sprintf("job_%s", job.ID)
 
 	for i, task := range tasks {
 		if i >= t.config.MaxTasksPerStep {
@@ -1402,7 +1402,7 @@ func (t *TaskUtilizationMonitor) generateBalancingRecommendation(loadScore, load
 func (t *TaskUtilizationMonitor) aggregateStepData(job *slurm.Job, step *JobStepInfo, tasks []*JobStepTaskData) *JobStepData {
 	if len(tasks) == 0 {
 		return &JobStepData{
-			JobID:     fmt.Sprintf("job_%d", job.ID),
+			JobID:     fmt.Sprintf("job_%s", job.ID),
 			StepID:    step.StepID,
 			Timestamp: time.Now(),
 		}
@@ -1493,7 +1493,7 @@ func (t *TaskUtilizationMonitor) aggregateStepData(job *slurm.Job, step *JobStep
 	}
 
 	return &JobStepData{
-		JobID:         fmt.Sprintf("job_%d", job.ID),
+		JobID:         fmt.Sprintf("job_%s", job.ID),
 		StepID:        step.StepID,
 		Timestamp:     time.Now(),
 
