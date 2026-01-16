@@ -148,7 +148,7 @@ func TestCollectionTracer_TraceAPICall_Enabled(t *testing.T) {
 	finish(nil) // Success
 
 	// Test failed API call
-	newCtx, finish = tracer.TraceAPICall(ctx, "jobs", "GET")
+	_, finish = tracer.TraceAPICall(ctx, "jobs", "GET")
 	finish(errors.New("connection failed")) // Error
 }
 

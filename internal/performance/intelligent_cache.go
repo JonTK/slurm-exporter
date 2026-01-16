@@ -162,8 +162,7 @@ func (c *IntelligentCache) Set(key string, value interface{}) {
 	
 	if existing, exists := c.entries[key]; exists && c.config.ChangeTracking {
 		changeHistory = existing.ChangeHistory
-		stabilityScore = existing.StabilityScore
-		
+
 		// Record change
 		changeScore := c.calculateChangeScore(existing.Value, value)
 		changeRecord := ChangeRecord{

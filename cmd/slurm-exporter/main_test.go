@@ -19,10 +19,10 @@ func TestMainFlags(t *testing.T) {
 
 	// Re-define flags
 	showVersion := flag.Bool("version", false, "Show version information and exit")
-	configFile := flag.String("config", "configs/config.yaml", "Path to configuration file")
-	logLevel := flag.String("log-level", "info", "Log level (debug, info, warn, error)")
-	addr := flag.String("addr", ":8080", "Address to listen on")
-	metricsPath := flag.String("metrics-path", "/metrics", "Path for metrics endpoint")
+	_ = flag.String("config", "configs/config.yaml", "Path to configuration file")
+	_ = flag.String("log-level", "info", "Log level (debug, info, warn, error)")
+	_ = flag.String("addr", ":8080", "Address to listen on")
+	_ = flag.String("metrics-path", "/metrics", "Path for metrics endpoint")
 
 	flag.Parse()
 
@@ -82,10 +82,10 @@ func TestMainFlagsCustomValues(t *testing.T) {
 
 	// Re-define flags
 	showVersion := flag.Bool("version", false, "Show version information and exit")
-	configFile := flag.String("config", "configs/config.yaml", "Path to configuration file")
-	logLevel := flag.String("log-level", "info", "Log level (debug, info, warn, error)")
-	addr := flag.String("addr", ":8080", "Address to listen on")
-	metricsPath := flag.String("metrics-path", "/metrics", "Path for metrics endpoint")
+	_ = flag.String("config", "configs/config.yaml", "Path to configuration file")
+	_ = flag.String("log-level", "info", "Log level (debug, info, warn, error)")
+	_ = flag.String("addr", ":8080", "Address to listen on")
+	_ = flag.String("metrics-path", "/metrics", "Path for metrics endpoint")
 
 	flag.Parse()
 
