@@ -136,7 +136,7 @@ func (mo *MemoryOptimizer) GetMetricPool() []prometheus.Metric {
 // PutMetricPool returns a metric slice to the pool
 func (mo *MemoryOptimizer) PutMetricPool(metrics []prometheus.Metric) {
 	if cap(metrics) < 1000 { // Only pool reasonably sized slices
-		mo.objectPools["metrics"].Put(metrics)
+		mo.objectPools["metrics"].Put(&metrics)
 	}
 }
 
@@ -148,7 +148,7 @@ func (mo *MemoryOptimizer) GetLabelPool() []string {
 // PutLabelPool returns a label slice to the pool
 func (mo *MemoryOptimizer) PutLabelPool(labels []string) {
 	if cap(labels) < 100 {
-		mo.objectPools["labels"].Put(labels)
+		mo.objectPools["labels"].Put(&labels)
 	}
 }
 

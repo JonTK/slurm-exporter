@@ -2129,7 +2129,7 @@ func (c *UserPermissionAuditCollector) collectAccountAssociationMetrics(ctx cont
 		associationCounts[association.AccessLevel]++
 
 		// Check if this is the primary account
-		if association.PrimaryAccount == association.PrimaryAccount {
+		if association.PrimaryAccount != "" {
 			primaryCount++
 		}
 
