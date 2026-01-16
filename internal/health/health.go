@@ -252,7 +252,7 @@ func (h *HealthChecker) LivenessHandler() http.HandlerFunc {
 			"uptime":    time.Since(startTime),
 		}
 
-		json.NewEncoder(w).Encode(response)
+		_ = json.NewEncoder(w).Encode(response)
 	}
 }
 

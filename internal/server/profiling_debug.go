@@ -55,7 +55,10 @@ func (h *ProfilingDebugHandler) handleProfilingStatus(w http.ResponseWriter, r *
 	
 	if acceptJSON {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(stats)
+		if err := json.NewEncoder(w).Encode(stats); err != nil {
+			h.logger.WithError(err).Error("Failed to encode profiling stats")
+			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -169,7 +172,10 @@ func (h *ProfilingDebugHandler) handleListProfiles(w http.ResponseWriter, r *htt
 
 	if acceptJSON {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(profiles)
+		if err := json.NewEncoder(w).Encode(profiles); err != nil {
+			h.logger.WithError(err).Error("Failed to encode profile list")
+			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -269,7 +275,10 @@ func (h *ProfilingDebugHandler) handleGetProfile(w http.ResponseWriter, r *http.
 			"phases":         profile.Phases,
 			"metadata":       profile.Metadata,
 		}
-		json.NewEncoder(w).Encode(data)
+		if err := json.NewEncoder(w).Encode(data); err != nil {
+			h.logger.WithError(err).Error("Failed to encode profile data")
+			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -435,42 +444,42 @@ func (h *ProfilingDebugHandler) handleDownloadProfile(w http.ResponseWriter, r *
 		id, profile.CollectorName, profile.StartTime, profile.EndTime, profile.Duration, profile.Metadata)
 	
 	metaFile, _ := zipWriter.Create("metadata.txt")
-	metaFile.Write([]byte(metadata))
+	_, _ = metaFile.Write([]byte(metadata))
 
 	// Add CPU profile
 	if profile.CPUProfile != nil && profile.CPUProfile.Len() > 0 {
 		cpuFile, _ := zipWriter.Create("cpu.pprof")
-		io.Copy(cpuFile, profile.CPUProfile)
+		_, _ = io.Copy(cpuFile, profile.CPUProfile)
 	}
 
 	// Add heap profile
 	if profile.HeapProfile != nil && profile.HeapProfile.Len() > 0 {
 		heapFile, _ := zipWriter.Create("heap.pprof")
-		io.Copy(heapFile, profile.HeapProfile)
+		_, _ = io.Copy(heapFile, profile.HeapProfile)
 	}
 
 	// Add goroutine profile
 	if profile.GoroutineProfile != nil && profile.GoroutineProfile.Len() > 0 {
 		goroutineFile, _ := zipWriter.Create("goroutine.pprof")
-		io.Copy(goroutineFile, profile.GoroutineProfile)
+		_, _ = io.Copy(goroutineFile, profile.GoroutineProfile)
 	}
 
 	// Add block profile
 	if profile.BlockProfile != nil && profile.BlockProfile.Len() > 0 {
 		blockFile, _ := zipWriter.Create("block.pprof")
-		io.Copy(blockFile, profile.BlockProfile)
+		_, _ = io.Copy(blockFile, profile.BlockProfile)
 	}
 
 	// Add mutex profile
 	if profile.MutexProfile != nil && profile.MutexProfile.Len() > 0 {
 		mutexFile, _ := zipWriter.Create("mutex.pprof")
-		io.Copy(mutexFile, profile.MutexProfile)
+		_, _ = io.Copy(mutexFile, profile.MutexProfile)
 	}
 
 	// Add trace data
 	if profile.TraceData != nil && profile.TraceData.Len() > 0 {
 		traceFile, _ := zipWriter.Create("trace.out")
-		io.Copy(traceFile, profile.TraceData)
+		_, _ = io.Copy(traceFile, profile.TraceData)
 	}
 
 	// Add phases report
@@ -488,13 +497,17 @@ func (h *ProfilingDebugHandler) handleDownloadProfile(w http.ResponseWriter, r *
 	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"profile_%s.zip\"", id))
 	w.Header().Set("Content-Length", strconv.Itoa(buf.Len()))
-	w.Write(buf.Bytes())
+	if _, err := w.Write(buf.Bytes()); err != nil {
+		h.logger.WithError(err).Error("Failed to write profile zip")
+	}
 }
 
 // handleStats shows profiling statistics
 func (h *ProfilingDebugHandler) handleStats(w http.ResponseWriter, r *http.Request) {
 	stats := h.profiler.GetStats()
-	
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(stats)
+	if err := json.NewEncoder(w).Encode(stats); err != nil {
+		h.logger.WithError(err).Error("Failed to encode profiler stats")
+	}
 }

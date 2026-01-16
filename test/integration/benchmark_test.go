@@ -36,7 +36,7 @@ func BenchmarkMetricsCollection(b *testing.B) {
 		}
 		
 		// Read and discard body to ensure full request completion
-		io.Copy(io.Discard, resp.Body)
+		_, _ = io.Copy(io.Discard, resp.Body)
 		resp.Body.Close()
 	}
 }
@@ -87,7 +87,7 @@ func BenchmarkHealthCheck(b *testing.B) {
 			b.Fatalf("Failed to get health: %v", err)
 		}
 		
-		io.Copy(io.Discard, resp.Body)
+		_, _ = io.Copy(io.Discard, resp.Body)
 		resp.Body.Close()
 	}
 }
@@ -113,7 +113,7 @@ func BenchmarkConcurrentMetrics(b *testing.B) {
 						b.Fatalf("Failed to get metrics: %v", err)
 					}
 					
-					io.Copy(io.Discard, resp.Body)
+					_, _ = io.Copy(io.Discard, resp.Body)
 					resp.Body.Close()
 				}
 			})
@@ -218,7 +218,7 @@ func PerformanceTest(t *testing.T) {
 							duration := time.Since(start)
 							
 							if err == nil && resp.StatusCode == http.StatusOK {
-								io.Copy(io.Discard, resp.Body)
+								_, _ = io.Copy(io.Discard, resp.Body)
 								resp.Body.Close()
 								
 								index := workerID*requestsPerLevel + r
@@ -291,7 +291,7 @@ func PerformanceTest(t *testing.T) {
 				// Also make a metrics request to maintain load
 				resp, err = client.Get(exporterURL + "/metrics")
 				if err == nil {
-					io.Copy(io.Discard, resp.Body)
+					_, _ = io.Copy(io.Discard, resp.Body)
 					resp.Body.Close()
 				}
 			}

@@ -95,8 +95,8 @@ func TestCircuitBreaker_Recovery(t *testing.T) {
 	testErr := errors.New("test error")
 	
 	// Trigger circuit opening
-	cb.Call(func() error { return testErr })
-	cb.Call(func() error { return testErr })
+	_ = cb.Call(func() error { return testErr })
+	_ = cb.Call(func() error { return testErr })
 	assert.Equal(t, StateOpen, cb.GetState())
 	
 	// Wait for reset timeout
@@ -127,8 +127,8 @@ func TestCircuitBreaker_HalfOpenFailure(t *testing.T) {
 	testErr := errors.New("test error")
 	
 	// Trigger circuit opening
-	cb.Call(func() error { return testErr })
-	cb.Call(func() error { return testErr })
+	_ = cb.Call(func() error { return testErr })
+	_ = cb.Call(func() error { return testErr })
 	assert.Equal(t, StateOpen, cb.GetState())
 	
 	// Wait for reset timeout
@@ -158,8 +158,8 @@ func TestCircuitBreaker_HalfOpenCapacity(t *testing.T) {
 	testErr := errors.New("test error")
 	
 	// Trigger circuit opening
-	cb.Call(func() error { return testErr })
-	cb.Call(func() error { return testErr })
+	_ = cb.Call(func() error { return testErr })
+	_ = cb.Call(func() error { return testErr })
 	assert.Equal(t, StateOpen, cb.GetState())
 	
 	// Wait for reset timeout
@@ -251,8 +251,8 @@ func TestCircuitBreaker_Reset(t *testing.T) {
 	testErr := errors.New("test error")
 	
 	// Trigger circuit opening
-	cb.Call(func() error { return testErr })
-	cb.Call(func() error { return testErr })
+	_ = cb.Call(func() error { return testErr })
+	_ = cb.Call(func() error { return testErr })
 	assert.Equal(t, StateOpen, cb.GetState())
 	assert.Equal(t, 2, cb.GetFailures())
 	
