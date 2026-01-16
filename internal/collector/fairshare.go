@@ -1495,7 +1495,7 @@ func (f *FairShareCollector) calculateJobPriority(job *slurm.Job) *JobPriorityFa
 	totalPriority := int64((ageFactor + fairShareFactor + qosFactor + partitionFactor) * 10000)
 
 	return &JobPriorityFactors{
-		JobID:               fmt.Sprintf("%s", job.ID),
+		JobID:               job.ID,
 		UserName:            "", // TODO: job.UserName not available
 		Account:             "", // TODO: job.Account not available
 		Partition:           job.Partition,
@@ -1521,7 +1521,7 @@ func (f *FairShareCollector) calculateJobPriority(job *slurm.Job) *JobPriorityFa
 }
 
 func (f *FairShareCollector) updateJobPriorityMetrics(job *slurm.Job, priority *JobPriorityFactors) {
-	jobID := fmt.Sprintf("%s", job.ID)
+	jobID := job.ID
 	labels := []string{jobID, "", "", job.Partition, "normal"} // TODO: job.UserName and job.Account not available
 
 	f.metrics.JobTotalPriority.WithLabelValues(labels...).Set(float64(priority.TotalPriority))

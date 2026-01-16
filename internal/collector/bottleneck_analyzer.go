@@ -390,7 +390,7 @@ func (b *BottleneckAnalyzer) analyzeBottlenecks(ctx context.Context) error {
 // performStepPerformanceAnalysis performs comprehensive analysis on a job step
 func (b *BottleneckAnalyzer) performStepPerformanceAnalysis(job *slurm.Job) *StepPerformanceAnalysis {
 	analysis := &StepPerformanceAnalysis{
-		JobID:             fmt.Sprintf("%s", job.ID),
+		JobID:             job.ID,
 		StepID:            "0", // Main job step
 		AnalysisTimestamp: time.Now(),
 	}
