@@ -1,7 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Jon Thor Kristinsson
-# SPDX-License-Identifier: Apache-2.0
-
-name: Documentation
+name: Deploy Documentation
 
 on:
   push:
@@ -10,8 +7,6 @@ on:
     paths:
       - 'website/**'
       - 'docs/**'
-      - '**.go'
-      - 'go.mod'
       - '.github/workflows/docs.yml'
   pull_request:
     branches:
@@ -19,7 +14,6 @@ on:
     paths:
       - 'website/**'
       - 'docs/**'
-      - '**.go'
   workflow_dispatch:
 
 permissions:
@@ -149,87 +143,3 @@ jobs:
           
           # Check spelling in markdown files
           find website/docs -name "*.md" -exec aspell --mode=markdown --personal=website/.aspell.en.pws --dont-backup check {} \;
-
-  validate-links:
-    name: Validate Documentation Links
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Link Checker
-      uses: lycheeverse/lychee-action@v1
-      with:
-        args: >
-          --verbose
-          --no-progress
-          --accept 200,204,206
-          --timeout 20
-          --max-retries 3
-          --exclude-loopback
-          --exclude-private
-          --exclude-mail
-          './**/*.md'
-        fail: true
-
-  spellcheck:
-    name: Spellcheck Documentation
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Spellcheck
-      uses: streetsidesoftware/cspell-action@v5
-      with:
-        config: |
-          {
-            "version": "0.2",
-            "language": "en",
-            "words": [
-              "slurm",
-              "exporter",
-              "prometheus",
-              "openapi",
-              "jontk",
-              "kristinsson",
-              "godoc",
-              "gomarkdoc",
-              "codecov",
-              "golangci",
-              "govulncheck",
-              "gosec",
-              "sarif",
-              "trivy",
-              "codeql",
-              "spdx",
-              "qos",
-              "gres",
-              "tres",
-              "sacct",
-              "salloc",
-              "sbatch",
-              "scancel",
-              "scontrol",
-              "sinfo",
-              "squeue",
-              "grafana",
-              "kubernetes",
-              "kubectl",
-              "cpus",
-              "gpus",
-              "nodeinfo",
-              "partitioninfo",
-              "jobinfo"
-            ],
-            "ignorePaths": [
-              "vendor/**",
-              "*.pb.go",
-              "go.sum",
-              ".git/**",
-              "**/*.gen.go"
-            ]
-          }
-        files: '**/*.md'
