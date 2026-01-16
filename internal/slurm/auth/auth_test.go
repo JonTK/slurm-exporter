@@ -108,7 +108,7 @@ func TestReadSecretFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	tests := []struct {
 		name        string
@@ -201,9 +201,9 @@ func TestConfigureAuthWithFiles(t *testing.T) {
 	passwordFile := filepath.Join(tmpDir, "password")
 	apiKeyFile := filepath.Join(tmpDir, "api-key")
 
-	os.WriteFile(tokenFile, []byte("jwt-token-from-file"), 0600)
-	os.WriteFile(passwordFile, []byte("password-from-file"), 0600)
-	os.WriteFile(apiKeyFile, []byte("api-key-from-file"), 0600)
+	_ = os.WriteFile(tokenFile, []byte("jwt-token-from-file"), 0600)
+	_ = os.WriteFile(passwordFile, []byte("password-from-file"), 0600)
+	_ = os.WriteFile(apiKeyFile, []byte("api-key-from-file"), 0600)
 
 	tests := []struct {
 		name    string

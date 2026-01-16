@@ -34,7 +34,7 @@ func TestWatcher_New(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, watcher)
 
-	watcher.Stop()
+	_ = watcher.Stop()
 }
 
 func TestWatcher_Start_Stop(t *testing.T) {
@@ -73,7 +73,7 @@ slurm:
 	time.Sleep(100 * time.Millisecond)
 
 	// Stop watcher
-	watcher.Stop()
+	_ = watcher.Stop()
 
 	// Should have loaded initial config
 	assert.Equal(t, 1, handler.reloadCount)
@@ -132,7 +132,7 @@ slurm:
 	// Wait for file change to be detected
 	time.Sleep(500 * time.Millisecond)
 
-	watcher.Stop()
+	_ = watcher.Stop()
 
 	// Should have reloaded config
 	assert.True(t, handler.reloadCount >= 2, "should have reloaded config at least twice (initial + change)")

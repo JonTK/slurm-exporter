@@ -101,9 +101,9 @@ func (fcm *FilteredCollectorManager) Start() error {
 func (fcm *FilteredCollectorManager) Stop() {
 	fcm.cancel()
 	fcm.wg.Wait()
-	
+
 	if fcm.filter != nil {
-		fcm.filter.Close()
+		_ = fcm.filter.Close()
 	}
 	
 	fcm.logger.Info("Stopped filtered collector manager")
@@ -437,7 +437,7 @@ func AdvancedFilteringExample() {
 	if err != nil {
 		logger.WithError(err).Fatal("Failed to create smart filter")
 	}
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	// Simulate collection cycles with different noise patterns
 	for cycle := 0; cycle < 20; cycle++ {

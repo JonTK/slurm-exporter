@@ -402,21 +402,21 @@ func (s *SecurityTestSuite) createTestHandler() http.Handler {
 	mux.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(200)
-		w.Write([]byte("# Test metrics\ntest_metric 1\n"))
+		_, _ = w.Write([]byte("# Test metrics\ntest_metric 1\n"))
 	})
-	
+
 	mux.HandleFunc("/debug/", func(w http.ResponseWriter, r *http.Request) {
 		// Simulate authentication requirement
 		auth := r.Header.Get("Authorization")
 		if auth != "Bearer valid-token" {
 			w.WriteHeader(401)
-			w.Write([]byte("Unauthorized"))
+			_, _ = w.Write([]byte("Unauthorized"))
 			return
 		}
-		
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(200)
-		w.Write([]byte(`{"status": "ok"}`))
+		_, _ = w.Write([]byte(`{"status": "ok"}`))
 	})
 	
 	return secureHandler
@@ -462,8 +462,8 @@ func (s *SecurityTestSuite) makeRequest(method, path string, headers map[string]
 }
 
 func (s *SecurityTestSuite) readResponseBody(resp *http.Response) string {
-	defer resp.Body.Close()
-	
+	defer func() { _ = resp.Body.Close() }()
+
 	body := make([]byte, 10240) // Read up to 10KB
 	n, _ := resp.Body.Read(body)
 	

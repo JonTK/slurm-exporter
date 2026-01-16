@@ -32,7 +32,7 @@ func createTestServer() *Server {
 	// Create HTTP metrics for middleware testing
 	httpMetrics := NewHTTPMetrics()
 	promRegistry := prometheus.NewRegistry()
-	httpMetrics.Register(promRegistry)
+	_ = httpMetrics.Register(promRegistry)
 
 	return &Server{
 		config:       cfg,
@@ -584,7 +584,7 @@ func TestResponseWriter(t *testing.T) {
 	rw := &responseWriter{ResponseWriter: w}
 
 	// Test default status code
-	rw.Write([]byte("test"))
+	_, _ = rw.Write([]byte("test"))
 	if rw.statusCode != http.StatusOK {
 		t.Errorf("Expected default status code 200, got %d", rw.statusCode)
 	}

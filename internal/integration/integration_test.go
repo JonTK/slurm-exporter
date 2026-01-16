@@ -131,7 +131,7 @@ func TestHTTPMetricsEndpoint(t *testing.T) {
 	// Make HTTP request
 	resp, err := http.Get(server.URL)
 	require.NoError(t, err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	assert.Contains(t, resp.Header.Get("Content-Type"), "text/plain; version=0.0.4; charset=utf-8")

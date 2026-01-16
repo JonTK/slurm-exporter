@@ -43,9 +43,9 @@ func TestNewSmartFilter_Enabled(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotNil(t, filter)
 	assert.True(t, filter.IsEnabled())
-	
+
 	// Clean up
-	filter.Close()
+	_ = filter.Close()
 }
 
 func TestNewSmartFilter_InvalidConfig(t *testing.T) {
@@ -131,7 +131,7 @@ func TestSmartFilter_ProcessMetrics_LearningPhase(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	// Create test metrics
 	metrics := createTestMetrics()
@@ -159,7 +159,7 @@ func TestSmartFilter_CreateMetricKey(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	testCases := []struct {
 		name     string
@@ -209,7 +209,7 @@ func TestSmartFilter_ExtractValue(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	testCases := []struct {
 		name     string
@@ -269,7 +269,7 @@ func TestSmartFilter_CalculateStatistics(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	// Create a pattern with known values
 	pattern := &MetricPattern{
@@ -301,7 +301,7 @@ func TestSmartFilter_CalculateCorrelation(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	testCases := []struct {
 		name     string
@@ -356,7 +356,7 @@ func TestSmartFilter_Cache(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	// Test cache operations
 	filter.cacheDecision("key1", ActionKeep)
@@ -395,7 +395,7 @@ func TestSmartFilter_RegisterMetrics(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	registry := prometheus.NewRegistry()
 	err = filter.RegisterMetrics(registry)
@@ -427,7 +427,7 @@ func TestSmartFilter_GetStats(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	stats := filter.GetStats()
 	assert.Equal(t, true, stats["enabled"])
@@ -459,7 +459,7 @@ func TestSmartFilter_GetPatterns(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	// Initially no patterns
 	patterns := filter.GetPatterns()
@@ -507,7 +507,7 @@ func TestSmartFilter_NoiseScoreCalculation(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	testCases := []struct {
 		name         string

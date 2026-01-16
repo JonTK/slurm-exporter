@@ -269,7 +269,7 @@ func TestSignalHandling(t *testing.T) {
 		time.Sleep(10 * time.Millisecond)
 		// Send signal to current process
 		process, _ := os.FindProcess(os.Getpid())
-		process.Signal(syscall.SIGUSR1) // Use a signal we're not normally listening for
+		_ = process.Signal(syscall.SIGUSR1) // Use a signal we're not normally listening for
 	}()
 
 	// Note: This test is tricky because we can't easily test real signal handling
@@ -285,7 +285,7 @@ func TestIsShuttingDown(t *testing.T) {
 	}
 
 	// After shutdown, should be shutting down
-	sm.Shutdown()
+	_ = sm.Shutdown()
 
 	if !sm.IsShuttingDown() {
 		t.Error("Expected to be shutting down after Shutdown() called")

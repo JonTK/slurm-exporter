@@ -232,7 +232,7 @@ func (drc *degradedRegistryCollector) Collect(ch chan<- prometheus.Metric) {
 			subCh := make(chan prometheus.Metric, 1000)
 			go func() {
 				defer close(subCh)
-				collector.Collect(ctx, subCh)
+				_ = collector.Collect(ctx, subCh)
 			}()
 
 			// Forward metrics

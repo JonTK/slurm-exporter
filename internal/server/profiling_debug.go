@@ -143,7 +143,7 @@ func (h *ProfilingDebugHandler) handleProfilingStatus(w http.ResponseWriter, r *
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	t.Execute(w, data)
+	_ = t.Execute(w, data)
 }
 
 // handleListProfiles lists available profiles
@@ -249,7 +249,7 @@ func (h *ProfilingDebugHandler) handleListProfiles(w http.ResponseWriter, r *htt
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	t.Execute(w, data)
+	_ = t.Execute(w, data)
 }
 
 // handleGetProfile shows profile details
@@ -391,7 +391,7 @@ func (h *ProfilingDebugHandler) handleGetProfile(w http.ResponseWriter, r *http.
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	t.Execute(w, data)
+	_ = t.Execute(w, data)
 }
 
 // handleEnableProfiling enables profiling for a collector
@@ -489,7 +489,7 @@ func (h *ProfilingDebugHandler) handleDownloadProfile(w http.ResponseWriter, r *
 			name, phase.Duration, phase.Allocations)
 	}
 	phasesFile, _ := zipWriter.Create("phases.txt")
-	phasesFile.Write([]byte(phasesReport))
+	_, _ = phasesFile.Write([]byte(phasesReport))
 
 	zipWriter.Close()
 

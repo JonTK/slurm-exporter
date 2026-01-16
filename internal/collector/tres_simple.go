@@ -138,8 +138,8 @@ func (c *TRESCollector) Collect(ctx context.Context, ch chan<- prometheus.Metric
 	// Export TRES counts
 	for key, count := range tresCounts {
 		var tresType, tresName string
-		fmt.Sscanf(key, "%s:%s", &tresType, &tresName)
-		
+		_, _ = fmt.Sscanf(key, "%s:%s", &tresType, &tresName)
+
 		ch <- prometheus.MustNewConstMetric(
 			c.tresCount,
 			prometheus.GaugeValue,

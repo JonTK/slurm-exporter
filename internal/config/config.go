@@ -1597,7 +1597,7 @@ func NewReloader(configFile string, initialConfig *Config, callback func(*Config
 	// Add the configuration file to the watcher
 	err = watcher.Add(configFile)
 	if err != nil {
-		watcher.Close()
+		_ = watcher.Close()
 		return nil, fmt.Errorf("failed to watch config file %s: %w", configFile, err)
 	}
 

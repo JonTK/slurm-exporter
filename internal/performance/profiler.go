@@ -173,7 +173,9 @@ func (p *Profiler) StartOperation(collectorName string) *OperationProfile {
 	var cpuBuf bytes.Buffer
 	if p.config.AutoProfile.ProfileOnSlowCollection {
 		profile.CPUProfile = &cpuBuf
-		pprof.StartCPUProfile(&cpuBuf)
+		if err := pprof.StartCPUProfile(&cpuBuf); err != nil {
+			p.logger.WithError(err).Warn("Failed to start CPU profiling")
+		}
 	}
 
 	// Start trace if enabled
@@ -304,24 +306,24 @@ func (op *OperationProfile) collectFinalProfiles() {
 	if op.profile.HeapProfile == nil {
 		op.profile.HeapProfile = &bytes.Buffer{}
 	}
-	pprof.WriteHeapProfile(op.profile.HeapProfile)
+	_ = pprof.WriteHeapProfile(op.profile.HeapProfile)
 
 	// Goroutine profile
 	if op.profile.GoroutineProfile == nil {
 		op.profile.GoroutineProfile = &bytes.Buffer{}
 	}
-	pprof.Lookup("goroutine").WriteTo(op.profile.GoroutineProfile, 0)
+	_ = pprof.Lookup("goroutine").WriteTo(op.profile.GoroutineProfile, 0)
 
 	// Block profile
 	if op.profiler.config.BlockProfileRate > 0 {
 		op.profile.BlockProfile = &bytes.Buffer{}
-		pprof.Lookup("block").WriteTo(op.profile.BlockProfile, 0)
+		_ = pprof.Lookup("block").WriteTo(op.profile.BlockProfile, 0)
 	}
 
 	// Mutex profile
 	if op.profiler.config.MutexProfileFraction > 0 {
 		op.profile.MutexProfile = &bytes.Buffer{}
-		pprof.Lookup("mutex").WriteTo(op.profile.MutexProfile, 0)
+		_ = pprof.Lookup("mutex").WriteTo(op.profile.MutexProfile, 0)
 	}
 }
 
@@ -407,7 +409,7 @@ func (op *OperationProfile) SaveHeapProfile() {
 	if op.profile.HeapProfile == nil {
 		op.profile.HeapProfile = &bytes.Buffer{}
 	}
-	pprof.WriteHeapProfile(op.profile.HeapProfile)
+	_ = pprof.WriteHeapProfile(op.profile.HeapProfile)
 }
 
 // GenerateReport generates a profile report
@@ -453,22 +455,25 @@ func (p *Profiler) collectContinuousProfile() {
 	if p.config.ContinuousProfiling.CPUDuration > 0 {
 		cpuBuf := &bytes.Buffer{}
 		profile.CPUProfile = cpuBuf
-		
-		pprof.StartCPUProfile(cpuBuf)
-		time.Sleep(p.config.ContinuousProfiling.CPUDuration)
-		pprof.StopCPUProfile()
+
+		if err := pprof.StartCPUProfile(cpuBuf); err != nil {
+			p.logger.WithError(err).Warn("Failed to start CPU profiling")
+		} else {
+			time.Sleep(p.config.ContinuousProfiling.CPUDuration)
+			pprof.StopCPUProfile()
+		}
 	}
 
 	// Heap profile
 	if p.config.ContinuousProfiling.IncludeHeap {
 		profile.HeapProfile = &bytes.Buffer{}
-		pprof.WriteHeapProfile(profile.HeapProfile)
+		_ = pprof.WriteHeapProfile(profile.HeapProfile)
 	}
 
 	// Goroutine profile
 	if p.config.ContinuousProfiling.IncludeGoroutine {
 		profile.GoroutineProfile = &bytes.Buffer{}
-		pprof.Lookup("goroutine").WriteTo(profile.GoroutineProfile, 0)
+		_ = pprof.Lookup("goroutine").WriteTo(profile.GoroutineProfile, 0)
 	}
 
 	profile.EndTime = time.Now()
