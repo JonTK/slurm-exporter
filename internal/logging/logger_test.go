@@ -133,7 +133,7 @@ func TestLoggerFileOutput(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	t.Run("WithValidFile", func(t *testing.T) {
 		logFile := filepath.Join(tmpDir, "test.log")
@@ -421,7 +421,7 @@ func TestClose(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to create temp dir: %v", err)
 		}
-		defer os.RemoveAll(tmpDir)
+		defer func() { _ = os.RemoveAll(tmpDir) }()
 
 		logFile := filepath.Join(tmpDir, "test.log")
 		cfg := &config.LoggingConfig{

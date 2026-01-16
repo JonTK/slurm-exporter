@@ -191,7 +191,7 @@ func (fs *FileProfileStorage) saveBuffer(filename string, buf io.Reader) (int64,
 	if err != nil {
 		return 0, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	return io.Copy(file, buf)
 }

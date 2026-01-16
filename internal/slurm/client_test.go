@@ -83,7 +83,7 @@ func TestNewClient(t *testing.T) {
 			}
 
 			if client != nil {
-				client.Close()
+				_ = client.Close()
 			}
 		})
 	}
@@ -211,7 +211,7 @@ func TestClientConnectionStatus(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewClient() error = %v", err)
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	// Initially, connection status might be false due to failed test connection
 	// but the client should still be created
@@ -246,7 +246,7 @@ func TestClientContextCancellation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewClient() error = %v", err)
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	// Test context cancellation
 	ctx, cancel := context.WithCancel(context.Background())
@@ -281,7 +281,7 @@ func TestClientRateLimiting(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewClient() error = %v", err)
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	// Make multiple rapid requests - should be rate limited
 	start := time.Now()

@@ -61,12 +61,12 @@ func (suite *RockyClusterTestSuite) waitForExporter() {
 		case <-ticker.C:
 			resp, err := suite.client.Get(suite.exporterURL + "/ready")
 			if err == nil && resp.StatusCode == http.StatusOK {
-				resp.Body.Close()
+				_ = resp.Body.Close()
 				suite.T().Log("Exporter is ready")
 				return
 			}
 			if resp != nil {
-				resp.Body.Close()
+				_ = resp.Body.Close()
 			}
 			suite.T().Log("Waiting for exporter to become ready...")
 		}
@@ -155,7 +155,7 @@ func (suite *RockyClusterTestSuite) TestHealthEndpoints() {
 		suite.Run(test.name, func() {
 			resp, err := suite.client.Get(suite.exporterURL + test.endpoint)
 			require.NoError(suite.T(), err)
-			defer resp.Body.Close()
+			defer func() { _ = resp.Body.Close() }()
 			
 			assert.Equal(suite.T(), test.expectedStatus, resp.StatusCode)
 			
@@ -174,7 +174,7 @@ func (suite *RockyClusterTestSuite) TestHealthEndpoints() {
 func (suite *RockyClusterTestSuite) TestMetricsEndpoint() {
 	resp, err := suite.client.Get(suite.exporterURL + "/metrics")
 	require.NoError(suite.T(), err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	
 	assert.Equal(suite.T(), http.StatusOK, resp.StatusCode)
 	assert.Equal(suite.T(), "text/plain; version=0.0.4; charset=utf-8", resp.Header.Get("Content-Type"))
@@ -220,7 +220,7 @@ func (suite *RockyClusterTestSuite) TestMetricsEndpoint() {
 func (suite *RockyClusterTestSuite) TestCollectorMetrics() {
 	resp, err := suite.client.Get(suite.exporterURL + "/metrics")
 	require.NoError(suite.T(), err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(suite.T(), err)
@@ -270,7 +270,7 @@ func (suite *RockyClusterTestSuite) TestCollectorPerformance() {
 	// Get initial metrics
 	initialResp, err := suite.client.Get(suite.exporterURL + "/metrics")
 	require.NoError(suite.T(), err)
-	initialResp.Body.Close()
+	_ = initialResp.Body.Close()
 	
 	// Measure collection time over multiple collections
 	collections := 5
@@ -283,8 +283,8 @@ func (suite *RockyClusterTestSuite) TestCollectorPerformance() {
 		
 		require.NoError(suite.T(), err)
 		assert.Equal(suite.T(), http.StatusOK, resp.StatusCode)
-		resp.Body.Close()
-		
+		_ = resp.Body.Close()
+
 		durations[i] = duration
 		suite.T().Logf("Collection %d took: %v", i+1, duration)
 		
@@ -330,7 +330,7 @@ func (suite *RockyClusterTestSuite) TestCollectorPerformance() {
 func (suite *RockyClusterTestSuite) TestSLURMConnectivity() {
 	resp, err := suite.client.Get(suite.exporterURL + "/metrics")
 	require.NoError(suite.T(), err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(suite.T(), err)
@@ -408,7 +408,7 @@ func (suite *RockyClusterTestSuite) TestSLURMConnectivity() {
 func (suite *RockyClusterTestSuite) TestCollectorHealth() {
 	resp, err := suite.client.Get(suite.exporterURL + "/debug/vars")
 	require.NoError(suite.T(), err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(suite.T(), err)
@@ -456,7 +456,7 @@ func (suite *RockyClusterTestSuite) TestTracingIntegration() {
 		suite.T().Skip("Tracing not available or not enabled")
 		return
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(suite.T(), err)
@@ -479,7 +479,7 @@ func (suite *RockyClusterTestSuite) TestTracingIntegration() {
 			strings.NewReader(enableReq),
 		)
 		if err == nil {
-			enableResp.Body.Close()
+			_ = enableResp.Body.Close()
 			suite.T().Log("Successfully enabled detailed tracing for jobs collector")
 		}
 	} else {
@@ -508,7 +508,7 @@ func (suite *RockyClusterTestSuite) generateTestReport() {
 	reportJSON, err := json.MarshalIndent(report, "", "  ")
 	if err == nil {
 		filename := fmt.Sprintf("test-report-%s.json", time.Now().Format("20060102-150405"))
-		os.WriteFile(filename, reportJSON, 0644)
+		_ = os.WriteFile(filename, reportJSON, 0644)
 		suite.T().Logf("Test report written to: %s", filename)
 	}
 	

@@ -227,7 +227,7 @@ func TestProfiler(t *testing.T) {
 			op := profiler.StartOperation("list_test")
 			time.Sleep(5 * time.Millisecond)
 			op.Stop()
-			op.Save()
+			_ = op.Save()
 		}
 
 		profiles, err := profiler.ListProfiles()
@@ -437,7 +437,7 @@ func TestMemoryProfileStorage(t *testing.T) {
 				EndTime:       time.Now().Add(time.Duration(-i) * time.Minute).Add(time.Second),
 				Duration:      time.Second,
 			}
-			storage.Save(profile)
+			_ = storage.Save(profile)
 		}
 
 		profiles, err := storage.List()

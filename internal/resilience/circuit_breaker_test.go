@@ -372,7 +372,7 @@ func TestCircuitBreakerManager_HealthCheck(t *testing.T) {
 	
 	// Break one circuit
 	testErr := errors.New("test error")
-	cb1.Call(func() error { return testErr })
+	_ = cb1.Call(func() error { return testErr })
 	assert.Equal(t, StateOpen, cb1.GetState())
 	
 	// Should report unhealthy

@@ -219,7 +219,7 @@ func ExampleUsageInMainApplication() {
 	if err != nil {
 		logrus.WithError(err).Fatal("Failed to initialize tracing")
 	}
-	defer tracer.Shutdown(context.Background())
+	defer func() { _ = tracer.Shutdown(context.Background()) }()
 
 	// Create example client (in real code, this would be the actual SLURM client)
 	client := &MockSLURMClient{}

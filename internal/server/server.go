@@ -346,7 +346,7 @@ func (s *Server) Start(ctx context.Context) error {
 	go func() {
 		<-ctx.Done()
 		s.logger.Info("Context cancelled, shutting down server")
-		s.server.Shutdown(context.Background())
+		_ = s.server.Shutdown(context.Background())
 	}()
 
 	var err error
@@ -395,7 +395,7 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	// Could be extended to check dependencies
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
+	_, _ = w.Write([]byte("OK"))
 }
 
 // handleReady handles the readiness check endpoint
@@ -416,7 +416,7 @@ func (s *Server) handleReady(w http.ResponseWriter, r *http.Request) {
 	if s.isShuttingDown {
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusServiceUnavailable)
-		w.Write([]byte("Server is shutting down"))
+		_, _ = w.Write([]byte("Server is shutting down"))
 		return
 	}
 
@@ -453,14 +453,14 @@ func (s *Server) handleReady(w http.ResponseWriter, r *http.Request) {
 		if !ready {
 			w.Header().Set("Content-Type", "text/plain")
 			w.WriteHeader(http.StatusServiceUnavailable)
-			w.Write([]byte("No collectors enabled"))
+			_, _ = w.Write([]byte("No collectors enabled"))
 			return
 		}
 	}
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Ready"))
+	_, _ = w.Write([]byte("Ready"))
 }
 
 // handleRoot handles the root endpoint
@@ -545,7 +545,7 @@ func (s *Server) handleRoot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	content := fmt.Sprintf(html, s.config.Server.MetricsPath, collectorStatus)
-	w.Write([]byte(content))
+	_, _ = w.Write([]byte(content))
 }
 
 // createMetricsHandler creates the Prometheus metrics handler

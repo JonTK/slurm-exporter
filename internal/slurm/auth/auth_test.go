@@ -194,7 +194,7 @@ func TestConfigureAuthWithFiles(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	// Create test files
 	tokenFile := filepath.Join(tmpDir, "jwt-token")
@@ -257,7 +257,7 @@ func TestServiceAccountAuth(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	// Create test token file
 	tokenPath := filepath.Join(tmpDir, "token")

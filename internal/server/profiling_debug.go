@@ -406,7 +406,7 @@ func (h *ProfilingDebugHandler) handleEnableProfiling(w http.ResponseWriter, r *
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Profiling enabled"))
+	_, _ = w.Write([]byte("Profiling enabled"))
 }
 
 // handleDisableProfiling disables profiling for a collector
@@ -421,7 +421,7 @@ func (h *ProfilingDebugHandler) handleDisableProfiling(w http.ResponseWriter, r 
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Profiling disabled"))
+	_, _ = w.Write([]byte("Profiling disabled"))
 }
 
 // handleDownloadProfile downloads a profile as a zip file
@@ -491,7 +491,7 @@ func (h *ProfilingDebugHandler) handleDownloadProfile(w http.ResponseWriter, r *
 	phasesFile, _ := zipWriter.Create("phases.txt")
 	_, _ = phasesFile.Write([]byte(phasesReport))
 
-	zipWriter.Close()
+	_ = zipWriter.Close()
 
 	// Send zip file
 	w.Header().Set("Content-Type", "application/zip")

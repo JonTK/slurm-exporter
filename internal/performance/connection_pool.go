@@ -329,7 +329,7 @@ func (cp *ConnectionPool) closeConnection(conn *PooledConnection) {
 
 	conn.mu.Lock()
 	if conn.client != nil {
-		conn.client.Close()
+		_ = conn.client.Close()
 	}
 	conn.mu.Unlock()
 

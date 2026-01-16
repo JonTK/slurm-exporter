@@ -285,7 +285,7 @@ func (op *OperationProfile) Stop() {
 
 	// Check if we should save the profile
 	if op.shouldSaveProfile() {
-		op.Save()
+		_ = op.Save()
 	}
 
 	op.profiler.mu.Lock()

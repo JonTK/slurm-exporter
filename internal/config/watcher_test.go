@@ -41,7 +41,7 @@ func TestWatcher_Start_Stop(t *testing.T) {
 	// Create temporary config file
 	tmpDir, err := os.MkdirTemp("", "watcher_test")
 	require.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	configFile := filepath.Join(tmpDir, "config.yaml")
 	err = os.WriteFile(configFile, []byte(`
@@ -85,7 +85,7 @@ func TestWatcher_ConfigChange(t *testing.T) {
 	// Create temporary config file
 	tmpDir, err := os.MkdirTemp("", "watcher_test")
 	require.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	configFile := filepath.Join(tmpDir, "config.yaml")
 	initialConfig := `
@@ -145,7 +145,7 @@ func TestWatcher_InvalidConfig(t *testing.T) {
 	// Create temporary config file
 	tmpDir, err := os.MkdirTemp("", "watcher_test")
 	require.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	configFile := filepath.Join(tmpDir, "config.yaml")
 	validConfig := `
@@ -193,7 +193,7 @@ slurm:
 	// Wait for file change to be detected
 	time.Sleep(500 * time.Millisecond)
 
-	watcher.Stop()
+	_ = watcher.Stop()
 
 	// Should have attempted to reload but with error
 	assert.True(t, handler.reloadCount >= 2)
@@ -212,7 +212,7 @@ func TestWatcher_GetConfig(t *testing.T) {
 	// Create temporary config file
 	tmpDir, err := os.MkdirTemp("", "watcher_test")
 	require.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	configFile := filepath.Join(tmpDir, "config.yaml")
 	err = os.WriteFile(configFile, []byte(`
@@ -247,14 +247,14 @@ slurm:
 	assert.NotNil(t, currentConfig)
 	assert.Equal(t, ":8080", currentConfig.Server.Address)
 
-	watcher.Stop()
+	_ = watcher.Stop()
 }
 
 func TestWatcher_DebounceMultipleChanges(t *testing.T) {
 	// Create temporary config file
 	tmpDir, err := os.MkdirTemp("", "watcher_test")
 	require.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	configFile := filepath.Join(tmpDir, "config.yaml")
 	initialConfig := `
@@ -307,7 +307,7 @@ slurm:
 	// Wait for debounce to settle
 	time.Sleep(300 * time.Millisecond)
 
-	watcher.Stop()
+	_ = watcher.Stop()
 
 	// Should have debounced the changes (not reload for every single change)
 	reloadCount := handler.reloadCount - initialCount
@@ -319,7 +319,7 @@ func TestWatcher_ConcurrentAccess(t *testing.T) {
 	// Create temporary config file
 	tmpDir, err := os.MkdirTemp("", "watcher_test")
 	require.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	configFile := filepath.Join(tmpDir, "config.yaml")
 	err = os.WriteFile(configFile, []byte(`
@@ -366,5 +366,5 @@ slurm:
 		<-done
 	}
 
-	watcher.Stop()
+	_ = watcher.Stop()
 }

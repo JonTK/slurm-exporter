@@ -387,7 +387,7 @@ func TestBatchProcessor_Stop(t *testing.T) {
 			priority:  1,
 			timestamp: time.Now(),
 		}
-		bp.Add(item)
+		_ = bp.Add(item)
 	}
 
 	// Stop should flush pending batches

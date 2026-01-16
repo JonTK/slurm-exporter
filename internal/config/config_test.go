@@ -894,8 +894,8 @@ func TestApplyEnvOverrides(t *testing.T) {
 	}
 
 	// Test with specific environment variable
-	os.Setenv("SLURM_EXPORTER_SERVER_ADDRESS", ":5555")
-	defer os.Unsetenv("SLURM_EXPORTER_SERVER_ADDRESS")
+	_ = os.Setenv("SLURM_EXPORTER_SERVER_ADDRESS", ":5555")
+	defer func() { _ = os.Unsetenv("SLURM_EXPORTER_SERVER_ADDRESS") }()
 
 	if err := cfg.ApplyEnvOverrides(); err != nil {
 		t.Errorf("Expected no error applying env overrides, got: %v", err)

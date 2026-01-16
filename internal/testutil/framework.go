@@ -382,7 +382,7 @@ func (h TestHelpers) CreateTempConfig(t *testing.T, config string) string {
 	
 	// Cleanup on test completion
 	t.Cleanup(func() {
-		RemoveFile(tempFile)
+		_ = RemoveFile(tempFile)
 	})
 	
 	return tempFile

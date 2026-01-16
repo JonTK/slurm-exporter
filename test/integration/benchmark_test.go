@@ -25,7 +25,7 @@ func BenchmarkMetricsCollection(b *testing.B) {
 	if err != nil {
 		b.Skip("Exporter not available for benchmarking")
 	}
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	
 	b.ResetTimer()
 	
@@ -37,7 +37,7 @@ func BenchmarkMetricsCollection(b *testing.B) {
 		
 		// Read and discard body to ensure full request completion
 		_, _ = io.Copy(io.Discard, resp.Body)
-		resp.Body.Close()
+		_ = resp.Body.Close()
 	}
 }
 
@@ -53,7 +53,7 @@ func BenchmarkMetricsParsing(b *testing.B) {
 	if err != nil {
 		b.Skip("Exporter not available for benchmarking")
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(b, err)
@@ -88,7 +88,7 @@ func BenchmarkHealthCheck(b *testing.B) {
 		}
 		
 		_, _ = io.Copy(io.Discard, resp.Body)
-		resp.Body.Close()
+		_ = resp.Body.Close()
 	}
 }
 
@@ -114,7 +114,7 @@ func BenchmarkConcurrentMetrics(b *testing.B) {
 					}
 					
 					_, _ = io.Copy(io.Discard, resp.Body)
-					resp.Body.Close()
+					_ = resp.Body.Close()
 				}
 			})
 		})
@@ -137,7 +137,7 @@ func PerformanceTest(t *testing.T) {
 	if err != nil {
 		t.Skip("Exporter not available for performance testing")
 	}
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	
 	// Performance metrics to collect
 	var results struct {
@@ -166,7 +166,7 @@ func PerformanceTest(t *testing.T) {
 			
 			body, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			
 			// Parse metrics to count them
 			parser := &expfmt.TextParser{}
@@ -219,7 +219,7 @@ func PerformanceTest(t *testing.T) {
 							
 							if err == nil && resp.StatusCode == http.StatusOK {
 								_, _ = io.Copy(io.Discard, resp.Body)
-								resp.Body.Close()
+								_ = resp.Body.Close()
 								
 								index := workerID*requestsPerLevel + r
 								durations[index] = duration
@@ -280,7 +280,7 @@ func PerformanceTest(t *testing.T) {
 				if err == nil && resp.StatusCode == http.StatusOK {
 					// Read the response but don't parse JSON for performance
 					body, err := io.ReadAll(resp.Body)
-					resp.Body.Close()
+					_ = resp.Body.Close()
 					
 					if err == nil && len(body) > 0 {
 						// Rough memory usage estimation based on response size
@@ -292,7 +292,7 @@ func PerformanceTest(t *testing.T) {
 				resp, err = client.Get(exporterURL + "/metrics")
 				if err == nil {
 					_, _ = io.Copy(io.Discard, resp.Body)
-					resp.Body.Close()
+					_ = resp.Body.Close()
 				}
 			}
 		}

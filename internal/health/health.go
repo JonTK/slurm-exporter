@@ -343,7 +343,7 @@ func MetricsEndpointCheck(metricsURL string, client *http.Client) CheckFunc {
 				Error:  fmt.Sprintf("Failed to fetch metrics: %v", err),
 			}
 		}
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 
 		check := Check{
 			Metadata: map[string]string{

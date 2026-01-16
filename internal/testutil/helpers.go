@@ -50,7 +50,7 @@ func GetMetricValue(collector prometheus.Collector, metricName string, labels pr
 
 	for metric := range ch {
 		dto := &io_prometheus_client.Metric{}
-		metric.Write(dto)
+		_ = metric.Write(dto)
 
 		// Check if this is the metric we're looking for
 		desc := metric.Desc()
