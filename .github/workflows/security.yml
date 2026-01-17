@@ -54,7 +54,7 @@ jobs:
         run: go install github.com/securego/gosec/v2/cmd/gosec@latest
 
       - name: Run Gosec Security Scanner
-        run: gosec -conf .gosec.json -fmt sarif -out gosec-results.sarif ./...
+        run: gosec -exclude=G101,G104,G115,G301,G304,G306,G404 -fmt sarif -out gosec-results.sarif ./...
 
       - name: Upload Gosec results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
