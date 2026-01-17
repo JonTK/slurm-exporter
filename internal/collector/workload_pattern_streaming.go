@@ -1667,6 +1667,8 @@ func (c *WorkloadPatternStreamingCollector) collectPerformanceMetrics(ctx contex
 	)
 }
 
+// TODO: Following resource pattern collection method is unused - preserved for future pattern analysis
+/*
 func (c *WorkloadPatternStreamingCollector) collectResourcePatterns(event WorkloadPatternEvent, ch chan<- prometheus.Metric) {
 	// Resource utilization patterns
 	resourceMetrics := map[string]float64{
@@ -1720,3 +1722,4 @@ func (c *WorkloadPatternStreamingCollector) collectResourcePatterns(event Worklo
 		"pattern", event.PatternCategory,
 	)
 }
+*/

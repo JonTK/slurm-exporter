@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"sync"
+	// Commented out as only used in commented-out field
+	// "sync"
 	"time"
 
 	"github.com/jontk/slurm-client"
@@ -34,8 +35,9 @@ type AccountCollector struct {
 	qosManager          *QoSManager
 	reservationManager  *ReservationManager
 
-	lastCollection      time.Time
-	mu                  sync.RWMutex
+	// TODO: Unused fields - preserved for future collection tracking and thread safety
+	// lastCollection      time.Time
+	// mu                  sync.RWMutex
 }
 
 // AccountConfig configures the account management collector

@@ -440,6 +440,8 @@ type CachePerformanceMetrics struct {
 	HitRatio    map[string]float64
 }
 
+// TODO: Following self-monitoring helper methods are unused - preserved for future detailed monitoring
+/*
 // calculateCacheHitRatio calculates cache hit ratios
 func (smc *SelfMonitoringCollector) calculateCacheHitRatio(hits, misses int) float64 {
 	total := hits + misses
@@ -560,3 +562,4 @@ func (smc *SelfMonitoringCollector) parseSelfMonitoringData(data interface{}) (*
 		},
 	}, nil
 }
+*/

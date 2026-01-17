@@ -1707,7 +1707,8 @@ func (c *AnomalyDetectionStreamingCollector) collectPerformanceMetrics(ctx conte
 	)
 }
 
-func (c *AnomalyDetectionStreamingCollector) collectAnomalyEvent(event AnomalyEvent, ch chan<- prometheus.Metric) {
+// TODO: collectAnomalyEvent is unused - preserved for future anomaly event collection
+/*func (c *AnomalyDetectionStreamingCollector) collectAnomalyEvent(event AnomalyEvent, ch chan<- prometheus.Metric) {
 	// Anomaly score
 	ch <- prometheus.MustNewConstMetric(
 		c.anomalyScore,
@@ -1749,4 +1750,4 @@ func (c *AnomalyDetectionStreamingCollector) collectAnomalyEvent(event AnomalyEv
 			"event", "strong",
 		)
 	}
-}
+}*/

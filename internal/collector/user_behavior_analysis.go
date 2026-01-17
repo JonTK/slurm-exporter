@@ -1041,11 +1041,12 @@ func (c *UserBehaviorAnalysisCollector) collectResourceUsagePatterns(ctx context
 	c.utilizationVariability.WithLabelValues(patterns.UserName, "default", "cpu").Set(patterns.UtilizationVariability)
 	c.resourceContention.WithLabelValues(patterns.UserName, "default", "cpu").Set(patterns.ResourceContention)
 
-	if patterns.OptimizationTrend == "improving" {
+	switch patterns.OptimizationTrend {
+	case "improving":
 		c.resourceOptimizationTrend.WithLabelValues(patterns.UserName, "default").Set(1.0)
-	} else if patterns.OptimizationTrend == "declining" {
+	case "declining":
 		c.resourceOptimizationTrend.WithLabelValues(patterns.UserName, "default").Set(-1.0)
-	} else {
+	default:
 		c.resourceOptimizationTrend.WithLabelValues(patterns.UserName, "default").Set(0.0)
 	}
 

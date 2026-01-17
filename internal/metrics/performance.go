@@ -2,7 +2,8 @@ package metrics
 
 import (
 	"fmt"
-	"sync"
+	// Commented out as only used in commented-out field
+	// "sync"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -54,7 +55,8 @@ type PerformanceMetrics struct {
 	// Thread pool utilization
 	ThreadPoolUtilization *prometheus.GaugeVec
 
-	mu sync.RWMutex
+	// TODO: Unused field - preserved for future thread safety
+	// mu sync.RWMutex
 }
 
 // NewPerformanceMetrics creates a new performance metrics instance

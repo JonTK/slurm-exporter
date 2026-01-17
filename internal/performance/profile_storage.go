@@ -560,6 +560,7 @@ func (ms *MemoryProfileStorage) Cleanup() error {
 }
 
 // enforceLimits enforces storage limits
+// NOTE: This method assumes the caller already holds ms.mu write lock
 func (ms *MemoryProfileStorage) enforceLimits() {
 	// Enforce count limit
 	maxProfiles := 100 // Default max profiles in memory
@@ -567,11 +568,19 @@ func (ms *MemoryProfileStorage) enforceLimits() {
 		return
 	}
 
-	// Get sorted list of profiles
-	profiles, _ := ms.List()
+	// Build sorted list of profiles without calling List() to avoid lock reentry
+	profiles := make([]*ProfileMetadata, 0, len(ms.metadata))
+	for _, metadata := range ms.metadata {
+		profiles = append(profiles, metadata)
+	}
+
+	// Sort by start time (oldest first for deletion)
+	sort.Slice(profiles, func(i, j int) bool {
+		return profiles[i].StartTime.Before(profiles[j].StartTime)
+	})
 
 	// Delete oldest profiles
-	for i := maxProfiles; i < len(profiles); i++ {
+	for i := 0; i < len(profiles)-maxProfiles; i++ {
 		delete(ms.profiles, profiles[i].ID)
 		delete(ms.metadata, profiles[i].ID)
 	}

@@ -18,7 +18,8 @@ type BatchProcessor struct {
 	mu         sync.RWMutex
 	batches    map[string]*batch
 	processors map[string]BatchProcessorFunc
-	flushTimer *time.Timer
+	// TODO: Unused field - preserved for future timer-based flushing
+	// flushTimer *time.Timer
 	ctx        context.Context
 	cancel     context.CancelFunc
 	wg         sync.WaitGroup

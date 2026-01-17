@@ -98,7 +98,8 @@ type OperationProfile struct {
 	currentPhase  *ProfilePhase
 	startMem      runtime.MemStats
 	startTime     time.Time
-	cpuProfile    *pprof.Profile
+	// TODO: Unused field - preserved for future CPU profiling
+	// cpuProfile    *pprof.Profile
 	traceCtx      context.Context
 	traceTask     *trace.Task
 }

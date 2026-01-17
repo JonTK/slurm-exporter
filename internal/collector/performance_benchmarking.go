@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 	"math"
-	"sync"
+	// Commented out as only used in commented-out fields
+	// "sync"
 	"time"
 
 	"github.com/jontk/slurm-client"
@@ -39,8 +40,9 @@ type PerformanceBenchmarkingCollector struct {
 	// Trend analysis
 	trendAnalyzer   *TrendAnalyzer
 
-	lastCollection  time.Time
-	mu              sync.RWMutex
+	// TODO: Unused fields - preserved for future collection tracking and thread safety
+	// lastCollection  time.Time
+	// mu              sync.RWMutex
 }
 
 // BenchmarkingConfig configures the performance benchmarking collector
@@ -374,7 +376,8 @@ type BaselineManager struct {
 	config          *BenchmarkingConfig
 	logger          *slog.Logger
 	baselines       map[string]*PerformanceBaseline
-	mu              sync.RWMutex
+	// TODO: Unused field - preserved for future thread safety
+	// mu              sync.RWMutex
 }
 
 // PerformanceBaseline represents a performance baseline
@@ -1242,6 +1245,8 @@ func (p *PerformanceBenchmarkingCollector) collectClusterBenchmarks(ctx context.
 	return nil
 }
 
+// TODO: Following helper methods are unused (calls commented out due to type mismatches) - preserved for future use when type issues are resolved
+/*
 // Helper methods for creating performance snapshots and profiles
 func (p *PerformanceBenchmarkingCollector) createJobPerformanceSnapshot(job *slurm.Job) *JobPerformanceSnapshot {
 	// This is a simplified implementation
@@ -1297,6 +1302,7 @@ func (p *PerformanceBenchmarkingCollector) createNodePerformanceProfile(node *sl
 		PerformanceGrade:    "A",
 	}
 }
+*/
 
 func (p *PerformanceBenchmarkingCollector) createClusterPerformanceSnapshot(ctx context.Context) *ClusterPerformanceSnapshot {
 	return &ClusterPerformanceSnapshot{
@@ -1316,29 +1322,35 @@ func (p *PerformanceBenchmarkingCollector) createClusterPerformanceSnapshot(ctx 
 }
 
 // Simplified calculation methods
+/*
 func (p *PerformanceBenchmarkingCollector) calculateJobPerformanceScore(snapshot *JobPerformanceSnapshot) float64 {
 	return 85.0 + 10.0*math.Sin(float64(time.Now().Unix()))
 }
+*/
 
 func (p *PerformanceBenchmarkingCollector) calculateUserPerformanceScore(profile *UserPerformanceProfile) float64 {
 	return 80.0 + 15.0*math.Cos(float64(time.Now().Unix()))
 }
 
+/*
 func (p *PerformanceBenchmarkingCollector) calculateNodePerformanceScore(profile *NodePerformanceProfile) float64 {
 	return 90.0 + 8.0*math.Sin(float64(time.Now().Unix())*2)
 }
+*/
 
 func (p *PerformanceBenchmarkingCollector) calculateClusterPerformanceScore(snapshot *ClusterPerformanceSnapshot) float64 {
 	return 87.0 + 10.0*math.Cos(float64(time.Now().Unix())*1.5)
 }
 
 // Simplified update methods
+/*
 func (p *PerformanceBenchmarkingCollector) updateJobPerformanceMetrics(job *slurm.Job, snapshot *JobPerformanceSnapshot, score float64) {
 	// TODO: Job field names are not compatible with current slurm-client version
 	p.metrics.JobPerformanceScore.WithLabelValues(
 		snapshot.JobID, snapshot.JobMetadata.UserName, snapshot.JobMetadata.Account, snapshot.JobMetadata.Partition,
 	).Set(score)
 }
+*/
 
 func (p *PerformanceBenchmarkingCollector) updateUserMetricsWithJob(profile *UserPerformanceProfile, snapshot *JobPerformanceSnapshot) {
 	// Simplified aggregation
@@ -1357,6 +1369,7 @@ func (p *PerformanceBenchmarkingCollector) updateUserPerformanceMetrics(profile 
 	).Set(score)
 }
 
+/*
 func (p *PerformanceBenchmarkingCollector) updateNodePerformanceMetrics(node *slurm.Node, profile *NodePerformanceProfile, score float64) {
 	partition := ""
 	if len(node.Partitions) > 0 {
@@ -1366,6 +1379,7 @@ func (p *PerformanceBenchmarkingCollector) updateNodePerformanceMetrics(node *sl
 		node.Name, partition,
 	).Set(score)
 }
+*/
 
 func (p *PerformanceBenchmarkingCollector) updateClusterPerformanceMetrics(snapshot *ClusterPerformanceSnapshot, score float64) {
 	p.metrics.ClusterPerformanceScore.WithLabelValues(

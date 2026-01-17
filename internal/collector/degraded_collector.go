@@ -16,7 +16,8 @@ type DegradedCollector struct {
 	collector          Collector
 	degradationManager *DegradationManager
 	logger             *logrus.Entry
-	mu                 sync.RWMutex
+	// TODO: Unused field - preserved for future thread safety
+	// mu                 sync.RWMutex
 }
 
 // NewDegradedCollector creates a new collector with degradation support

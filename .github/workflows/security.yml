@@ -50,10 +50,11 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
 
       # Gosec - Go security checker
+      - name: Install Gosec
+        run: go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
+
       - name: Run Gosec Security Scanner
-        uses: securecodewarrior/github-action-gosec@master
-        with:
-          args: '-fmt sarif -out gosec-results.sarif ./...'
+        run: gosec -fmt sarif -out gosec-results.sarif ./...
 
       - name: Upload Gosec results to GitHub Security
         uses: github/codeql-action/upload-sarif@v2

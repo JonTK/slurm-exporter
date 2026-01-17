@@ -25,7 +25,8 @@ type ConnectionPool struct {
 
 	// Pool state
 	mu              sync.RWMutex
-	connections     []*PooledConnection
+	// TODO: Unused field - preserved for future connection tracking
+	// connections     []*PooledConnection
 	availableConns  chan *PooledConnection
 	totalConns      int
 

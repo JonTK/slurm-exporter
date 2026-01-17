@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 // MetricMetadata contains comprehensive metadata for SLURM exporter metrics
@@ -342,6 +345,7 @@ func GetMetricsByStability(stability StabilityLevel) []MetricMetadata {
 // GenerateDocumentation generates comprehensive documentation for all metrics
 func GenerateDocumentation() string {
 	var doc strings.Builder
+	titleCaser := cases.Title(language.English)
 
 	doc.WriteString("# SLURM Exporter Metrics Reference\n\n")
 	doc.WriteString("This document provides comprehensive documentation for all metrics exposed by the SLURM Prometheus exporter.\n\n")
@@ -354,7 +358,7 @@ func GenerateDocumentation() string {
 	}
 
 	for _, category := range categories {
-		doc.WriteString(fmt.Sprintf("- [%s Metrics](#%s-metrics)\n", strings.Title(string(category)), strings.ToLower(string(category))))
+		doc.WriteString(fmt.Sprintf("- [%s Metrics](#%s-metrics)\n", titleCaser.String(string(category)), strings.ToLower(string(category))))
 	}
 	doc.WriteString("\n")
 
@@ -365,7 +369,7 @@ func GenerateDocumentation() string {
 			continue
 		}
 
-		doc.WriteString(fmt.Sprintf("## %s Metrics\n\n", strings.Title(string(category))))
+		doc.WriteString(fmt.Sprintf("## %s Metrics\n\n", titleCaser.String(string(category))))
 
 		for _, metric := range metrics {
 			doc.WriteString(generateMetricDocumentation(metric))
@@ -385,7 +389,7 @@ func GenerateDocumentation() string {
 	for _, stability := range []StabilityLevel{StabilityStable, StabilityBeta, StabilityAlpha, StabilityExperimental, StabilityDeprecated} {
 		metrics := GetMetricsByStability(stability)
 		if len(metrics) > 0 {
-			doc.WriteString(fmt.Sprintf("### %s Metrics (%d)\n\n", strings.Title(string(stability)), len(metrics)))
+			doc.WriteString(fmt.Sprintf("### %s Metrics (%d)\n\n", titleCaser.String(string(stability)), len(metrics)))
 			for _, metric := range metrics {
 				doc.WriteString(fmt.Sprintf("- `%s`\n", metric.Name))
 			}
@@ -421,7 +425,7 @@ func generateMetricDocumentation(metadata MetricMetadata) string {
 
 	if metadata.ExampleValue != "" {
 		doc.WriteString("**Example:**\n```\n")
-		doc.WriteString(fmt.Sprintf("%s", metadata.Name))
+		doc.WriteString(metadata.Name)
 		if len(metadata.ExampleLabels) > 0 {
 			doc.WriteString("{")
 			var labelPairs []string

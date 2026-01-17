@@ -27,10 +27,26 @@ func (m *MockReloadHandler) Handle(config *Config) error {
 }
 
 func TestWatcher_New(t *testing.T) {
+	// Create temporary config file
+	tmpDir, err := os.MkdirTemp("", "watcher_test")
+	require.NoError(t, err)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
+
+	configFile := filepath.Join(tmpDir, "config.yaml")
+	err = os.WriteFile(configFile, []byte(`
+server:
+  address: ":8080"
+  metrics_path: "/metrics"
+slurm:
+  base_url: "http://localhost:6820"
+  timeout: 30s
+`), 0644)
+	require.NoError(t, err)
+
 	logger := testutil.GetTestLogger()
 	handler := &MockReloadHandler{}
 
-	watcher, err := NewWatcher("/tmp/test-config.yaml", handler.Handle, logger)
+	watcher, err := NewWatcher(configFile, handler.Handle, logger)
 	assert.NoError(t, err)
 	assert.NotNil(t, watcher)
 
@@ -104,6 +120,7 @@ slurm:
 
 	watcher, err := NewWatcher(configFile, handler.Handle, logger)
 	require.NoError(t, err)
+	watcher.debounceTime = 100 * time.Millisecond // Set short debounce for testing
 
 	// Start watcher
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -129,8 +146,8 @@ slurm:
 	err = os.WriteFile(configFile, []byte(modifiedConfig), 0644)
 	require.NoError(t, err)
 
-	// Wait for file change to be detected
-	time.Sleep(500 * time.Millisecond)
+	// Wait for file change to be detected and debounce timer to fire
+	time.Sleep(300 * time.Millisecond)
 
 	_ = watcher.Stop()
 
@@ -164,6 +181,7 @@ slurm:
 
 	watcher, err := NewWatcher(configFile, handler.Handle, logger)
 	require.NoError(t, err)
+	watcher.debounceTime = 100 * time.Millisecond // Set short debounce for testing
 
 	// Start watcher
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -190,14 +208,17 @@ slurm:
 	err = os.WriteFile(configFile, []byte(invalidConfig), 0644)
 	require.NoError(t, err)
 
-	// Wait for file change to be detected
-	time.Sleep(500 * time.Millisecond)
+	// Wait for file change to be detected and debounce timer to fire
+	time.Sleep(300 * time.Millisecond)
 
 	_ = watcher.Stop()
 
-	// Should have attempted to reload but with error
-	assert.True(t, handler.reloadCount >= 2)
-	assert.Error(t, handler.lastError)
+	// Handler should only have been called once (initial load)
+	// Invalid config should be rejected and handler not called again
+	assert.Equal(t, 1, handler.reloadCount, "handler should only be called for initial valid config")
+	assert.NoError(t, handler.lastError, "last successful handler call should have no error")
+	// The config should still be the initial valid config
+	assert.Equal(t, ":8080", handler.lastConfig.Server.Address)
 }
 
 func TestWatcher_NonExistentFile(t *testing.T) {

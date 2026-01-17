@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 	"math"
-	"sync"
+	// Commented out as only used in commented-out field
+	// "sync"
 	"time"
 
 	"github.com/jontk/slurm-client"
@@ -21,7 +22,8 @@ type FairShareCollector struct {
 
 	// Fair-share data storage
 	userFairShares    map[string]*UserFairShare
-	accountHierarchy  *AccountFairShareHierarchy
+	// TODO: Unused field - preserved for future account hierarchy tracking
+	// accountHierarchy  *AccountFairShareHierarchy
 	priorityFactors   map[string]*JobPriorityFactors
 
 	// Analysis engines
@@ -35,8 +37,9 @@ type FairShareCollector struct {
 	// User behavior analysis
 	behaviorAnalyzer  *UserBehaviorAnalyzer
 
-	lastCollection    time.Time
-	mu                sync.RWMutex
+	// TODO: Unused fields - preserved for future collection tracking and thread safety
+	// lastCollection    time.Time
+	// mu                sync.RWMutex
 }
 
 // FairShareConfig configures the fair-share collector
@@ -278,7 +281,8 @@ type FairShareViolationDetector struct {
 	config          *FairShareConfig
 	logger          *slog.Logger
 	violations      map[string]*FairShareViolation
-	alertHistory    []*ViolationAlert
+	// TODO: Unused field - preserved for future alert history tracking
+	// alertHistory    []*ViolationAlert
 	thresholds      *ViolationThresholds
 }
 
@@ -307,7 +311,8 @@ type FairSharePolicyAnalyzer struct {
 	config          *FairShareConfig
 	logger          *slog.Logger
 	policyMetrics   *PolicyEffectivenessMetrics
-	recommendations []*PolicyRecommendation
+	// TODO: Unused field - preserved for future policy recommendations
+	// recommendations []*PolicyRecommendation
 }
 
 // PolicyEffectivenessMetrics contains policy effectiveness analysis
@@ -1482,6 +1487,8 @@ func (f *FairShareCollector) collectJobPriorityFactors(ctx context.Context) erro
 	return nil
 }
 
+// TODO: calculateJobPriority and updateJobPriorityMetrics are unused - preserved for future job priority analysis
+/*
 func (f *FairShareCollector) calculateJobPriority(job *slurm.Job) *JobPriorityFactors {
 	now := time.Now()
 	age := time.Hour // TODO: job.SubmitTime not available
@@ -1532,6 +1539,7 @@ func (f *FairShareCollector) updateJobPriorityMetrics(job *slurm.Job, priority *
 	f.metrics.JobPriorityRank.WithLabelValues(jobID, "", "", job.Partition).Set(float64(priority.PriorityRank))
 	f.metrics.JobEstimatedWaitTime.WithLabelValues(jobID, "", "", job.Partition).Set(priority.EstimatedWaitTime.Seconds())
 }
+*/
 
 func (f *FairShareCollector) analyzeViolations(ctx context.Context) error {
 	// Simplified violation analysis

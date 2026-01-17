@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"math"
+	// Commented out as only used in commented-out functions
+	// "math"
 	"sync"
 	"time"
 
@@ -434,8 +435,9 @@ func (l *LiveJobMonitor) collectLiveJobMetrics(ctx context.Context) error {
 	return nil
 }
 
+// TODO: processBatch is currently unused - preserved for future live monitoring batch processing
 // processBatch processes a batch of jobs for live monitoring
-func (l *LiveJobMonitor) processBatch(ctx context.Context, jobs []*slurm.Job) error {
+/*func (l *LiveJobMonitor) processBatch(ctx context.Context, jobs []*slurm.Job) error {
 	for _, job := range jobs {
 		if err := l.processJobLiveMetrics(ctx, job); err != nil {
 			// TODO: job.JobID field not available in current slurm-client version
@@ -445,10 +447,11 @@ func (l *LiveJobMonitor) processBatch(ctx context.Context, jobs []*slurm.Job) er
 		}
 	}
 	return nil
-}
+}*/
 
+// TODO: processJobLiveMetrics, getJobLiveMetrics and simulation functions are unused - preserved for future live monitoring
 // processJobLiveMetrics processes live metrics for a single job
-func (l *LiveJobMonitor) processJobLiveMetrics(ctx context.Context, job *slurm.Job) error {
+/*func (l *LiveJobMonitor) processJobLiveMetrics(ctx context.Context, job *slurm.Job) error {
 	// Get live metrics for the job (placeholder implementation)
 	liveMetrics := l.getJobLiveMetrics(ctx, job)
 
@@ -640,8 +643,10 @@ func (l *LiveJobMonitor) calculateHealthScore(efficiency *EfficiencyMetrics, was
 	// Weighted average: 40% efficiency, 30% waste, 30% throughput
 	healthScore := (efficiencyScore*0.4 + wasteScore*0.3 + throughputScore*0.3)
 	return math.Max(0, math.Min(1.0, healthScore))
-}
+}*/
 
+// TODO: Following helper functions are unused - preserved for future live monitoring analysis
+/*
 // calculatePerformanceGrade calculates performance grade from health score
 func (l *LiveJobMonitor) calculatePerformanceGrade(healthScore float64) string {
 	switch {
@@ -658,23 +663,7 @@ func (l *LiveJobMonitor) calculatePerformanceGrade(healthScore float64) string {
 	}
 }
 
-// predictCompletion predicts job completion time
-func (l *LiveJobMonitor) predictCompletion(job *slurm.Job, throughputRate float64) *time.Time {
-	if job.StartTime == nil || job.TimeLimit <= 0 || throughputRate <= 0 {
-		return nil
-	}
-
-	_ = time.Since(*job.StartTime) // elapsed time, might be used for more complex predictions
-	timeLimitDuration := time.Duration(job.TimeLimit) * time.Minute
-
-	// Simple prediction based on throughput rate
-	// If throughput is low, job might take longer
-	efficiencyFactor := math.Max(0.1, throughputRate/100)
-	predictedTotal := float64(timeLimitDuration.Seconds()) / efficiencyFactor
-
-	estimatedCompletion := job.StartTime.Add(time.Duration(predictedTotal) * time.Second)
-	return &estimatedCompletion
-}
+// predictCompletion predicts job completion time (commented out - already in earlier block)
 
 // assessResourceExhaustionRisk assesses risk of resource exhaustion
 func (l *LiveJobMonitor) assessResourceExhaustionRisk(job *slurm.Job, memoryUsage, cpuUsage float64) string {
@@ -747,9 +736,11 @@ func (l *LiveJobMonitor) generateRecommendations(efficiency *EfficiencyMetrics, 
 
 	return recommendations
 }
+*/
 
+// TODO: updateLiveMetrics and checkForAlerts are unused - preserved for future live metrics reporting and alerting
 // updateLiveMetrics updates Prometheus metrics with live job data
-func (l *LiveJobMonitor) updateLiveMetrics(job *slurm.Job, liveMetrics *JobLiveMetrics) {
+/*func (l *LiveJobMonitor) updateLiveMetrics(job *slurm.Job, liveMetrics *JobLiveMetrics) {
 	// TODO: job field names are not compatible with current slurm-client version
 	labels := []string{liveMetrics.JobID, "unknown_user", "unknown_account", "unknown_partition"}
 
@@ -884,7 +875,10 @@ func (l *LiveJobMonitor) checkForAlerts(job *slurm.Job, liveMetrics *JobLiveMetr
 		l.processAlert(job, alert)
 	}
 }
+*/
 
+// TODO: processAlert is unused - preserved for future alert processing
+/*
 // processAlert processes a performance alert
 func (l *LiveJobMonitor) processAlert(job *slurm.Job, alert *PerformanceAlert) {
 	alert.AlertID = fmt.Sprintf("%s-%s-%d", alert.JobID, alert.AlertType, time.Now().Unix())
@@ -920,6 +914,7 @@ func (l *LiveJobMonitor) processAlert(job *slurm.Job, alert *PerformanceAlert) {
 		"message", alert.Message,
 	)
 }
+*/
 
 // cleanOldLiveData removes old live data entries
 func (l *LiveJobMonitor) cleanOldLiveData() {

@@ -6,13 +6,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/mock/gomock"
+	"go.uber.org/mock/gomock"
 	"github.com/jontk/slurm-client"
 )
 
-//go:generate mockgen -source=../../../vendor/github.com/jontk/slurm-client/client.go -destination=mock_slurm_client_generated.go -package=testutil
-
 // MockSLURMClient provides a test-friendly SLURM client
+// Note: This is a manual mock implementation. Auto-generated mocks cannot be used
+// because the slurm-client interfaces are in an internal package.
 type MockSLURMClient struct {
 	ctrl     *gomock.Controller
 	mu       sync.RWMutex

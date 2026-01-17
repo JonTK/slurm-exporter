@@ -2,7 +2,8 @@ package collector
 
 import (
 	"context"
-	"strconv"
+	// Commented out as only used in commented-out parser functions
+	// "strconv"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -524,6 +525,8 @@ type PartitionPolicies struct {
 	MaxMemPerCPU      int64
 }
 
+// TODO: Following parser functions are unused - preserved for future data parsing needs
+/*
 // parsePartitionState converts SLURM partition state string to normalized state
 func (pc *PartitionCollector) parsePartitionState(slurmState string) string {
 	// SLURM partition states: UP, DOWN, DRAIN, INACTIVE
@@ -616,3 +619,4 @@ func (pc *PartitionCollector) parseMemorySize(slurmMemory string) (int64, error)
 		return int64(value), nil
 	}
 }
+*/

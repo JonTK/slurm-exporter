@@ -200,10 +200,11 @@ func (c *NodesSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 		// Calculate allocated CPUs from node state
 		// If node is in use, assume some CPUs are allocated based on state
 		allocCPUs := 0
-		if node.State == "ALLOCATED" || node.State == "MIXED" {
+		switch node.State {
+		case "ALLOCATED", "MIXED":
 			// For allocated/mixed nodes, assume 50% utilization as reasonable estimate
 			allocCPUs = node.CPUs / 2
-		} else if node.State == "COMPLETING" {
+		case "COMPLETING":
 			// Node is completing jobs, assume high utilization
 			allocCPUs = node.CPUs * 3 / 4
 		}

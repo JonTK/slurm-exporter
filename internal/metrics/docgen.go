@@ -5,6 +5,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 // DocumentationGenerator handles generation of various documentation formats
@@ -76,10 +79,11 @@ func (dg *DocumentationGenerator) generateMetricsSummary() string {
 	doc.WriteString("## Stability Levels\n\n")
 	stabilityLevels := []StabilityLevel{StabilityStable, StabilityBeta, StabilityAlpha, StabilityExperimental, StabilityDeprecated}
 
+	titleCaser := cases.Title(language.English)
 	for _, level := range stabilityLevels {
 		metrics := GetMetricsByStability(level)
 		if len(metrics) > 0 {
-			doc.WriteString(fmt.Sprintf("- **%s:** %d metrics\n", strings.Title(string(level)), len(metrics)))
+			doc.WriteString(fmt.Sprintf("- **%s:** %d metrics\n", titleCaser.String(string(level)), len(metrics)))
 		}
 	}
 	doc.WriteString("\n")
@@ -95,7 +99,7 @@ func (dg *DocumentationGenerator) generateMetricsSummary() string {
 			continue
 		}
 
-		doc.WriteString(fmt.Sprintf("### %s Metrics\n\n", strings.Title(string(category))))
+		doc.WriteString(fmt.Sprintf("### %s Metrics\n\n", titleCaser.String(string(category))))
 
 		for _, metric := range metrics {
 			doc.WriteString(fmt.Sprintf("- **%s** (%s): %s\n", metric.Name, metric.Type, metric.Help))
@@ -508,11 +512,12 @@ func (dg *DocumentationGenerator) GenerateMetricsHTML() string {
         <h3>Categories</h3>
         <ul>`)
 
+	titleCaser := cases.Title(language.English)
 	categories := []MetricCategory{CategoryCluster, CategoryNode, CategoryJob, CategoryUser, CategoryAccount, CategoryPartition, CategoryPerformance, CategoryExporter}
 	for _, category := range categories {
 		count := len(GetMetricsByCategory(category))
 		if count > 0 {
-			html.WriteString(fmt.Sprintf(`<li><a href="#%s">%s (%d metrics)</a></li>`, strings.ToLower(string(category)), strings.Title(string(category)), count))
+			html.WriteString(fmt.Sprintf(`<li><a href="#%s">%s (%d metrics)</a></li>`, strings.ToLower(string(category)), titleCaser.String(string(category)), count))
 		}
 	}
 
@@ -527,7 +532,7 @@ func (dg *DocumentationGenerator) GenerateMetricsHTML() string {
 
 		html.WriteString(fmt.Sprintf(`
     <div class="category" id="%s">
-        <h2>%s Metrics</h2>`, strings.ToLower(string(category)), strings.Title(string(category))))
+        <h2>%s Metrics</h2>`, strings.ToLower(string(category)), titleCaser.String(string(category))))
 
 		for _, metric := range metrics {
 			stabilityClass := string(metric.StabilityLevel)

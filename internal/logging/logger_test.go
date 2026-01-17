@@ -36,7 +36,7 @@ func TestNewLogger(t *testing.T) {
 			t.Errorf("Expected log level Info, got %v", logger.GetLevel())
 		}
 
-		if _, ok := logger.Logger.Formatter.(*logrus.JSONFormatter); !ok {
+		if _, ok := logger.Formatter.(*logrus.JSONFormatter); !ok {
 			t.Error("Expected JSON formatter")
 		}
 	})
@@ -81,7 +81,7 @@ func TestNewLogger(t *testing.T) {
 			t.Fatalf("Expected no error, got %v", err)
 		}
 
-		if _, ok := logger.Logger.Formatter.(*logrus.TextFormatter); !ok {
+		if _, ok := logger.Formatter.(*logrus.TextFormatter); !ok {
 			t.Error("Expected text formatter")
 		}
 
@@ -108,7 +108,7 @@ func TestNewLogger(t *testing.T) {
 
 		// Test by capturing log output
 		var buf bytes.Buffer
-		logger.Logger.SetOutput(&buf)
+		logger.SetOutput(&buf)
 
 		logger.Info("test message")
 
@@ -226,7 +226,7 @@ func TestLoggerMethods(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create logger: %v", err)
 	}
-	logger.Logger.SetOutput(&buf)
+	logger.SetOutput(&buf)
 
 	t.Run("WithComponent", func(t *testing.T) {
 		buf.Reset()
@@ -403,11 +403,11 @@ func TestLogFormats(t *testing.T) {
 
 			switch tc.expectedType.(type) {
 			case *logrus.JSONFormatter:
-				if _, ok := logger.Logger.Formatter.(*logrus.JSONFormatter); !ok {
+				if _, ok := logger.Formatter.(*logrus.JSONFormatter); !ok {
 					t.Errorf("Expected JSON formatter for format '%s'", tc.format)
 				}
 			case *logrus.TextFormatter:
-				if _, ok := logger.Logger.Formatter.(*logrus.TextFormatter); !ok {
+				if _, ok := logger.Formatter.(*logrus.TextFormatter); !ok {
 					t.Errorf("Expected text formatter for format '%s'", tc.format)
 				}
 			}

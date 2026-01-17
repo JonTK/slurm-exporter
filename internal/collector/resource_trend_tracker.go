@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"math"
+	// Commented out as only used in commented-out trend analysis functions
+	// "math"
 	"sync"
 	"time"
 
@@ -437,6 +438,8 @@ func (t *ResourceTrendTracker) trackResourceTrends(ctx context.Context) error {
 	return nil
 }
 
+// TODO: Following resource trend analysis methods are unused - preserved for future trend tracking implementation
+/*
 // createResourceSnapshot creates a resource snapshot from current job data
 func (t *ResourceTrendTracker) createResourceSnapshot(job *slurm.Job) *ResourceSnapshot {
 	snapshot := &ResourceSnapshot{
@@ -1213,6 +1216,7 @@ func (t *ResourceTrendTracker) severityToFloat(severity string) float64 {
 		return 0.0
 	}
 }
+*/
 
 // cleanOldHistoricalData removes old historical data beyond retention period
 func (t *ResourceTrendTracker) cleanOldHistoricalData() {

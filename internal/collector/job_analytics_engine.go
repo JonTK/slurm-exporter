@@ -1443,6 +1443,8 @@ func (e *JobAnalyticsEngine) simulateCPUUsage(job *slurm.Job) float64 {
 	return usage
 }
 
+// TODO: simulateMemoryUsage is unused - preserved for future memory simulation needs
+/*
 // simulateMemoryUsage simulates memory usage for analytics (placeholder)
 func (e *JobAnalyticsEngine) simulateMemoryUsage(job *slurm.Job) int64 {
 	allocatedBytes := int64(job.Memory * 1024 * 1024)
@@ -1468,6 +1470,7 @@ func (e *JobAnalyticsEngine) simulateMemoryUsage(job *slurm.Job) int64 {
 
 	return int64(float64(allocatedBytes) * usageRatio)
 }
+*/
 
 // analyzeResourceUtilization performs detailed resource utilization analysis
 func (e *JobAnalyticsEngine) analyzeResourceUtilization(job *slurm.Job, data *ResourceUtilizationData) *ResourceUtilizationAnalysis {
@@ -2056,7 +2059,7 @@ func (e *JobAnalyticsEngine) calculateCostOfWaste(job *slurm.Job, wasteScore flo
 	cpuCost := float64(job.CPUs) * 0.10 // $0.10 per CPU-hour
 	memoryCost := float64(job.Memory) / 1024 * 0.02 // $0.02 per GB-hour
 
-	var wallTime float64 = 1.0 // Default to 1 hour
+	wallTime := 1.0 // Default to 1 hour
 	if job.StartTime != nil {
 		wallTime = time.Since(*job.StartTime).Hours()
 	}
@@ -2186,7 +2189,7 @@ func (e *JobAnalyticsEngine) performPerformanceAnalysis(job *slurm.Job, data *Re
 
 // performCostAnalysis performs cost analysis (simplified)
 func (e *JobAnalyticsEngine) performCostAnalysis(job *slurm.Job, data *ResourceUtilizationData, waste *WasteAnalysisResult) *JobCostAnalysisResult {
-	var wallTime float64 = 1.0
+	wallTime := 1.0
 	if job.StartTime != nil {
 		wallTime = time.Since(*job.StartTime).Hours()
 	}
@@ -2288,7 +2291,7 @@ func (e *JobAnalyticsEngine) generateActionableRecommendations(insights *Optimiz
 func (e *JobAnalyticsEngine) calculateOverallScore(efficiency *EfficiencyAnalysisResult, performance *PerformanceAnalyticsResult, waste *WasteAnalysisResult) float64 {
 	efficiencyScore := efficiency.OverallEfficiency
 
-	var wasteScore float64 = 1.0
+	wasteScore := 1.0
 	if waste != nil {
 		wasteScore = 1.0 - waste.TotalWasteScore
 	}

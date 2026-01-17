@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"math"
+	// Commented out as only used in commented-out task simulation functions
+	// "math"
 	"sync"
 	"time"
 
@@ -329,7 +330,8 @@ type TaskEfficiencyTracker struct {
 	logger            *slog.Logger
 	efficiencyData    map[string]*TaskEfficiencyData
 	benchmarkData     map[string]float64
-	trends            map[string]*EfficiencyTrend
+	// TODO: EfficiencyTrend type is not defined - commented out for now
+	// trends            map[string]*EfficiencyTrend
 }
 
 // TaskEfficiencyData contains efficiency tracking data
@@ -462,7 +464,7 @@ func NewTaskUtilizationMonitor(client slurm.SlurmClient, logger *slog.Logger, co
 		logger:         logger,
 		efficiencyData: make(map[string]*TaskEfficiencyData),
 		benchmarkData:  getTaskBenchmarks(),
-		trends:         make(map[string]*EfficiencyTrend),
+		// trends:         make(map[string]*EfficiencyTrend), // Commented out - EfficiencyTrend type not defined
 	}
 
 	return &TaskUtilizationMonitor{
@@ -907,6 +909,8 @@ func (t *TaskUtilizationMonitor) collectTaskUtilizationMetrics(ctx context.Conte
 	return nil
 }
 
+// TODO: Following task processing methods are unused - preserved for future task-level monitoring
+/*
 // processJobStepTasks processes task-level data for all steps in a job
 func (t *TaskUtilizationMonitor) processJobStepTasks(ctx context.Context, job *slurm.Job) error {
 	// TODO: Job field names are not compatible with current slurm-client version
@@ -969,6 +973,7 @@ func (t *TaskUtilizationMonitor) processStepTasks(ctx context.Context, job *slur
 
 	return nil
 }
+*/
 
 // JobStepInfo represents basic step information (placeholder)
 type JobStepInfo struct {
@@ -986,6 +991,7 @@ type TaskInfo struct {
 	MemoryMB int
 }
 
+/*
 // getJobSteps gets job steps (simplified simulation)
 func (t *TaskUtilizationMonitor) getJobSteps(job *slurm.Job) []*JobStepInfo {
 	// TODO: Job field types are not compatible with current slurm-client version
@@ -1006,7 +1012,10 @@ func (t *TaskUtilizationMonitor) getJobSteps(job *slurm.Job) []*JobStepInfo {
 
 	return steps
 }
+*/
 
+// TODO: Following task-level utility and helper methods are unused - preserved for future task monitoring implementation
+/*
 // generateStepTasks generates tasks for a step (simplified simulation)
 func (t *TaskUtilizationMonitor) generateStepTasks(job *slurm.Job, step *JobStepInfo) []*TaskInfo {
 	var tasks []*TaskInfo
@@ -1739,6 +1748,7 @@ func (t *TaskUtilizationMonitor) updateStepMetrics(job *slurm.Job, stepData *Job
 	// Update critical path metrics
 	t.metrics.CriticalPathTasks.WithLabelValues(labels...).Set(float64(len(stepData.CriticalPathTasks)))
 }
+*/
 
 // Performance analysis methods (simplified implementations)
 
@@ -1747,15 +1757,18 @@ func (a *TaskPerformanceAnalyzer) analyzeTaskPerformance() error {
 	return nil
 }
 
+/*
 func (a *TaskPerformanceAnalyzer) trackTaskPerformance(taskData *JobStepTaskData) {
 	// Placeholder for tracking task performance data
 }
+*/
 
 func (l *TaskLoadBalancer) analyzeLoadBalancing() error {
 	// Placeholder for load balancing analysis
 	return nil
 }
 
+/*
 func (l *TaskLoadBalancer) trackTaskLoad(taskData *JobStepTaskData) {
 	// Placeholder for tracking task load data
 }
@@ -1763,6 +1776,7 @@ func (l *TaskLoadBalancer) trackTaskLoad(taskData *JobStepTaskData) {
 func (e *TaskEfficiencyTracker) trackTaskEfficiency(taskData *JobStepTaskData) {
 	// Placeholder for tracking task efficiency
 }
+*/
 
 // cleanOldTaskData removes old task and step data
 func (t *TaskUtilizationMonitor) cleanOldTaskData() {

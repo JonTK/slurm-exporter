@@ -291,7 +291,7 @@ func Default() *Config {
 			HealthPath:     "/health",
 			ReadyPath:      "/ready",
 			Timeout:        30 * time.Second,
-			ReadTimeout:    10 * time.Second,
+			ReadTimeout:    15 * time.Second, // Must be longer than max collection timeout (10s)
 			WriteTimeout:   10 * time.Second,
 			IdleTimeout:    60 * time.Second,
 			MaxRequestSize: 1024 * 1024, // 1MB
@@ -372,6 +372,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 30 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true, // Collect all metrics by default
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -383,6 +388,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 30 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -394,6 +404,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 15 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -405,6 +420,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 60 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -416,6 +436,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 60 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -427,6 +452,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 30 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -438,6 +468,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 60 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -449,6 +484,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 60 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -460,6 +500,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 60 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -471,6 +516,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 60 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -482,6 +532,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 120 * time.Second, // Less frequent as fairshare changes slowly
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -493,6 +548,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 30 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -504,6 +564,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 60 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -526,6 +591,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 300 * time.Second, // 5 minutes - cluster info changes rarely
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -1674,6 +1744,8 @@ func (r *Reloader) Close() error {
 	return r.watcher.Close()
 }
 
+// TODO: Following validation helper functions are unused - preserved for future validation enhancements
+/*
 // validateDuration validates that a duration string is properly formatted
 func validateDuration(duration time.Duration, field string) error {
 	if duration <= 0 {
@@ -1681,6 +1753,7 @@ func validateDuration(duration time.Duration, field string) error {
 	}
 	return nil
 }
+*/
 
 // validateURL validates that a URL is properly formatted
 func validateURL(url, field string) error {
@@ -1695,6 +1768,7 @@ func validateURL(url, field string) error {
 	return nil
 }
 
+/*
 // validatePath validates that a file path is specified when required
 func validatePath(path, field string) error {
 	if path == "" {
@@ -1702,6 +1776,7 @@ func validatePath(path, field string) error {
 	}
 	return nil
 }
+*/
 
 // validateAPIVersion validates that the SLURM API version is supported
 func validateAPIVersion(version string) error {

@@ -38,8 +38,8 @@ func TestLoadDefaults(t *testing.T) {
 		t.Errorf("Expected SLURM base URL to be 'http://localhost:6820', got: %s", cfg.SLURM.BaseURL)
 	}
 
-	if cfg.SLURM.APIVersion != "v0.0.42" {
-		t.Errorf("Expected SLURM API version to be 'v0.0.42', got: %s", cfg.SLURM.APIVersion)
+	if cfg.SLURM.APIVersion != "v0.0.43" {
+		t.Errorf("Expected SLURM API version to be 'v0.0.43', got: %s", cfg.SLURM.APIVersion)
 	}
 
 	if cfg.SLURM.Auth.Type != "none" {
@@ -90,8 +90,8 @@ func TestServerConfig(t *testing.T) {
 		t.Errorf("Expected server timeout to be 30s, got: %v", cfg.Server.Timeout)
 	}
 
-	if cfg.Server.ReadTimeout != 10*time.Second {
-		t.Errorf("Expected read timeout to be 10s, got: %v", cfg.Server.ReadTimeout)
+	if cfg.Server.ReadTimeout != 15*time.Second {
+		t.Errorf("Expected read timeout to be 15s, got: %v", cfg.Server.ReadTimeout)
 	}
 
 	if cfg.Server.WriteTimeout != 10*time.Second {
@@ -681,8 +681,8 @@ func TestDefault(t *testing.T) {
 		t.Errorf("Expected default server address to be ':8080', got: %s", cfg.Server.Address)
 	}
 
-	if cfg.SLURM.APIVersion != "v0.0.42" {
-		t.Errorf("Expected default API version to be 'v0.0.42', got: %s", cfg.SLURM.APIVersion)
+	if cfg.SLURM.APIVersion != "v0.0.43" {
+		t.Errorf("Expected default API version to be 'v0.0.43', got: %s", cfg.SLURM.APIVersion)
 	}
 
 	if cfg.Logging.Level != "info" {

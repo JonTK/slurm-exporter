@@ -379,6 +379,9 @@ func (c *JobStepPerformanceCollector) collectJobStepMetrics(ctx context.Context)
 	return nil
 }
 
+// TODO: Following functions are unused - preserved for future job step performance analysis features
+// These implement detailed step-level performance tracking, bottleneck analysis, and metrics reporting.
+/*
 // createSimplifiedStepDetails creates step details from basic job data
 func (c *JobStepPerformanceCollector) createSimplifiedStepDetails(job *slurm.Job) *JobStepDetails {
 	// TODO: Job field names are not compatible with current slurm-client version
@@ -536,6 +539,7 @@ func (c *JobStepPerformanceCollector) updateStepStateCounts(job *slurm.Job, step
 	}
 	stateCounts[partition][step.State]++
 }
+*/
 
 // updateStepAggregationMetrics updates aggregated step metrics
 func (c *JobStepPerformanceCollector) updateStepAggregationMetrics(stateCounts map[string]map[string]int) {

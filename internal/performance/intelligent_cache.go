@@ -158,7 +158,7 @@ func (c *IntelligentCache) Set(key string, value interface{}) {
 	
 	// Check for existing entry to track changes
 	var changeHistory []ChangeRecord
-	var stabilityScore float64 = 0.5 // Default stability
+	stabilityScore := 0.5 // Default stability
 	
 	if existing, exists := c.entries[key]; exists && c.config.ChangeTracking {
 		changeHistory = existing.ChangeHistory
@@ -309,7 +309,7 @@ func (c *IntelligentCache) hashValue(value interface{}) uint64 {
 		h.Write(data)
 	} else {
 		// Fallback to string representation
-		h.Write([]byte(fmt.Sprintf("%v", value)))
+		_, _ = fmt.Fprintf(h, "%v", value)
 	}
 	
 	return h.Sum64()
@@ -332,7 +332,7 @@ func (c *IntelligentCache) evictLRU() {
 	}
 	
 	var oldestKey string
-	var oldestTime time.Time = time.Now()
+	oldestTime := time.Now()
 	
 	// Find least recently used entry
 	for key, entry := range c.entries {

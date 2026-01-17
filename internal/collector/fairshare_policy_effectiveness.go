@@ -1117,11 +1117,12 @@ func (c *FairSharePolicyEffectivenessCollector) collectPolicyEffectiveness(ctx c
 	c.policySystemStabilityScore.WithLabelValues(metrics.PolicyID, "overall").Set(metrics.SystemStabilityScore)
 
 	// Effectiveness trends
-	if metrics.TrendDirection == "improving" {
+	switch metrics.TrendDirection {
+	case "improving":
 		c.policyEffectivenessTrend.WithLabelValues(metrics.PolicyID, "overall", "24h").Set(1.0)
-	} else if metrics.TrendDirection == "declining" {
+	case "declining":
 		c.policyEffectivenessTrend.WithLabelValues(metrics.PolicyID, "overall", "24h").Set(-1.0)
-	} else {
+	default:
 		c.policyEffectivenessTrend.WithLabelValues(metrics.PolicyID, "overall", "24h").Set(0.0)
 	}
 

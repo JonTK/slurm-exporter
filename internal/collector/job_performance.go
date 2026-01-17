@@ -319,11 +319,13 @@ func (c *JobPerformanceCollector) collectJobUtilization(ctx context.Context) err
 	return nil
 }
 
+// TODO: updateMetricsFromUtilization is unused - preserved for future utilization metrics updates
+/*
 // updateMetricsFromUtilization updates Prometheus metrics from job utilization data
 func (c *JobPerformanceCollector) updateMetricsFromUtilization(job *slurm.Job, util *JobUtilization) {
 	// TODO: Job field names and JobUtilization structure are not compatible with current slurm-client version
 	// Skipping metric updates for now
-	/*
+
 	labels := []string{
 		util.JobID,
 		job.Name,
@@ -407,8 +409,9 @@ func (c *JobPerformanceCollector) updateMetricsFromUtilization(job *slurm.Job, u
 			}
 		}
 	}
-	*/
+
 }
+*/
 
 // cleanExpiredCache removes expired entries from the job cache
 func (c *JobPerformanceCollector) cleanExpiredCache() {
