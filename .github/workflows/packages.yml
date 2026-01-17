@@ -45,13 +45,22 @@ jobs:
         run: |
           if [[ $GITHUB_REF == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
+            RPM_VERSION="$VERSION"
+            RPM_RELEASE="1"
           elif [[ -n "${{ github.event.inputs.version }}" ]]; then
             VERSION="${{ github.event.inputs.version }}"
+            RPM_VERSION="$VERSION"
+            RPM_RELEASE="1"
           else
-            VERSION="0.0.0-dev.$(git rev-parse --short HEAD)"
+            GIT_SHA=$(git rev-parse --short HEAD)
+            VERSION="0.0.0.dev.${GIT_SHA}"
+            RPM_VERSION="0.0.0"
+            RPM_RELEASE="0.dev.git${GIT_SHA}"
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Building version: $VERSION"
+          echo "rpm_version=$RPM_VERSION" >> $GITHUB_OUTPUT
+          echo "rpm_release=$RPM_RELEASE" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION (RPM: $RPM_VERSION-$RPM_RELEASE)"
 
       - name: Set Docker image
         id: docker_image
@@ -75,9 +84,10 @@ jobs:
         run: |
           # Create build directory
           mkdir -p build/rpm
-          
-          # Create spec file with proper version
-          sed "s/%{version}/${{ steps.version.outputs.version }}/g" \
+
+          # Create spec file with proper version and release
+          sed -e "s/%{version}/${{ steps.version.outputs.rpm_version }}/g" \
+              -e "s/^Release:.*/Release:        ${{ steps.version.outputs.rpm_release }}%{?dist}/" \
             packaging/rpm/slurm-exporter.spec > build/rpm/slurm-exporter.spec
           
           # Build using Docker container for target OS
@@ -89,30 +99,33 @@ jobs:
             bash -c "
               # Install build dependencies
               if command -v dnf > /dev/null; then
-                dnf install -y rpm-build rpmdevtools golang git make
+                dnf install -y rpm-build rpmdevtools golang git make tar
               else
-                yum install -y rpm-build rpmdevtools golang git make
+                yum install -y rpm-build rpmdevtools golang git make tar
               fi
-              
+
               # Set up RPM build environment
               rpmdev-setuptree
-              
+
               # Copy spec file
               cp build/rpm/slurm-exporter.spec ~/rpmbuild/SPECS/
-              
-              # Download source
-              spectool -g -R ~/rpmbuild/SPECS/slurm-exporter.spec || true
-              
-              # Build source RPM
-              rpmbuild -bs ~/rpmbuild/SPECS/slurm-exporter.spec
-              
-              # Build binary RPM
+
+              # Create source tarball from current directory
+              tar czf ~/rpmbuild/SOURCES/slurm-exporter-${{ steps.version.outputs.rpm_version }}.tar.gz \
+                --transform='s,^\.,slurm-exporter-${{ steps.version.outputs.rpm_version }},' \
+                --exclude='.git' \
+                --exclude='build' \
+                --exclude='*.rpm' \
+                --exclude='*.deb' \
+                .
+
+              # Build binary RPM (skip source RPM for development builds)
               rpmbuild -bb ~/rpmbuild/SPECS/slurm-exporter.spec
-              
+
               # Copy results
               mkdir -p build/rpm/${{ matrix.os }}-${{ matrix.arch }}
-              cp ~/rpmbuild/RPMS/*/*.rpm build/rpm/${{ matrix.os }}-${{ matrix.arch }}/
-              cp ~/rpmbuild/SRPMS/*.rpm build/rpm/${{ matrix.os }}-${{ matrix.arch }}/
+              cp ~/rpmbuild/RPMS/*/*.rpm build/rpm/${{ matrix.os }}-${{ matrix.arch }}/ || true
+              cp ~/rpmbuild/SRPMS/*.rpm build/rpm/${{ matrix.os }}-${{ matrix.arch }}/ || true
             "
 
       - name: Upload RPM artifacts
@@ -146,13 +159,22 @@ jobs:
         run: |
           if [[ $GITHUB_REF == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
+            RPM_VERSION="$VERSION"
+            RPM_RELEASE="1"
           elif [[ -n "${{ github.event.inputs.version }}" ]]; then
             VERSION="${{ github.event.inputs.version }}"
+            RPM_VERSION="$VERSION"
+            RPM_RELEASE="1"
           else
-            VERSION="0.0.0-dev.$(git rev-parse --short HEAD)"
+            GIT_SHA=$(git rev-parse --short HEAD)
+            VERSION="0.0.0.dev.${GIT_SHA}"
+            RPM_VERSION="0.0.0"
+            RPM_RELEASE="0.dev.git${GIT_SHA}"
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Building version: $VERSION"
+          echo "rpm_version=$RPM_VERSION" >> $GITHUB_OUTPUT
+          echo "rpm_release=$RPM_RELEASE" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION (RPM: $RPM_VERSION-$RPM_RELEASE)"
 
       - name: Set Docker image
         id: docker_image
