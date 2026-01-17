@@ -85,19 +85,25 @@ jobs:
         run: go install honnef.co/go/tools/cmd/staticcheck@latest
 
       - name: Run StaticCheck
+        continue-on-error: true
         run: |
-          staticcheck -f sarif ./... > staticcheck-results.sarif || true
-          
+          # Run staticcheck and output to SARIF format
+          staticcheck -f sarif ./... > staticcheck-results.sarif 2>&1 || true
+
+          # Check if we got any results
           if [ -s staticcheck-results.sarif ]; then
             echo "## ⚠️ Static Analysis Issues Found" >> $GITHUB_STEP_SUMMARY
+            # Show issues in readable format too
             staticcheck ./... || true
           else
             echo "✅ No static analysis issues found" >> $GITHUB_STEP_SUMMARY
+            # Create empty SARIF file if none exists
+            echo '{"version":"2.1.0","runs":[]}' > staticcheck-results.sarif
           fi
 
       - name: Upload StaticCheck results
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        if: always() && hashFiles('staticcheck-results.sarif') != ''
         with:
           sarif_file: staticcheck-results.sarif
           category: staticcheck
