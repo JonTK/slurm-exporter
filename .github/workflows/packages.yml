@@ -24,7 +24,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [centos-7, centos-8, centos-9, rocky-8, rocky-9, almalinux-8, almalinux-9, fedora-38, fedora-39]
+        # Note: Removed centos-7 (EOL June 2024) and centos-8 (EOL Dec 2021)
+        # Use Rocky Linux or AlmaLinux for RHEL 7/8 compatibility
+        os: [centos-9, rocky-8, rocky-9, almalinux-8, almalinux-9, fedora-38, fedora-39]
         arch: [x86_64, aarch64]
     
     steps:
@@ -51,6 +53,24 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Building version: $VERSION"
 
+      - name: Set Docker image
+        id: docker_image
+        run: |
+          # Convert matrix OS name to proper Docker image name
+          os="${{ matrix.os }}"
+          case "$os" in
+            centos-9) image="quay.io/centos/centos:stream9" ;;
+            rocky-8) image="rockylinux:8" ;;
+            rocky-9) image="rockylinux:9" ;;
+            almalinux-8) image="almalinux:8" ;;
+            almalinux-9) image="almalinux:9" ;;
+            fedora-38) image="fedora:38" ;;
+            fedora-39) image="fedora:39" ;;
+            *) image="$os" ;;
+          esac
+          echo "image=$image" >> $GITHUB_OUTPUT
+          echo "Using Docker image: $image"
+
       - name: Build RPM package
         run: |
           # Create build directory
@@ -65,7 +85,7 @@ jobs:
             --platform linux/${{ matrix.arch == 'x86_64' && 'amd64' || 'arm64' }} \
             -v $(pwd):/workspace \
             -w /workspace \
-            ${{ matrix.os == 'centos-7' && 'centos:7' || '' }}${{ matrix.os == 'centos-8' && 'centos:8' || '' }}${{ matrix.os == 'centos-9' && 'quay.io/centos/centos:stream9' || '' }}${{ matrix.os == 'rocky-8' && 'rockylinux:8' || '' }}${{ matrix.os == 'rocky-9' && 'rockylinux:9' || '' }}${{ matrix.os == 'almalinux-8' && 'almalinux:8' || '' }}${{ matrix.os == 'almalinux-9' && 'almalinux:9' || '' }}${{ matrix.os == 'fedora-38' && 'fedora:38' || '' }}${{ matrix.os == 'fedora-39' && 'fedora:39' || '' }} \
+            ${{ steps.docker_image.outputs.image }} \
             bash -c "
               # Install build dependencies
               if command -v dnf > /dev/null; then
@@ -238,14 +258,11 @@ jobs:
           sudo apt-get install -y createrepo-c rpm
           
           # Create repository structure
-          mkdir -p repo/rpm/centos/{7,8,9}/x86_64
-          mkdir -p repo/rpm/centos/{7,8,9}/aarch64
-          mkdir -p repo/rpm/rocky/{8,9}/x86_64
-          mkdir -p repo/rpm/rocky/{8,9}/aarch64
-          mkdir -p repo/rpm/almalinux/{8,9}/x86_64
-          mkdir -p repo/rpm/almalinux/{8,9}/aarch64
-          mkdir -p repo/rpm/fedora/{38,39}/x86_64
-          mkdir -p repo/rpm/fedora/{38,39}/aarch64
+          # Note: CentOS 7 and 8 are EOL - use Rocky/AlmaLinux instead
+          mkdir -p repo/rpm/centos/9/{x86_64,aarch64}
+          mkdir -p repo/rpm/rocky/{8,9}/{x86_64,aarch64}
+          mkdir -p repo/rpm/almalinux/{8,9}/{x86_64,aarch64}
+          mkdir -p repo/rpm/fedora/{38,39}/{x86_64,aarch64}
           
           # Copy RPM packages to repository
           find artifacts -name "*.rpm" -type f | while read rpm; do
