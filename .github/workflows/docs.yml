@@ -55,7 +55,9 @@ jobs:
           pip install mkdocs-git-revision-date-localized-plugin
           pip install mkdocs-git-committers-plugin-2
           pip install mkdocs-minify-plugin
-          pip install mkdocs-social
+          # Social cards feature is built into mkdocs-material
+          # Install optional dependencies for social cards plugin
+          pip install pillow cairosvg
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
@@ -100,7 +102,9 @@ jobs:
           pip install mkdocs-git-revision-date-localized-plugin
           pip install mkdocs-git-committers-plugin-2
           pip install mkdocs-minify-plugin
-          pip install mkdocs-social
+          # Social cards feature is built into mkdocs-material
+          # Install optional dependencies for social cards plugin
+          pip install pillow cairosvg
 
       - name: Validate documentation
         run: |
