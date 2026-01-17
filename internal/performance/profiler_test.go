@@ -421,7 +421,7 @@ func TestMemoryProfileStorage(t *testing.T) {
 		assert.True(t, len(profiles) >= 1)
 
 		// Load profile
-		id := fmt.Sprintf("%s_%d", profile.CollectorName, profile.StartTime.Unix())
+		id := fmt.Sprintf("%s_%d", profile.CollectorName, profile.StartTime.UnixNano())
 		loaded, err := storage.Load(id)
 		require.NoError(t, err)
 		assert.NotNil(t, loaded)

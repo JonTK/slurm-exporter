@@ -86,8 +86,8 @@ func (fs *FileProfileStorage) Save(profile *CollectorProfile) error {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 
-	// Generate profile ID
-	id := fmt.Sprintf("%s_%d", profile.CollectorName, profile.StartTime.Unix())
+	// Generate profile ID with nanosecond precision to avoid collisions
+	id := fmt.Sprintf("%s_%d", profile.CollectorName, profile.StartTime.UnixNano())
 	
 	// Create profile directory
 	profileDir := filepath.Join(fs.config.Path, id)
@@ -455,7 +455,8 @@ func (ms *MemoryProfileStorage) Save(profile *CollectorProfile) error {
 	ms.mu.Lock()
 	defer ms.mu.Unlock()
 
-	id := fmt.Sprintf("%s_%d", profile.CollectorName, profile.StartTime.Unix())
+	// Generate profile ID with nanosecond precision to avoid collisions
+	id := fmt.Sprintf("%s_%d", profile.CollectorName, profile.StartTime.UnixNano())
 	
 	// Calculate size
 	var size int64
