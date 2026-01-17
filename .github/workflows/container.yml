@@ -71,7 +71,7 @@ jobs:
           type=ref,event=tag
           type=raw,value=latest,enable={{is_default_branch}}
           type=raw,value={{date 'YYYY-MM-DD'}}-{{sha}},enable={{is_default_branch}}
-          type=sha,prefix={{branch}}-,enable=${{ github.ref_type != 'tag' }}
+          type=sha,enable=${{ github.ref_type != 'tag' }}
         labels: |
           org.opencontainers.image.title=SLURM Exporter${{ matrix.image-suffix && format(' ({0})', matrix.image-suffix) || '' }}
           org.opencontainers.image.description=Prometheus exporter for SLURM workload manager
