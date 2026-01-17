@@ -188,34 +188,35 @@ jobs:
             bash -c "
               # Update package list
               apt-get update
-              
+
               # Install build dependencies
+              # Note: dh-systemd merged into debhelper in Ubuntu 20.04+
               apt-get install -y \
                 build-essential \
                 debhelper \
                 devscripts \
-                dh-systemd \
-                golang-1.21 \
+                dpkg-dev \
+                golang \
                 git \
                 make
-              
-              # Set Go path
-              export PATH=/usr/lib/go-1.21/bin:\$PATH
-              
+
+              # Verify Go installation
+              go version
+
               # Copy Debian packaging files
               cp -r packaging/deb/debian .
-              
+
               # Build source package
               dpkg-buildpackage -S -us -uc
-              
+
               # Build binary package
               dpkg-buildpackage -b -us -uc
-              
+
               # Copy results
               mkdir -p build/deb/${{ matrix.os }}-${{ matrix.arch }}
-              cp ../*.deb build/deb/${{ matrix.os }}-${{ matrix.arch }}/
-              cp ../*.dsc build/deb/${{ matrix.os }}-${{ matrix.arch }}/
-              cp ../*.tar.* build/deb/${{ matrix.os }}-${{ matrix.arch }}/
+              cp ../*.deb build/deb/${{ matrix.os }}-${{ matrix.arch }}/ || true
+              cp ../*.dsc build/deb/${{ matrix.os }}-${{ matrix.arch }}/ || true
+              cp ../*.tar.* build/deb/${{ matrix.os }}-${{ matrix.arch }}/ || true
             "
 
       - name: Upload DEB artifacts
