@@ -23,14 +23,14 @@ func NewTestDataGenerator() *TestDataGenerator {
 // GenerateJobs generates test jobs
 func (g *TestDataGenerator) GenerateJobs(count int) []slurm.Job {
 	jobs := make([]slurm.Job, count)
-	
+
 	states := []string{"RUNNING", "PENDING", "COMPLETED", "FAILED", "CANCELLED"}
 	partitions := []string{"gpu", "cpu", "highmem", "debug"}
 	users := []string{"user1", "user2", "user3", "user4", "user5"}
-	
+
 	for i := 0; i < count; i++ {
 		startTime := time.Now().Add(-time.Duration(g.rand.Intn(7*24)) * time.Hour)
-		
+
 		job := slurm.Job{
 			ID:         fmt.Sprintf("%d", 10000+i),
 			Name:       fmt.Sprintf("job-%d", i),
@@ -52,67 +52,67 @@ func (g *TestDataGenerator) GenerateJobs(count int) []slurm.Job {
 				"qos":     []string{"normal", "high", "low"}[g.rand.Intn(3)],
 			},
 		}
-		
+
 		// Set end time for completed jobs
 		if job.State == "COMPLETED" || job.State == "FAILED" || job.State == "CANCELLED" {
 			endTime := startTime.Add(time.Duration(g.rand.Intn(job.TimeLimit)) * time.Minute)
 			job.EndTime = &endTime
 		}
-		
+
 		jobs[i] = job
 	}
-	
+
 	return jobs
 }
 
 // GenerateNodes generates test nodes
 func (g *TestDataGenerator) GenerateNodes(count int) []slurm.Node {
 	nodes := make([]slurm.Node, count)
-	
+
 	states := []string{"idle", "allocated", "mixed", "down", "drain"}
 	partitions := []string{"gpu", "cpu", "highmem", "debug"}
-	
+
 	for i := 0; i < count; i++ {
 		node := slurm.Node{
-			Name:      fmt.Sprintf("node%03d", i+1),
-			State:     states[g.rand.Intn(len(states))],
-			CPUs:      []int{16, 32, 64, 128}[g.rand.Intn(4)],
-			Memory:    []int{64*1024, 128*1024, 256*1024, 512*1024}[g.rand.Intn(4)], // GB in MB
+			Name:   fmt.Sprintf("node%03d", i+1),
+			State:  states[g.rand.Intn(len(states))],
+			CPUs:   []int{16, 32, 64, 128}[g.rand.Intn(4)],
+			Memory: []int{64 * 1024, 128 * 1024, 256 * 1024, 512 * 1024}[g.rand.Intn(4)], // GB in MB
 			Metadata: map[string]interface{}{
-				"arch":     []string{"x86_64", "aarch64"}[g.rand.Intn(2)],
-				"features": g.generateFeatures(),
+				"arch":      []string{"x86_64", "aarch64"}[g.rand.Intn(2)],
+				"features":  g.generateFeatures(),
 				"partition": partitions[g.rand.Intn(len(partitions))],
 			},
 		}
-		
+
 		// Set allocated resources for allocated/mixed nodes
 		if node.State == "allocated" || node.State == "mixed" {
 			allocatedCPUs := g.rand.Intn(node.CPUs)
 			allocatedMemory := g.rand.Intn(node.Memory)
-			
+
 			node.Metadata["allocated_cpus"] = allocatedCPUs
 			node.Metadata["allocated_memory"] = allocatedMemory
 		}
-		
+
 		nodes[i] = node
 	}
-	
+
 	return nodes
 }
 
 // GeneratePartitions generates test partitions
 func (g *TestDataGenerator) GeneratePartitions(count int) []slurm.Partition {
 	partitions := make([]slurm.Partition, count)
-	
+
 	names := []string{"gpu", "cpu", "highmem", "debug", "interactive"}
 	states := []string{"UP", "DOWN", "DRAIN"}
-	
+
 	for i := 0; i < count && i < len(names); i++ {
 		totalNodes := g.rand.Intn(50) + 10
 		availableNodes := g.rand.Intn(totalNodes)
 		totalCPUs := totalNodes * (g.rand.Intn(64) + 16)
 		idleCPUs := g.rand.Intn(totalCPUs)
-		
+
 		partition := slurm.Partition{
 			Name:           names[i],
 			State:          states[g.rand.Intn(len(states))],
@@ -121,10 +121,10 @@ func (g *TestDataGenerator) GeneratePartitions(count int) []slurm.Partition {
 			TotalCPUs:      totalCPUs,
 			IdleCPUs:       idleCPUs,
 		}
-		
+
 		partitions[i] = partition
 	}
-	
+
 	return partitions[:count]
 }
 
@@ -141,10 +141,10 @@ func (g *TestDataGenerator) generateNodeList(count int) []string {
 func (g *TestDataGenerator) generateFeatures() []string {
 	allFeatures := []string{"gpu", "ssd", "infiniband", "large_mem", "nvme", "fpga"}
 	count := g.rand.Intn(3) + 1 // 1-3 features
-	
+
 	features := make([]string, 0, count)
 	used := make(map[string]bool)
-	
+
 	for len(features) < count {
 		feature := allFeatures[g.rand.Intn(len(allFeatures))]
 		if !used[feature] {
@@ -152,21 +152,21 @@ func (g *TestDataGenerator) generateFeatures() []string {
 			used[feature] = true
 		}
 	}
-	
+
 	return features
 }
 
 // GenerateJobStates generates realistic job state distributions
 func (g *TestDataGenerator) GenerateJobStates() map[string]int {
 	total := g.rand.Intn(1000) + 100
-	
+
 	// Realistic distribution
-	running := int(float64(total) * 0.4)     // 40% running
-	pending := int(float64(total) * 0.3)     // 30% pending
-	completed := int(float64(total) * 0.25)  // 25% completed
-	failed := int(float64(total) * 0.04)     // 4% failed
+	running := int(float64(total) * 0.4)                        // 40% running
+	pending := int(float64(total) * 0.3)                        // 30% pending
+	completed := int(float64(total) * 0.25)                     // 25% completed
+	failed := int(float64(total) * 0.04)                        // 4% failed
 	cancelled := total - running - pending - completed - failed // remainder
-	
+
 	return map[string]int{
 		"RUNNING":   running,
 		"PENDING":   pending,
@@ -180,10 +180,10 @@ func (g *TestDataGenerator) GenerateJobStates() map[string]int {
 func (g *TestDataGenerator) GenerateClusterLoad() map[string]interface{} {
 	totalNodes := g.rand.Intn(500) + 100
 	allocatedNodes := int(float64(totalNodes) * (0.6 + g.rand.Float64()*0.3)) // 60-90% allocated
-	
-	totalCPUs := totalNodes * 32 // Average 32 CPUs per node
+
+	totalCPUs := totalNodes * 32                                            // Average 32 CPUs per node
 	allocatedCPUs := int(float64(totalCPUs) * (0.7 + g.rand.Float64()*0.2)) // 70-90% allocated
-	
+
 	return map[string]interface{}{
 		"total_nodes":     totalNodes,
 		"allocated_nodes": allocatedNodes,
@@ -199,14 +199,14 @@ func (g *TestDataGenerator) GenerateClusterLoad() map[string]interface{} {
 func (g *TestDataGenerator) GenerateTimeSeriesData(points int, interval time.Duration) []TimePoint {
 	data := make([]TimePoint, points)
 	baseTime := time.Now().Add(-time.Duration(points) * interval)
-	
+
 	for i := 0; i < points; i++ {
 		data[i] = TimePoint{
 			Time:  baseTime.Add(time.Duration(i) * interval),
 			Value: g.rand.Float64() * 100,
 		}
 	}
-	
+
 	return data
 }
 

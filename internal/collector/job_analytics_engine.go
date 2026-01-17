@@ -15,17 +15,17 @@ import (
 
 // JobAnalyticsEngine provides comprehensive job performance analytics with waste identification
 type JobAnalyticsEngine struct {
-	slurmClient     slurm.SlurmClient
-	logger          *slog.Logger
-	config          *AnalyticsConfig
-	metrics         *JobAnalyticsMetrics
-	efficiencyCalc  *EfficiencyCalculator
+	slurmClient    slurm.SlurmClient
+	logger         *slog.Logger
+	config         *AnalyticsConfig
+	metrics        *JobAnalyticsMetrics
+	efficiencyCalc *EfficiencyCalculator
 
 	// Analytics data storage
-	analyticsData   map[string]*JobAnalyticsData
-	wasteAnalysis   map[string]*WasteAnalysisResult
-	lastAnalysis    time.Time
-	mu              sync.RWMutex
+	analyticsData map[string]*JobAnalyticsData
+	wasteAnalysis map[string]*WasteAnalysisResult
+	lastAnalysis  time.Time
+	mu            sync.RWMutex
 
 	// Benchmarking and comparison data
 	benchmarkData   map[string]*PerformanceBenchmark
@@ -38,23 +38,23 @@ type JobAnalyticsEngine struct {
 
 // AnalyticsConfig configures the job analytics engine
 type AnalyticsConfig struct {
-	AnalysisInterval          time.Duration
-	MaxJobsPerAnalysis        int
-	EnableWasteDetection      bool
+	AnalysisInterval            time.Duration
+	MaxJobsPerAnalysis          int
+	EnableWasteDetection        bool
 	EnablePerformanceComparison bool
-	EnableTrendAnalysis       bool
-	EnableBenchmarking        bool
+	EnableTrendAnalysis         bool
+	EnableBenchmarking          bool
 
 	// Waste detection thresholds
-	WasteThresholds          *WasteThresholds
+	WasteThresholds *WasteThresholds
 
 	// Performance comparison settings
-	ComparisonTimeWindow     time.Duration
+	ComparisonTimeWindow       time.Duration
 	MinSampleSizeForComparison int
 
 	// Analytics retention
-	HistoricalDataRetention  time.Duration
-	CacheTTL                 time.Duration
+	HistoricalDataRetention time.Duration
+	CacheTTL                time.Duration
 
 	// Processing optimization
 	BatchSize                int
@@ -64,90 +64,90 @@ type AnalyticsConfig struct {
 
 // WasteThresholds defines thresholds for different types of resource waste
 type WasteThresholds struct {
-	CPUWasteThreshold       float64 // CPU allocation vs usage waste threshold
-	MemoryWasteThreshold    float64 // Memory allocation vs usage waste threshold
-	TimeWasteThreshold      float64 // Job runtime efficiency threshold
-	ResourceOverallocation  float64 // Overall resource overallocation threshold
-	IdleTimeThreshold       float64 // Idle time as percentage of total time
-	QueueWasteThreshold     float64 // Queue time vs run time ratio threshold
+	CPUWasteThreshold      float64 // CPU allocation vs usage waste threshold
+	MemoryWasteThreshold   float64 // Memory allocation vs usage waste threshold
+	TimeWasteThreshold     float64 // Job runtime efficiency threshold
+	ResourceOverallocation float64 // Overall resource overallocation threshold
+	IdleTimeThreshold      float64 // Idle time as percentage of total time
+	QueueWasteThreshold    float64 // Queue time vs run time ratio threshold
 }
 
 // JobAnalyticsData contains comprehensive analytics for a job
 type JobAnalyticsData struct {
-	JobID                string
-	AnalysisTimestamp    time.Time
+	JobID             string
+	AnalysisTimestamp time.Time
 
 	// Enhanced SLURM job data (as per specification)
-	SLURMJobData         *EnhancedSLURMJobData
+	SLURMJobData *EnhancedSLURMJobData
 
 	// Resource utilization analytics
-	ResourceUtilization  *ResourceUtilizationAnalysis
-	WasteAnalysis        *WasteAnalysisResult
-	EfficiencyAnalysis   *EfficiencyAnalysisResult
+	ResourceUtilization *ResourceUtilizationAnalysis
+	WasteAnalysis       *WasteAnalysisResult
+	EfficiencyAnalysis  *EfficiencyAnalysisResult
 
 	// Performance analytics
-	PerformanceMetrics   *PerformanceAnalyticsResult
-	BenchmarkComparison  *JobBenchmarkComparisonResult
-	TrendAnalysis        *JobTrendAnalysis
+	PerformanceMetrics  *PerformanceAnalyticsResult
+	BenchmarkComparison *JobBenchmarkComparisonResult
+	TrendAnalysis       *JobTrendAnalysis
 
 	// Cost analytics
-	CostAnalysis         *JobCostAnalysisResult
-	ROIAnalysis          *ROIAnalysisResult
+	CostAnalysis *JobCostAnalysisResult
+	ROIAnalysis  *ROIAnalysisResult
 
 	// Optimization recommendations
-	OptimizationInsights *OptimizationInsights
+	OptimizationInsights      *OptimizationInsights
 	ActionableRecommendations []ActionableRecommendation
 
 	// Quality scores
-	OverallScore         float64
-	PerformanceGrade     string
-	WasteScore           float64
-	EfficiencyScore      float64
+	OverallScore     float64
+	PerformanceGrade string
+	WasteScore       float64
+	EfficiencyScore  float64
 }
 
 // EnhancedSLURMJobData contains enhanced SLURM job data with timing analysis
 type EnhancedSLURMJobData struct {
 	// Core job information
-	JobID                string
-	UserName             string
-	Account              string
-	Partition            string
-	QoS                  string
-	Priority             int32
-	JobName              string
-	Command              string
-	WorkingDirectory     string
+	JobID            string
+	UserName         string
+	Account          string
+	Partition        string
+	QoS              string
+	Priority         int32
+	JobName          string
+	Command          string
+	WorkingDirectory string
 
 	// Enhanced timing information with calculated durations
-	SubmitTime           *time.Time
-	EligibleTime         *time.Time
-	StartTime            *time.Time
-	EndTime              *time.Time
-	
+	SubmitTime   *time.Time
+	EligibleTime *time.Time
+	StartTime    *time.Time
+	EndTime      *time.Time
+
 	// Calculated timing metrics
-	WaitTime             time.Duration // eligible_time - submit_time
-	QueueTime            time.Duration // start_time - eligible_time  
-	Runtime              time.Duration // end_time - start_time
-	TotalTurnaround      time.Duration // end_time - submit_time
+	WaitTime        time.Duration // eligible_time - submit_time
+	QueueTime       time.Duration // start_time - eligible_time
+	Runtime         time.Duration // end_time - start_time
+	TotalTurnaround time.Duration // end_time - submit_time
 
 	// Resource allocation vs request comparison
-	CPURequested         int32
-	CPUAllocated         int32
-	CPUAllocationRatio   float64 // allocated / requested
+	CPURequested       int32
+	CPUAllocated       int32
+	CPUAllocationRatio float64 // allocated / requested
 
-	MemoryRequested      int64 // MB
-	MemoryAllocated      int64 // MB
+	MemoryRequested       int64   // MB
+	MemoryAllocated       int64   // MB
 	MemoryAllocationRatio float64 // allocated / requested
 
-	NodesRequested       int32
-	NodesAllocated       int32
-	NodeAllocationRatio  float64 // allocated / requested
+	NodesRequested      int32
+	NodesAllocated      int32
+	NodeAllocationRatio float64 // allocated / requested
 
 	// Job characteristics
-	State                string
-	ExitCode             int32
-	TimeLimit            int32 // minutes
-	
+	State     string
+	ExitCode  int32
+	TimeLimit int32 // minutes
+
 	// Derived efficiency metrics
 	TimeUtilizationRatio float64 // runtime / time_limit
 	QueueEfficiencyRatio float64 // runtime / total_turnaround
@@ -170,47 +170,47 @@ type ResourceUtilizationAnalysis struct {
 
 // ResourceAnalysis contains detailed analysis for a specific resource type
 type ResourceAnalysis struct {
-	ResourceType        string
-	AllocatedAmount     float64
-	PeakUsage          float64
-	AverageUsage       float64
-	MinimumUsage       float64
-	UtilizationRate    float64
-	WastePercentage    float64
-	EfficiencyScore    float64
+	ResourceType    string
+	AllocatedAmount float64
+	PeakUsage       float64
+	AverageUsage    float64
+	MinimumUsage    float64
+	UtilizationRate float64
+	WastePercentage float64
+	EfficiencyScore float64
 
 	// Usage patterns
-	UsagePattern       string // "steady", "bursty", "gradual_increase", "gradual_decrease"
-	PatternConfidence  float64
-	VariabilityIndex   float64
+	UsagePattern      string // "steady", "bursty", "gradual_increase", "gradual_decrease"
+	PatternConfidence float64
+	VariabilityIndex  float64
 
 	// Time-based analysis
-	TimeSeriesData     []AnalyticsTimeSeriesPoint
-	PeakPeriods        []AnalyticsTimePeriod
-	LowUsagePeriods    []AnalyticsTimePeriod
+	TimeSeriesData  []AnalyticsTimeSeriesPoint
+	PeakPeriods     []AnalyticsTimePeriod
+	LowUsagePeriods []AnalyticsTimePeriod
 
 	// Optimization opportunities
-	OptimalAllocation  float64
-	PotentialSavings   float64
-	RecommendedAction  string
+	OptimalAllocation float64
+	PotentialSavings  float64
+	RecommendedAction string
 }
 
 // WasteAnalysisResult identifies and quantifies various types of resource waste
 type WasteAnalysisResult struct {
-	JobID               string
-	TotalWasteScore     float64
-	WasteCategories     map[string]*WasteCategory
+	JobID           string
+	TotalWasteScore float64
+	WasteCategories map[string]*WasteCategory
 
 	// Specific waste types
-	CPUWaste           *WasteDetail
-	MemoryWaste        *WasteDetail
-	TimeWaste          *WasteDetail
-	QueueWaste         *WasteDetail
+	CPUWaste            *WasteDetail
+	MemoryWaste         *WasteDetail
+	TimeWaste           *WasteDetail
+	QueueWaste          *WasteDetail
 	OverallocationWaste *WasteDetail
 
 	// Waste impact analysis
-	WasteImpact        *WasteImpactAnalysis
-	CostOfWaste        float64
+	WasteImpact         *WasteImpactAnalysis
+	CostOfWaste         float64
 	EnvironmentalImpact float64
 
 	// Actionable insights
@@ -243,12 +243,12 @@ type WasteDetail struct {
 
 // WasteImpactAnalysis analyzes the broader impact of identified waste
 type WasteImpactAnalysis struct {
-	ClusterImpact      float64
-	UserImpact         float64
-	ProjectImpact      float64
-	SystemImpact       float64
+	ClusterImpact       float64
+	UserImpact          float64
+	ProjectImpact       float64
+	SystemImpact        float64
 	EnvironmentalImpact float64
-	FinancialImpact    float64
+	FinancialImpact     float64
 }
 
 // EfficiencyAnalysisResult provides comprehensive efficiency analysis
@@ -259,12 +259,12 @@ type EfficiencyAnalysisResult struct {
 	EfficiencyBenchmarks map[string]float64
 
 	// Efficiency factors
-	PositiveFactors     []EfficiencyFactor
-	NegativeFactors     []EfficiencyFactor
-	ImprovementAreas    []ImprovementArea
+	PositiveFactors  []EfficiencyFactor
+	NegativeFactors  []EfficiencyFactor
+	ImprovementAreas []ImprovementArea
 
 	// Comparative analysis
-	PeerComparison      *PeerEfficiencyComparison
+	PeerComparison       *PeerEfficiencyComparison
 	HistoricalComparison *HistoricalEfficiencyComparison
 }
 
@@ -286,50 +286,50 @@ type PerformanceAnalyticsResult struct {
 
 // JobCostAnalysisResult provides cost analysis and optimization insights
 type JobCostAnalysisResult struct {
-	TotalCost           float64
-	CostBreakdown       map[string]float64
-	CostPerUnit         map[string]float64
+	TotalCost     float64
+	CostBreakdown map[string]float64
+	CostPerUnit   map[string]float64
 
 	// Cost efficiency
-	CostEfficiency      float64
-	CostWaste           float64
+	CostEfficiency        float64
+	CostWaste             float64
 	OptimizationPotential float64
 
 	// Comparative costs
-	BenchmarkCost       float64
-	PeerComparison      map[string]float64
+	BenchmarkCost  float64
+	PeerComparison map[string]float64
 
 	// Cost trends
-	CostTrends          *CostTrendAnalysis
-	Projections         *CostProjection
+	CostTrends  *CostTrendAnalysis
+	Projections *CostProjection
 }
 
 // OptimizationInsights provides actionable optimization recommendations
 type OptimizationInsights struct {
-	PrimaryInsights     []OptimizationInsight
-	SecondaryInsights   []OptimizationInsight
-	QuickWins           []QuickWinOpportunity
-	LongTermStrategies  []LongTermStrategy
+	PrimaryInsights    []OptimizationInsight
+	SecondaryInsights  []OptimizationInsight
+	QuickWins          []QuickWinOpportunity
+	LongTermStrategies []LongTermStrategy
 
 	// Impact assessment
-	ImpactAssessment    *OptimizationImpactAssessment
-	ImplementationPlan  *ImplementationPlan
+	ImpactAssessment   *OptimizationImpactAssessment
+	ImplementationPlan *ImplementationPlan
 }
 
 // ActionableRecommendation represents a specific actionable recommendation
 type ActionableRecommendation struct {
-	RecommendationID   string
-	Priority           string
-	Category           string
-	Title              string
-	Description        string
-	ExpectedImpact     *ExpectedImpact
+	RecommendationID    string
+	Priority            string
+	Category            string
+	Title               string
+	Description         string
+	ExpectedImpact      *ExpectedImpact
 	ImplementationSteps []ImplementationStep
-	EstimatedEffort    string
-	Timeline           string
-	Prerequisites      []string
-	Risks              []string
-	SuccessMetrics     []string
+	EstimatedEffort     string
+	Timeline            string
+	Prerequisites       []string
+	Risks               []string
+	SuccessMetrics      []string
 }
 
 // Supporting types for comprehensive analytics...
@@ -345,10 +345,10 @@ type AnalyticsTimePeriod struct {
 }
 
 type AnalyticsEfficiencyTrend struct {
-	Direction   string
-	Slope       float64
-	Confidence  float64
-	Prediction  float64
+	Direction  string
+	Slope      float64
+	Confidence float64
+	Prediction float64
 }
 
 type EfficiencyFactor struct {
@@ -359,25 +359,25 @@ type EfficiencyFactor struct {
 }
 
 type ImprovementArea struct {
-	Area            string
-	CurrentValue    float64
-	TargetValue     float64
+	Area                 string
+	CurrentValue         float64
+	TargetValue          float64
 	ImprovementPotential float64
-	Recommendations []string
+	Recommendations      []string
 }
 
 type PeerEfficiencyComparison struct {
-	Percentile     float64
-	AboveAverage   bool
-	TopPerformers  []string
-	SimilarJobs    []string
+	Percentile    float64
+	AboveAverage  bool
+	TopPerformers []string
+	SimilarJobs   []string
 }
 
 type HistoricalEfficiencyComparison struct {
-	Trend          string
-	ChangeRate     float64
-	BestPeriod     time.Time
-	WorstPeriod    time.Time
+	Trend       string
+	ChangeRate  float64
+	BestPeriod  time.Time
+	WorstPeriod time.Time
 }
 
 type ThroughputAnalysis struct {
@@ -388,10 +388,10 @@ type ThroughputAnalysis struct {
 }
 
 type LatencyAnalysis struct {
-	AverageLatency    float64
-	P95Latency        float64
-	P99Latency        float64
-	LatencyTrend      string
+	AverageLatency float64
+	P95Latency     float64
+	P99Latency     float64
+	LatencyTrend   string
 }
 
 type ScalabilityAnalysis struct {
@@ -402,17 +402,17 @@ type ScalabilityAnalysis struct {
 }
 
 type ReliabilityMetrics struct {
-	SuccessRate        float64
-	MTBF               float64
-	RecoveryTime       float64
-	ErrorRate          float64
+	SuccessRate  float64
+	MTBF         float64
+	RecoveryTime float64
+	ErrorRate    float64
 }
 
 type PerformancePattern struct {
-	PatternType   string
-	Confidence    float64
-	Description   string
-	Frequency     string
+	PatternType string
+	Confidence  float64
+	Description string
+	Frequency   string
 }
 
 type AnomalyDetectionResult struct {
@@ -444,8 +444,8 @@ type ResourceBottleneck struct {
 }
 
 type CostTrendAnalysis struct {
-	Trend      string
-	ChangeRate float64
+	Trend       string
+	ChangeRate  float64
 	Seasonality bool
 }
 
@@ -457,26 +457,26 @@ type CostProjection struct {
 }
 
 type OptimizationInsight struct {
-	InsightType    string
-	Title          string
-	Description    string
-	Impact         float64
-	Confidence     float64
-	Category       string
+	InsightType string
+	Title       string
+	Description string
+	Impact      float64
+	Confidence  float64
+	Category    string
 }
 
 type QuickWinOpportunity struct {
-	Opportunity    string
-	ExpectedBenefit float64
+	Opportunity        string
+	ExpectedBenefit    float64
 	ImplementationTime string
-	Difficulty     string
+	Difficulty         string
 }
 
 type LongTermStrategy struct {
-	Strategy       string
-	ExpectedROI    float64
-	Timeline       string
-	Dependencies   []string
+	Strategy     string
+	ExpectedROI  float64
+	Timeline     string
+	Dependencies []string
 }
 
 type OptimizationImpactAssessment struct {
@@ -487,16 +487,16 @@ type OptimizationImpactAssessment struct {
 }
 
 type ImplementationPlan struct {
-	Phases         []ImplementationPhase
-	TotalTimeline  string
-	ResourceNeeds  []string
-	Dependencies   []string
+	Phases        []ImplementationPhase
+	TotalTimeline string
+	ResourceNeeds []string
+	Dependencies  []string
 }
 
 type ImplementationPhase struct {
-	Phase       string
-	Duration    string
-	Activities  []string
+	Phase        string
+	Duration     string
+	Activities   []string
 	Deliverables []string
 }
 
@@ -508,18 +508,18 @@ type ExpectedImpact struct {
 }
 
 type ImplementationStep struct {
-	Step        string
-	Description string
-	Duration    string
+	Step         string
+	Description  string
+	Duration     string
 	Dependencies []string
 }
 
 type WasteReductionAction struct {
-	Action          string
-	WasteType       string
-	ExpectedReduction float64
+	Action               string
+	WasteType            string
+	ExpectedReduction    float64
 	ImplementationEffort string
-	Priority        string
+	Priority             string
 }
 
 type ExpectedSavings struct {
@@ -530,10 +530,10 @@ type ExpectedSavings struct {
 }
 
 type ROIAnalysisResult struct {
-	ROI              float64
-	PaybackPeriod    time.Duration
-	NPV              float64
-	CostBenefit      float64
+	ROI           float64
+	PaybackPeriod time.Duration
+	NPV           float64
+	CostBenefit   float64
 }
 
 type JobTrendAnalysis struct {
@@ -544,27 +544,27 @@ type JobTrendAnalysis struct {
 }
 
 type JobBenchmarkComparisonResult struct {
-	BenchmarkType    string
-	Score            float64
-	Percentile       float64
-	Comparison       string
-	GapAnalysis      []string
+	BenchmarkType string
+	Score         float64
+	Percentile    float64
+	Comparison    string
+	GapAnalysis   []string
 }
 
 type PerformanceBenchmark struct {
-	BenchmarkName    string
-	Category         string
-	ReferenceValue   float64
-	Timestamp        time.Time
-	SampleSize       int
+	BenchmarkName  string
+	Category       string
+	ReferenceValue float64
+	Timestamp      time.Time
+	SampleSize     int
 }
 
 type ComparisonResult struct {
-	ComparisonType   string
-	Score            float64
-	Ranking          int
-	TotalSamples     int
-	Insights         []string
+	ComparisonType string
+	Score          float64
+	Ranking        int
+	TotalSamples   int
+	Insights       []string
 }
 
 type HistoricalDataPoint struct {
@@ -573,58 +573,58 @@ type HistoricalDataPoint struct {
 }
 
 type TrendAnalysis struct {
-	TrendType    string
-	Direction    string
-	Strength     float64
-	Confidence   float64
-	Predictions  map[string]float64
+	TrendType   string
+	Direction   string
+	Strength    float64
+	Confidence  float64
+	Predictions map[string]float64
 }
 
 // JobAnalyticsMetrics holds Prometheus metrics for job analytics
 type JobAnalyticsMetrics struct {
 	// SLURM-specific timing metrics (as per specification)
-	JobTimeUtilizationRatio     *prometheus.GaugeVec
-	JobQueueTimeRatio           *prometheus.GaugeVec
-	JobTurnaroundEfficiency     *prometheus.GaugeVec
-	JobResourceAllocationRatio  *prometheus.GaugeVec
-	JobSchedulingDelaySeconds   *prometheus.GaugeVec
-	
+	JobTimeUtilizationRatio    *prometheus.GaugeVec
+	JobQueueTimeRatio          *prometheus.GaugeVec
+	JobTurnaroundEfficiency    *prometheus.GaugeVec
+	JobResourceAllocationRatio *prometheus.GaugeVec
+	JobSchedulingDelaySeconds  *prometheus.GaugeVec
+
 	// Waste detection metrics
-	ResourceWasteDetected     *prometheus.GaugeVec
-	WasteScore               *prometheus.GaugeVec
-	WasteCostImpact          *prometheus.GaugeVec
-	WasteReductionPotential  *prometheus.GaugeVec
+	ResourceWasteDetected   *prometheus.GaugeVec
+	WasteScore              *prometheus.GaugeVec
+	WasteCostImpact         *prometheus.GaugeVec
+	WasteReductionPotential *prometheus.GaugeVec
 
 	// Efficiency analytics metrics
-	EfficiencyScore          *prometheus.GaugeVec
-	EfficiencyTrend          *prometheus.GaugeVec
-	EfficiencyGap            *prometheus.GaugeVec
+	EfficiencyScore *prometheus.GaugeVec
+	EfficiencyTrend *prometheus.GaugeVec
+	EfficiencyGap   *prometheus.GaugeVec
 
 	// Performance analytics metrics
-	PerformanceScore         *prometheus.GaugeVec
-	ThroughputAnalysis       *prometheus.GaugeVec
-	LatencyAnalysis          *prometheus.GaugeVec
-	ScalabilityScore         *prometheus.GaugeVec
+	PerformanceScore   *prometheus.GaugeVec
+	ThroughputAnalysis *prometheus.GaugeVec
+	LatencyAnalysis    *prometheus.GaugeVec
+	ScalabilityScore   *prometheus.GaugeVec
 
 	// Cost analytics metrics
-	CostEfficiency           *prometheus.GaugeVec
-	CostWaste                *prometheus.GaugeVec
-	ROIScore                 *prometheus.GaugeVec
+	CostEfficiency            *prometheus.GaugeVec
+	CostWaste                 *prometheus.GaugeVec
+	ROIScore                  *prometheus.GaugeVec
 	CostOptimizationPotential *prometheus.GaugeVec
 
 	// Recommendation metrics
 	OptimizationOpportunities *prometheus.GaugeVec
-	QuickWinsIdentified      *prometheus.GaugeVec
-	RecommendationImpact     *prometheus.GaugeVec
+	QuickWinsIdentified       *prometheus.GaugeVec
+	RecommendationImpact      *prometheus.GaugeVec
 
 	// Analytics quality metrics
-	AnalysisConfidence       *prometheus.GaugeVec
-	DataCompletenessScore    *prometheus.GaugeVec
-	AnalysisAccuracy         *prometheus.GaugeVec
+	AnalysisConfidence    *prometheus.GaugeVec
+	DataCompletenessScore *prometheus.GaugeVec
+	AnalysisAccuracy      *prometheus.GaugeVec
 
 	// Collection metrics
-	AnalyticsProcessingTime  *prometheus.HistogramVec
-	AnalyticsErrors          *prometheus.CounterVec
+	AnalyticsProcessingTime *prometheus.HistogramVec
+	AnalyticsErrors         *prometheus.CounterVec
 	JobsAnalyzed            *prometheus.CounterVec
 }
 
@@ -632,26 +632,26 @@ type JobAnalyticsMetrics struct {
 func NewJobAnalyticsEngine(client slurm.SlurmClient, logger *slog.Logger, config *AnalyticsConfig) (*JobAnalyticsEngine, error) {
 	if config == nil {
 		config = &AnalyticsConfig{
-			AnalysisInterval:           30 * time.Second,
-			MaxJobsPerAnalysis:         100,
-			EnableWasteDetection:       true,
+			AnalysisInterval:            30 * time.Second,
+			MaxJobsPerAnalysis:          100,
+			EnableWasteDetection:        true,
 			EnablePerformanceComparison: true,
-			EnableTrendAnalysis:        true,
-			EnableBenchmarking:         true,
-			ComparisonTimeWindow:       7 * 24 * time.Hour, // 1 week
-			MinSampleSizeForComparison: 10,
-			HistoricalDataRetention:    30 * 24 * time.Hour, // 30 days
-			CacheTTL:                   15 * time.Minute,
-			BatchSize:                  20,
-			EnableParallelProcessing:   true,
-			MaxConcurrentAnalyses:      5,
+			EnableTrendAnalysis:         true,
+			EnableBenchmarking:          true,
+			ComparisonTimeWindow:        7 * 24 * time.Hour, // 1 week
+			MinSampleSizeForComparison:  10,
+			HistoricalDataRetention:     30 * 24 * time.Hour, // 30 days
+			CacheTTL:                    15 * time.Minute,
+			BatchSize:                   20,
+			EnableParallelProcessing:    true,
+			MaxConcurrentAnalyses:       5,
 			WasteThresholds: &WasteThresholds{
-				CPUWasteThreshold:       0.30,
-				MemoryWasteThreshold:    0.30,
-				TimeWasteThreshold:      0.25,
-				ResourceOverallocation:  0.40,
-				IdleTimeThreshold:       0.20,
-				QueueWasteThreshold:     0.50,
+				CPUWasteThreshold:      0.30,
+				MemoryWasteThreshold:   0.30,
+				TimeWasteThreshold:     0.25,
+				ResourceOverallocation: 0.40,
+				IdleTimeThreshold:      0.20,
+				QueueWasteThreshold:    0.50,
 			},
 		}
 	}
@@ -659,17 +659,17 @@ func NewJobAnalyticsEngine(client slurm.SlurmClient, logger *slog.Logger, config
 	efficiencyCalc := NewEfficiencyCalculator(logger, nil)
 
 	return &JobAnalyticsEngine{
-		slurmClient:      client,
-		logger:           logger,
-		config:           config,
-		metrics:          newJobAnalyticsMetrics(),
-		efficiencyCalc:   efficiencyCalc,
-		analyticsData:    make(map[string]*JobAnalyticsData),
-		wasteAnalysis:    make(map[string]*WasteAnalysisResult),
-		benchmarkData:    make(map[string]*PerformanceBenchmark),
-		comparisonCache:  make(map[string]*ComparisonResult),
+		slurmClient:       client,
+		logger:            logger,
+		config:            config,
+		metrics:           newJobAnalyticsMetrics(),
+		efficiencyCalc:    efficiencyCalc,
+		analyticsData:     make(map[string]*JobAnalyticsData),
+		wasteAnalysis:     make(map[string]*WasteAnalysisResult),
+		benchmarkData:     make(map[string]*PerformanceBenchmark),
+		comparisonCache:   make(map[string]*ComparisonResult),
 		historicalMetrics: make(map[string][]*HistoricalDataPoint),
-		trendAnalysis:    make(map[string]*TrendAnalysis),
+		trendAnalysis:     make(map[string]*TrendAnalysis),
 	}, nil
 }
 
@@ -712,7 +712,7 @@ func newJobAnalyticsMetrics() *JobAnalyticsMetrics {
 			},
 			[]string{"job_id", "user", "account", "partition"},
 		),
-		
+
 		ResourceWasteDetected: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Name: "slurm_job_resource_waste_detected",
@@ -893,7 +893,7 @@ func (e *JobAnalyticsEngine) Describe(ch chan<- *prometheus.Desc) {
 	e.metrics.JobTurnaroundEfficiency.Describe(ch)
 	e.metrics.JobResourceAllocationRatio.Describe(ch)
 	e.metrics.JobSchedulingDelaySeconds.Describe(ch)
-	
+
 	e.metrics.ResourceWasteDetected.Describe(ch)
 	e.metrics.WasteScore.Describe(ch)
 	e.metrics.WasteCostImpact.Describe(ch)
@@ -935,7 +935,7 @@ func (e *JobAnalyticsEngine) Collect(ch chan<- prometheus.Metric) {
 	e.metrics.JobTurnaroundEfficiency.Collect(ch)
 	e.metrics.JobResourceAllocationRatio.Collect(ch)
 	e.metrics.JobSchedulingDelaySeconds.Collect(ch)
-	
+
 	e.metrics.ResourceWasteDetected.Collect(ch)
 	e.metrics.WasteScore.Collect(ch)
 	e.metrics.WasteCostImpact.Collect(ch)
@@ -1095,41 +1095,41 @@ func (e *JobAnalyticsEngine) performComprehensiveAnalysis(ctx context.Context, j
 		JobID:             job.ID,
 		AnalysisTimestamp: now,
 
-		SLURMJobData:         slurmJobData,
-		ResourceUtilization:  resourceAnalysis,
-		WasteAnalysis:        wasteAnalysis,
-		EfficiencyAnalysis:   efficiencyAnalysis,
+		SLURMJobData:        slurmJobData,
+		ResourceUtilization: resourceAnalysis,
+		WasteAnalysis:       wasteAnalysis,
+		EfficiencyAnalysis:  efficiencyAnalysis,
 
-		PerformanceMetrics:   performanceAnalysis,
-		BenchmarkComparison:  benchmarkComparison,
-		TrendAnalysis:        trendAnalysis,
+		PerformanceMetrics:  performanceAnalysis,
+		BenchmarkComparison: benchmarkComparison,
+		TrendAnalysis:       trendAnalysis,
 
-		CostAnalysis:         costAnalysis,
-		ROIAnalysis:          e.calculateROIAnalysis(costAnalysis, performanceAnalysis),
+		CostAnalysis: costAnalysis,
+		ROIAnalysis:  e.calculateROIAnalysis(costAnalysis, performanceAnalysis),
 
 		OptimizationInsights:      optimizationInsights,
 		ActionableRecommendations: e.generateActionableRecommendations(optimizationInsights),
 
-		OverallScore:         overallScore,
-		PerformanceGrade:     performanceGrade,
-		WasteScore:           wasteScore,
-		EfficiencyScore:      efficiencyScore,
+		OverallScore:     overallScore,
+		PerformanceGrade: performanceGrade,
+		WasteScore:       wasteScore,
+		EfficiencyScore:  efficiencyScore,
 	}
 }
 
 // extractEnhancedSLURMJobData extracts enhanced SLURM job data with timing analysis
 func (e *JobAnalyticsEngine) extractEnhancedSLURMJobData(job *slurm.Job) *EnhancedSLURMJobData {
 	jobData := &EnhancedSLURMJobData{
-		JobID:          job.ID, // job.ID is already a string
-		Partition:      job.Partition,
-		State:          job.State,
-		TimeLimit:      int32(job.TimeLimit), // Convert int to int32
-		CPURequested:   int32(job.CPUs),      // Convert int to int32
-		CPUAllocated:   int32(job.CPUs),      // In most cases, allocated = requested
+		JobID:           job.ID, // job.ID is already a string
+		Partition:       job.Partition,
+		State:           job.State,
+		TimeLimit:       int32(job.TimeLimit), // Convert int to int32
+		CPURequested:    int32(job.CPUs),      // Convert int to int32
+		CPUAllocated:    int32(job.CPUs),      // In most cases, allocated = requested
 		MemoryRequested: int64(job.Memory),
 		MemoryAllocated: int64(job.Memory),
-		NodesRequested:  int32(len(job.Nodes)),  // Convert []string to count
-		NodesAllocated:  int32(len(job.Nodes)),  // Convert []string to count
+		NodesRequested:  int32(len(job.Nodes)), // Convert []string to count
+		NodesAllocated:  int32(len(job.Nodes)), // Convert []string to count
 	}
 
 	// Calculate allocation ratios
@@ -1146,7 +1146,7 @@ func (e *JobAnalyticsEngine) extractEnhancedSLURMJobData(job *slurm.Job) *Enhanc
 	// Extract timing information
 	if job.StartTime != nil {
 		jobData.StartTime = job.StartTime
-		
+
 		if job.EndTime != nil {
 			jobData.EndTime = job.EndTime
 			jobData.Runtime = job.EndTime.Sub(*job.StartTime)
@@ -1154,26 +1154,26 @@ func (e *JobAnalyticsEngine) extractEnhancedSLURMJobData(job *slurm.Job) *Enhanc
 			// Job is still running
 			jobData.Runtime = time.Since(*job.StartTime)
 		}
-		
+
 		// For now, simulate submit_time and eligible_time since they're not available in current job struct
 		// In real implementation, these would come from SLURM job data
 		estimatedSubmitTime := job.StartTime.Add(-time.Duration(jobData.Runtime.Nanoseconds() / 10)) // Assume 10% queue time
 		jobData.SubmitTime = &estimatedSubmitTime
-		
+
 		estimatedEligibleTime := job.StartTime.Add(-time.Duration(jobData.Runtime.Nanoseconds() / 20)) // Half of queue time for scheduling
 		jobData.EligibleTime = &estimatedEligibleTime
-		
+
 		// Calculate derived timing metrics
 		if jobData.SubmitTime != nil {
 			jobData.WaitTime = jobData.EligibleTime.Sub(*jobData.SubmitTime)
-			
+
 			if jobData.EndTime != nil {
 				jobData.TotalTurnaround = jobData.EndTime.Sub(*jobData.SubmitTime)
 			} else {
 				jobData.TotalTurnaround = time.Since(*jobData.SubmitTime)
 			}
 		}
-		
+
 		if jobData.EligibleTime != nil {
 			jobData.QueueTime = jobData.StartTime.Sub(*jobData.EligibleTime)
 		}
@@ -1198,7 +1198,7 @@ func (e *JobAnalyticsEngine) extractResourceUtilizationData(job *slurm.Job) *Res
 	// Enhanced implementation using SLURM timing data and resource allocation
 	var wallTime float64
 	var startTime, endTime time.Time
-	
+
 	if job.StartTime != nil {
 		startTime = *job.StartTime
 		if job.EndTime != nil {
@@ -1213,7 +1213,7 @@ func (e *JobAnalyticsEngine) extractResourceUtilizationData(job *slurm.Job) *Res
 	// Extract CPU metrics with SLURM timing data
 	cpuUsage := e.calculateCPUUsage(job, wallTime)
 	cpuTimeTotal := wallTime * cpuUsage
-	cpuTimeUser := cpuTimeTotal * 0.9  // Estimate 90% user time
+	cpuTimeUser := cpuTimeTotal * 0.9   // Estimate 90% user time
 	cpuTimeSystem := cpuTimeTotal * 0.1 // Estimate 10% system time
 
 	// Extract memory metrics
@@ -1226,13 +1226,13 @@ func (e *JobAnalyticsEngine) extractResourceUtilizationData(job *slurm.Job) *Res
 
 	return &ResourceUtilizationData{
 		// CPU metrics
-		CPURequested:    float64(job.CPUs),
-		CPUAllocated:    float64(job.CPUs),
-		CPUUsed:         cpuUsage,
-		CPUTimeTotal:    cpuTimeTotal,
-		CPUTimeUser:     cpuTimeUser,
-		CPUTimeSystem:   cpuTimeSystem,
-		WallTime:        wallTime,
+		CPURequested:  float64(job.CPUs),
+		CPUAllocated:  float64(job.CPUs),
+		CPUUsed:       cpuUsage,
+		CPUTimeTotal:  cpuTimeTotal,
+		CPUTimeUser:   cpuTimeUser,
+		CPUTimeSystem: cpuTimeSystem,
+		WallTime:      wallTime,
 
 		// Memory metrics
 		MemoryRequested: int64(job.Memory * 1024 * 1024), // Convert MB to bytes
@@ -1241,11 +1241,11 @@ func (e *JobAnalyticsEngine) extractResourceUtilizationData(job *slurm.Job) *Res
 		MemoryPeak:      memoryPeak,
 
 		// I/O metrics
-		IOReadBytes:     ioMetrics.ReadBytes,
-		IOWriteBytes:    ioMetrics.WriteBytes,
-		IOReadOps:       ioMetrics.ReadOps,
-		IOWriteOps:      ioMetrics.WriteOps,
-		IOWaitTime:      ioMetrics.WaitTime,
+		IOReadBytes:  ioMetrics.ReadBytes,
+		IOWriteBytes: ioMetrics.WriteBytes,
+		IOReadOps:    ioMetrics.ReadOps,
+		IOWriteOps:   ioMetrics.WriteOps,
+		IOWaitTime:   ioMetrics.WaitTime,
 
 		// Network metrics
 		NetworkRxBytes:   networkMetrics.RxBytes,
@@ -1254,9 +1254,9 @@ func (e *JobAnalyticsEngine) extractResourceUtilizationData(job *slurm.Job) *Res
 		NetworkTxPackets: networkMetrics.TxPackets,
 
 		// Job timing
-		StartTime:       startTime,
-		EndTime:         endTime,
-		JobState:        job.State,
+		StartTime: startTime,
+		EndTime:   endTime,
+		JobState:  job.State,
 	}
 }
 
@@ -1281,39 +1281,39 @@ type NetworkMetrics struct {
 func (e *JobAnalyticsEngine) calculateCPUUsage(job *slurm.Job, wallTime float64) float64 {
 	// Enhanced CPU usage calculation using SLURM job characteristics
 	baseUsage := e.simulateCPUUsage(job)
-	
+
 	// Apply time-based adjustments for realistic CPU usage patterns
 	if wallTime > 0 {
 		// Long-running jobs tend to have more stable CPU usage
 		if wallTime > 3600 { // More than 1 hour
 			baseUsage = baseUsage * 0.95 // Slightly reduce for long-running stability
 		}
-		
+
 		// Very short jobs might have initialization overhead
 		if wallTime < 300 { // Less than 5 minutes
 			baseUsage = math.Min(baseUsage*1.1, float64(job.CPUs)) // Small increase with cap
 		}
 	}
-	
+
 	return baseUsage
 }
 
 // calculateMemoryUsage calculates memory usage based on job characteristics
 func (e *JobAnalyticsEngine) calculateMemoryUsage(job *slurm.Job) int64 {
 	allocatedBytes := int64(job.Memory * 1024 * 1024)
-	
+
 	// Enhanced memory usage calculation
 	usageRatio := e.simulateMemoryUsageRatio(job)
-	
+
 	// Apply job-specific adjustments
 	if job.CPUs > 8 { // Likely compute-intensive
 		usageRatio = math.Min(usageRatio*1.1, 0.95) // Increase usage but cap at 95%
 	}
-	
+
 	if job.Memory > 32768 { // Large memory jobs (>32GB)
 		usageRatio = usageRatio * 0.9 // Often over-allocated
 	}
-	
+
 	return int64(float64(allocatedBytes) * usageRatio)
 }
 
@@ -1323,11 +1323,11 @@ func (e *JobAnalyticsEngine) calculateIOMetrics(job *slurm.Job, wallTime float64
 	var readBytes, writeBytes int64
 	var readOps, writeOps int64
 	var waitTime float64
-	
+
 	// Base I/O estimation
 	baseIOPerSecond := int64(job.CPUs) * 1024 * 1024 // 1MB/s per CPU
 	totalIO := int64(wallTime) * baseIOPerSecond
-	
+
 	// Job type heuristics based on CPU count and memory
 	if job.CPUs <= 2 { // Likely I/O intensive
 		readBytes = totalIO * 2
@@ -1348,7 +1348,7 @@ func (e *JobAnalyticsEngine) calculateIOMetrics(job *slurm.Job, wallTime float64
 		writeOps = writeBytes / (16 * 1024)
 		waitTime = wallTime * 0.10 // 10% I/O wait time
 	}
-	
+
 	return IOMetrics{
 		ReadBytes:  readBytes,
 		WriteBytes: writeBytes,
@@ -1363,29 +1363,29 @@ func (e *JobAnalyticsEngine) calculateNetworkMetrics(job *slurm.Job, wallTime fl
 	// Estimate network usage based on job characteristics
 	var rxBytes, txBytes int64
 	var rxPackets, txPackets int64
-	
+
 	// Base network estimation
 	baseNetworkPerSecond := int64(job.CPUs) * 100 * 1024 // 100KB/s per CPU
 	totalNetwork := int64(wallTime) * baseNetworkPerSecond
-	
+
 	// Job characteristics influence network usage
 	if job.CPUs >= 16 && job.Memory >= 16384 { // Large parallel jobs
-		rxBytes = totalNetwork * 2   // More data input
-		txBytes = totalNetwork / 2   // Less output relative to input
-		rxPackets = rxBytes / 1024   // Assume 1KB average packet size
+		rxBytes = totalNetwork * 2 // More data input
+		txBytes = totalNetwork / 2 // Less output relative to input
+		rxPackets = rxBytes / 1024 // Assume 1KB average packet size
 		txPackets = txBytes / 1024
 	} else if job.CPUs <= 4 { // Small jobs, likely less network intensive
 		rxBytes = totalNetwork / 4
 		txBytes = totalNetwork / 8
-		rxPackets = rxBytes / 512    // Smaller packets
+		rxPackets = rxBytes / 512 // Smaller packets
 		txPackets = txBytes / 512
 	} else { // Medium jobs
 		rxBytes = totalNetwork
 		txBytes = totalNetwork / 3
-		rxPackets = rxBytes / 768    // Medium packet size
+		rxPackets = rxBytes / 768 // Medium packet size
 		txPackets = txBytes / 768
 	}
-	
+
 	return NetworkMetrics{
 		RxBytes:   rxBytes,
 		TxBytes:   txBytes,
@@ -1401,16 +1401,16 @@ func (e *JobAnalyticsEngine) simulateMemoryUsageRatio(job *slurm.Job) float64 {
 	for _, c := range job.ID {
 		idHash += int(c)
 	}
-	
+
 	baseRatio := 0.4 + (float64(idHash%5) * 0.09) // 40% to 76% base usage
-	
+
 	// Add time-based variation if job has started
 	if job.StartTime != nil {
 		elapsed := time.Since(*job.StartTime).Hours()
 		timeVariation := math.Cos(elapsed/6) * 0.1
 		baseRatio += timeVariation
 	}
-	
+
 	// Ensure reasonable bounds
 	return math.Max(0.1, math.Min(0.95, baseRatio))
 }
@@ -1443,6 +1443,8 @@ func (e *JobAnalyticsEngine) simulateCPUUsage(job *slurm.Job) float64 {
 	return usage
 }
 
+// TODO: simulateMemoryUsage is unused - preserved for future memory simulation needs
+/*
 // simulateMemoryUsage simulates memory usage for analytics (placeholder)
 func (e *JobAnalyticsEngine) simulateMemoryUsage(job *slurm.Job) int64 {
 	allocatedBytes := int64(job.Memory * 1024 * 1024)
@@ -1468,6 +1470,7 @@ func (e *JobAnalyticsEngine) simulateMemoryUsage(job *slurm.Job) int64 {
 
 	return int64(float64(allocatedBytes) * usageRatio)
 }
+*/
 
 // analyzeResourceUtilization performs detailed resource utilization analysis
 func (e *JobAnalyticsEngine) analyzeResourceUtilization(job *slurm.Job, data *ResourceUtilizationData) *ResourceUtilizationAnalysis {
@@ -1522,22 +1525,22 @@ func (e *JobAnalyticsEngine) analyzeResource(resourceType string, allocated, use
 	recommendedAction := e.generateResourceRecommendation(resourceType, utilizationRate, wastePercentage, optimalAllocation)
 
 	return &ResourceAnalysis{
-		ResourceType:        resourceType,
-		AllocatedAmount:     allocated,
-		PeakUsage:          used * 1.2, // Estimate peak as 20% higher
-		AverageUsage:       used,
-		MinimumUsage:       used * 0.8, // Estimate min as 20% lower
-		UtilizationRate:    utilizationRate,
-		WastePercentage:    wastePercentage,
-		EfficiencyScore:    efficiencyScore,
+		ResourceType:    resourceType,
+		AllocatedAmount: allocated,
+		PeakUsage:       used * 1.2, // Estimate peak as 20% higher
+		AverageUsage:    used,
+		MinimumUsage:    used * 0.8, // Estimate min as 20% lower
+		UtilizationRate: utilizationRate,
+		WastePercentage: wastePercentage,
+		EfficiencyScore: efficiencyScore,
 
-		UsagePattern:       pattern,
-		PatternConfidence:  confidence,
-		VariabilityIndex:   variabilityIndex,
+		UsagePattern:      pattern,
+		PatternConfidence: confidence,
+		VariabilityIndex:  variabilityIndex,
 
-		OptimalAllocation:  optimalAllocation,
-		PotentialSavings:   potentialSavings,
-		RecommendedAction:  recommendedAction,
+		OptimalAllocation: optimalAllocation,
+		PotentialSavings:  potentialSavings,
+		RecommendedAction: recommendedAction,
 	}
 }
 
@@ -1783,18 +1786,18 @@ func (e *JobAnalyticsEngine) performWasteAnalysis(job *slurm.Job, data *Resource
 	expectedSavings := e.calculateExpectedSavings(wasteReductionPlan, costOfWaste)
 
 	return &WasteAnalysisResult{
-		JobID:               job.ID,
-		TotalWasteScore:     totalWasteScore,
-		WasteCategories:     wasteCategories,
+		JobID:           job.ID,
+		TotalWasteScore: totalWasteScore,
+		WasteCategories: wasteCategories,
 
-		CPUWaste:           cpuWaste,
-		MemoryWaste:        memoryWaste,
-		TimeWaste:          timeWaste,
-		QueueWaste:         queueWaste,
+		CPUWaste:            cpuWaste,
+		MemoryWaste:         memoryWaste,
+		TimeWaste:           timeWaste,
+		QueueWaste:          queueWaste,
 		OverallocationWaste: overallocationWaste,
 
-		WasteImpact:        wasteImpact,
-		CostOfWaste:        costOfWaste,
+		WasteImpact:         wasteImpact,
+		CostOfWaste:         costOfWaste,
 		EnvironmentalImpact: costOfWaste * 0.1, // Estimate environmental impact
 
 		WasteReductionPlan: wasteReductionPlan,
@@ -1884,11 +1887,11 @@ func (e *JobAnalyticsEngine) analyzeMemoryWaste(data *ResourceUtilizationData, m
 func (e *JobAnalyticsEngine) analyzeTimeWaste(job *slurm.Job, data *ResourceUtilizationData) *WasteDetail {
 	if job.StartTime == nil || job.TimeLimit <= 0 {
 		return &WasteDetail{
-			WasteType:   "time",
-			Amount:      0,
-			Percentage:  0,
-			Severity:    "none",
-			Confidence:  0,
+			WasteType:  "time",
+			Amount:     0,
+			Percentage: 0,
+			Severity:   "none",
+			Confidence: 0,
 		}
 	}
 
@@ -2053,10 +2056,10 @@ func (e *JobAnalyticsEngine) calculateCostOfWaste(job *slurm.Job, wasteScore flo
 	totalCost := 0.0
 
 	// Base cost calculation
-	cpuCost := float64(job.CPUs) * 0.10 // $0.10 per CPU-hour
+	cpuCost := float64(job.CPUs) * 0.10             // $0.10 per CPU-hour
 	memoryCost := float64(job.Memory) / 1024 * 0.02 // $0.02 per GB-hour
 
-	var wallTime float64 = 1.0 // Default to 1 hour
+	wallTime := 1.0 // Default to 1 hour
 	if job.StartTime != nil {
 		wallTime = time.Since(*job.StartTime).Hours()
 	}
@@ -2075,40 +2078,40 @@ func (e *JobAnalyticsEngine) generateWasteReductionPlan(categories map[string]*W
 	if cpu.Percentage > 0.3 {
 		plan = append(plan, WasteReductionAction{
 			Action:               "Optimize CPU allocation",
-			WasteType:           "cpu",
-			ExpectedReduction:   cpu.Percentage * 0.8,
+			WasteType:            "cpu",
+			ExpectedReduction:    cpu.Percentage * 0.8,
 			ImplementationEffort: "low",
-			Priority:            "high",
+			Priority:             "high",
 		})
 	}
 
 	if memory.Percentage > 0.3 {
 		plan = append(plan, WasteReductionAction{
 			Action:               "Optimize memory allocation",
-			WasteType:           "memory",
-			ExpectedReduction:   memory.Percentage * 0.7,
+			WasteType:            "memory",
+			ExpectedReduction:    memory.Percentage * 0.7,
 			ImplementationEffort: "low",
-			Priority:            "high",
+			Priority:             "high",
 		})
 	}
 
 	if time.Percentage > 0.2 {
 		plan = append(plan, WasteReductionAction{
 			Action:               "Optimize time limits",
-			WasteType:           "time",
-			ExpectedReduction:   time.Percentage * 0.6,
+			WasteType:            "time",
+			ExpectedReduction:    time.Percentage * 0.6,
 			ImplementationEffort: "medium",
-			Priority:            "medium",
+			Priority:             "medium",
 		})
 	}
 
 	// Add general waste reduction actions
 	plan = append(plan, WasteReductionAction{
 		Action:               "Implement resource profiling",
-		WasteType:           "overall",
-		ExpectedReduction:   0.3,
+		WasteType:            "overall",
+		ExpectedReduction:    0.3,
 		ImplementationEffort: "high",
-		Priority:            "medium",
+		Priority:             "medium",
 	})
 
 	return plan
@@ -2186,7 +2189,7 @@ func (e *JobAnalyticsEngine) performPerformanceAnalysis(job *slurm.Job, data *Re
 
 // performCostAnalysis performs cost analysis (simplified)
 func (e *JobAnalyticsEngine) performCostAnalysis(job *slurm.Job, data *ResourceUtilizationData, waste *WasteAnalysisResult) *JobCostAnalysisResult {
-	var wallTime float64 = 1.0
+	wallTime := 1.0
 	if job.StartTime != nil {
 		wallTime = time.Since(*job.StartTime).Hours()
 	}
@@ -2201,8 +2204,8 @@ func (e *JobAnalyticsEngine) performCostAnalysis(job *slurm.Job, data *ResourceU
 	}
 
 	return &JobCostAnalysisResult{
-		TotalCost:     totalCost,
-		CostWaste:     costWaste,
+		TotalCost:      totalCost,
+		CostWaste:      costWaste,
 		CostEfficiency: math.Max(0, 1.0-(costWaste/totalCost)),
 	}
 }
@@ -2288,7 +2291,7 @@ func (e *JobAnalyticsEngine) generateActionableRecommendations(insights *Optimiz
 func (e *JobAnalyticsEngine) calculateOverallScore(efficiency *EfficiencyAnalysisResult, performance *PerformanceAnalyticsResult, waste *WasteAnalysisResult) float64 {
 	efficiencyScore := efficiency.OverallEfficiency
 
-	var wasteScore float64 = 1.0
+	wasteScore := 1.0
 	if waste != nil {
 		wasteScore = 1.0 - waste.TotalWasteScore
 	}
@@ -2345,7 +2348,7 @@ func (e *JobAnalyticsEngine) calculateROIAnalysis(cost *JobCostAnalysisResult, p
 
 // updateAnalyticsMetrics updates Prometheus metrics with analytics results
 func (e *JobAnalyticsEngine) updateAnalyticsMetrics(job *slurm.Job, analytics *JobAnalyticsData) {
-	labels := []string{job.ID, "", "", job.Partition} // TODO: job.UserName and job.Account not available
+	labels := []string{job.ID, "", "", job.Partition}          // TODO: job.UserName and job.Account not available
 	slurmLabels := []string{job.ID, "", "", job.Partition, ""} // TODO: add QoS when available
 
 	// Update SLURM-specific timing metrics (as per specification)
@@ -2427,8 +2430,8 @@ func (e *JobAnalyticsEngine) updateAnalyticsMetrics(job *slurm.Job, analytics *J
 
 	// Update quality metrics
 	e.metrics.AnalysisConfidence.WithLabelValues(append(labels, "overall")...).Set(0.8) // Default confidence
-	e.metrics.DataCompletenessScore.WithLabelValues(labels...).Set(0.9)                // Assume 90% completeness
-	e.metrics.AnalysisAccuracy.WithLabelValues(labels...).Set(0.85)                    // Assume 85% accuracy
+	e.metrics.DataCompletenessScore.WithLabelValues(labels...).Set(0.9)                 // Assume 90% completeness
+	e.metrics.AnalysisAccuracy.WithLabelValues(labels...).Set(0.85)                     // Assume 85% accuracy
 }
 
 // updateSLURMTimingMetrics updates SLURM-specific timing metrics
@@ -2436,36 +2439,36 @@ func (e *JobAnalyticsEngine) updateSLURMTimingMetrics(job *slurm.Job, analytics 
 	// Calculate SLURM timing metrics based on job data
 	var timeUtilizationRatio, queueTimeRatio, turnaroundEfficiency float64
 	var schedulingDelaySeconds float64
-	
+
 	if job.StartTime != nil && job.EndTime != nil {
 		// Calculate actual runtime
 		runtime := job.EndTime.Sub(*job.StartTime).Seconds()
-		
+
 		// Calculate time utilization ratio (runtime / requested_time)
 		if job.TimeLimit > 0 {
 			requestedTime := float64(job.TimeLimit * 60) // Convert minutes to seconds
 			timeUtilizationRatio = runtime / requestedTime
 		}
-		
+
 		// Calculate queue time and turnaround efficiency
 		// For now, use placeholder calculations since we don't have submit_time or eligible_time
 		// In real implementation, these would come from SLURM job data
 		estimatedQueueTime := runtime * 0.1 // Assume 10% queue time
 		totalTurnaround := runtime + estimatedQueueTime
-		
+
 		queueTimeRatio = estimatedQueueTime / totalTurnaround
 		turnaroundEfficiency = runtime / totalTurnaround
-		
+
 		// Estimate scheduling delay (would be eligible_time - submit_time in real implementation)
 		schedulingDelaySeconds = estimatedQueueTime * 0.5 // Assume half of queue time is scheduling delay
 	}
-	
+
 	// Update timing metrics
 	e.metrics.JobTimeUtilizationRatio.WithLabelValues(slurmLabels...).Set(timeUtilizationRatio)
 	e.metrics.JobQueueTimeRatio.WithLabelValues(labels...).Set(queueTimeRatio)
 	e.metrics.JobTurnaroundEfficiency.WithLabelValues(labels...).Set(turnaroundEfficiency)
 	e.metrics.JobSchedulingDelaySeconds.WithLabelValues(labels...).Set(schedulingDelaySeconds)
-	
+
 	// Update resource allocation ratios
 	if analytics.ResourceUtilization != nil {
 		// CPU allocation ratio
@@ -2474,21 +2477,21 @@ func (e *JobAnalyticsEngine) updateSLURMTimingMetrics(job *slurm.Job, analytics 
 			resourceLabels := append(labels, "cpu")
 			e.metrics.JobResourceAllocationRatio.WithLabelValues(resourceLabels...).Set(cpuRatio)
 		}
-		
+
 		// Memory allocation ratio
 		if analytics.ResourceUtilization.MemoryAnalysis != nil {
 			memoryRatio := analytics.ResourceUtilization.MemoryAnalysis.UtilizationRate
 			resourceLabels := append(labels, "memory")
 			e.metrics.JobResourceAllocationRatio.WithLabelValues(resourceLabels...).Set(memoryRatio)
 		}
-		
+
 		// I/O allocation ratio
 		if analytics.ResourceUtilization.IOAnalysis != nil {
 			ioRatio := analytics.ResourceUtilization.IOAnalysis.UtilizationRate
 			resourceLabels := append(labels, "io")
 			e.metrics.JobResourceAllocationRatio.WithLabelValues(resourceLabels...).Set(ioRatio)
 		}
-		
+
 		// Network allocation ratio
 		if analytics.ResourceUtilization.NetworkAnalysis != nil {
 			networkRatio := analytics.ResourceUtilization.NetworkAnalysis.UtilizationRate
@@ -2544,9 +2547,9 @@ func (e *JobAnalyticsEngine) GetAnalyticsStats() map[string]interface{} {
 	defer e.mu.RUnlock()
 
 	return map[string]interface{}{
-		"jobs_analyzed":    len(e.analyticsData),
-		"waste_detected":   len(e.wasteAnalysis),
-		"last_analysis":    e.lastAnalysis,
-		"config":           e.config,
+		"jobs_analyzed":  len(e.analyticsData),
+		"waste_detected": len(e.wasteAnalysis),
+		"last_analysis":  e.lastAnalysis,
+		"config":         e.config,
 	}
 }

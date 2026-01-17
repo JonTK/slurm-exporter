@@ -14,10 +14,10 @@ func GetTestPartitions() []slurm.Partition {
 			AvailableNodes: 2,
 			TotalCPUs:      256,
 			IdleCPUs:       64,
-			DefaultTime:    24 * 60, // 24 hours in minutes
+			DefaultTime:    24 * 60,     // 24 hours in minutes
 			MaxTime:        7 * 24 * 60, // 7 days in minutes
-			DefaultMemory:  8192, // 8GB default memory
-			MaxMemory:      32768, // 32GB max memory
+			DefaultMemory:  8192,        // 8GB default memory
+			MaxMemory:      32768,       // 32GB max memory
 			Nodes:          []string{"node01", "node02", "node03", "node04"},
 			AllowedGroups:  []string{"all"},
 			DeniedGroups:   []string{},
@@ -30,10 +30,10 @@ func GetTestPartitions() []slurm.Partition {
 			AvailableNodes: 1,
 			TotalCPUs:      64,
 			IdleCPUs:       32,
-			DefaultTime:    12 * 60, // 12 hours in minutes
+			DefaultTime:    12 * 60,     // 12 hours in minutes
 			MaxTime:        3 * 24 * 60, // 3 days in minutes
-			DefaultMemory:  16384, // 16GB default memory
-			MaxMemory:      65536, // 64GB max memory
+			DefaultMemory:  16384,       // 16GB default memory
+			MaxMemory:      65536,       // 64GB max memory
 			Nodes:          []string{"gpu-node01", "gpu-node02"},
 			AllowedGroups:  []string{"gpu-users"},
 			DeniedGroups:   []string{},
@@ -46,10 +46,10 @@ func GetTestPartitions() []slurm.Partition {
 			AvailableNodes: 3,
 			TotalCPUs:      320,
 			IdleCPUs:       96,
-			DefaultTime:    1 * 60, // 1 hour in minutes
+			DefaultTime:    1 * 60,  // 1 hour in minutes
 			MaxTime:        24 * 60, // 24 hours in minutes
-			DefaultMemory:  4096, // 4GB default memory
-			MaxMemory:      16384, // 16GB max memory
+			DefaultMemory:  4096,    // 4GB default memory
+			MaxMemory:      16384,   // 16GB max memory
 			Nodes:          []string{"node01", "node02", "node03", "node04", "gpu-node01", "gpu-node02"},
 			AllowedGroups:  []string{"all"},
 			DeniedGroups:   []string{},
@@ -78,10 +78,10 @@ func GetTestPartitions() []slurm.Partition {
 			AvailableNodes: 1,
 			TotalCPUs:      128,
 			IdleCPUs:       128,
-			DefaultTime:    48 * 60, // 48 hours in minutes
+			DefaultTime:    48 * 60,      // 48 hours in minutes
 			MaxTime:        14 * 24 * 60, // 14 days in minutes
-			DefaultMemory:  65536, // 64GB default memory
-			MaxMemory:      131072, // 128GB max memory
+			DefaultMemory:  65536,        // 64GB default memory
+			MaxMemory:      131072,       // 128GB max memory
 			Nodes:          []string{"bigmem01"},
 			AllowedGroups:  []string{"bigmem-users"},
 			DeniedGroups:   []string{},

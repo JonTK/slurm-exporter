@@ -25,60 +25,60 @@ type AccountUsagePatternsSLURMClient interface {
 }
 
 type AccountUsagePatterns struct {
-	AccountName           string                `json:"account_name"`
-	UsageTimeSeries      []*TimeSeriesPoint    `json:"usage_time_series"`
-	DailyPatterns        []*DailyUsagePattern  `json:"daily_patterns"`
-	WeeklyPatterns       []*WeeklyUsagePattern `json:"weekly_patterns"`
+	AccountName          string                 `json:"account_name"`
+	UsageTimeSeries      []*TimeSeriesPoint     `json:"usage_time_series"`
+	DailyPatterns        []*DailyUsagePattern   `json:"daily_patterns"`
+	WeeklyPatterns       []*WeeklyUsagePattern  `json:"weekly_patterns"`
 	MonthlyPatterns      []*MonthlyUsagePattern `json:"monthly_patterns"`
 	ResourceDistribution *ResourceDistribution  `json:"resource_distribution"`
 	JobSubmissionProfile *JobSubmissionProfile  `json:"job_submission_profile"`
 	UserActivityProfile  *UserActivityProfile   `json:"user_activity_profile"`
-	CostAnalysis         *CostAnalysis         `json:"cost_analysis"`
-	EfficiencyMetrics    *EfficiencyMetrics    `json:"efficiency_metrics"`
-	LastUpdated          time.Time             `json:"last_updated"`
+	CostAnalysis         *CostAnalysis          `json:"cost_analysis"`
+	EfficiencyMetrics    *EfficiencyMetrics     `json:"efficiency_metrics"`
+	LastUpdated          time.Time              `json:"last_updated"`
 }
 
 // Note: TimeSeriesPoint type is defined in common_types.go
 
 type DailyUsagePattern struct {
-	Hour              int     `json:"hour"`
-	AverageCPUHours   float64 `json:"average_cpu_hours"`
-	AverageMemoryGB   float64 `json:"average_memory_gb"`
-	AverageGPUHours   float64 `json:"average_gpu_hours"`
-	AverageJobCount   float64 `json:"average_job_count"`
-	PeakUsageHour     bool    `json:"peak_usage_hour"`
-	OffPeakHour       bool    `json:"off_peak_hour"`
-	UtilizationScore  float64 `json:"utilization_score"`
+	Hour             int     `json:"hour"`
+	AverageCPUHours  float64 `json:"average_cpu_hours"`
+	AverageMemoryGB  float64 `json:"average_memory_gb"`
+	AverageGPUHours  float64 `json:"average_gpu_hours"`
+	AverageJobCount  float64 `json:"average_job_count"`
+	PeakUsageHour    bool    `json:"peak_usage_hour"`
+	OffPeakHour      bool    `json:"off_peak_hour"`
+	UtilizationScore float64 `json:"utilization_score"`
 }
 
 type WeeklyUsagePattern struct {
-	DayOfWeek         int     `json:"day_of_week"`
-	AverageCPUHours   float64 `json:"average_cpu_hours"`
-	AverageMemoryGB   float64 `json:"average_memory_gb"`
-	AverageGPUHours   float64 `json:"average_gpu_hours"`
-	AverageJobCount   float64 `json:"average_job_count"`
-	WeekdayPattern    bool    `json:"weekday_pattern"`
-	WeekendPattern    bool    `json:"weekend_pattern"`
-	UtilizationScore  float64 `json:"utilization_score"`
+	DayOfWeek        int     `json:"day_of_week"`
+	AverageCPUHours  float64 `json:"average_cpu_hours"`
+	AverageMemoryGB  float64 `json:"average_memory_gb"`
+	AverageGPUHours  float64 `json:"average_gpu_hours"`
+	AverageJobCount  float64 `json:"average_job_count"`
+	WeekdayPattern   bool    `json:"weekday_pattern"`
+	WeekendPattern   bool    `json:"weekend_pattern"`
+	UtilizationScore float64 `json:"utilization_score"`
 }
 
 type MonthlyUsagePattern struct {
-	Month             int     `json:"month"`
-	AverageCPUHours   float64 `json:"average_cpu_hours"`
-	AverageMemoryGB   float64 `json:"average_memory_gb"`
-	AverageGPUHours   float64 `json:"average_gpu_hours"`
-	AverageJobCount   float64 `json:"average_job_count"`
-	SeasonalTrend     string  `json:"seasonal_trend"`
-	GrowthRate        float64 `json:"growth_rate"`
-	UtilizationScore  float64 `json:"utilization_score"`
+	Month            int     `json:"month"`
+	AverageCPUHours  float64 `json:"average_cpu_hours"`
+	AverageMemoryGB  float64 `json:"average_memory_gb"`
+	AverageGPUHours  float64 `json:"average_gpu_hours"`
+	AverageJobCount  float64 `json:"average_job_count"`
+	SeasonalTrend    string  `json:"seasonal_trend"`
+	GrowthRate       float64 `json:"growth_rate"`
+	UtilizationScore float64 `json:"utilization_score"`
 }
 
 type ResourceDistribution struct {
-	CPUDistribution    *ResourceUsageDistribution `json:"cpu_distribution"`
-	MemoryDistribution *ResourceUsageDistribution `json:"memory_distribution"`
-	GPUDistribution    *ResourceUsageDistribution `json:"gpu_distribution"`
-	JobSizeDistribution *JobSizeDistribution       `json:"job_size_distribution"`
-	DurationDistribution *DurationDistribution     `json:"duration_distribution"`
+	CPUDistribution      *ResourceUsageDistribution `json:"cpu_distribution"`
+	MemoryDistribution   *ResourceUsageDistribution `json:"memory_distribution"`
+	GPUDistribution      *ResourceUsageDistribution `json:"gpu_distribution"`
+	JobSizeDistribution  *JobSizeDistribution       `json:"job_size_distribution"`
+	DurationDistribution *DurationDistribution      `json:"duration_distribution"`
 }
 
 type ResourceUsageDistribution struct {
@@ -95,23 +95,23 @@ type ResourceUsageDistribution struct {
 }
 
 type JobSizeDistribution struct {
-	SmallJobs   float64 `json:"small_jobs"`
-	MediumJobs  float64 `json:"medium_jobs"`
-	LargeJobs   float64 `json:"large_jobs"`
-	XLargeJobs  float64 `json:"xlarge_jobs"`
-	SingleCore  float64 `json:"single_core"`
-	MultiCore   float64 `json:"multi_core"`
-	HighMemory  float64 `json:"high_memory"`
-	GPUJobs     float64 `json:"gpu_jobs"`
+	SmallJobs  float64 `json:"small_jobs"`
+	MediumJobs float64 `json:"medium_jobs"`
+	LargeJobs  float64 `json:"large_jobs"`
+	XLargeJobs float64 `json:"xlarge_jobs"`
+	SingleCore float64 `json:"single_core"`
+	MultiCore  float64 `json:"multi_core"`
+	HighMemory float64 `json:"high_memory"`
+	GPUJobs    float64 `json:"gpu_jobs"`
 }
 
 type DurationDistribution struct {
-	ShortJobs    float64 `json:"short_jobs"`
-	MediumJobs   float64 `json:"medium_jobs"`
-	LongJobs     float64 `json:"long_jobs"`
-	VeryLongJobs float64 `json:"very_long_jobs"`
+	ShortJobs       float64 `json:"short_jobs"`
+	MediumJobs      float64 `json:"medium_jobs"`
+	LongJobs        float64 `json:"long_jobs"`
+	VeryLongJobs    float64 `json:"very_long_jobs"`
 	InteractiveJobs float64 `json:"interactive_jobs"`
-	BatchJobs    float64 `json:"batch_jobs"`
+	BatchJobs       float64 `json:"batch_jobs"`
 }
 
 type JobSubmissionProfile struct {
@@ -123,122 +123,122 @@ type JobSubmissionProfile struct {
 }
 
 type SubmissionPattern struct {
-	TimeWindow        string  `json:"time_window"`
+	TimeWindow         string  `json:"time_window"`
 	AverageSubmissions float64 `json:"average_submissions"`
-	PeakSubmissions   int64   `json:"peak_submissions"`
-	SubmissionRate    float64 `json:"submission_rate"`
-	Regularity        float64 `json:"regularity"`
+	PeakSubmissions    int64   `json:"peak_submissions"`
+	SubmissionRate     float64 `json:"submission_rate"`
+	Regularity         float64 `json:"regularity"`
 }
 
 type BurstPattern struct {
-	StartTime     time.Time `json:"start_time"`
-	EndTime       time.Time `json:"end_time"`
-	JobCount      int64     `json:"job_count"`
-	TriggerEvent  string    `json:"trigger_event"`
-	BurstIntensity float64  `json:"burst_intensity"`
+	StartTime      time.Time `json:"start_time"`
+	EndTime        time.Time `json:"end_time"`
+	JobCount       int64     `json:"job_count"`
+	TriggerEvent   string    `json:"trigger_event"`
+	BurstIntensity float64   `json:"burst_intensity"`
 }
 
 type QueueingBehavior struct {
-	AverageQueueTime    float64 `json:"average_queue_time"`
-	QueueTimeVariance   float64 `json:"queue_time_variance"`
-	QueueJumpFrequency  float64 `json:"queue_jump_frequency"`
+	AverageQueueTime     float64 `json:"average_queue_time"`
+	QueueTimeVariance    float64 `json:"queue_time_variance"`
+	QueueJumpFrequency   float64 `json:"queue_jump_frequency"`
 	PriorityOptimization float64 `json:"priority_optimization"`
 }
 
 type RetryPatterns struct {
-	RetryFrequency      float64 `json:"retry_frequency"`
-	AverageRetryDelay   float64 `json:"average_retry_delay"`
-	SuccessAfterRetry   float64 `json:"success_after_retry"`
-	RetryEffectiveness  float64 `json:"retry_effectiveness"`
+	RetryFrequency     float64 `json:"retry_frequency"`
+	AverageRetryDelay  float64 `json:"average_retry_delay"`
+	SuccessAfterRetry  float64 `json:"success_after_retry"`
+	RetryEffectiveness float64 `json:"retry_effectiveness"`
 }
 
 type CancellationPattern struct {
-	CancellationRate       float64 `json:"cancellation_rate"`
-	EarlyCancellations     float64 `json:"early_cancellations"`
-	LateCancellations      float64 `json:"late_cancellations"`
-	CancellationReasons    []string `json:"cancellation_reasons"`
-	PreemptionRate         float64 `json:"preemption_rate"`
+	CancellationRate    float64  `json:"cancellation_rate"`
+	EarlyCancellations  float64  `json:"early_cancellations"`
+	LateCancellations   float64  `json:"late_cancellations"`
+	CancellationReasons []string `json:"cancellation_reasons"`
+	PreemptionRate      float64  `json:"preemption_rate"`
 }
 
 type UserActivityProfile struct {
-	ActiveUsers         int64                `json:"active_users"`
-	PowerUsers          int64                `json:"power_users"`
-	OccasionalUsers     int64                `json:"occasional_users"`
-	NewUsers            int64                `json:"new_users"`
-	UserRetention       float64              `json:"user_retention"`
-	UserGrowthRate      float64              `json:"user_growth_rate"`
-	UserCollaboration   *UserCollaboration   `json:"user_collaboration"`
-	UserSegmentation    *UserSegmentation    `json:"user_segmentation"`
-	UserBehaviorTrends  *UserBehaviorTrends  `json:"user_behavior_trends"`
+	ActiveUsers        int64               `json:"active_users"`
+	PowerUsers         int64               `json:"power_users"`
+	OccasionalUsers    int64               `json:"occasional_users"`
+	NewUsers           int64               `json:"new_users"`
+	UserRetention      float64             `json:"user_retention"`
+	UserGrowthRate     float64             `json:"user_growth_rate"`
+	UserCollaboration  *UserCollaboration  `json:"user_collaboration"`
+	UserSegmentation   *UserSegmentation   `json:"user_segmentation"`
+	UserBehaviorTrends *UserBehaviorTrends `json:"user_behavior_trends"`
 }
 
 type UserCollaboration struct {
-	SharedProjects      int64   `json:"shared_projects"`
-	CollaborationRate   float64 `json:"collaboration_rate"`
-	ResourceSharing     float64 `json:"resource_sharing"`
-	KnowledgeTransfer   float64 `json:"knowledge_transfer"`
+	SharedProjects    int64   `json:"shared_projects"`
+	CollaborationRate float64 `json:"collaboration_rate"`
+	ResourceSharing   float64 `json:"resource_sharing"`
+	KnowledgeTransfer float64 `json:"knowledge_transfer"`
 }
 
 type UserSegmentation struct {
-	ResearchUsers       int64   `json:"research_users"`
-	DevelopmentUsers    int64   `json:"development_users"`
-	ProductionUsers     int64   `json:"production_users"`
-	EducationalUsers    int64   `json:"educational_users"`
-	ExternalUsers       int64   `json:"external_users"`
-	SegmentationScore   float64 `json:"segmentation_score"`
+	ResearchUsers     int64   `json:"research_users"`
+	DevelopmentUsers  int64   `json:"development_users"`
+	ProductionUsers   int64   `json:"production_users"`
+	EducationalUsers  int64   `json:"educational_users"`
+	ExternalUsers     int64   `json:"external_users"`
+	SegmentationScore float64 `json:"segmentation_score"`
 }
 
 type UserBehaviorTrends struct {
-	SkillProgression    float64   `json:"skill_progression"`
-	LearningCurve       float64   `json:"learning_curve"`
-	AdaptationRate      float64   `json:"adaptation_rate"`
-	EfficiencyGrowth    float64   `json:"efficiency_growth"`
-	BehaviorStability   float64   `json:"behavior_stability"`
-	TrendPredictability float64   `json:"trend_predictability"`
+	SkillProgression    float64 `json:"skill_progression"`
+	LearningCurve       float64 `json:"learning_curve"`
+	AdaptationRate      float64 `json:"adaptation_rate"`
+	EfficiencyGrowth    float64 `json:"efficiency_growth"`
+	BehaviorStability   float64 `json:"behavior_stability"`
+	TrendPredictability float64 `json:"trend_predictability"`
 }
 
 type CostAnalysis struct {
-	TotalCost           float64              `json:"total_cost"`
-	CostPerCPUHour      float64              `json:"cost_per_cpu_hour"`
-	CostPerGPUHour      float64              `json:"cost_per_gpu_hour"`
-	CostPerJob          float64              `json:"cost_per_job"`
-	CostPerUser         float64              `json:"cost_per_user"`
-	CostTrends          *CostTrends          `json:"cost_trends"`
-	CostOptimization    *CostOptimization    `json:"cost_optimization"`
-	BudgetAnalysis      *BudgetAnalysis      `json:"budget_analysis"`
-	CostPrediction      *CostPrediction      `json:"cost_prediction"`
+	TotalCost        float64           `json:"total_cost"`
+	CostPerCPUHour   float64           `json:"cost_per_cpu_hour"`
+	CostPerGPUHour   float64           `json:"cost_per_gpu_hour"`
+	CostPerJob       float64           `json:"cost_per_job"`
+	CostPerUser      float64           `json:"cost_per_user"`
+	CostTrends       *CostTrends       `json:"cost_trends"`
+	CostOptimization *CostOptimization `json:"cost_optimization"`
+	BudgetAnalysis   *BudgetAnalysis   `json:"budget_analysis"`
+	CostPrediction   *CostPrediction   `json:"cost_prediction"`
 }
 
 type CostTrends struct {
-	DailyCostTrend      float64 `json:"daily_cost_trend"`
-	WeeklyCostTrend     float64 `json:"weekly_cost_trend"`
-	MonthlyCostTrend    float64 `json:"monthly_cost_trend"`
-	CostGrowthRate      float64 `json:"cost_growth_rate"`
-	CostVolatility      float64 `json:"cost_volatility"`
+	DailyCostTrend   float64 `json:"daily_cost_trend"`
+	WeeklyCostTrend  float64 `json:"weekly_cost_trend"`
+	MonthlyCostTrend float64 `json:"monthly_cost_trend"`
+	CostGrowthRate   float64 `json:"cost_growth_rate"`
+	CostVolatility   float64 `json:"cost_volatility"`
 }
 
 type CostOptimization struct {
-	PotentialSavings    float64   `json:"potential_savings"`
-	OptimizationAreas   []string  `json:"optimization_areas"`
-	RightSizingOpportunities float64 `json:"right_sizing_opportunities"`
-	SchedulingOptimization float64 `json:"scheduling_optimization"`
-	ResourcePooling     float64   `json:"resource_pooling"`
+	PotentialSavings         float64  `json:"potential_savings"`
+	OptimizationAreas        []string `json:"optimization_areas"`
+	RightSizingOpportunities float64  `json:"right_sizing_opportunities"`
+	SchedulingOptimization   float64  `json:"scheduling_optimization"`
+	ResourcePooling          float64  `json:"resource_pooling"`
 }
 
 type BudgetAnalysis struct {
-	BudgetUtilization   float64 `json:"budget_utilization"`
-	BudgetRemaining     float64 `json:"budget_remaining"`
-	BurnRate            float64 `json:"burn_rate"`
-	ProjectedOverrun    float64 `json:"projected_overrun"`
-	BudgetRisk          string  `json:"budget_risk"`
+	BudgetUtilization float64 `json:"budget_utilization"`
+	BudgetRemaining   float64 `json:"budget_remaining"`
+	BurnRate          float64 `json:"burn_rate"`
+	ProjectedOverrun  float64 `json:"projected_overrun"`
+	BudgetRisk        string  `json:"budget_risk"`
 }
 
 type CostPrediction struct {
-	NextMonthCost       float64 `json:"next_month_cost"`
-	NextQuarterCost     float64 `json:"next_quarter_cost"`
-	NextYearCost        float64 `json:"next_year_cost"`
-	PredictionAccuracy  float64 `json:"prediction_accuracy"`
-	ConfidenceInterval  float64 `json:"confidence_interval"`
+	NextMonthCost      float64 `json:"next_month_cost"`
+	NextQuarterCost    float64 `json:"next_quarter_cost"`
+	NextYearCost       float64 `json:"next_year_cost"`
+	PredictionAccuracy float64 `json:"prediction_accuracy"`
+	ConfidenceInterval float64 `json:"confidence_interval"`
 }
 
 // Note: EfficiencyMetrics, ResourceWaste, and PerformanceMetrics types are defined in common_types.go
@@ -254,74 +254,74 @@ type AccountInfo struct {
 }
 
 type AccountAnomaly struct {
-	AccountName      string    `json:"account_name"`
-	AnomalyType      string    `json:"anomaly_type"`
-	Severity         string    `json:"severity"`
-	DetectedAt       time.Time `json:"detected_at"`
-	Description      string    `json:"description"`
-	AffectedMetrics  []string  `json:"affected_metrics"`
-	DeviationScore   float64   `json:"deviation_score"`
-	Impact           string    `json:"impact"`
-	Recommendation   string    `json:"recommendation"`
-	RootCause        string    `json:"root_cause"`
-	IsResolved       bool      `json:"is_resolved"`
-	ResolvedAt       *time.Time `json:"resolved_at,omitempty"`
+	AccountName     string     `json:"account_name"`
+	AnomalyType     string     `json:"anomaly_type"`
+	Severity        string     `json:"severity"`
+	DetectedAt      time.Time  `json:"detected_at"`
+	Description     string     `json:"description"`
+	AffectedMetrics []string   `json:"affected_metrics"`
+	DeviationScore  float64    `json:"deviation_score"`
+	Impact          string     `json:"impact"`
+	Recommendation  string     `json:"recommendation"`
+	RootCause       string     `json:"root_cause"`
+	IsResolved      bool       `json:"is_resolved"`
+	ResolvedAt      *time.Time `json:"resolved_at,omitempty"`
 }
 
 type AccountBehaviorProfile struct {
-	AccountName         string                `json:"account_name"`
-	BehaviorType        string                `json:"behavior_type"`
-	ActivityLevel       string                `json:"activity_level"`
-	ResourcePreference  string                `json:"resource_preference"`
-	SchedulingPattern   string                `json:"scheduling_pattern"`
-	CollaborationLevel  string                `json:"collaboration_level"`
-	AdaptabilityScore   float64               `json:"adaptability_score"`
-	ConsistencyScore    float64               `json:"consistency_score"`
-	EfficiencyScore     float64               `json:"efficiency_score"`
-	InnovationScore     float64               `json:"innovation_score"`
-	RiskTolerance       string                `json:"risk_tolerance"`
-	LearningRate        float64               `json:"learning_rate"`
-	BehaviorStability   float64               `json:"behavior_stability"`
-	PredictabilityScore float64               `json:"predictability_score"`
+	AccountName         string  `json:"account_name"`
+	BehaviorType        string  `json:"behavior_type"`
+	ActivityLevel       string  `json:"activity_level"`
+	ResourcePreference  string  `json:"resource_preference"`
+	SchedulingPattern   string  `json:"scheduling_pattern"`
+	CollaborationLevel  string  `json:"collaboration_level"`
+	AdaptabilityScore   float64 `json:"adaptability_score"`
+	ConsistencyScore    float64 `json:"consistency_score"`
+	EfficiencyScore     float64 `json:"efficiency_score"`
+	InnovationScore     float64 `json:"innovation_score"`
+	RiskTolerance       string  `json:"risk_tolerance"`
+	LearningRate        float64 `json:"learning_rate"`
+	BehaviorStability   float64 `json:"behavior_stability"`
+	PredictabilityScore float64 `json:"predictability_score"`
 }
 
 type AccountTrendAnalysis struct {
-	AccountName        string           `json:"account_name"`
-	TrendDirection     string           `json:"trend_direction"`
-	GrowthRate         float64          `json:"growth_rate"`
-	Seasonality        *Seasonality     `json:"seasonality"`
-	CyclicalPatterns   []*CyclicalPattern `json:"cyclical_patterns"`
-	TrendConfidence    float64          `json:"trend_confidence"`
-	ForecastAccuracy   float64          `json:"forecast_accuracy"`
-	InflectionPoints   []*InflectionPoint `json:"inflection_points"`
-	OutlierDetection   *OutlierDetection `json:"outlier_detection"`
+	AccountName         string               `json:"account_name"`
+	TrendDirection      string               `json:"trend_direction"`
+	GrowthRate          float64              `json:"growth_rate"`
+	Seasonality         *Seasonality         `json:"seasonality"`
+	CyclicalPatterns    []*CyclicalPattern   `json:"cyclical_patterns"`
+	TrendConfidence     float64              `json:"trend_confidence"`
+	ForecastAccuracy    float64              `json:"forecast_accuracy"`
+	InflectionPoints    []*InflectionPoint   `json:"inflection_points"`
+	OutlierDetection    *OutlierDetection    `json:"outlier_detection"`
 	ChangePointAnalysis *ChangePointAnalysis `json:"change_point_analysis"`
 }
 
 type Seasonality struct {
-	HasSeasonality      bool     `json:"has_seasonality"`
-	SeasonalPeriod      int      `json:"seasonal_period"`
-	SeasonalStrength    float64  `json:"seasonal_strength"`
-	SeasonalFactors     []float64 `json:"seasonal_factors"`
-	PeakSeason          string   `json:"peak_season"`
-	LowSeason           string   `json:"low_season"`
+	HasSeasonality   bool      `json:"has_seasonality"`
+	SeasonalPeriod   int       `json:"seasonal_period"`
+	SeasonalStrength float64   `json:"seasonal_strength"`
+	SeasonalFactors  []float64 `json:"seasonal_factors"`
+	PeakSeason       string    `json:"peak_season"`
+	LowSeason        string    `json:"low_season"`
 }
 
 type CyclicalPattern struct {
-	PatternType         string    `json:"pattern_type"`
-	CycleDuration       int       `json:"cycle_duration"`
-	CycleStrength       float64   `json:"cycle_strength"`
-	LastCycleStart      time.Time `json:"last_cycle_start"`
-	NextCycleStart      time.Time `json:"next_cycle_start"`
-	CycleRegularity     float64   `json:"cycle_regularity"`
+	PatternType     string    `json:"pattern_type"`
+	CycleDuration   int       `json:"cycle_duration"`
+	CycleStrength   float64   `json:"cycle_strength"`
+	LastCycleStart  time.Time `json:"last_cycle_start"`
+	NextCycleStart  time.Time `json:"next_cycle_start"`
+	CycleRegularity float64   `json:"cycle_regularity"`
 }
 
 type InflectionPoint struct {
-	Timestamp           time.Time `json:"timestamp"`
-	ChangeType          string    `json:"change_type"`
-	ChangeIntensity     float64   `json:"change_intensity"`
-	AffectedMetrics     []string  `json:"affected_metrics"`
-	CauseAnalysis       string    `json:"cause_analysis"`
+	Timestamp       time.Time `json:"timestamp"`
+	ChangeType      string    `json:"change_type"`
+	ChangeIntensity float64   `json:"change_intensity"`
+	AffectedMetrics []string  `json:"affected_metrics"`
+	CauseAnalysis   string    `json:"cause_analysis"`
 }
 
 type OutlierDetection struct {
@@ -333,23 +333,23 @@ type OutlierDetection struct {
 }
 
 type ChangePointAnalysis struct {
-	ChangePointCount    int64           `json:"change_point_count"`
-	LastChangePoint     time.Time       `json:"last_change_point"`
-	ChangePointFrequency float64        `json:"change_point_frequency"`
-	ChangePointTypes    []string        `json:"change_point_types"`
-	ChangePointImpact   float64         `json:"change_point_impact"`
+	ChangePointCount     int64     `json:"change_point_count"`
+	LastChangePoint      time.Time `json:"last_change_point"`
+	ChangePointFrequency float64   `json:"change_point_frequency"`
+	ChangePointTypes     []string  `json:"change_point_types"`
+	ChangePointImpact    float64   `json:"change_point_impact"`
 }
 
 type AccountSeasonality struct {
-	AccountName         string              `json:"account_name"`
-	DailySeasonality    *DailySeasonality   `json:"daily_seasonality"`
-	WeeklySeasonality   *WeeklySeasonality  `json:"weekly_seasonality"`
-	MonthlySeasonality  *MonthlySeasonality `json:"monthly_seasonality"`
-	YearlySeasonality   *YearlySeasonality  `json:"yearly_seasonality"`
-	CustomSeasonality   []*CustomSeasonality `json:"custom_seasonality"`
-	SeasonalityScore    float64             `json:"seasonality_score"`
-	PredictablePeriods  []string            `json:"predictable_periods"`
-	VolatilePeriods     []string            `json:"volatile_periods"`
+	AccountName        string               `json:"account_name"`
+	DailySeasonality   *DailySeasonality    `json:"daily_seasonality"`
+	WeeklySeasonality  *WeeklySeasonality   `json:"weekly_seasonality"`
+	MonthlySeasonality *MonthlySeasonality  `json:"monthly_seasonality"`
+	YearlySeasonality  *YearlySeasonality   `json:"yearly_seasonality"`
+	CustomSeasonality  []*CustomSeasonality `json:"custom_seasonality"`
+	SeasonalityScore   float64              `json:"seasonality_score"`
+	PredictablePeriods []string             `json:"predictable_periods"`
+	VolatilePeriods    []string             `json:"volatile_periods"`
 }
 
 type DailySeasonality struct {
@@ -383,80 +383,80 @@ type YearlySeasonality struct {
 }
 
 type CustomSeasonality struct {
-	PatternName         string  `json:"pattern_name"`
-	PatternDescription  string  `json:"pattern_description"`
-	PatternPeriod       int     `json:"pattern_period"`
-	PatternStrength     float64 `json:"pattern_strength"`
-	PatternRegularity   float64 `json:"pattern_regularity"`
+	PatternName        string  `json:"pattern_name"`
+	PatternDescription string  `json:"pattern_description"`
+	PatternPeriod      int     `json:"pattern_period"`
+	PatternStrength    float64 `json:"pattern_strength"`
+	PatternRegularity  float64 `json:"pattern_regularity"`
 }
 
 type AccountPredictions struct {
-	AccountName         string              `json:"account_name"`
-	ShortTermPredictions *ShortTermPredictions `json:"short_term_predictions"`
+	AccountName           string                 `json:"account_name"`
+	ShortTermPredictions  *ShortTermPredictions  `json:"short_term_predictions"`
 	MediumTermPredictions *MediumTermPredictions `json:"medium_term_predictions"`
-	LongTermPredictions *LongTermPredictions `json:"long_term_predictions"`
-	PredictionAccuracy  *PredictionAccuracy `json:"prediction_accuracy"`
-	UncertaintyAnalysis *UncertaintyAnalysis `json:"uncertainty_analysis"`
-	ScenarioAnalysis    *ScenarioAnalysis   `json:"scenario_analysis"`
+	LongTermPredictions   *LongTermPredictions   `json:"long_term_predictions"`
+	PredictionAccuracy    *PredictionAccuracy    `json:"prediction_accuracy"`
+	UncertaintyAnalysis   *UncertaintyAnalysis   `json:"uncertainty_analysis"`
+	ScenarioAnalysis      *ScenarioAnalysis      `json:"scenario_analysis"`
 }
 
 type ShortTermPredictions struct {
-	NextDayUsage        *UsagePrediction    `json:"next_day_usage"`
-	NextWeekUsage       *UsagePrediction    `json:"next_week_usage"`
-	PredictionHorizon   int                 `json:"prediction_horizon"`
-	ConfidenceLevel     float64             `json:"confidence_level"`
+	NextDayUsage      *UsagePrediction `json:"next_day_usage"`
+	NextWeekUsage     *UsagePrediction `json:"next_week_usage"`
+	PredictionHorizon int              `json:"prediction_horizon"`
+	ConfidenceLevel   float64          `json:"confidence_level"`
 }
 
 type MediumTermPredictions struct {
-	NextMonthUsage      *UsagePrediction    `json:"next_month_usage"`
-	NextQuarterUsage    *UsagePrediction    `json:"next_quarter_usage"`
-	PredictionHorizon   int                 `json:"prediction_horizon"`
-	ConfidenceLevel     float64             `json:"confidence_level"`
+	NextMonthUsage    *UsagePrediction `json:"next_month_usage"`
+	NextQuarterUsage  *UsagePrediction `json:"next_quarter_usage"`
+	PredictionHorizon int              `json:"prediction_horizon"`
+	ConfidenceLevel   float64          `json:"confidence_level"`
 }
 
 type LongTermPredictions struct {
-	NextYearUsage       *UsagePrediction    `json:"next_year_usage"`
-	MultiYearTrend      *UsagePrediction    `json:"multi_year_trend"`
-	PredictionHorizon   int                 `json:"prediction_horizon"`
-	ConfidenceLevel     float64             `json:"confidence_level"`
+	NextYearUsage     *UsagePrediction `json:"next_year_usage"`
+	MultiYearTrend    *UsagePrediction `json:"multi_year_trend"`
+	PredictionHorizon int              `json:"prediction_horizon"`
+	ConfidenceLevel   float64          `json:"confidence_level"`
 }
 
 type UsagePrediction struct {
-	PredictedCPUHours   float64 `json:"predicted_cpu_hours"`
-	PredictedMemoryGB   float64 `json:"predicted_memory_gb"`
-	PredictedGPUHours   float64 `json:"predicted_gpu_hours"`
-	PredictedJobCount   int64   `json:"predicted_job_count"`
-	PredictedUserCount  int64   `json:"predicted_user_count"`
-	PredictedCost       float64 `json:"predicted_cost"`
+	PredictedCPUHours  float64 `json:"predicted_cpu_hours"`
+	PredictedMemoryGB  float64 `json:"predicted_memory_gb"`
+	PredictedGPUHours  float64 `json:"predicted_gpu_hours"`
+	PredictedJobCount  int64   `json:"predicted_job_count"`
+	PredictedUserCount int64   `json:"predicted_user_count"`
+	PredictedCost      float64 `json:"predicted_cost"`
 }
 
 type PredictionAccuracy struct {
-	MAE                 float64 `json:"mae"`
-	RMSE                float64 `json:"rmse"`
-	MAPE                float64 `json:"mape"`
-	R2Score             float64 `json:"r2_score"`
-	AccuracyScore       float64 `json:"accuracy_score"`
-	ModelPerformance    string  `json:"model_performance"`
+	MAE              float64 `json:"mae"`
+	RMSE             float64 `json:"rmse"`
+	MAPE             float64 `json:"mape"`
+	R2Score          float64 `json:"r2_score"`
+	AccuracyScore    float64 `json:"accuracy_score"`
+	ModelPerformance string  `json:"model_performance"`
 }
 
 type UncertaintyAnalysis struct {
 	ConfidenceIntervals *ConfidenceIntervals `json:"confidence_intervals"`
-	PredictionVariance  float64             `json:"prediction_variance"`
-	UncertaintyScore    float64             `json:"uncertainty_score"`
-	RiskFactors         []string            `json:"risk_factors"`
+	PredictionVariance  float64              `json:"prediction_variance"`
+	UncertaintyScore    float64              `json:"uncertainty_score"`
+	RiskFactors         []string             `json:"risk_factors"`
 }
 
 type ConfidenceIntervals struct {
-	LowerBound          float64 `json:"lower_bound"`
-	UpperBound          float64 `json:"upper_bound"`
-	IntervalWidth       float64 `json:"interval_width"`
-	ConfidenceLevel     float64 `json:"confidence_level"`
+	LowerBound      float64 `json:"lower_bound"`
+	UpperBound      float64 `json:"upper_bound"`
+	IntervalWidth   float64 `json:"interval_width"`
+	ConfidenceLevel float64 `json:"confidence_level"`
 }
 
 type ScenarioAnalysis struct {
-	BestCaseScenario    *UsagePrediction    `json:"best_case_scenario"`
-	WorstCaseScenario   *UsagePrediction    `json:"worst_case_scenario"`
-	MostLikelyScenario  *UsagePrediction    `json:"most_likely_scenario"`
+	BestCaseScenario      *UsagePrediction   `json:"best_case_scenario"`
+	WorstCaseScenario     *UsagePrediction   `json:"worst_case_scenario"`
+	MostLikelyScenario    *UsagePrediction   `json:"most_likely_scenario"`
 	ScenarioProbabilities map[string]float64 `json:"scenario_probabilities"`
 }
 
@@ -473,121 +473,121 @@ type AccountClassification struct {
 }
 
 type ClassificationFeatures struct {
-	UsageIntensity      string  `json:"usage_intensity"`
-	ResourcePreference  string  `json:"resource_preference"`
-	SchedulingBehavior  string  `json:"scheduling_behavior"`
-	CollaborationLevel  string  `json:"collaboration_level"`
+	UsageIntensity          string `json:"usage_intensity"`
+	ResourcePreference      string `json:"resource_preference"`
+	SchedulingBehavior      string `json:"scheduling_behavior"`
+	CollaborationLevel      string `json:"collaboration_level"`
 	TechnicalSophistication string `json:"technical_sophistication"`
-	ProjectComplexity   string  `json:"project_complexity"`
-	CostSensitivity     string  `json:"cost_sensitivity"`
-	InnovationLevel     string  `json:"innovation_level"`
+	ProjectComplexity       string `json:"project_complexity"`
+	CostSensitivity         string `json:"cost_sensitivity"`
+	InnovationLevel         string `json:"innovation_level"`
 }
 
 type ClassTrends struct {
-	ClassStability      float64 `json:"class_stability"`
-	TrendDirection      string  `json:"trend_direction"`
-	EvolutionSpeed      float64 `json:"evolution_speed"`
-	ClassMigrationRisk  float64 `json:"class_migration_risk"`
+	ClassStability     float64 `json:"class_stability"`
+	TrendDirection     string  `json:"trend_direction"`
+	EvolutionSpeed     float64 `json:"evolution_speed"`
+	ClassMigrationRisk float64 `json:"class_migration_risk"`
 }
 
 type AccountComparison struct {
-	AccountA            string                  `json:"account_a"`
-	AccountB            string                  `json:"account_b"`
-	SimilarityScore     float64                 `json:"similarity_score"`
-	DifferenceAnalysis  *DifferenceAnalysis     `json:"difference_analysis"`
+	AccountA              string                 `json:"account_a"`
+	AccountB              string                 `json:"account_b"`
+	SimilarityScore       float64                `json:"similarity_score"`
+	DifferenceAnalysis    *DifferenceAnalysis    `json:"difference_analysis"`
 	PerformanceComparison *PerformanceComparison `json:"performance_comparison"`
-	ResourceComparison  *ResourceComparison     `json:"resource_comparison"`
-	BehaviorComparison  *BehaviorComparison     `json:"behavior_comparison"`
-	RecommendedActions  []string                `json:"recommended_actions"`
-	BenchmarkAnalysis   *BenchmarkAnalysis      `json:"benchmark_analysis"`
+	ResourceComparison    *ResourceComparison    `json:"resource_comparison"`
+	BehaviorComparison    *BehaviorComparison    `json:"behavior_comparison"`
+	RecommendedActions    []string               `json:"recommended_actions"`
+	BenchmarkAnalysis     *BenchmarkAnalysis     `json:"benchmark_analysis"`
 }
 
 type DifferenceAnalysis struct {
-	KeyDifferences      []string `json:"key_differences"`
-	StrengthsA          []string `json:"strengths_a"`
-	StrengthsB          []string `json:"strengths_b"`
-	WeaknessesA         []string `json:"weaknesses_a"`
-	WeaknessesB         []string `json:"weaknesses_b"`
-	OpportunitiesA      []string `json:"opportunities_a"`
-	OpportunitiesB      []string `json:"opportunities_b"`
+	KeyDifferences []string `json:"key_differences"`
+	StrengthsA     []string `json:"strengths_a"`
+	StrengthsB     []string `json:"strengths_b"`
+	WeaknessesA    []string `json:"weaknesses_a"`
+	WeaknessesB    []string `json:"weaknesses_b"`
+	OpportunitiesA []string `json:"opportunities_a"`
+	OpportunitiesB []string `json:"opportunities_b"`
 }
 
 type PerformanceComparison struct {
-	EfficiencyA         float64 `json:"efficiency_a"`
-	EfficiencyB         float64 `json:"efficiency_b"`
-	ThroughputA         float64 `json:"throughput_a"`
-	ThroughputB         float64 `json:"throughput_b"`
-	CostEfficiencyA     float64 `json:"cost_efficiency_a"`
-	CostEfficiencyB     float64 `json:"cost_efficiency_b"`
-	PerformanceWinner   string  `json:"performance_winner"`
+	EfficiencyA       float64 `json:"efficiency_a"`
+	EfficiencyB       float64 `json:"efficiency_b"`
+	ThroughputA       float64 `json:"throughput_a"`
+	ThroughputB       float64 `json:"throughput_b"`
+	CostEfficiencyA   float64 `json:"cost_efficiency_a"`
+	CostEfficiencyB   float64 `json:"cost_efficiency_b"`
+	PerformanceWinner string  `json:"performance_winner"`
 }
 
 type ResourceComparison struct {
-	CPUUsageA           float64 `json:"cpu_usage_a"`
-	CPUUsageB           float64 `json:"cpu_usage_b"`
-	MemoryUsageA        float64 `json:"memory_usage_a"`
-	MemoryUsageB        float64 `json:"memory_usage_b"`
-	GPUUsageA           float64 `json:"gpu_usage_a"`
-	GPUUsageB           float64 `json:"gpu_usage_b"`
+	CPUUsageA             float64 `json:"cpu_usage_a"`
+	CPUUsageB             float64 `json:"cpu_usage_b"`
+	MemoryUsageA          float64 `json:"memory_usage_a"`
+	MemoryUsageB          float64 `json:"memory_usage_b"`
+	GPUUsageA             float64 `json:"gpu_usage_a"`
+	GPUUsageB             float64 `json:"gpu_usage_b"`
 	ResourceOptimizationA float64 `json:"resource_optimization_a"`
 	ResourceOptimizationB float64 `json:"resource_optimization_b"`
 }
 
 type BehaviorComparison struct {
-	SubmissionPatternA  string  `json:"submission_pattern_a"`
-	SubmissionPatternB  string  `json:"submission_pattern_b"`
-	CollaborationA      float64 `json:"collaboration_a"`
-	CollaborationB      float64 `json:"collaboration_b"`
-	AdaptabilityA       float64 `json:"adaptability_a"`
-	AdaptabilityB       float64 `json:"adaptability_b"`
-	InnovationA         float64 `json:"innovation_a"`
-	InnovationB         float64 `json:"innovation_b"`
+	SubmissionPatternA string  `json:"submission_pattern_a"`
+	SubmissionPatternB string  `json:"submission_pattern_b"`
+	CollaborationA     float64 `json:"collaboration_a"`
+	CollaborationB     float64 `json:"collaboration_b"`
+	AdaptabilityA      float64 `json:"adaptability_a"`
+	AdaptabilityB      float64 `json:"adaptability_b"`
+	InnovationA        float64 `json:"innovation_a"`
+	InnovationB        float64 `json:"innovation_b"`
 }
 
 type BenchmarkAnalysis struct {
 	RelativePerformanceA float64 `json:"relative_performance_a"`
 	RelativePerformanceB float64 `json:"relative_performance_b"`
-	IndustryBenchmark   float64 `json:"industry_benchmark"`
-	PeerGroupAverage    float64 `json:"peer_group_average"`
-	BestPracticeGap     float64 `json:"best_practice_gap"`
+	IndustryBenchmark    float64 `json:"industry_benchmark"`
+	PeerGroupAverage     float64 `json:"peer_group_average"`
+	BestPracticeGap      float64 `json:"best_practice_gap"`
 }
 
 type AccountRiskAnalysis struct {
-	AccountName         string              `json:"account_name"`
-	OverallRiskScore    float64             `json:"overall_risk_score"`
-	RiskLevel           string              `json:"risk_level"`
-	RiskFactors         []*RiskFactor       `json:"risk_factors"`
-	OperationalRisks    *OperationalRisks   `json:"operational_risks"`
-	FinancialRisks      *FinancialRisks     `json:"financial_risks"`
-	SecurityRisks       *SecurityRisks      `json:"security_risks"`
-	ComplianceRisks     *ComplianceRisks    `json:"compliance_risks"`
+	AccountName          string                `json:"account_name"`
+	OverallRiskScore     float64               `json:"overall_risk_score"`
+	RiskLevel            string                `json:"risk_level"`
+	RiskFactors          []*RiskFactor         `json:"risk_factors"`
+	OperationalRisks     *OperationalRisks     `json:"operational_risks"`
+	FinancialRisks       *FinancialRisks       `json:"financial_risks"`
+	SecurityRisks        *SecurityRisks        `json:"security_risks"`
+	ComplianceRisks      *ComplianceRisks      `json:"compliance_risks"`
 	MitigationStrategies []*MitigationStrategy `json:"mitigation_strategies"`
-	RiskTrends          *RiskTrends         `json:"risk_trends"`
+	RiskTrends           *RiskTrends           `json:"risk_trends"`
 }
 
 type RiskFactor struct {
-	FactorName          string  `json:"factor_name"`
-	RiskScore           float64 `json:"risk_score"`
-	Impact              string  `json:"impact"`
-	Probability         string  `json:"probability"`
-	Description         string  `json:"description"`
-	Mitigation          string  `json:"mitigation"`
+	FactorName  string  `json:"factor_name"`
+	RiskScore   float64 `json:"risk_score"`
+	Impact      string  `json:"impact"`
+	Probability string  `json:"probability"`
+	Description string  `json:"description"`
+	Mitigation  string  `json:"mitigation"`
 }
 
 type OperationalRisks struct {
-	ResourceExhaustion  float64 `json:"resource_exhaustion"`
-	QueueBottlenecks    float64 `json:"queue_bottlenecks"`
+	ResourceExhaustion     float64 `json:"resource_exhaustion"`
+	QueueBottlenecks       float64 `json:"queue_bottlenecks"`
 	PerformanceDegradation float64 `json:"performance_degradation"`
-	ServiceDisruption   float64 `json:"service_disruption"`
-	CapacityOverflow    float64 `json:"capacity_overflow"`
+	ServiceDisruption      float64 `json:"service_disruption"`
+	CapacityOverflow       float64 `json:"capacity_overflow"`
 }
 
 type FinancialRisks struct {
-	BudgetOverrun       float64 `json:"budget_overrun"`
-	CostSpikes          float64 `json:"cost_spikes"`
+	BudgetOverrun        float64 `json:"budget_overrun"`
+	CostSpikes           float64 `json:"cost_spikes"`
 	UncontrolledSpending float64 `json:"uncontrolled_spending"`
-	ResourceWaste       float64 `json:"resource_waste"`
-	ROIDeterioration    float64 `json:"roi_deterioration"`
+	ResourceWaste        float64 `json:"resource_waste"`
+	ROIDeterioration     float64 `json:"roi_deterioration"`
 }
 
 type SecurityRisks struct {
@@ -599,76 +599,76 @@ type SecurityRisks struct {
 }
 
 type ComplianceRisks struct {
-	PolicyViolations    float64 `json:"policy_violations"`
-	RegulatoryBreach    float64 `json:"regulatory_breach"`
-	AuditFailures       float64 `json:"audit_failures"`
-	DataGovernance      float64 `json:"data_governance"`
-	ComplianceDrift     float64 `json:"compliance_drift"`
+	PolicyViolations float64 `json:"policy_violations"`
+	RegulatoryBreach float64 `json:"regulatory_breach"`
+	AuditFailures    float64 `json:"audit_failures"`
+	DataGovernance   float64 `json:"data_governance"`
+	ComplianceDrift  float64 `json:"compliance_drift"`
 }
 
 type MitigationStrategy struct {
-	StrategyName        string  `json:"strategy_name"`
-	TargetRisk          string  `json:"target_risk"`
-	ImplementationCost  float64 `json:"implementation_cost"`
-	Effectiveness       float64 `json:"effectiveness"`
-	Priority            string  `json:"priority"`
-	Timeline            string  `json:"timeline"`
-	ResponsibleParty    string  `json:"responsible_party"`
+	StrategyName       string  `json:"strategy_name"`
+	TargetRisk         string  `json:"target_risk"`
+	ImplementationCost float64 `json:"implementation_cost"`
+	Effectiveness      float64 `json:"effectiveness"`
+	Priority           string  `json:"priority"`
+	Timeline           string  `json:"timeline"`
+	ResponsibleParty   string  `json:"responsible_party"`
 }
 
 type RiskTrends struct {
-	RiskDirection       string  `json:"risk_direction"`
-	RiskVelocity        float64 `json:"risk_velocity"`
-	RiskVolatility      float64 `json:"risk_volatility"`
-	EmergingRisks       []string `json:"emerging_risks"`
-	DiminishingRisks    []string `json:"diminishing_risks"`
+	RiskDirection    string   `json:"risk_direction"`
+	RiskVelocity     float64  `json:"risk_velocity"`
+	RiskVolatility   float64  `json:"risk_volatility"`
+	EmergingRisks    []string `json:"emerging_risks"`
+	DiminishingRisks []string `json:"diminishing_risks"`
 }
 
 type AccountOptimizationSuggestions struct {
-	AccountName         string                      `json:"account_name"`
-	OverallScore        float64                     `json:"overall_score"`
-	ImprovementPotential float64                    `json:"improvement_potential"`
-	ResourceOptimization *ResourceOptimization      `json:"resource_optimization"`
-	CostOptimization    *CostOptimization           `json:"cost_optimization"`
+	AccountName             string                   `json:"account_name"`
+	OverallScore            float64                  `json:"overall_score"`
+	ImprovementPotential    float64                  `json:"improvement_potential"`
+	ResourceOptimization    *ResourceOptimization    `json:"resource_optimization"`
+	CostOptimization        *CostOptimization        `json:"cost_optimization"`
 	PerformanceOptimization *PerformanceOptimization `json:"performance_optimization"`
-	WorkflowOptimization *WorkflowOptimization       `json:"workflow_optimization"`
-	UserOptimization    *UserOptimization           `json:"user_optimization"`
-	SchedulingOptimization *SchedulingOptimization   `json:"scheduling_optimization"`
-	PriorityActions     []string                    `json:"priority_actions"`
-	QuickWins           []string                    `json:"quick_wins"`
-	LongTermGoals       []string                    `json:"long_term_goals"`
+	WorkflowOptimization    *WorkflowOptimization    `json:"workflow_optimization"`
+	UserOptimization        *UserOptimization        `json:"user_optimization"`
+	SchedulingOptimization  *SchedulingOptimization  `json:"scheduling_optimization"`
+	PriorityActions         []string                 `json:"priority_actions"`
+	QuickWins               []string                 `json:"quick_wins"`
+	LongTermGoals           []string                 `json:"long_term_goals"`
 }
 
 type ResourceOptimization struct {
-	RightSizing         *RightSizing        `json:"right_sizing"`
-	ResourcePooling     *ResourcePooling    `json:"resource_pooling"`
-	LoadBalancing       *LoadBalancing      `json:"load_balancing"`
-	CapacityPlanning    *CapacityPlanning   `json:"capacity_planning"`
+	RightSizing      *RightSizing      `json:"right_sizing"`
+	ResourcePooling  *ResourcePooling  `json:"resource_pooling"`
+	LoadBalancing    *LoadBalancing    `json:"load_balancing"`
+	CapacityPlanning *CapacityPlanning `json:"capacity_planning"`
 }
 
 type RightSizing struct {
-	OversizedJobs       int64   `json:"oversized_jobs"`
-	UndersizedJobs      int64   `json:"undersized_jobs"`
-	OptimalSizing       []string `json:"optimal_sizing"`
-	SavingsPotential    float64 `json:"savings_potential"`
+	OversizedJobs    int64    `json:"oversized_jobs"`
+	UndersizedJobs   int64    `json:"undersized_jobs"`
+	OptimalSizing    []string `json:"optimal_sizing"`
+	SavingsPotential float64  `json:"savings_potential"`
 }
 
 type ResourcePooling struct {
 	PoolingOpportunities []string `json:"pooling_opportunities"`
-	SharedResources     []string `json:"shared_resources"`
-	PoolingBenefits     float64  `json:"pooling_benefits"`
+	SharedResources      []string `json:"shared_resources"`
+	PoolingBenefits      float64  `json:"pooling_benefits"`
 }
 
 type LoadBalancing struct {
 	BalancingOpportunities []string `json:"balancing_opportunities"`
-	BottleneckResources   []string `json:"bottleneck_resources"`
-	BalancingStrategies   []string `json:"balancing_strategies"`
+	BottleneckResources    []string `json:"bottleneck_resources"`
+	BalancingStrategies    []string `json:"balancing_strategies"`
 }
 
 type CapacityPlanning struct {
-	FutureNeeds         *UsagePrediction    `json:"future_needs"`
-	ExpansionPlan       []string            `json:"expansion_plan"`
-	InvestmentRequired  float64             `json:"investment_required"`
+	FutureNeeds        *UsagePrediction `json:"future_needs"`
+	ExpansionPlan      []string         `json:"expansion_plan"`
+	InvestmentRequired float64          `json:"investment_required"`
 }
 
 type PerformanceOptimization struct {
@@ -679,17 +679,17 @@ type PerformanceOptimization struct {
 }
 
 type WorkflowOptimization struct {
-	WorkflowIssues      []string `json:"workflow_issues"`
-	ProcessImprovements []string `json:"process_improvements"`
+	WorkflowIssues          []string `json:"workflow_issues"`
+	ProcessImprovements     []string `json:"process_improvements"`
 	AutomationOpportunities []string `json:"automation_opportunities"`
-	EfficiencyGains     float64  `json:"efficiency_gains"`
+	EfficiencyGains         float64  `json:"efficiency_gains"`
 }
 
 type UserOptimization struct {
-	TrainingNeeds       []string `json:"training_needs"`
-	SkillGaps           []string `json:"skill_gaps"`
-	BestPractices       []string `json:"best_practices"`
-	UserSupport         []string `json:"user_support"`
+	TrainingNeeds []string `json:"training_needs"`
+	SkillGaps     []string `json:"skill_gaps"`
+	BestPractices []string `json:"best_practices"`
+	UserSupport   []string `json:"user_support"`
 }
 
 type SchedulingOptimization struct {
@@ -700,130 +700,130 @@ type SchedulingOptimization struct {
 }
 
 type AccountBenchmarks struct {
-	AccountName         string              `json:"account_name"`
-	BenchmarkSuite      string              `json:"benchmark_suite"`
-	OverallRanking      int                 `json:"overall_ranking"`
-	PeerGroupRanking    int                 `json:"peer_group_ranking"`
-	IndustryRanking     int                 `json:"industry_ranking"`
-	BenchmarkScores     *BenchmarkScores    `json:"benchmark_scores"`
+	AccountName         string               `json:"account_name"`
+	BenchmarkSuite      string               `json:"benchmark_suite"`
+	OverallRanking      int                  `json:"overall_ranking"`
+	PeerGroupRanking    int                  `json:"peer_group_ranking"`
+	IndustryRanking     int                  `json:"industry_ranking"`
+	BenchmarkScores     *BenchmarkScores     `json:"benchmark_scores"`
 	CompetitiveAnalysis *CompetitiveAnalysis `json:"competitive_analysis"`
-	BenchmarkTrends     *BenchmarkTrends    `json:"benchmark_trends"`
-	ImprovementAreas    []string            `json:"improvement_areas"`
-	BestPractices       []string            `json:"best_practices"`
+	BenchmarkTrends     *BenchmarkTrends     `json:"benchmark_trends"`
+	ImprovementAreas    []string             `json:"improvement_areas"`
+	BestPractices       []string             `json:"best_practices"`
 }
 
 type BenchmarkScores struct {
-	EfficiencyScore     float64 `json:"efficiency_score"`
-	PerformanceScore    float64 `json:"performance_score"`
+	EfficiencyScore        float64 `json:"efficiency_score"`
+	PerformanceScore       float64 `json:"performance_score"`
 	CostEffectivenessScore float64 `json:"cost_effectiveness_score"`
-	InnovationScore     float64 `json:"innovation_score"`
-	SustainabilityScore float64 `json:"sustainability_score"`
-	UserSatisfactionScore float64 `json:"user_satisfaction_score"`
+	InnovationScore        float64 `json:"innovation_score"`
+	SustainabilityScore    float64 `json:"sustainability_score"`
+	UserSatisfactionScore  float64 `json:"user_satisfaction_score"`
 }
 
 type CompetitiveAnalysis struct {
-	TopPerformers       []string `json:"top_performers"`
-	CompetitiveGaps     []string `json:"competitive_gaps"`
+	TopPerformers         []string `json:"top_performers"`
+	CompetitiveGaps       []string `json:"competitive_gaps"`
 	CompetitiveAdvantages []string `json:"competitive_advantages"`
-	MarketPosition      string   `json:"market_position"`
+	MarketPosition        string   `json:"market_position"`
 }
 
 type BenchmarkTrends struct {
-	PerformanceTrend    string  `json:"performance_trend"`
-	RankingTrend        string  `json:"ranking_trend"`
-	ImprovementRate     float64 `json:"improvement_rate"`
-	BenchmarkStability  float64 `json:"benchmark_stability"`
+	PerformanceTrend   string  `json:"performance_trend"`
+	RankingTrend       string  `json:"ranking_trend"`
+	ImprovementRate    float64 `json:"improvement_rate"`
+	BenchmarkStability float64 `json:"benchmark_stability"`
 }
 
 type SystemUsageOverview struct {
-	TotalAccounts       int64               `json:"total_accounts"`
-	ActiveAccounts      int64               `json:"active_accounts"`
-	InactiveAccounts    int64               `json:"inactive_accounts"`
-	SystemUtilization   *SystemUtilization  `json:"system_utilization"`
-	GlobalPatterns      *GlobalPatterns     `json:"global_patterns"`
-	SystemHealth        *SystemHealth       `json:"system_health"`
-	CapacityStatus      *CapacityStatus     `json:"capacity_status"`
-	SystemTrends        *SystemTrends       `json:"system_trends"`
-	UsageDistribution   *UsageDistribution  `json:"usage_distribution"`
-	SystemAnomalies     []*SystemAnomaly    `json:"system_anomalies"`
-	SystemAlerts        []*SystemAlert      `json:"system_alerts"`
+	TotalAccounts     int64              `json:"total_accounts"`
+	ActiveAccounts    int64              `json:"active_accounts"`
+	InactiveAccounts  int64              `json:"inactive_accounts"`
+	SystemUtilization *SystemUtilization `json:"system_utilization"`
+	GlobalPatterns    *GlobalPatterns    `json:"global_patterns"`
+	SystemHealth      *SystemHealth      `json:"system_health"`
+	CapacityStatus    *CapacityStatus    `json:"capacity_status"`
+	SystemTrends      *SystemTrends      `json:"system_trends"`
+	UsageDistribution *UsageDistribution `json:"usage_distribution"`
+	SystemAnomalies   []*SystemAnomaly   `json:"system_anomalies"`
+	SystemAlerts      []*SystemAlert     `json:"system_alerts"`
 }
 
 type SystemUtilization struct {
-	CPUUtilization      float64 `json:"cpu_utilization"`
-	MemoryUtilization   float64 `json:"memory_utilization"`
-	GPUUtilization      float64 `json:"gpu_utilization"`
-	StorageUtilization  float64 `json:"storage_utilization"`
-	NetworkUtilization  float64 `json:"network_utilization"`
-	OverallUtilization  float64 `json:"overall_utilization"`
+	CPUUtilization     float64 `json:"cpu_utilization"`
+	MemoryUtilization  float64 `json:"memory_utilization"`
+	GPUUtilization     float64 `json:"gpu_utilization"`
+	StorageUtilization float64 `json:"storage_utilization"`
+	NetworkUtilization float64 `json:"network_utilization"`
+	OverallUtilization float64 `json:"overall_utilization"`
 }
 
 type GlobalPatterns struct {
-	PeakUsageHours      []int   `json:"peak_usage_hours"`
-	OffPeakHours        []int   `json:"off_peak_hours"`
-	SeasonalPatterns    []string `json:"seasonal_patterns"`
-	RegionalPatterns    []string `json:"regional_patterns"`
+	PeakUsageHours       []int    `json:"peak_usage_hours"`
+	OffPeakHours         []int    `json:"off_peak_hours"`
+	SeasonalPatterns     []string `json:"seasonal_patterns"`
+	RegionalPatterns     []string `json:"regional_patterns"`
 	DepartmentalPatterns []string `json:"departmental_patterns"`
 }
 
 type SystemHealth struct {
-	HealthScore         float64 `json:"health_score"`
-	PerformanceScore    float64 `json:"performance_score"`
-	StabilityScore      float64 `json:"stability_score"`
-	AvailabilityScore   float64 `json:"availability_score"`
-	ReliabilityScore    float64 `json:"reliability_score"`
+	HealthScore       float64 `json:"health_score"`
+	PerformanceScore  float64 `json:"performance_score"`
+	StabilityScore    float64 `json:"stability_score"`
+	AvailabilityScore float64 `json:"availability_score"`
+	ReliabilityScore  float64 `json:"reliability_score"`
 }
 
 type CapacityStatus struct {
-	TotalCapacity       *ResourceCapacity   `json:"total_capacity"`
-	UsedCapacity        *ResourceCapacity   `json:"used_capacity"`
-	AvailableCapacity   *ResourceCapacity   `json:"available_capacity"`
-	ReservedCapacity    *ResourceCapacity   `json:"reserved_capacity"`
-	CapacityUtilization float64             `json:"capacity_utilization"`
+	TotalCapacity       *ResourceCapacity `json:"total_capacity"`
+	UsedCapacity        *ResourceCapacity `json:"used_capacity"`
+	AvailableCapacity   *ResourceCapacity `json:"available_capacity"`
+	ReservedCapacity    *ResourceCapacity `json:"reserved_capacity"`
+	CapacityUtilization float64           `json:"capacity_utilization"`
 }
 
 type ResourceCapacity struct {
-	CPUCores            int64   `json:"cpu_cores"`
-	MemoryGB            float64 `json:"memory_gb"`
-	GPUCount            int64   `json:"gpu_count"`
-	StorageTB           float64 `json:"storage_tb"`
-	NodeCount           int64   `json:"node_count"`
+	CPUCores  int64   `json:"cpu_cores"`
+	MemoryGB  float64 `json:"memory_gb"`
+	GPUCount  int64   `json:"gpu_count"`
+	StorageTB float64 `json:"storage_tb"`
+	NodeCount int64   `json:"node_count"`
 }
 
 type SystemTrends struct {
-	UsageTrend          string  `json:"usage_trend"`
-	GrowthRate          float64 `json:"growth_rate"`
-	CapacityTrend       string  `json:"capacity_trend"`
-	PerformanceTrend    string  `json:"performance_trend"`
-	CostTrend           string  `json:"cost_trend"`
+	UsageTrend       string  `json:"usage_trend"`
+	GrowthRate       float64 `json:"growth_rate"`
+	CapacityTrend    string  `json:"capacity_trend"`
+	PerformanceTrend string  `json:"performance_trend"`
+	CostTrend        string  `json:"cost_trend"`
 }
 
 type UsageDistribution struct {
-	TopUsers            []string `json:"top_users"`
-	TopAccounts         []string `json:"top_accounts"`
-	ResourceHogs        []string `json:"resource_hogs"`
-	LightUsers          []string `json:"light_users"`
-	UsageConcentration  float64  `json:"usage_concentration"`
+	TopUsers           []string `json:"top_users"`
+	TopAccounts        []string `json:"top_accounts"`
+	ResourceHogs       []string `json:"resource_hogs"`
+	LightUsers         []string `json:"light_users"`
+	UsageConcentration float64  `json:"usage_concentration"`
 }
 
 type SystemAnomaly struct {
-	AnomalyType         string    `json:"anomaly_type"`
-	Severity            string    `json:"severity"`
-	DetectedAt          time.Time `json:"detected_at"`
-	AffectedComponents  []string  `json:"affected_components"`
-	Impact              string    `json:"impact"`
-	RootCause           string    `json:"root_cause"`
-	IsResolved          bool      `json:"is_resolved"`
+	AnomalyType        string    `json:"anomaly_type"`
+	Severity           string    `json:"severity"`
+	DetectedAt         time.Time `json:"detected_at"`
+	AffectedComponents []string  `json:"affected_components"`
+	Impact             string    `json:"impact"`
+	RootCause          string    `json:"root_cause"`
+	IsResolved         bool      `json:"is_resolved"`
 }
 
 type SystemAlert struct {
-	AlertType           string    `json:"alert_type"`
-	Priority            string    `json:"priority"`
-	Message             string    `json:"message"`
-	TriggeredAt         time.Time `json:"triggered_at"`
-	AffectedEntities    []string  `json:"affected_entities"`
-	ActionRequired      string    `json:"action_required"`
-	IsAcknowledged      bool      `json:"is_acknowledged"`
+	AlertType        string    `json:"alert_type"`
+	Priority         string    `json:"priority"`
+	Message          string    `json:"message"`
+	TriggeredAt      time.Time `json:"triggered_at"`
+	AffectedEntities []string  `json:"affected_entities"`
+	ActionRequired   string    `json:"action_required"`
+	IsAcknowledged   bool      `json:"is_acknowledged"`
 }
 
 type AccountUsagePatternsCollector struct {
@@ -831,28 +831,28 @@ type AccountUsagePatternsCollector struct {
 	mutex  sync.RWMutex
 
 	// Usage Pattern Metrics
-	accountUsageScore           *prometheus.GaugeVec
-	accountCPUUtilization       *prometheus.GaugeVec
-	accountMemoryUtilization    *prometheus.GaugeVec
-	accountGPUUtilization       *prometheus.GaugeVec
-	accountJobSubmissions       *prometheus.GaugeVec
-	accountActiveUsers          *prometheus.GaugeVec
-	accountCostAnalysis         *prometheus.GaugeVec
-	accountEfficiencyScore      *prometheus.GaugeVec
+	accountUsageScore        *prometheus.GaugeVec
+	accountCPUUtilization    *prometheus.GaugeVec
+	accountMemoryUtilization *prometheus.GaugeVec
+	accountGPUUtilization    *prometheus.GaugeVec
+	accountJobSubmissions    *prometheus.GaugeVec
+	accountActiveUsers       *prometheus.GaugeVec
+	accountCostAnalysis      *prometheus.GaugeVec
+	accountEfficiencyScore   *prometheus.GaugeVec
 
 	// Anomaly Detection Metrics
-	accountAnomaliesTotal       *prometheus.GaugeVec
-	accountAnomalySeverity      *prometheus.GaugeVec
+	accountAnomaliesTotal        *prometheus.GaugeVec
+	accountAnomalySeverity       *prometheus.GaugeVec
 	accountAnomalyDeviationScore *prometheus.GaugeVec
 	accountAnomalyResolutionTime *prometheus.GaugeVec
 
 	// Behavior Profile Metrics
-	accountBehaviorType         *prometheus.GaugeVec
-	accountActivityLevel        *prometheus.GaugeVec
-	accountAdaptabilityScore    *prometheus.GaugeVec
-	accountConsistencyScore     *prometheus.GaugeVec
-	accountInnovationScore      *prometheus.GaugeVec
-	accountPredictabilityScore  *prometheus.GaugeVec
+	accountBehaviorType        *prometheus.GaugeVec
+	accountActivityLevel       *prometheus.GaugeVec
+	accountAdaptabilityScore   *prometheus.GaugeVec
+	accountConsistencyScore    *prometheus.GaugeVec
+	accountInnovationScore     *prometheus.GaugeVec
+	accountPredictabilityScore *prometheus.GaugeVec
 
 	// Trend Analysis Metrics
 	accountGrowthRate           *prometheus.GaugeVec
@@ -863,11 +863,11 @@ type AccountUsagePatternsCollector struct {
 	accountChangePointFrequency *prometheus.GaugeVec
 
 	// Seasonality Metrics
-	accountDailySeasonality     *prometheus.GaugeVec
-	accountWeeklySeasonality    *prometheus.GaugeVec
-	accountMonthlySeasonality   *prometheus.GaugeVec
-	accountYearlySeasonality    *prometheus.GaugeVec
-	accountSeasonalityScore     *prometheus.GaugeVec
+	accountDailySeasonality   *prometheus.GaugeVec
+	accountWeeklySeasonality  *prometheus.GaugeVec
+	accountMonthlySeasonality *prometheus.GaugeVec
+	accountYearlySeasonality  *prometheus.GaugeVec
+	accountSeasonalityScore   *prometheus.GaugeVec
 
 	// Prediction Metrics
 	accountPredictionAccuracy   *prometheus.GaugeVec
@@ -876,47 +876,47 @@ type AccountUsagePatternsCollector struct {
 	accountPredictionVariance   *prometheus.GaugeVec
 
 	// Classification Metrics
-	accountClassificationScore  *prometheus.GaugeVec
-	accountClassConfidence      *prometheus.GaugeVec
-	accountClassStability       *prometheus.GaugeVec
-	accountClassMigrationRisk   *prometheus.GaugeVec
+	accountClassificationScore *prometheus.GaugeVec
+	accountClassConfidence     *prometheus.GaugeVec
+	accountClassStability      *prometheus.GaugeVec
+	accountClassMigrationRisk  *prometheus.GaugeVec
 
 	// Comparison Metrics
-	accountSimilarityScore      *prometheus.GaugeVec
-	accountPerformanceRatio     *prometheus.GaugeVec
-	accountResourceRatio        *prometheus.GaugeVec
-	accountBenchmarkScore       *prometheus.GaugeVec
+	accountSimilarityScore  *prometheus.GaugeVec
+	accountPerformanceRatio *prometheus.GaugeVec
+	accountResourceRatio    *prometheus.GaugeVec
+	accountBenchmarkScore   *prometheus.GaugeVec
 
 	// Risk Analysis Metrics
-	accountRiskScore            *prometheus.GaugeVec
-	accountOperationalRisk      *prometheus.GaugeVec
-	accountFinancialRisk        *prometheus.GaugeVec
-	accountSecurityRisk         *prometheus.GaugeVec
-	accountComplianceRisk       *prometheus.GaugeVec
-	accountRiskVelocity         *prometheus.GaugeVec
+	accountRiskScore       *prometheus.GaugeVec
+	accountOperationalRisk *prometheus.GaugeVec
+	accountFinancialRisk   *prometheus.GaugeVec
+	accountSecurityRisk    *prometheus.GaugeVec
+	accountComplianceRisk  *prometheus.GaugeVec
+	accountRiskVelocity    *prometheus.GaugeVec
 
 	// Optimization Metrics
-	accountOptimizationScore    *prometheus.GaugeVec
-	accountImprovementPotential *prometheus.GaugeVec
-	accountRightSizingSavings   *prometheus.GaugeVec
-	accountResourcePoolingBenefits *prometheus.GaugeVec
+	accountOptimizationScore        *prometheus.GaugeVec
+	accountImprovementPotential     *prometheus.GaugeVec
+	accountRightSizingSavings       *prometheus.GaugeVec
+	accountResourcePoolingBenefits  *prometheus.GaugeVec
 	accountPerformanceGainPotential *prometheus.GaugeVec
 
 	// Benchmark Metrics
-	accountOverallRanking       *prometheus.GaugeVec
-	accountPeerGroupRanking     *prometheus.GaugeVec
-	accountIndustryRanking      *prometheus.GaugeVec
-	accountBenchmarkTrend       *prometheus.GaugeVec
-	accountCompetitivePosition  *prometheus.GaugeVec
+	accountOverallRanking      *prometheus.GaugeVec
+	accountPeerGroupRanking    *prometheus.GaugeVec
+	accountIndustryRanking     *prometheus.GaugeVec
+	accountBenchmarkTrend      *prometheus.GaugeVec
+	accountCompetitivePosition *prometheus.GaugeVec
 
 	// System Overview Metrics
-	systemTotalAccounts         prometheus.Gauge
-	systemActiveAccounts        prometheus.Gauge
-	systemUtilization           *prometheus.GaugeVec
-	systemHealthScore           prometheus.Gauge
-	systemCapacityUtilization   prometheus.Gauge
-	systemAnomaliesTotal        prometheus.Gauge
-	systemAlertsTotal           prometheus.Gauge
+	systemTotalAccounts       prometheus.Gauge
+	systemActiveAccounts      prometheus.Gauge
+	systemUtilization         *prometheus.GaugeVec
+	systemHealthScore         prometheus.Gauge
+	systemCapacityUtilization prometheus.Gauge
+	systemAnomaliesTotal      prometheus.Gauge
+	systemAlertsTotal         prometheus.Gauge
 }
 
 func NewAccountUsagePatternsCollector(client AccountUsagePatternsSLURMClient) *AccountUsagePatternsCollector {

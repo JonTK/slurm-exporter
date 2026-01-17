@@ -11,7 +11,6 @@ copyright: Copyright &copy; 2024 SLURM Exporter Contributors
 
 theme:
   name: material
-  custom_dir: overrides
   palette:
     # Palette toggle for light mode
     - scheme: default
@@ -51,8 +50,8 @@ theme:
     - search.highlight
     - search.suggest
     - toc.follow
-  logo: assets/logo.svg
-  favicon: assets/favicon.ico
+  # logo: assets/logo.svg
+  # favicon: assets/favicon.ico
 
 markdown_extensions:
   - abbr
@@ -70,8 +69,8 @@ markdown_extensions:
   - pymdownx.caret
   - pymdownx.details
   - pymdownx.emoji:
-      emoji_generator: !!python/name:materialx.emoji.to_svg
-      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_index: !!python/name:pymdownx.emoji.twemoji
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
@@ -85,9 +84,7 @@ markdown_extensions:
       repo: slurm-exporter
   - pymdownx.mark
   - pymdownx.smartsymbols
-  - pymdownx.snippets:
-      auto_append:
-        - includes/mkdocs.md
+  - pymdownx.snippets
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
@@ -134,13 +131,13 @@ extra:
       link: https://slurm-community.slack.com
   generator: false
 
-extra_css:
-  - stylesheets/extra.css
+# extra_css:
+#   - stylesheets/extra.css
 
-extra_javascript:
-  - javascripts/mathjax.js
-  - https://polyfill.io/v3/polyfill.min.js?features=es6
-  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+# extra_javascript:
+#   - javascripts/mathjax.js
+#   - https://polyfill.io/v3/polyfill.min.js?features=es6
+#   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 nav:
   - Home: index.md

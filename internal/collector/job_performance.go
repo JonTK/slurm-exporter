@@ -13,80 +13,80 @@ import (
 
 // JobPerformanceCollector collects comprehensive job performance metrics
 type JobPerformanceCollector struct {
-	slurmClient     slurm.SlurmClient
-	logger          *slog.Logger
-	config          *JobPerformanceConfig
-	metrics         *JobPerformanceMetrics
-	lastCollection  time.Time
-	mu              sync.RWMutex
+	slurmClient    slurm.SlurmClient
+	logger         *slog.Logger
+	config         *JobPerformanceConfig
+	metrics        *JobPerformanceMetrics
+	lastCollection time.Time
+	mu             sync.RWMutex
 
 	// Cache for recent job data
-	jobCache        map[string]*JobUtilization
-	cacheTTL        time.Duration
+	jobCache map[string]*JobUtilization
+	cacheTTL time.Duration
 }
 
 // JobUtilization represents job utilization metrics
 type JobUtilization struct {
-	JobID            string
-	CPUUtilization   float64
+	JobID             string
+	CPUUtilization    float64
 	MemoryUtilization float64
-	GPUUtilization   float64
-	IOUtilization    float64
-	LastUpdated      time.Time
+	GPUUtilization    float64
+	IOUtilization     float64
+	LastUpdated       time.Time
 }
 
 // JobPerformanceConfig holds configuration for job performance collection
 type JobPerformanceConfig struct {
-	CollectionInterval    time.Duration `yaml:"collection_interval"`
-	MaxJobsPerCollection  int           `yaml:"max_jobs_per_collection"`
-	EnableLiveMetrics     bool          `yaml:"enable_live_metrics"`
-	EnableStepMetrics     bool          `yaml:"enable_step_metrics"`
-	EnableEnergyMetrics   bool          `yaml:"enable_energy_metrics"`
-	CacheTTL              time.Duration `yaml:"cache_ttl"`
-	IncludeCompletedJobs  bool          `yaml:"include_completed_jobs"`
-	CompletedJobsMaxAge   time.Duration `yaml:"completed_jobs_max_age"`
+	CollectionInterval   time.Duration `yaml:"collection_interval"`
+	MaxJobsPerCollection int           `yaml:"max_jobs_per_collection"`
+	EnableLiveMetrics    bool          `yaml:"enable_live_metrics"`
+	EnableStepMetrics    bool          `yaml:"enable_step_metrics"`
+	EnableEnergyMetrics  bool          `yaml:"enable_energy_metrics"`
+	CacheTTL             time.Duration `yaml:"cache_ttl"`
+	IncludeCompletedJobs bool          `yaml:"include_completed_jobs"`
+	CompletedJobsMaxAge  time.Duration `yaml:"completed_jobs_max_age"`
 }
 
 // JobPerformanceMetrics holds Prometheus metrics for job performance
 type JobPerformanceMetrics struct {
 	// Job utilization metrics
-	JobCPUUtilization       *prometheus.GaugeVec
-	JobMemoryUtilization    *prometheus.GaugeVec
-	JobGPUUtilization       *prometheus.GaugeVec
-	JobIOUtilization        *prometheus.GaugeVec
-	JobNetworkUtilization   *prometheus.GaugeVec
-	JobEnergyConsumption    *prometheus.GaugeVec
+	JobCPUUtilization     *prometheus.GaugeVec
+	JobMemoryUtilization  *prometheus.GaugeVec
+	JobGPUUtilization     *prometheus.GaugeVec
+	JobIOUtilization      *prometheus.GaugeVec
+	JobNetworkUtilization *prometheus.GaugeVec
+	JobEnergyConsumption  *prometheus.GaugeVec
 
 	// Job efficiency metrics
-	JobCPUEfficiency        *prometheus.GaugeVec
-	JobMemoryEfficiency     *prometheus.GaugeVec
-	JobIOEfficiency         *prometheus.GaugeVec
-	JobOverallEfficiency    *prometheus.GaugeVec
+	JobCPUEfficiency     *prometheus.GaugeVec
+	JobMemoryEfficiency  *prometheus.GaugeVec
+	JobIOEfficiency      *prometheus.GaugeVec
+	JobOverallEfficiency *prometheus.GaugeVec
 
 	// Job resource waste metrics
-	JobCPUWasted            *prometheus.GaugeVec
-	JobMemoryWasted         *prometheus.GaugeVec
-	JobResourceWasteRatio   *prometheus.GaugeVec
+	JobCPUWasted          *prometheus.GaugeVec
+	JobMemoryWasted       *prometheus.GaugeVec
+	JobResourceWasteRatio *prometheus.GaugeVec
 
 	// Collection performance metrics
-	CollectionDuration      prometheus.Histogram
-	CollectionErrors        *prometheus.CounterVec
-	JobsProcessed           prometheus.Counter
-	CacheHitRatio           prometheus.Gauge
+	CollectionDuration prometheus.Histogram
+	CollectionErrors   *prometheus.CounterVec
+	JobsProcessed      prometheus.Counter
+	CacheHitRatio      prometheus.Gauge
 }
 
 // NewJobPerformanceCollector creates a new job performance collector
 func NewJobPerformanceCollector(slurmClient slurm.SlurmClient, logger *slog.Logger, config *JobPerformanceConfig) (*JobPerformanceCollector, error) {
 	if config == nil {
 		config = &JobPerformanceConfig{
-			CollectionInterval:    30 * time.Second,
-			MaxJobsPerCollection:  1000,
-			EnableLiveMetrics:     true,
-			EnableStepMetrics:     true,
-			EnableEnergyMetrics:   false,
-			CacheTTL:              5 * time.Minute,
-			IncludeCompletedJobs:  true,
-			CompletedJobsMaxAge:   1 * time.Hour,
+			CollectionInterval:   30 * time.Second,
+			MaxJobsPerCollection: 1000,
+			EnableLiveMetrics:    true,
+			EnableStepMetrics:    true,
+			EnableEnergyMetrics:  false,
+			CacheTTL:             5 * time.Minute,
+			IncludeCompletedJobs: true,
+			CompletedJobsMaxAge:  1 * time.Hour,
 		}
 	}
 
@@ -304,7 +304,7 @@ func (c *JobPerformanceCollector) collectJobUtilization(ctx context.Context) err
 
 	// TODO: Job field names (JobID, etc.) are not available in the current slurm-client version
 	// Skipping job utilization processing for now
-	_ = jobs // Suppress unused variable warning
+	_ = jobs       // Suppress unused variable warning
 	_ = jobManager // Suppress unused variable warning
 
 	// Update cache hit ratio
@@ -319,11 +319,13 @@ func (c *JobPerformanceCollector) collectJobUtilization(ctx context.Context) err
 	return nil
 }
 
+// TODO: updateMetricsFromUtilization is unused - preserved for future utilization metrics updates
+/*
 // updateMetricsFromUtilization updates Prometheus metrics from job utilization data
 func (c *JobPerformanceCollector) updateMetricsFromUtilization(job *slurm.Job, util *JobUtilization) {
 	// TODO: Job field names and JobUtilization structure are not compatible with current slurm-client version
 	// Skipping metric updates for now
-	/*
+
 	labels := []string{
 		util.JobID,
 		job.Name,
@@ -407,8 +409,9 @@ func (c *JobPerformanceCollector) updateMetricsFromUtilization(job *slurm.Job, u
 			}
 		}
 	}
-	*/
+
 }
+*/
 
 // cleanExpiredCache removes expired entries from the job cache
 func (c *JobPerformanceCollector) cleanExpiredCache() {

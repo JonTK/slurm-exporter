@@ -420,6 +420,8 @@ type UserUsage struct {
 	RecentActivity  time.Time
 }
 
+// TODO: Following parser methods are unused - preserved for future user association parsing
+/*
 // parseAccountAssociation parses SLURM account association data
 func (uc *UserCollector) parseAccountAssociation(data interface{}) (*AccountInfo, error) {
 	// In real implementation, this would parse actual SLURM API response
@@ -460,3 +462,4 @@ func (uc *UserCollector) parseUserAssociation(data interface{}) (*UserInfo, erro
 		},
 	}, nil
 }
+*/

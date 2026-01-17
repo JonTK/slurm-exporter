@@ -16,7 +16,7 @@ func GetTestJobs() []slurm.Job {
 	startTime3 := now.Add(-90 * time.Minute)
 	endTime2 := now.Add(-30 * time.Minute)
 	startTime4 := now.Add(-45 * time.Minute)
-	
+
 	return []slurm.Job{
 		{
 			ID:         "12345",
@@ -29,14 +29,14 @@ func GetTestJobs() []slurm.Job {
 			SubmitTime: now.Add(-2 * time.Hour),
 			StartTime:  &startTime1,
 			CPUs:       16,
-			Memory:     32768, // 32GB in MB
+			Memory:     32768,   // 32GB in MB
 			TimeLimit:  24 * 60, // 24 hours in minutes
 			WorkingDir: "/home/user1",
 			Command:    "test-job.sh",
 			Nodes:      []string{"node01", "node02"},
 			Metadata: map[string]interface{}{
-				"account":     "research",
-				"qos":         "normal",
+				"account": "research",
+				"qos":     "normal",
 			},
 		},
 		{
@@ -49,14 +49,14 @@ func GetTestJobs() []slurm.Job {
 			Priority:   500,
 			SubmitTime: now.Add(-30 * time.Minute),
 			CPUs:       32,
-			Memory:     65536, // 64GB in MB
+			Memory:     65536,   // 64GB in MB
 			TimeLimit:  48 * 60, // 48 hours in minutes
 			WorkingDir: "/home/user2",
 			Command:    "test-job.sh",
 			Metadata: map[string]interface{}{
-				"account":     "engineering",
-				"qos":         "high",
-				"reason":      "Resources",
+				"account": "engineering",
+				"qos":     "high",
+				"reason":  "Resources",
 			},
 		},
 		{
@@ -71,16 +71,16 @@ func GetTestJobs() []slurm.Job {
 			StartTime:  &startTime2,
 			EndTime:    &endTime1,
 			CPUs:       8,
-			Memory:     16384, // 16GB in MB
+			Memory:     16384,  // 16GB in MB
 			TimeLimit:  4 * 60, // 4 hours in minutes
 			WorkingDir: "/home/user1",
 			Command:    "gpu-job.sh",
 			Nodes:      []string{"gpu-node01"},
 			ExitCode:   0,
 			Metadata: map[string]interface{}{
-				"account":     "research",
-				"qos":         "normal",
-				"gpus":        2,
+				"account": "research",
+				"qos":     "normal",
+				"gpus":    2,
 			},
 		},
 		{
@@ -95,16 +95,16 @@ func GetTestJobs() []slurm.Job {
 			StartTime:  &startTime3,
 			EndTime:    &endTime2,
 			CPUs:       4,
-			Memory:     8192, // 8GB in MB
+			Memory:     8192,   // 8GB in MB
 			TimeLimit:  2 * 60, // 2 hours in minutes
 			WorkingDir: "/home/user3",
 			Command:    "test-job.sh",
 			Nodes:      []string{"node03"},
 			ExitCode:   1,
 			Metadata: map[string]interface{}{
-				"account":     "finance",
-				"qos":         "low",
-				"reason":      "NonZeroExitCode",
+				"account": "finance",
+				"qos":     "low",
+				"reason":  "NonZeroExitCode",
 			},
 		},
 		{
@@ -118,7 +118,7 @@ func GetTestJobs() []slurm.Job {
 			SubmitTime: now.Add(-1 * time.Hour),
 			StartTime:  &startTime4,
 			CPUs:       2,
-			Memory:     4096, // 4GB in MB
+			Memory:     4096,   // 4GB in MB
 			TimeLimit:  1 * 60, // 1 hour in minutes
 			WorkingDir: "/home/user2",
 			Command:    "array-job.sh",
@@ -177,13 +177,13 @@ func GenerateLargeJobList(count int) *slurm.JobList {
 		user := users[i%len(users)]
 
 		// Create realistic job with varying resource requirements
-		cpus := 1 + (i%64)           // 1-64 CPUs
-		memory := 1024 + (i%32)*1024 // 1GB-32GB memory
+		cpus := 1 + (i % 64)                           // 1-64 CPUs
+		memory := 1024 + (i%32)*1024                   // 1GB-32GB memory
 		runtime := time.Duration(i%3600) * time.Second // 0-1 hour runtime
 
 		startTime := time.Now().Add(-runtime)
 		endTime := time.Now()
-		
+
 		job := slurm.Job{
 			ID:         jobID,
 			Name:       fmt.Sprintf("job_%d", i),
@@ -205,7 +205,7 @@ func GenerateLargeJobList(count int) *slurm.JobList {
 				"qos":     "normal",
 			},
 		}
-		
+
 		// Add start/end times for non-pending jobs
 		if state != "PENDING" {
 			job.StartTime = &startTime
@@ -229,7 +229,7 @@ func GenerateLargeJobList(count int) *slurm.JobList {
 			job.Metadata["array_job_id"] = 100000 + i
 			job.Metadata["array_task_id"] = i % 5
 		}
-		
+
 		jobs[i] = job
 	}
 
@@ -250,7 +250,7 @@ func GenerateJobBatch(count int, stateFilter string, partitionFilter string) *sl
 
 		startTime := time.Now().Add(-time.Duration(i) * time.Second)
 		endTime := time.Now()
-		
+
 		job := slurm.Job{
 			ID:         jobID,
 			Name:       fmt.Sprintf("batch_job_%d", i),
@@ -272,7 +272,7 @@ func GenerateJobBatch(count int, stateFilter string, partitionFilter string) *sl
 				"qos":     "normal",
 			},
 		}
-		
+
 		// Add start/end times based on state
 		if stateFilter != "PENDING" {
 			job.StartTime = &startTime
@@ -280,7 +280,7 @@ func GenerateJobBatch(count int, stateFilter string, partitionFilter string) *sl
 		if stateFilter == "COMPLETED" || stateFilter == "FAILED" || stateFilter == "CANCELLED" {
 			job.EndTime = &endTime
 		}
-		
+
 		jobs[i] = job
 	}
 

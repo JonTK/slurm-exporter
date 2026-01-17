@@ -25,83 +25,83 @@ type RealtimeJobStreamingSLURMClient interface {
 }
 
 type JobStatusEvent struct {
-	EventID        string
-	JobID          string
-	UserID         string
-	AccountName    string
-	PartitionName  string
-	PreviousState  string
-	CurrentState   string
-	StateChangeTime time.Time
-	EventType      string
-	Priority       int
-	SubmitTime     time.Time
-	StartTime      *time.Time
-	EndTime        *time.Time
-	ExitCode       *int
-	NodeList       []string
-	CPUsAllocated  int
-	MemoryAllocated int64
-	GPUsAllocated  int
+	EventID          string
+	JobID            string
+	UserID           string
+	AccountName      string
+	PartitionName    string
+	PreviousState    string
+	CurrentState     string
+	StateChangeTime  time.Time
+	EventType        string
+	Priority         int
+	SubmitTime       time.Time
+	StartTime        *time.Time
+	EndTime          *time.Time
+	ExitCode         *int
+	NodeList         []string
+	CPUsAllocated    int
+	MemoryAllocated  int64
+	GPUsAllocated    int
 	WorkingDirectory string
-	ExecutablePath string
-	JobScript      string
-	EnvironmentVars map[string]string
-	ResourceLimits  map[string]interface{}
-	QOSName        string
-	ReservationName string
-	ArrayJobID     *string
-	ArrayTaskID    *string
-	DependencyInfo []string
-	Comment        string
-	Reason         string
-	AdminComment   string
-	SystemComment  string
-	EventMetadata  map[string]interface{}
-	StreamingSource string
-	ProcessingTime  time.Duration
-	EventSequence  int64
-	BatchFlag      bool
-	Requeued       bool
-	Preempted      bool
-	TimeLimit      time.Duration
-	TimeLimitRaw   string
+	ExecutablePath   string
+	JobScript        string
+	EnvironmentVars  map[string]string
+	ResourceLimits   map[string]interface{}
+	QOSName          string
+	ReservationName  string
+	ArrayJobID       *string
+	ArrayTaskID      *string
+	DependencyInfo   []string
+	Comment          string
+	Reason           string
+	AdminComment     string
+	SystemComment    string
+	EventMetadata    map[string]interface{}
+	StreamingSource  string
+	ProcessingTime   time.Duration
+	EventSequence    int64
+	BatchFlag        bool
+	Requeued         bool
+	Preempted        bool
+	TimeLimit        time.Duration
+	TimeLimitRaw     string
 }
 
 type JobStreamingConfiguration struct {
-	StreamingEnabled        bool
-	EventBufferSize         int
-	EventBatchSize          int
-	EventFlushInterval      time.Duration
-	FilterCriteria          []string
-	IncludedJobStates       []string
-	ExcludedJobStates       []string
-	IncludedAccounts        []string
-	ExcludedAccounts        []string
-	IncludedPartitions      []string
-	ExcludedPartitions      []string
-	IncludedUsers           []string
-	ExcludedUsers           []string
-	EventRetentionPeriod    time.Duration
-	MaxConcurrentStreams    int
-	StreamingProtocol       string
-	CompressionEnabled      bool
-	EncryptionEnabled       bool
-	AuthenticationRequired  bool
-	RateLimitPerSecond      int
-	BackpressureThreshold   int
-	FailoverEnabled         bool
-	DeduplicationEnabled    bool
-	EventValidationEnabled  bool
+	StreamingEnabled         bool
+	EventBufferSize          int
+	EventBatchSize           int
+	EventFlushInterval       time.Duration
+	FilterCriteria           []string
+	IncludedJobStates        []string
+	ExcludedJobStates        []string
+	IncludedAccounts         []string
+	ExcludedAccounts         []string
+	IncludedPartitions       []string
+	ExcludedPartitions       []string
+	IncludedUsers            []string
+	ExcludedUsers            []string
+	EventRetentionPeriod     time.Duration
+	MaxConcurrentStreams     int
+	StreamingProtocol        string
+	CompressionEnabled       bool
+	EncryptionEnabled        bool
+	AuthenticationRequired   bool
+	RateLimitPerSecond       int
+	BackpressureThreshold    int
+	FailoverEnabled          bool
+	DeduplicationEnabled     bool
+	EventValidationEnabled   bool
 	MetricsCollectionEnabled bool
-	DebugLoggingEnabled     bool
-	PriorityBasedStreaming  bool
-	EventEnrichmentEnabled  bool
-	CustomEventHandlers     []string
-	StreamingEndpoints      []string
-	HealthCheckInterval     time.Duration
-	ReconnectionAttempts    int
-	ReconnectionDelay       time.Duration
+	DebugLoggingEnabled      bool
+	PriorityBasedStreaming   bool
+	EventEnrichmentEnabled   bool
+	CustomEventHandlers      []string
+	StreamingEndpoints       []string
+	HealthCheckInterval      time.Duration
+	ReconnectionAttempts     int
+	ReconnectionDelay        time.Duration
 }
 
 type ActiveJobStream struct {
@@ -138,63 +138,63 @@ type ActiveJobStream struct {
 }
 
 type JobEvent struct {
-	EventID         string
-	JobID           string
-	EventType       string
-	EventTime       time.Time
-	EventData       map[string]interface{}
-	EventSource     string
-	EventPriority   int
-	ProcessingDelay time.Duration
-	EventSize       int64
-	EventVersion    string
-	CorrelationID   string
-	CausationID     string
-	Metadata        map[string]interface{}
-	Tags            []string
-	Fingerprint     string
-	ProcessedBy     string
-	ProcessedTime   time.Time
+	EventID          string
+	JobID            string
+	EventType        string
+	EventTime        time.Time
+	EventData        map[string]interface{}
+	EventSource      string
+	EventPriority    int
+	ProcessingDelay  time.Duration
+	EventSize        int64
+	EventVersion     string
+	CorrelationID    string
+	CausationID      string
+	Metadata         map[string]interface{}
+	Tags             []string
+	Fingerprint      string
+	ProcessedBy      string
+	ProcessedTime    time.Time
 	ValidationStatus string
-	EnrichmentData  map[string]interface{}
+	EnrichmentData   map[string]interface{}
 	DeliveryAttempts int
-	DeliveryStatus  string
-	AcknowledgedAt  *time.Time
-	ExpiresAt       *time.Time
-	RetryPolicy     string
-	ErrorDetails    string
+	DeliveryStatus   string
+	AcknowledgedAt   *time.Time
+	ExpiresAt        *time.Time
+	RetryPolicy      string
+	ErrorDetails     string
 }
 
 type JobStreamingMetrics struct {
-	TotalStreams           int64
-	ActiveStreams          int64
-	PausedStreams          int64
-	FailedStreams          int64
-	EventsPerSecond        float64
-	AverageEventLatency    time.Duration
-	MaxEventLatency        time.Duration
-	MinEventLatency        time.Duration
-	TotalEventsProcessed   int64
-	TotalEventsDropped     int64
-	TotalEventsFailed      int64
-	AverageStreamDuration  time.Duration
-	MaxStreamDuration      time.Duration
-	TotalBandwidthUsed     float64
-	CompressionEfficiency  float64
-	DeduplicationRate      float64
-	ErrorRate              float64
-	SuccessRate            float64
+	TotalStreams            int64
+	ActiveStreams           int64
+	PausedStreams           int64
+	FailedStreams           int64
+	EventsPerSecond         float64
+	AverageEventLatency     time.Duration
+	MaxEventLatency         time.Duration
+	MinEventLatency         time.Duration
+	TotalEventsProcessed    int64
+	TotalEventsDropped      int64
+	TotalEventsFailed       int64
+	AverageStreamDuration   time.Duration
+	MaxStreamDuration       time.Duration
+	TotalBandwidthUsed      float64
+	CompressionEfficiency   float64
+	DeduplicationRate       float64
+	ErrorRate               float64
+	SuccessRate             float64
 	BackpressureOccurrences int64
-	FailoverOccurrences    int64
-	ReconnectionAttempts   int64
-	MemoryUsage            int64
-	CPUUsage               float64
-	NetworkUsage           float64
-	DiskUsage              int64
-	CacheHitRate           float64
-	QueueDepth             int64
-	ProcessingEfficiency   float64
-	StreamingHealth        float64
+	FailoverOccurrences     int64
+	ReconnectionAttempts    int64
+	MemoryUsage             int64
+	CPUUsage                float64
+	NetworkUsage            float64
+	DiskUsage               int64
+	CacheHitRate            float64
+	QueueDepth              int64
+	ProcessingEfficiency    float64
+	StreamingHealth         float64
 }
 
 type JobEventFilter struct {
@@ -230,143 +230,143 @@ type JobEventFilter struct {
 }
 
 type StreamingHealthStatus struct {
-	OverallHealth         string
-	ComponentHealth       map[string]string
-	LastHealthCheck       time.Time
-	HealthCheckDuration   time.Duration
-	HealthScore           float64
-	CriticalIssues        []string
-	WarningIssues         []string
-	InfoMessages          []string
-	StreamingUptime       time.Duration
-	ServiceAvailability   float64
-	ResourceUtilization   map[string]float64
-	PerformanceMetrics    map[string]float64
-	ErrorSummary          map[string]int64
-	HealthTrends          map[string]float64
-	PredictedIssues       []string
-	RecommendedActions    []string
-	SystemCapacity        map[string]float64
-	AlertThresholds       map[string]float64
-	SLACompliance         map[string]float64
-	DependencyStatus      map[string]string
-	ConfigurationValid    bool
-	SecurityStatus        string
-	BackupStatus          string
-	MonitoringEnabled     bool
-	LoggingEnabled        bool
+	OverallHealth       string
+	ComponentHealth     map[string]string
+	LastHealthCheck     time.Time
+	HealthCheckDuration time.Duration
+	HealthScore         float64
+	CriticalIssues      []string
+	WarningIssues       []string
+	InfoMessages        []string
+	StreamingUptime     time.Duration
+	ServiceAvailability float64
+	ResourceUtilization map[string]float64
+	PerformanceMetrics  map[string]float64
+	ErrorSummary        map[string]int64
+	HealthTrends        map[string]float64
+	PredictedIssues     []string
+	RecommendedActions  []string
+	SystemCapacity      map[string]float64
+	AlertThresholds     map[string]float64
+	SLACompliance       map[string]float64
+	DependencyStatus    map[string]string
+	ConfigurationValid  bool
+	SecurityStatus      string
+	BackupStatus        string
+	MonitoringEnabled   bool
+	LoggingEnabled      bool
 }
 
 type JobEventSubscription struct {
-	SubscriptionID       string
-	SubscriberName       string
-	SubscriberEndpoint   string
-	SubscriptionType     string
-	EventTypes           []string
-	FilterCriteria       string
-	DeliveryMethod       string
-	DeliveryFormat       string
-	SubscriptionStatus   string
-	CreatedTime          time.Time
-	LastDeliveryTime     time.Time
-	DeliveryCount        int64
-	FailedDeliveries     int64
-	RetryPolicy          string
-	MaxRetries           int
-	RetryDelay           time.Duration
-	ExpirationTime       *time.Time
-	Priority             int
-	BatchDelivery        bool
-	BatchSize            int
-	BatchTimeout         time.Duration
-	CompressionEnabled   bool
-	EncryptionEnabled    bool
-	AuthenticationToken  string
-	CallbackURL          string
-	ErrorHandling        string
-	DeliveryGuarantee    string
-	Metadata             map[string]interface{}
-	Tags                 []string
-	SubscriberContact    string
-	BusinessContext      string
-	UsageQuota           int64
-	UsedQuota            int64
-	BandwidthLimit       float64
+	SubscriptionID      string
+	SubscriberName      string
+	SubscriberEndpoint  string
+	SubscriptionType    string
+	EventTypes          []string
+	FilterCriteria      string
+	DeliveryMethod      string
+	DeliveryFormat      string
+	SubscriptionStatus  string
+	CreatedTime         time.Time
+	LastDeliveryTime    time.Time
+	DeliveryCount       int64
+	FailedDeliveries    int64
+	RetryPolicy         string
+	MaxRetries          int
+	RetryDelay          time.Duration
+	ExpirationTime      *time.Time
+	Priority            int
+	BatchDelivery       bool
+	BatchSize           int
+	BatchTimeout        time.Duration
+	CompressionEnabled  bool
+	EncryptionEnabled   bool
+	AuthenticationToken string
+	CallbackURL         string
+	ErrorHandling       string
+	DeliveryGuarantee   string
+	Metadata            map[string]interface{}
+	Tags                []string
+	SubscriberContact   string
+	BusinessContext     string
+	UsageQuota          int64
+	UsedQuota           int64
+	BandwidthLimit      float64
 }
 
 type JobEventProcessingStats struct {
-	ProcessingStartTime     time.Time
-	TotalEventsReceived     int64
-	TotalEventsProcessed    int64
-	TotalEventsFiltered     int64
-	TotalEventsDropped      int64
-	TotalProcessingTime     time.Duration
-	AverageProcessingTime   time.Duration
-	MaxProcessingTime       time.Duration
-	MinProcessingTime       time.Duration
-	ProcessingThroughput    float64
-	ErrorRate               float64
-	SuccessRate             float64
-	FilterEfficiency        float64
-	ValidationErrors        int64
-	EnrichmentErrors        int64
-	DeliveryErrors          int64
-	TransformationErrors    int64
-	SerializationErrors     int64
-	NetworkErrors           int64
-	AuthenticationErrors    int64
-	AuthorizationErrors     int64
-	RateLimitExceeded       int64
-	BackpressureEvents      int64
-	CircuitBreakerTrips     int64
-	RetryAttempts           int64
-	DeadLetterEvents        int64
-	DuplicateEvents         int64
-	OutOfOrderEvents        int64
-	LateArrivingEvents      int64
-	ProcessingQueues        map[string]int64
-	WorkerStatistics        map[string]interface{}
-	ResourceUtilization     map[string]float64
-	PerformanceCounters     map[string]int64
+	ProcessingStartTime   time.Time
+	TotalEventsReceived   int64
+	TotalEventsProcessed  int64
+	TotalEventsFiltered   int64
+	TotalEventsDropped    int64
+	TotalProcessingTime   time.Duration
+	AverageProcessingTime time.Duration
+	MaxProcessingTime     time.Duration
+	MinProcessingTime     time.Duration
+	ProcessingThroughput  float64
+	ErrorRate             float64
+	SuccessRate           float64
+	FilterEfficiency      float64
+	ValidationErrors      int64
+	EnrichmentErrors      int64
+	DeliveryErrors        int64
+	TransformationErrors  int64
+	SerializationErrors   int64
+	NetworkErrors         int64
+	AuthenticationErrors  int64
+	AuthorizationErrors   int64
+	RateLimitExceeded     int64
+	BackpressureEvents    int64
+	CircuitBreakerTrips   int64
+	RetryAttempts         int64
+	DeadLetterEvents      int64
+	DuplicateEvents       int64
+	OutOfOrderEvents      int64
+	LateArrivingEvents    int64
+	ProcessingQueues      map[string]int64
+	WorkerStatistics      map[string]interface{}
+	ResourceUtilization   map[string]float64
+	PerformanceCounters   map[string]int64
 }
 
 type JobStreamingPerformanceMetrics struct {
-	Throughput              float64
-	Latency                 time.Duration
-	P50Latency              time.Duration
-	P95Latency              time.Duration
-	P99Latency              time.Duration
-	MaxLatency              time.Duration
-	MessageRate             float64
-	ByteRate                float64
-	ErrorRate               float64
-	SuccessRate             float64
-	AvailabilityPercentage  float64
-	UptimePercentage        float64
-	CPUUtilization          float64
-	MemoryUtilization       float64
-	NetworkUtilization      float64
-	DiskUtilization         float64
-	ConnectionCount         int64
-	ActiveConnections       int64
-	IdleConnections         int64
-	FailedConnections       int64
-	ConnectionPoolSize      int64
-	QueueDepth              int64
-	BufferUtilization       float64
-	GCPressure              float64
-	GCFrequency             float64
-	GCDuration              time.Duration
-	HeapSize                int64
-	ThreadCount             int64
-	ContextSwitches         int64
-	SystemCalls             int64
-	PageFaults              int64
-	CacheMisses             int64
-	BranchMispredictions    int64
-	InstructionsPerSecond   float64
-	CyclesPerInstruction    float64
-	PerformanceScore        float64
+	Throughput             float64
+	Latency                time.Duration
+	P50Latency             time.Duration
+	P95Latency             time.Duration
+	P99Latency             time.Duration
+	MaxLatency             time.Duration
+	MessageRate            float64
+	ByteRate               float64
+	ErrorRate              float64
+	SuccessRate            float64
+	AvailabilityPercentage float64
+	UptimePercentage       float64
+	CPUUtilization         float64
+	MemoryUtilization      float64
+	NetworkUtilization     float64
+	DiskUtilization        float64
+	ConnectionCount        int64
+	ActiveConnections      int64
+	IdleConnections        int64
+	FailedConnections      int64
+	ConnectionPoolSize     int64
+	QueueDepth             int64
+	BufferUtilization      float64
+	GCPressure             float64
+	GCFrequency            float64
+	GCDuration             time.Duration
+	HeapSize               int64
+	ThreadCount            int64
+	ContextSwitches        int64
+	SystemCalls            int64
+	PageFaults             int64
+	CacheMisses            int64
+	BranchMispredictions   int64
+	InstructionsPerSecond  float64
+	CyclesPerInstruction   float64
+	PerformanceScore       float64
 }
 
 type RealtimeJobStreamingCollector struct {
@@ -374,74 +374,74 @@ type RealtimeJobStreamingCollector struct {
 	mutex  sync.RWMutex
 
 	// Event metrics
-	jobEventsTotal           *prometheus.CounterVec
-	jobEventRate             *prometheus.GaugeVec
-	jobEventLatency          *prometheus.HistogramVec
-	jobEventSize             *prometheus.HistogramVec
-	jobEventsDropped         *prometheus.CounterVec
-	jobEventsFailed          *prometheus.CounterVec
-	jobEventsProcessed       *prometheus.CounterVec
+	jobEventsTotal     *prometheus.CounterVec
+	jobEventRate       *prometheus.GaugeVec
+	jobEventLatency    *prometheus.HistogramVec
+	jobEventSize       *prometheus.HistogramVec
+	jobEventsDropped   *prometheus.CounterVec
+	jobEventsFailed    *prometheus.CounterVec
+	jobEventsProcessed *prometheus.CounterVec
 
 	// Stream metrics
-	activeJobStreams         *prometheus.GaugeVec
-	jobStreamDuration        *prometheus.HistogramVec
-	jobStreamBandwidth       *prometheus.GaugeVec
-	jobStreamLatency         *prometheus.GaugeVec
-	jobStreamHealth          *prometheus.GaugeVec
-	jobStreamBackpressure    *prometheus.CounterVec
-	jobStreamFailover        *prometheus.CounterVec
-	jobStreamReconnections   *prometheus.CounterVec
+	activeJobStreams       *prometheus.GaugeVec
+	jobStreamDuration      *prometheus.HistogramVec
+	jobStreamBandwidth     *prometheus.GaugeVec
+	jobStreamLatency       *prometheus.GaugeVec
+	jobStreamHealth        *prometheus.GaugeVec
+	jobStreamBackpressure  *prometheus.CounterVec
+	jobStreamFailover      *prometheus.CounterVec
+	jobStreamReconnections *prometheus.CounterVec
 
 	// Configuration metrics
-	streamingEnabled         *prometheus.GaugeVec
-	maxConcurrentStreams     *prometheus.GaugeVec
-	eventBufferSize          *prometheus.GaugeVec
-	eventBatchSize           *prometheus.GaugeVec
-	rateLimitPerSecond       *prometheus.GaugeVec
-	backpressureThreshold    *prometheus.GaugeVec
+	streamingEnabled      *prometheus.GaugeVec
+	maxConcurrentStreams  *prometheus.GaugeVec
+	eventBufferSize       *prometheus.GaugeVec
+	eventBatchSize        *prometheus.GaugeVec
+	rateLimitPerSecond    *prometheus.GaugeVec
+	backpressureThreshold *prometheus.GaugeVec
 
 	// Performance metrics
-	streamingThroughput      *prometheus.GaugeVec
-	streamingCPUUsage        *prometheus.GaugeVec
-	streamingMemoryUsage     *prometheus.GaugeVec
-	streamingNetworkUsage    *prometheus.GaugeVec
-	streamingDiskUsage       *prometheus.GaugeVec
-	compressionEfficiency    *prometheus.GaugeVec
-	deduplicationRate        *prometheus.GaugeVec
-	cacheHitRate             *prometheus.GaugeVec
-	queueDepth               *prometheus.GaugeVec
-	processingEfficiency     *prometheus.GaugeVec
+	streamingThroughput   *prometheus.GaugeVec
+	streamingCPUUsage     *prometheus.GaugeVec
+	streamingMemoryUsage  *prometheus.GaugeVec
+	streamingNetworkUsage *prometheus.GaugeVec
+	streamingDiskUsage    *prometheus.GaugeVec
+	compressionEfficiency *prometheus.GaugeVec
+	deduplicationRate     *prometheus.GaugeVec
+	cacheHitRate          *prometheus.GaugeVec
+	queueDepth            *prometheus.GaugeVec
+	processingEfficiency  *prometheus.GaugeVec
 
 	// Health metrics
-	streamingHealthScore     *prometheus.GaugeVec
-	serviceAvailability      *prometheus.GaugeVec
-	streamingUptime          *prometheus.CounterVec
-	criticalIssues           *prometheus.GaugeVec
-	warningIssues            *prometheus.GaugeVec
-	healthCheckDuration      *prometheus.HistogramVec
-	slaCompliance            *prometheus.GaugeVec
+	streamingHealthScore *prometheus.GaugeVec
+	serviceAvailability  *prometheus.GaugeVec
+	streamingUptime      *prometheus.CounterVec
+	criticalIssues       *prometheus.GaugeVec
+	warningIssues        *prometheus.GaugeVec
+	healthCheckDuration  *prometheus.HistogramVec
+	slaCompliance        *prometheus.GaugeVec
 
 	// Subscription metrics
-	eventSubscriptionsTotal  *prometheus.CounterVec
-	subscriptionDeliveries   *prometheus.CounterVec
-	subscriptionFailures     *prometheus.CounterVec
-	subscriptionRetries      *prometheus.CounterVec
-	subscriptionLatency      *prometheus.HistogramVec
+	eventSubscriptionsTotal *prometheus.CounterVec
+	subscriptionDeliveries  *prometheus.CounterVec
+	subscriptionFailures    *prometheus.CounterVec
+	subscriptionRetries     *prometheus.CounterVec
+	subscriptionLatency     *prometheus.HistogramVec
 
 	// Filter metrics
-	eventFiltersActive       *prometheus.GaugeVec
-	filterMatchCount         *prometheus.CounterVec
-	filterProcessingTime     *prometheus.HistogramVec
-	filterEfficiency         *prometheus.GaugeVec
+	eventFiltersActive   *prometheus.GaugeVec
+	filterMatchCount     *prometheus.CounterVec
+	filterProcessingTime *prometheus.HistogramVec
+	filterEfficiency     *prometheus.GaugeVec
 
 	// Error metrics
-	streamingErrors          *prometheus.CounterVec
-	validationErrors         *prometheus.CounterVec
-	enrichmentErrors         *prometheus.CounterVec
-	deliveryErrors           *prometheus.CounterVec
-	transformationErrors     *prometheus.CounterVec
-	networkErrors            *prometheus.CounterVec
-	authenticationErrors     *prometheus.CounterVec
+	streamingErrors      *prometheus.CounterVec
+	validationErrors     *prometheus.CounterVec
+	enrichmentErrors     *prometheus.CounterVec
+	deliveryErrors       *prometheus.CounterVec
+	transformationErrors *prometheus.CounterVec
+	networkErrors        *prometheus.CounterVec
+	authenticationErrors *prometheus.CounterVec
 }
 
 func NewRealtimeJobStreamingCollector(client RealtimeJobStreamingSLURMClient) *RealtimeJobStreamingCollector {
@@ -465,16 +465,16 @@ func NewRealtimeJobStreamingCollector(client RealtimeJobStreamingSLURMClient) *R
 		),
 		jobEventLatency: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_job_event_latency_seconds",
-				Help: "Latency of job event processing",
+				Name:    "slurm_job_event_latency_seconds",
+				Help:    "Latency of job event processing",
 				Buckets: []float64{0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10},
 			},
 			[]string{"event_type", "processing_stage"},
 		),
 		jobEventSize: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_job_event_size_bytes",
-				Help: "Size of job events in bytes",
+				Name:    "slurm_job_event_size_bytes",
+				Help:    "Size of job events in bytes",
 				Buckets: []float64{100, 500, 1000, 5000, 10000, 50000, 100000},
 			},
 			[]string{"event_type"},
@@ -511,8 +511,8 @@ func NewRealtimeJobStreamingCollector(client RealtimeJobStreamingSLURMClient) *R
 		),
 		jobStreamDuration: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_job_stream_duration_seconds",
-				Help: "Duration of job streams",
+				Name:    "slurm_job_stream_duration_seconds",
+				Help:    "Duration of job streams",
 				Buckets: []float64{60, 300, 900, 1800, 3600, 7200, 14400, 86400},
 			},
 			[]string{"stream_type"},
@@ -714,8 +714,8 @@ func NewRealtimeJobStreamingCollector(client RealtimeJobStreamingSLURMClient) *R
 		),
 		healthCheckDuration: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_job_streaming_health_check_duration_seconds",
-				Help: "Duration of health checks for job streaming system",
+				Name:    "slurm_job_streaming_health_check_duration_seconds",
+				Help:    "Duration of health checks for job streaming system",
 				Buckets: []float64{0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5},
 			},
 			[]string{"component"},
@@ -759,8 +759,8 @@ func NewRealtimeJobStreamingCollector(client RealtimeJobStreamingSLURMClient) *R
 		),
 		subscriptionLatency: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_job_subscription_latency_seconds",
-				Help: "Latency of subscription deliveries",
+				Name:    "slurm_job_subscription_latency_seconds",
+				Help:    "Latency of subscription deliveries",
 				Buckets: []float64{0.01, 0.05, 0.1, 0.5, 1, 5, 10, 30},
 			},
 			[]string{"subscription_id", "delivery_method"},
@@ -783,8 +783,8 @@ func NewRealtimeJobStreamingCollector(client RealtimeJobStreamingSLURMClient) *R
 		),
 		filterProcessingTime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_job_filter_processing_time_seconds",
-				Help: "Processing time for job event filters",
+				Name:    "slurm_job_filter_processing_time_seconds",
+				Help:    "Processing time for job event filters",
 				Buckets: []float64{0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1},
 			},
 			[]string{"filter_id", "filter_type"},

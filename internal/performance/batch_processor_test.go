@@ -23,10 +23,10 @@ type mockBatchItem struct {
 	timestamp time.Time
 }
 
-func (m *mockBatchItem) Key() string         { return m.key }
-func (m *mockBatchItem) Size() int           { return m.size }
-func (m *mockBatchItem) Type() string        { return m.itemType }
-func (m *mockBatchItem) Priority() int       { return m.priority }
+func (m *mockBatchItem) Key() string          { return m.key }
+func (m *mockBatchItem) Size() int            { return m.size }
+func (m *mockBatchItem) Type() string         { return m.itemType }
+func (m *mockBatchItem) Priority() int        { return m.priority }
 func (m *mockBatchItem) Timestamp() time.Time { return m.timestamp }
 
 func TestNewBatchProcessor(t *testing.T) {
@@ -71,7 +71,7 @@ func TestNewBatchProcessor(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			bp, err := NewBatchProcessor(tt.config, logger)
 			require.NoError(t, err)
-			defer bp.Stop()
+			defer func() { _ = bp.Stop() }()
 
 			assert.Equal(t, tt.want.MaxBatchSize, bp.config.MaxBatchSize)
 			assert.Equal(t, tt.want.MaxBatchWait, bp.config.MaxBatchWait)
@@ -89,7 +89,7 @@ func TestBatchProcessor_Add(t *testing.T) {
 
 	bp, err := NewBatchProcessor(config, logger)
 	require.NoError(t, err)
-	defer bp.Stop()
+	defer func() { _ = bp.Stop() }()
 
 	// Add items
 	items := []BatchItem{
@@ -123,7 +123,7 @@ func TestBatchProcessor_Deduplication(t *testing.T) {
 
 	bp, err := NewBatchProcessor(config, logger)
 	require.NoError(t, err)
-	defer bp.Stop()
+	defer func() { _ = bp.Stop() }()
 
 	// Add duplicate items
 	item1 := &mockBatchItem{key: "dup", size: 10, itemType: "test", priority: 1, timestamp: time.Now()}
@@ -152,7 +152,7 @@ func TestBatchProcessor_AutoFlush(t *testing.T) {
 
 	bp, err := NewBatchProcessor(config, logger)
 	require.NoError(t, err)
-	defer bp.Stop()
+	defer func() { _ = bp.Stop() }()
 
 	processedCount := int32(0)
 	processor := func(ctx context.Context, items []BatchItem) error {
@@ -191,7 +191,7 @@ func TestBatchProcessor_TimeBasedFlush(t *testing.T) {
 
 	bp, err := NewBatchProcessor(config, logger)
 	require.NoError(t, err)
-	defer bp.Stop()
+	defer func() { _ = bp.Stop() }()
 
 	processedCount := int32(0)
 	processor := func(ctx context.Context, items []BatchItem) error {
@@ -226,7 +226,7 @@ func TestBatchProcessor_RetryLogic(t *testing.T) {
 
 	bp, err := NewBatchProcessor(config, logger)
 	require.NoError(t, err)
-	defer bp.Stop()
+	defer func() { _ = bp.Stop() }()
 
 	attemptCount := int32(0)
 	processor := func(ctx context.Context, items []BatchItem) error {
@@ -241,7 +241,7 @@ func TestBatchProcessor_RetryLogic(t *testing.T) {
 	items := []BatchItem{
 		&mockBatchItem{key: "item1", size: 10, itemType: "test", priority: 1, timestamp: time.Now()},
 	}
-	
+
 	bp.processBatchWithRetry("test", items, processor, time.Second)
 
 	// Check retry count
@@ -258,12 +258,12 @@ func TestBatchProcessor_ConcurrentAdd(t *testing.T) {
 
 	bp, err := NewBatchProcessor(config, logger)
 	require.NoError(t, err)
-	defer bp.Stop()
+	defer func() { _ = bp.Stop() }()
 
 	// Concurrent adds
 	var wg sync.WaitGroup
 	itemCount := 50
-	
+
 	for i := 0; i < itemCount; i++ {
 		wg.Add(1)
 		go func(idx int) {
@@ -300,7 +300,7 @@ func TestBatchProcessor_FlushAll(t *testing.T) {
 
 	bp, err := NewBatchProcessor(config, logger)
 	require.NoError(t, err)
-	defer bp.Stop()
+	defer func() { _ = bp.Stop() }()
 
 	// Add items to multiple batch types
 	types := []string{"type1", "type2", "type3"}
@@ -346,23 +346,23 @@ func TestBatchProcessor_GetStats(t *testing.T) {
 
 	bp, err := NewBatchProcessor(config, logger)
 	require.NoError(t, err)
-	defer bp.Stop()
+	defer func() { _ = bp.Stop() }()
 
 	// Add items
 	item1 := &mockBatchItem{key: "item1", size: 100, itemType: "test", priority: 5, timestamp: time.Now()}
 	item2 := &mockBatchItem{key: "item2", size: 200, itemType: "test", priority: 10, timestamp: time.Now()}
 
-	bp.Add(item1)
-	bp.Add(item2)
+	_ = bp.Add(item1)
+	_ = bp.Add(item2)
 
 	// Get stats
 	stats := bp.GetStats()
 
 	assert.Equal(t, 1, stats["batch_count"])
-	
+
 	batchTypes := stats["batch_types"].(map[string]interface{})
 	testBatch := batchTypes["test"].(map[string]interface{})
-	
+
 	assert.Equal(t, 2, testBatch["items"])
 	assert.Equal(t, 300, testBatch["total_size"])
 	assert.Equal(t, 10, testBatch["priority"])
@@ -387,7 +387,7 @@ func TestBatchProcessor_Stop(t *testing.T) {
 			priority:  1,
 			timestamp: time.Now(),
 		}
-		bp.Add(item)
+		_ = bp.Add(item)
 	}
 
 	// Stop should flush pending batches
@@ -409,7 +409,7 @@ func TestBatchProcessor_RegisterMetrics(t *testing.T) {
 
 	bp, err := NewBatchProcessor(config, logger)
 	require.NoError(t, err)
-	defer bp.Stop()
+	defer func() { _ = bp.Stop() }()
 
 	// Register metrics
 	reg := prometheus.NewRegistry()

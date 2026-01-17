@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 	"math"
-	"sync"
+	// Commented out as only used in commented-out field
+	// "sync"
 	"time"
 
 	"github.com/jontk/slurm-client"
@@ -14,15 +15,16 @@ import (
 
 // FairShareCollector provides comprehensive fair-share and priority analysis
 type FairShareCollector struct {
-	slurmClient     slurm.SlurmClient
-	logger          *slog.Logger
-	config          *FairShareConfig
-	metrics         *FairShareMetrics
+	slurmClient slurm.SlurmClient
+	logger      *slog.Logger
+	config      *FairShareConfig
+	metrics     *FairShareMetrics
 
 	// Fair-share data storage
-	userFairShares    map[string]*UserFairShare
-	accountHierarchy  *AccountFairShareHierarchy
-	priorityFactors   map[string]*JobPriorityFactors
+	userFairShares map[string]*UserFairShare
+	// TODO: Unused field - preserved for future account hierarchy tracking
+	// accountHierarchy  *AccountFairShareHierarchy
+	priorityFactors map[string]*JobPriorityFactors
 
 	// Analysis engines
 	violationDetector *FairShareViolationDetector
@@ -30,38 +32,39 @@ type FairShareCollector struct {
 	trendAnalyzer     *FairShareTrendAnalyzer
 
 	// Queue analysis
-	queueAnalyzer     *QueueAnalyzer
+	queueAnalyzer *QueueAnalyzer
 
 	// User behavior analysis
-	behaviorAnalyzer  *UserBehaviorAnalyzer
+	behaviorAnalyzer *UserBehaviorAnalyzer
 
-	lastCollection    time.Time
-	mu                sync.RWMutex
+	// TODO: Unused fields - preserved for future collection tracking and thread safety
+	// lastCollection    time.Time
+	// mu                sync.RWMutex
 }
 
 // FairShareConfig configures the fair-share collector
 type FairShareConfig struct {
-	CollectionInterval       time.Duration
-	FairShareRetention      time.Duration
-	PriorityRetention       time.Duration
+	CollectionInterval time.Duration
+	FairShareRetention time.Duration
+	PriorityRetention  time.Duration
 
 	// Fair-share monitoring
-	EnableUserFairShare     bool
-	EnableAccountHierarchy  bool
-	EnablePriorityAnalysis  bool
+	EnableUserFairShare      bool
+	EnableAccountHierarchy   bool
+	EnablePriorityAnalysis   bool
 	EnableViolationDetection bool
-	EnableTrendAnalysis     bool
+	EnableTrendAnalysis      bool
 
 	// Analysis parameters
-	ViolationThreshold      float64 // Threshold for fair-share violations
-	DecayPeriod             time.Duration
-	ResetCycle              time.Duration
-	PriorityWeights         PriorityWeights
+	ViolationThreshold float64 // Threshold for fair-share violations
+	DecayPeriod        time.Duration
+	ResetCycle         time.Duration
+	PriorityWeights    PriorityWeights
 
 	// Queue analysis
-	EnableQueueAnalysis     bool
-	QueuePositionTracking   bool
-	WaitTimePrediction      bool
+	EnableQueueAnalysis   bool
+	QueuePositionTracking bool
+	WaitTimePrediction    bool
 
 	// User behavior analysis
 	EnableBehaviorAnalysis  bool
@@ -69,15 +72,15 @@ type FairShareConfig struct {
 	OptimizationSuggestions bool
 
 	// Data processing
-	MaxUsersPerCollection   int
+	MaxUsersPerCollection    int
 	MaxAccountsPerCollection int
 	EnableParallelProcessing bool
-	MaxConcurrentAnalyses   int
+	MaxConcurrentAnalyses    int
 
 	// Reporting
-	GenerateReports         bool
-	ReportInterval          time.Duration
-	ReportRetention         time.Duration
+	GenerateReports bool
+	ReportInterval  time.Duration
+	ReportRetention time.Duration
 }
 
 // PriorityWeights defines weights for priority calculation factors
@@ -92,114 +95,114 @@ type PriorityWeights struct {
 
 // UserFairShare contains fair-share data for a user
 type UserFairShare struct {
-	UserName        string
-	Account         string
-	Partition       string
-	Timestamp       time.Time
+	UserName  string
+	Account   string
+	Partition string
+	Timestamp time.Time
 
 	// Fair-share factors
-	FairShareFactor    float64 // Current fair-share factor (0.0 - 1.0+)
-	RawShares          int64   // Raw shares allocated to user
-	NormalizedShares   float64 // Normalized shares (0.0 - 1.0)
-	EffectiveUsage     float64 // Effective usage over fair-share period
+	FairShareFactor  float64 // Current fair-share factor (0.0 - 1.0+)
+	RawShares        int64   // Raw shares allocated to user
+	NormalizedShares float64 // Normalized shares (0.0 - 1.0)
+	EffectiveUsage   float64 // Effective usage over fair-share period
 
 	// Usage tracking
-	CPUUsage           float64 // CPU usage in CPU-hours
-	MemoryUsage        float64 // Memory usage in MB-hours
-	GPUUsage           float64 // GPU usage in GPU-hours
-	NodeUsage          float64 // Node usage in node-hours
+	CPUUsage    float64 // CPU usage in CPU-hours
+	MemoryUsage float64 // Memory usage in MB-hours
+	GPUUsage    float64 // GPU usage in GPU-hours
+	NodeUsage   float64 // Node usage in node-hours
 
 	// Fair-share calculations
-	TargetUsage        float64 // Target usage based on shares
-	UsageRatio         float64 // Actual usage / target usage
-	FairSharePriority  float64 // Priority contribution from fair-share
+	TargetUsage       float64 // Target usage based on shares
+	UsageRatio        float64 // Actual usage / target usage
+	FairSharePriority float64 // Priority contribution from fair-share
 
 	// Decay and reset tracking
-	LastDecay          time.Time
-	LastReset          time.Time
-	DecayHalfLife      time.Duration
+	LastDecay     time.Time
+	LastReset     time.Time
+	DecayHalfLife time.Duration
 
 	// Account association
-	AccountPath        string   // Full account hierarchy path
-	ParentAccount      string   // Direct parent account
-	Level              int      // Hierarchy level (0 = root)
+	AccountPath   string // Full account hierarchy path
+	ParentAccount string // Direct parent account
+	Level         int    // Hierarchy level (0 = root)
 
 	// Quality and metadata
-	DataQuality        float64  // Quality of fair-share data (0-1)
-	LastUpdated        time.Time
-	UpdateCount        int64
+	DataQuality float64 // Quality of fair-share data (0-1)
+	LastUpdated time.Time
+	UpdateCount int64
 
 	// Trends and analysis
-	TrendDirection     string   // "improving", "degrading", "stable"
-	TrendStrength      float64  // Strength of trend (0-1)
-	PredictedFactor    float64  // Predicted fair-share factor
+	TrendDirection  string  // "improving", "degrading", "stable"
+	TrendStrength   float64 // Strength of trend (0-1)
+	PredictedFactor float64 // Predicted fair-share factor
 
 	// Violation tracking
-	IsViolating        bool     // Currently violating fair-share
-	ViolationSeverity  float64  // Severity of violation (0-1)
-	ViolationDuration  time.Duration // How long violation has lasted
-	ViolationHistory   []*FairShareViolation
+	IsViolating       bool          // Currently violating fair-share
+	ViolationSeverity float64       // Severity of violation (0-1)
+	ViolationDuration time.Duration // How long violation has lasted
+	ViolationHistory  []*FairShareViolation
 }
 
 // AccountFairShareHierarchy represents the account hierarchy for fair-share
 type AccountFairShareHierarchy struct {
-	RootAccount     *AccountFairShareNode
-	AccountMap      map[string]*AccountFairShareNode
-	LastUpdated     time.Time
-	HierarchyDepth  int
-	TotalAccounts   int
+	RootAccount    *AccountFairShareNode
+	AccountMap     map[string]*AccountFairShareNode
+	LastUpdated    time.Time
+	HierarchyDepth int
+	TotalAccounts  int
 
 	// Hierarchy analysis
-	BalanceScore    float64 // How balanced the hierarchy is (0-1)
-	EfficiencyScore float64 // How efficiently shares are used (0-1)
+	BalanceScore     float64 // How balanced the hierarchy is (0-1)
+	EfficiencyScore  float64 // How efficiently shares are used (0-1)
 	UtilizationScore float64 // Overall utilization score (0-1)
 }
 
 // AccountFairShareNode represents a node in the fair-share hierarchy
 type AccountFairShareNode struct {
-	AccountName       string
-	ParentAccount     string
-	Children          []*AccountFairShareNode
-	Level             int
+	AccountName   string
+	ParentAccount string
+	Children      []*AccountFairShareNode
+	Level         int
 
 	// Share allocation
-	RawShares         int64
-	NormalizedShares  float64
-	EffectiveShares   float64
+	RawShares        int64
+	NormalizedShares float64
+	EffectiveShares  float64
 
 	// Usage tracking
-	TotalUsage        float64
-	UserUsage         map[string]float64
-	ChildUsage        map[string]float64
+	TotalUsage float64
+	UserUsage  map[string]float64
+	ChildUsage map[string]float64
 
 	// Fair-share metrics
-	FairShareFactor   float64
-	TargetUsage       float64
-	ActualUsage       float64
-	UsageRatio        float64
+	FairShareFactor float64
+	TargetUsage     float64
+	ActualUsage     float64
+	UsageRatio      float64
 
 	// Users in this account
-	Users             []string
-	UserCount         int
-	ActiveUsers       int
+	Users       []string
+	UserCount   int
+	ActiveUsers int
 
 	// Quality metrics
-	DataCompleteness  float64
-	LastUpdated       time.Time
+	DataCompleteness float64
+	LastUpdated      time.Time
 }
 
 // JobPriorityFactors contains detailed priority factor breakdown for a job
 type JobPriorityFactors struct {
-	JobID           string
-	UserName        string
-	Account         string
-	Partition       string
-	QoS             string
-	Timestamp       time.Time
+	JobID     string
+	UserName  string
+	Account   string
+	Partition string
+	QoS       string
+	Timestamp time.Time
 
 	// Priority components
-	TotalPriority   int64   // Total calculated priority
-	BasePriority    int64   // Base priority
+	TotalPriority int64 // Total calculated priority
+	BasePriority  int64 // Base priority
 
 	// Factor contributions
 	AgeFactor       float64 // Age contribution to priority
@@ -210,12 +213,12 @@ type JobPriorityFactors struct {
 	JobSizeFactor   float64 // Job size contribution
 
 	// Normalized factors (0-1)
-	NormalizedAge      float64
+	NormalizedAge       float64
 	NormalizedFairShare float64
-	NormalizedQoS      float64
+	NormalizedQoS       float64
 	NormalizedPartition float64
-	NormalizedAssoc    float64
-	NormalizedJobSize  float64
+	NormalizedAssoc     float64
+	NormalizedJobSize   float64
 
 	// Priority analysis
 	PriorityScore      float64 // Overall priority score (0-1)
@@ -228,41 +231,41 @@ type JobPriorityFactors struct {
 	PredictedStartTime time.Time     // Predicted start time
 
 	// Context
-	JobSize            int           // Number of CPUs/nodes
-	SubmitTime         time.Time     // Job submission time
-	RequestedRuntime   time.Duration // Requested runtime
+	JobSize            int                // Number of CPUs/nodes
+	SubmitTime         time.Time          // Job submission time
+	RequestedRuntime   time.Duration      // Requested runtime
 	RequestedResources map[string]float64 // Requested resources
 
 	// Quality indicators
-	CalculationQuality float64 // Quality of priority calculation (0-1)
+	CalculationQuality float64       // Quality of priority calculation (0-1)
 	DataFreshness      time.Duration // How fresh the data is
 }
 
 // FairShareViolation represents a fair-share violation event
 type FairShareViolation struct {
-	ViolationID     string
-	UserName        string
-	Account         string
-	ViolationType   string // "overuse", "underuse", "imbalance"
-	Severity        string // "minor", "moderate", "major", "critical"
+	ViolationID   string
+	UserName      string
+	Account       string
+	ViolationType string // "overuse", "underuse", "imbalance"
+	Severity      string // "minor", "moderate", "major", "critical"
 
 	// Violation details
-	StartTime       time.Time
-	EndTime         *time.Time
-	Duration        time.Duration
-	CurrentFactor   float64
-	TargetFactor    float64
-	Deviation       float64
+	StartTime     time.Time
+	EndTime       *time.Time
+	Duration      time.Duration
+	CurrentFactor float64
+	TargetFactor  float64
+	Deviation     float64
 
 	// Impact assessment
-	ResourceImpact  map[string]float64 // Impact on different resources
-	UserImpact      []string           // Other users affected
-	ClusterImpact   float64            // Overall cluster impact (0-1)
+	ResourceImpact map[string]float64 // Impact on different resources
+	UserImpact     []string           // Other users affected
+	ClusterImpact  float64            // Overall cluster impact (0-1)
 
 	// Resolution
-	IsResolved      bool
+	IsResolved       bool
 	ResolutionAction string
-	ResolutionTime  *time.Time
+	ResolutionTime   *time.Time
 
 	// Notifications
 	AlertsSent      int
@@ -275,44 +278,46 @@ type FairShareViolation struct {
 
 // FairShareViolationDetector detects and analyzes fair-share violations
 type FairShareViolationDetector struct {
-	config          *FairShareConfig
-	logger          *slog.Logger
-	violations      map[string]*FairShareViolation
-	alertHistory    []*ViolationAlert
-	thresholds      *ViolationThresholds
+	config     *FairShareConfig
+	logger     *slog.Logger
+	violations map[string]*FairShareViolation
+	// TODO: Unused field - preserved for future alert history tracking
+	// alertHistory    []*ViolationAlert
+	thresholds *ViolationThresholds
 }
 
 // ViolationThresholds defines thresholds for violation detection
 type ViolationThresholds struct {
-	MinorThreshold     float64 // Minor violation threshold
-	ModerateThreshold  float64 // Moderate violation threshold
-	MajorThreshold     float64 // Major violation threshold
-	CriticalThreshold  float64 // Critical violation threshold
-	DurationThreshold  time.Duration // Duration before escalation
+	MinorThreshold    float64       // Minor violation threshold
+	ModerateThreshold float64       // Moderate violation threshold
+	MajorThreshold    float64       // Major violation threshold
+	CriticalThreshold float64       // Critical violation threshold
+	DurationThreshold time.Duration // Duration before escalation
 }
 
 // ViolationAlert represents a violation alert
 type ViolationAlert struct {
-	AlertID         string
-	ViolationID     string
-	AlertLevel      string
-	Timestamp       time.Time
-	Message         string
-	Recipients      []string
-	DeliveryStatus  string
+	AlertID        string
+	ViolationID    string
+	AlertLevel     string
+	Timestamp      time.Time
+	Message        string
+	Recipients     []string
+	DeliveryStatus string
 }
 
 // FairSharePolicyAnalyzer analyzes fair-share policy effectiveness
 type FairSharePolicyAnalyzer struct {
-	config          *FairShareConfig
-	logger          *slog.Logger
-	policyMetrics   *PolicyEffectivenessMetrics
-	recommendations []*PolicyRecommendation
+	config        *FairShareConfig
+	logger        *slog.Logger
+	policyMetrics *PolicyEffectivenessMetrics
+	// TODO: Unused field - preserved for future policy recommendations
+	// recommendations []*PolicyRecommendation
 }
 
 // PolicyEffectivenessMetrics contains policy effectiveness analysis
 type PolicyEffectivenessMetrics struct {
-	Timestamp       time.Time
+	Timestamp time.Time
 
 	// Overall effectiveness
 	OverallScore    float64 // Overall policy effectiveness (0-1)
@@ -330,8 +335,8 @@ type PolicyEffectivenessMetrics struct {
 	ConvergenceRate float64 // Rate of convergence to target shares
 
 	// User satisfaction
-	ViolationRate   float64 // Rate of fair-share violations
-	ComplaintRate   float64 // Rate of user complaints
+	ViolationRate     float64 // Rate of fair-share violations
+	ComplaintRate     float64 // Rate of user complaints
 	SatisfactionScore float64 // Overall user satisfaction (0-1)
 
 	// Resource utilization
@@ -342,11 +347,11 @@ type PolicyEffectivenessMetrics struct {
 
 // PolicyRecommendation contains policy improvement recommendations
 type PolicyRecommendation struct {
-	RecommendationID string
-	Category        string // "shares", "decay", "reset", "hierarchy"
-	Priority        string // "high", "medium", "low"
-	Description     string
-	ExpectedImpact  float64
+	RecommendationID     string
+	Category             string // "shares", "decay", "reset", "hierarchy"
+	Priority             string // "high", "medium", "low"
+	Description          string
+	ExpectedImpact       float64
 	ImplementationEffort string
 
 	// Specific recommendations
@@ -359,47 +364,47 @@ type PolicyRecommendation struct {
 	AnalysisResults map[string]float64
 
 	// Validation
-	Confidence      float64
-	RiskAssessment  string
+	Confidence     float64
+	RiskAssessment string
 }
 
 // FairShareTrendAnalyzer analyzes fair-share trends over time
 type FairShareTrendAnalyzer struct {
-	config          *FairShareConfig
-	logger          *slog.Logger
-	trendData       map[string]*FairShareTrendData
-	predictions     map[string]*FairSharePrediction
+	config      *FairShareConfig
+	logger      *slog.Logger
+	trendData   map[string]*FairShareTrendData
+	predictions map[string]*FairSharePrediction
 }
 
 // FairShareTrendData contains trend analysis data for a user
 type FairShareTrendData struct {
-	UserName        string
-	Account         string
+	UserName string
+	Account  string
 
 	// Historical data
 	HistoricalFactors []FairShareDataPoint
 	HistoricalUsage   []UsageDataPoint
 
 	// Trend analysis
-	TrendDirection   string  // "improving", "degrading", "stable", "cyclical"
-	TrendStrength    float64 // Strength of trend (0-1)
+	TrendDirection    string  // "improving", "degrading", "stable", "cyclical"
+	TrendStrength     float64 // Strength of trend (0-1)
 	TrendSignificance float64 // Statistical significance
 
 	// Statistical analysis
-	Mean             float64
-	StandardDev      float64
-	Variance         float64
-	AutoCorrelation  float64
+	Mean            float64
+	StandardDev     float64
+	Variance        float64
+	AutoCorrelation float64
 
 	// Seasonality
 	SeasonalPatterns []SeasonalPattern
 	CyclicalPatterns []FairShareCyclicalPattern
 
 	// Change points
-	ChangePoints     []FairShareChangePoint
+	ChangePoints []FairShareChangePoint
 
 	// Quality metrics
-	DataQuality      float64
+	DataQuality       float64
 	PredictionQuality float64
 }
 
@@ -453,10 +458,10 @@ type FairShareChangePoint struct {
 
 // FairSharePrediction contains fair-share predictions
 type FairSharePrediction struct {
-	UserName        string
-	Account         string
-	PredictionTime  time.Time
-	Horizon         time.Duration
+	UserName       string
+	Account        string
+	PredictionTime time.Time
+	Horizon        time.Duration
 
 	// Predicted values
 	PredictedFactor float64
@@ -464,39 +469,39 @@ type FairSharePrediction struct {
 	PredictedRank   int
 
 	// Confidence intervals
-	LowerBound      float64
-	UpperBound      float64
-	Confidence      float64
+	LowerBound float64
+	UpperBound float64
+	Confidence float64
 
 	// Prediction quality
-	Accuracy        float64
-	RMSE            float64
-	MAE             float64
+	Accuracy float64
+	RMSE     float64
+	MAE      float64
 
 	// Scenario analysis
-	BestCase        float64
-	WorstCase       float64
-	MostLikely      float64
+	BestCase   float64
+	WorstCase  float64
+	MostLikely float64
 }
 
 // QueueAnalyzer analyzes queue positions and wait times
 type QueueAnalyzer struct {
-	config          *FairShareConfig
-	logger          *slog.Logger
-	queueData       map[string]*QueueAnalysisData
-	predictions     map[string]*WaitTimePrediction
+	config      *FairShareConfig
+	logger      *slog.Logger
+	queueData   map[string]*QueueAnalysisData
+	predictions map[string]*WaitTimePrediction
 }
 
 // QueueAnalysisData contains queue analysis for a partition
 type QueueAnalysisData struct {
-	PartitionName   string
-	Timestamp       time.Time
+	PartitionName string
+	Timestamp     time.Time
 
 	// Queue metrics
-	QueueLength     int
-	TotalJobs       int
-	RunningJobs     int
-	PendingJobs     int
+	QueueLength int
+	TotalJobs   int
+	RunningJobs int
+	PendingJobs int
 
 	// Wait time statistics
 	AverageWaitTime time.Duration
@@ -511,92 +516,92 @@ type QueueAnalysisData struct {
 	LowPriorityJobs      int
 
 	// Resource requirements
-	TotalCPURequest      int64
-	TotalMemoryRequest   int64
-	TotalGPURequest      int64
+	TotalCPURequest    int64
+	TotalMemoryRequest int64
+	TotalGPURequest    int64
 
 	// Throughput metrics
-	JobStartRate         float64 // Jobs started per hour
-	JobCompletionRate    float64 // Jobs completed per hour
-	ThroughputTrend      string  // "increasing", "decreasing", "stable"
+	JobStartRate      float64 // Jobs started per hour
+	JobCompletionRate float64 // Jobs completed per hour
+	ThroughputTrend   string  // "increasing", "decreasing", "stable"
 
 	// Efficiency metrics
-	QueueEfficiency      float64 // How efficiently the queue is processed
-	ResourceUtilization  float64 // Resource utilization rate
-	QueueBalance         float64 // How balanced the queue is
+	QueueEfficiency     float64 // How efficiently the queue is processed
+	ResourceUtilization float64 // Resource utilization rate
+	QueueBalance        float64 // How balanced the queue is
 }
 
 // WaitTimePrediction contains wait time predictions for a job
 type WaitTimePrediction struct {
-	JobID               string
-	UserName            string
-	Partition           string
-	Timestamp           time.Time
+	JobID     string
+	UserName  string
+	Partition string
+	Timestamp time.Time
 
 	// Current state
-	CurrentPosition     int
-	CurrentPriority     int64
-	SubmitTime          time.Time
+	CurrentPosition int
+	CurrentPriority int64
+	SubmitTime      time.Time
 
 	// Predictions
-	EstimatedWaitTime   time.Duration
-	PredictedStartTime  time.Time
-	EstimatedEndTime    time.Time
+	EstimatedWaitTime  time.Duration
+	PredictedStartTime time.Time
+	EstimatedEndTime   time.Time
 
 	// Confidence intervals
-	MinWaitTime         time.Duration
-	MaxWaitTime         time.Duration
-	Confidence          float64
+	MinWaitTime time.Duration
+	MaxWaitTime time.Duration
+	Confidence  float64
 
 	// Analysis factors
-	PriorityImpact      float64 // Impact of priority on wait time
-	QueueLoadImpact     float64 // Impact of queue load
-	ResourceImpact      float64 // Impact of resource requirements
-	FairShareImpact     float64 // Impact of fair-share factor
+	PriorityImpact  float64 // Impact of priority on wait time
+	QueueLoadImpact float64 // Impact of queue load
+	ResourceImpact  float64 // Impact of resource requirements
+	FairShareImpact float64 // Impact of fair-share factor
 
 	// Historical context
-	SimilarJobsAvgWait  time.Duration
-	UserAvgWait         time.Duration
-	PartitionAvgWait    time.Duration
+	SimilarJobsAvgWait time.Duration
+	UserAvgWait        time.Duration
+	PartitionAvgWait   time.Duration
 
 	// Prediction quality
-	PredictionAccuracy  float64
-	ModelConfidence     float64
-	DataQuality         float64
+	PredictionAccuracy float64
+	ModelConfidence    float64
+	DataQuality        float64
 }
 
 // UserBehaviorAnalyzer analyzes user behavior patterns for fair-share optimization
 type UserBehaviorAnalyzer struct {
-	config          *FairShareConfig
-	logger          *slog.Logger
-	behaviorData    map[string]*UserBehaviorProfile
-	optimizations   map[string]*BehaviorOptimization
+	config        *FairShareConfig
+	logger        *slog.Logger
+	behaviorData  map[string]*UserBehaviorProfile
+	optimizations map[string]*BehaviorOptimization
 }
 
 // UserBehaviorProfile contains behavior analysis for a user
 type UserBehaviorProfile struct {
-	UserName        string
-	Account         string
-	AnalysisPeriod  time.Duration
-	LastUpdated     time.Time
+	UserName       string
+	Account        string
+	AnalysisPeriod time.Duration
+	LastUpdated    time.Time
 
 	// Submission patterns
-	SubmissionPattern   *FairShareSubmissionPattern
+	SubmissionPattern *FairShareSubmissionPattern
 
 	// Resource usage patterns
-	ResourcePattern     *FairShareResourceUsagePattern
+	ResourcePattern *FairShareResourceUsagePattern
 
 	// Temporal patterns
-	TemporalPattern     *TemporalUsagePattern
+	TemporalPattern *TemporalUsagePattern
 
 	// Fair-share interaction
-	FairShareBehavior   *FairShareBehaviorPattern
+	FairShareBehavior *FairShareBehaviorPattern
 
 	// Efficiency metrics
-	ResourceEfficiency  float64
-	TimeEfficiency      float64
-	QueueEfficiency     float64
-	OverallEfficiency   float64
+	ResourceEfficiency float64
+	TimeEfficiency     float64
+	QueueEfficiency    float64
+	OverallEfficiency  float64
 
 	// Behavior scoring
 	BehaviorScore       float64 // Overall behavior score (0-1)
@@ -605,58 +610,58 @@ type UserBehaviorProfile struct {
 	PredictabilityScore float64 // How predictable user behavior is (0-1)
 
 	// Recommendations
-	Recommendations     []*BehaviorRecommendation
+	Recommendations       []*BehaviorRecommendation
 	OptimizationPotential float64
 }
 
 // FairShareSubmissionPattern represents job submission patterns in fairshare context
 type FairShareSubmissionPattern struct {
-	SubmissionRate      float64 // Jobs per day
-	SubmissionVariance  float64 // Variance in submission rate
-	PeakSubmissionHours []int   // Hours with peak submissions
-	SubmissionBursts    int     // Number of submission bursts
+	SubmissionRate       float64 // Jobs per day
+	SubmissionVariance   float64 // Variance in submission rate
+	PeakSubmissionHours  []int   // Hours with peak submissions
+	SubmissionBursts     int     // Number of submission bursts
 	SubmissionRegularity float64 // How regular submissions are (0-1)
 }
 
 // FairShareResourceUsagePattern represents resource usage patterns in fairshare context
 type FairShareResourceUsagePattern struct {
-	PreferredJobSizes   []int   // Preferred job sizes (CPUs)
-	MemoryUsagePattern  string  // "light", "moderate", "heavy"
-	GPUUsagePattern     string  // "none", "occasional", "heavy"
-	RuntimePattern      string  // "short", "medium", "long", "mixed"
+	PreferredJobSizes  []int  // Preferred job sizes (CPUs)
+	MemoryUsagePattern string // "light", "moderate", "heavy"
+	GPUUsagePattern    string // "none", "occasional", "heavy"
+	RuntimePattern     string // "short", "medium", "long", "mixed"
 
 	// Resource efficiency
-	CPUEfficiency       float64
-	MemoryEfficiency    float64
-	GPUEfficiency       float64
-	RuntimeEfficiency   float64
+	CPUEfficiency     float64
+	MemoryEfficiency  float64
+	GPUEfficiency     float64
+	RuntimeEfficiency float64
 
 	// Usage distribution
 	ResourceDistribution map[string]float64
-	UtilizationVariance float64
+	UtilizationVariance  float64
 }
 
 // TemporalUsagePattern represents temporal usage patterns
 type TemporalUsagePattern struct {
-	PeakUsageHours      []int
-	PeakUsageDays       []string
-	OffPeakUsage        float64
-	SeasonalVariation   float64
+	PeakUsageHours    []int
+	PeakUsageDays     []string
+	OffPeakUsage      float64
+	SeasonalVariation float64
 
 	// Time preferences
 	PreferredSubmissionTimes []string
-	PreferredRunTimes       []time.Duration
+	PreferredRunTimes        []time.Duration
 
 	// Temporal efficiency
-	TimingOptimization  float64 // How well user times submissions
-	AvoidanceOfPeaks    float64 // How well user avoids peak times
+	TimingOptimization float64 // How well user times submissions
+	AvoidanceOfPeaks   float64 // How well user avoids peak times
 }
 
 // FairShareBehaviorPattern represents fair-share interaction patterns
 type FairShareBehaviorPattern struct {
-	FairShareAwareness  float64 // How aware user is of fair-share (0-1)
-	AdaptationRate      float64 // How quickly user adapts to changes
-	ComplianceRate      float64 // How well user complies with fair-share
+	FairShareAwareness float64 // How aware user is of fair-share (0-1)
+	AdaptationRate     float64 // How quickly user adapts to changes
+	ComplianceRate     float64 // How well user complies with fair-share
 
 	// Response patterns
 	ResponseToLowPriority  string // How user responds to low priority
@@ -664,35 +669,35 @@ type FairShareBehaviorPattern struct {
 	ResponseToViolations   string // How user responds to violations
 
 	// Fair-share metrics
-	FairShareHistory       []float64
-	AverageFairShare       float64
-	FairShareStability     float64
-	ViolationFrequency     float64
+	FairShareHistory   []float64
+	AverageFairShare   float64
+	FairShareStability float64
+	ViolationFrequency float64
 }
 
 // BehaviorRecommendation contains behavior optimization recommendations
 type BehaviorRecommendation struct {
-	RecommendationID   string
-	Category           string // "timing", "sizing", "efficiency", "fairness"
-	Priority           string // "high", "medium", "low"
-	Description        string
-	ExpectedBenefit    float64
+	RecommendationID     string
+	Category             string // "timing", "sizing", "efficiency", "fairness"
+	Priority             string // "high", "medium", "low"
+	Description          string
+	ExpectedBenefit      float64
 	ImplementationEffort string
 
 	// Specific recommendations
-	TimingAdjustments    []string
-	SizingAdjustments    []string
-	EfficiencyTips       []string
-	FairShareTips        []string
+	TimingAdjustments []string
+	SizingAdjustments []string
+	EfficiencyTips    []string
+	FairShareTips     []string
 
 	// Supporting data
-	CurrentBehavior      map[string]float64
-	TargetBehavior       map[string]float64
-	HistoricalData       map[string][]float64
+	CurrentBehavior map[string]float64
+	TargetBehavior  map[string]float64
+	HistoricalData  map[string][]float64
 
 	// Validation
-	Confidence           float64
-	RiskAssessment       string
+	Confidence     float64
+	RiskAssessment string
 }
 
 // BehaviorOptimization contains optimization strategies for a user
@@ -704,80 +709,80 @@ type BehaviorOptimization struct {
 	ImplementationTime  time.Duration
 
 	// Tracking
-	Progress            float64
-	SuccessMetrics      map[string]float64
-	LastUpdated         time.Time
+	Progress       float64
+	SuccessMetrics map[string]float64
+	LastUpdated    time.Time
 }
 
 // OptimizationStep represents a single optimization step
 type OptimizationStep struct {
-	StepID              string
-	Description         string
-	Action              string
-	ExpectedImpact      float64
-	Deadline            time.Time
-	Status              string // "pending", "in_progress", "completed", "failed"
+	StepID         string
+	Description    string
+	Action         string
+	ExpectedImpact float64
+	Deadline       time.Time
+	Status         string // "pending", "in_progress", "completed", "failed"
 
 	// Validation
-	SuccessCriteria     []string
-	CompletionMetrics   map[string]float64
+	SuccessCriteria   []string
+	CompletionMetrics map[string]float64
 }
 
 // FairShareMetrics holds Prometheus metrics for fair-share monitoring
 type FairShareMetrics struct {
 	// User fair-share metrics
-	UserFairShareFactor         *prometheus.GaugeVec
-	UserRawShares              *prometheus.GaugeVec
-	UserNormalizedShares       *prometheus.GaugeVec
-	UserEffectiveUsage         *prometheus.GaugeVec
-	UserUsageRatio             *prometheus.GaugeVec
-	UserFairSharePriority      *prometheus.GaugeVec
+	UserFairShareFactor   *prometheus.GaugeVec
+	UserRawShares         *prometheus.GaugeVec
+	UserNormalizedShares  *prometheus.GaugeVec
+	UserEffectiveUsage    *prometheus.GaugeVec
+	UserUsageRatio        *prometheus.GaugeVec
+	UserFairSharePriority *prometheus.GaugeVec
 
 	// Account hierarchy metrics
-	AccountFairShareFactor     *prometheus.GaugeVec
-	AccountTotalUsage          *prometheus.GaugeVec
-	AccountTargetUsage         *prometheus.GaugeVec
-	AccountUserCount           *prometheus.GaugeVec
-	AccountHierarchyDepth      *prometheus.GaugeVec
+	AccountFairShareFactor *prometheus.GaugeVec
+	AccountTotalUsage      *prometheus.GaugeVec
+	AccountTargetUsage     *prometheus.GaugeVec
+	AccountUserCount       *prometheus.GaugeVec
+	AccountHierarchyDepth  *prometheus.GaugeVec
 
 	// Priority factor metrics
-	JobTotalPriority           *prometheus.GaugeVec
-	JobAgeFactor               *prometheus.GaugeVec
-	JobFairShareFactor         *prometheus.GaugeVec
-	JobQoSFactor               *prometheus.GaugeVec
-	JobPartitionFactor         *prometheus.GaugeVec
-	JobPriorityRank            *prometheus.GaugeVec
-	JobEstimatedWaitTime       *prometheus.GaugeVec
+	JobTotalPriority     *prometheus.GaugeVec
+	JobAgeFactor         *prometheus.GaugeVec
+	JobFairShareFactor   *prometheus.GaugeVec
+	JobQoSFactor         *prometheus.GaugeVec
+	JobPartitionFactor   *prometheus.GaugeVec
+	JobPriorityRank      *prometheus.GaugeVec
+	JobEstimatedWaitTime *prometheus.GaugeVec
 
 	// Violation metrics
-	FairShareViolations        *prometheus.GaugeVec
-	ViolationDuration          *prometheus.GaugeVec
-	ViolationSeverity          *prometheus.GaugeVec
-	ViolationAlerts            *prometheus.CounterVec
+	FairShareViolations *prometheus.GaugeVec
+	ViolationDuration   *prometheus.GaugeVec
+	ViolationSeverity   *prometheus.GaugeVec
+	ViolationAlerts     *prometheus.CounterVec
 
 	// Policy effectiveness metrics
-	PolicyOverallScore         *prometheus.GaugeVec
-	PolicyBalanceScore         *prometheus.GaugeVec
-	PolicyFairnessScore        *prometheus.GaugeVec
-	PolicyEfficiencyScore      *prometheus.GaugeVec
-	PolicyGiniCoefficient      *prometheus.GaugeVec
+	PolicyOverallScore    *prometheus.GaugeVec
+	PolicyBalanceScore    *prometheus.GaugeVec
+	PolicyFairnessScore   *prometheus.GaugeVec
+	PolicyEfficiencyScore *prometheus.GaugeVec
+	PolicyGiniCoefficient *prometheus.GaugeVec
 
 	// Trend metrics
-	FairShareTrendDirection    *prometheus.GaugeVec
-	FairShareTrendStrength     *prometheus.GaugeVec
-	FairSharePrediction        *prometheus.GaugeVec
+	FairShareTrendDirection *prometheus.GaugeVec
+	FairShareTrendStrength  *prometheus.GaugeVec
+	FairSharePrediction     *prometheus.GaugeVec
 
 	// Queue analysis metrics
-	QueueLength                *prometheus.GaugeVec
-	QueueAverageWaitTime       *prometheus.GaugeVec
-	QueueThroughput            *prometheus.GaugeVec
-	QueueEfficiency            *prometheus.GaugeVec
+	QueueLength          *prometheus.GaugeVec
+	QueueAverageWaitTime *prometheus.GaugeVec
+	QueueThroughput      *prometheus.GaugeVec
+	QueueEfficiency      *prometheus.GaugeVec
 
 	// User behavior metrics
-	UserBehaviorScore          *prometheus.GaugeVec
-	UserSubmissionRate         *prometheus.GaugeVec
-	UserResourceEfficiency     *prometheus.GaugeVec
-	UserFairShareCompliance    *prometheus.GaugeVec
+	UserBehaviorScore       *prometheus.GaugeVec
+	UserSubmissionRate      *prometheus.GaugeVec
+	UserResourceEfficiency  *prometheus.GaugeVec
+	UserFairShareCompliance *prometheus.GaugeVec
 
 	// Collection metrics
 	FairShareCollectionDuration *prometheus.HistogramVec
@@ -790,16 +795,16 @@ func NewFairShareCollector(client slurm.SlurmClient, logger *slog.Logger, config
 	if config == nil {
 		config = &FairShareConfig{
 			CollectionInterval:       30 * time.Second,
-			FairShareRetention:      24 * time.Hour,
-			PriorityRetention:       6 * time.Hour,
-			EnableUserFairShare:     true,
-			EnableAccountHierarchy:  true,
-			EnablePriorityAnalysis:  true,
+			FairShareRetention:       24 * time.Hour,
+			PriorityRetention:        6 * time.Hour,
+			EnableUserFairShare:      true,
+			EnableAccountHierarchy:   true,
+			EnablePriorityAnalysis:   true,
 			EnableViolationDetection: true,
-			EnableTrendAnalysis:     true,
-			ViolationThreshold:      0.2,
-			DecayPeriod:            24 * time.Hour,
-			ResetCycle:             7 * 24 * time.Hour,
+			EnableTrendAnalysis:      true,
+			ViolationThreshold:       0.2,
+			DecayPeriod:              24 * time.Hour,
+			ResetCycle:               7 * 24 * time.Hour,
 			PriorityWeights: PriorityWeights{
 				AgeWeight:       0.2,
 				FairShareWeight: 0.5,
@@ -808,8 +813,8 @@ func NewFairShareCollector(client slurm.SlurmClient, logger *slog.Logger, config
 				AssocWeight:     0.03,
 				JobSizeWeight:   0.02,
 			},
-			EnableQueueAnalysis:       true,
-			QueuePositionTracking:     true,
+			EnableQueueAnalysis:      true,
+			QueuePositionTracking:    true,
 			WaitTimePrediction:       true,
 			EnableBehaviorAnalysis:   true,
 			BehaviorPatternWindow:    7 * 24 * time.Hour,
@@ -817,10 +822,10 @@ func NewFairShareCollector(client slurm.SlurmClient, logger *slog.Logger, config
 			MaxUsersPerCollection:    1000,
 			MaxAccountsPerCollection: 100,
 			EnableParallelProcessing: true,
-			MaxConcurrentAnalyses:   5,
-			GenerateReports:         true,
-			ReportInterval:          24 * time.Hour,
-			ReportRetention:         30 * 24 * time.Hour,
+			MaxConcurrentAnalyses:    5,
+			GenerateReports:          true,
+			ReportInterval:           24 * time.Hour,
+			ReportRetention:          30 * 24 * time.Hour,
 		}
 	}
 
@@ -838,8 +843,8 @@ func NewFairShareCollector(client slurm.SlurmClient, logger *slog.Logger, config
 	}
 
 	policyAnalyzer := &FairSharePolicyAnalyzer{
-		config: config,
-		logger: logger,
+		config:        config,
+		logger:        logger,
 		policyMetrics: &PolicyEffectivenessMetrics{},
 	}
 
@@ -1482,6 +1487,8 @@ func (f *FairShareCollector) collectJobPriorityFactors(ctx context.Context) erro
 	return nil
 }
 
+// TODO: calculateJobPriority and updateJobPriorityMetrics are unused - preserved for future job priority analysis
+/*
 func (f *FairShareCollector) calculateJobPriority(job *slurm.Job) *JobPriorityFactors {
 	now := time.Now()
 	age := time.Hour // TODO: job.SubmitTime not available
@@ -1495,7 +1502,7 @@ func (f *FairShareCollector) calculateJobPriority(job *slurm.Job) *JobPriorityFa
 	totalPriority := int64((ageFactor + fairShareFactor + qosFactor + partitionFactor) * 10000)
 
 	return &JobPriorityFactors{
-		JobID:               fmt.Sprintf("%d", job.ID),
+		JobID:               job.ID,
 		UserName:            "", // TODO: job.UserName not available
 		Account:             "", // TODO: job.Account not available
 		Partition:           job.Partition,
@@ -1521,7 +1528,7 @@ func (f *FairShareCollector) calculateJobPriority(job *slurm.Job) *JobPriorityFa
 }
 
 func (f *FairShareCollector) updateJobPriorityMetrics(job *slurm.Job, priority *JobPriorityFactors) {
-	jobID := fmt.Sprintf("%d", job.ID)
+	jobID := job.ID
 	labels := []string{jobID, "", "", job.Partition, "normal"} // TODO: job.UserName and job.Account not available
 
 	f.metrics.JobTotalPriority.WithLabelValues(labels...).Set(float64(priority.TotalPriority))
@@ -1532,6 +1539,7 @@ func (f *FairShareCollector) updateJobPriorityMetrics(job *slurm.Job, priority *
 	f.metrics.JobPriorityRank.WithLabelValues(jobID, "", "", job.Partition).Set(float64(priority.PriorityRank))
 	f.metrics.JobEstimatedWaitTime.WithLabelValues(jobID, "", "", job.Partition).Set(priority.EstimatedWaitTime.Seconds())
 }
+*/
 
 func (f *FairShareCollector) analyzeViolations(ctx context.Context) error {
 	// Simplified violation analysis
@@ -1580,18 +1588,18 @@ func (f *FairShareCollector) analyzeUserBehavior(ctx context.Context) error {
 
 		// Store simplified behavior data
 		f.behaviorAnalyzer.behaviorData[userKey] = &UserBehaviorProfile{
-			UserName:           fairShare.UserName,
-			Account:            fairShare.Account,
-			AnalysisPeriod:     f.config.BehaviorPatternWindow,
-			LastUpdated:        time.Now(),
-			BehaviorScore:      0.8,
-			FairnessScore:      0.85,
-			EfficiencyScore:    0.75,
+			UserName:            fairShare.UserName,
+			Account:             fairShare.Account,
+			AnalysisPeriod:      f.config.BehaviorPatternWindow,
+			LastUpdated:         time.Now(),
+			BehaviorScore:       0.8,
+			FairnessScore:       0.85,
+			EfficiencyScore:     0.75,
 			PredictabilityScore: 0.9,
-			ResourceEfficiency: 0.75,
-			TimeEfficiency:     0.8,
-			QueueEfficiency:    0.85,
-			OverallEfficiency:  0.8,
+			ResourceEfficiency:  0.75,
+			TimeEfficiency:      0.8,
+			QueueEfficiency:     0.85,
+			OverallEfficiency:   0.8,
 		}
 	}
 	return nil
@@ -1603,18 +1611,18 @@ func (v *FairShareViolationDetector) analyzeViolations(userFairShares map[string
 		if fairShare.IsViolating {
 			violationID := fmt.Sprintf("%s_%s_%d", fairShare.UserName, fairShare.Account, time.Now().Unix())
 			violation := &FairShareViolation{
-				ViolationID:     violationID,
-				UserName:        fairShare.UserName,
-				Account:         fairShare.Account,
-				ViolationType:   "overuse",
-				Severity:        "moderate",
-				StartTime:       time.Now().Add(-fairShare.ViolationDuration),
-				Duration:        fairShare.ViolationDuration,
-				CurrentFactor:   fairShare.FairShareFactor,
-				TargetFactor:    1.0,
-				Deviation:       math.Abs(fairShare.FairShareFactor - 1.0),
-				ClusterImpact:   fairShare.ViolationSeverity * 0.1,
-				IsResolved:      false,
+				ViolationID:   violationID,
+				UserName:      fairShare.UserName,
+				Account:       fairShare.Account,
+				ViolationType: "overuse",
+				Severity:      "moderate",
+				StartTime:     time.Now().Add(-fairShare.ViolationDuration),
+				Duration:      fairShare.ViolationDuration,
+				CurrentFactor: fairShare.FairShareFactor,
+				TargetFactor:  1.0,
+				Deviation:     math.Abs(fairShare.FairShareFactor - 1.0),
+				ClusterImpact: fairShare.ViolationSeverity * 0.1,
+				IsResolved:    false,
 			}
 			v.violations[violationID] = violation
 		}

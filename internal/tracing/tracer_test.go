@@ -85,7 +85,7 @@ func TestCollectionTracer_TraceCollection_Enabled(t *testing.T) {
 
 	tracer, err := NewCollectionTracer(cfg, logger)
 	require.NoError(t, err)
-	defer tracer.Shutdown(context.Background())
+	defer func() { _ = tracer.Shutdown(context.Background()) }()
 
 	ctx := context.Background()
 	newCtx, finish := tracer.TraceCollection(ctx, "test_collector")
@@ -134,7 +134,7 @@ func TestCollectionTracer_TraceAPICall_Enabled(t *testing.T) {
 
 	tracer, err := NewCollectionTracer(cfg, logger)
 	require.NoError(t, err)
-	defer tracer.Shutdown(context.Background())
+	defer func() { _ = tracer.Shutdown(context.Background()) }()
 
 	ctx := context.Background()
 
@@ -148,7 +148,7 @@ func TestCollectionTracer_TraceAPICall_Enabled(t *testing.T) {
 	finish(nil) // Success
 
 	// Test failed API call
-	newCtx, finish = tracer.TraceAPICall(ctx, "jobs", "GET")
+	_, finish = tracer.TraceAPICall(ctx, "jobs", "GET")
 	finish(errors.New("connection failed")) // Error
 }
 
@@ -165,7 +165,7 @@ func TestCollectionTracer_TraceMetricGeneration(t *testing.T) {
 
 	tracer, err := NewCollectionTracer(cfg, logger)
 	require.NoError(t, err)
-	defer tracer.Shutdown(context.Background())
+	defer func() { _ = tracer.Shutdown(context.Background()) }()
 
 	ctx := context.Background()
 	newCtx, finish := tracer.TraceMetricGeneration(ctx, "test_collector", 42)
@@ -190,7 +190,7 @@ func TestCollectionTracer_EnableDetailedTrace(t *testing.T) {
 
 	tracer, err := NewCollectionTracer(cfg, logger)
 	require.NoError(t, err)
-	defer tracer.Shutdown(context.Background())
+	defer func() { _ = tracer.Shutdown(context.Background()) }()
 
 	// Test enabling detailed trace
 	err = tracer.EnableDetailedTrace("test_collector", "100ms")
@@ -235,7 +235,7 @@ func TestCollectionTracer_AddSpanAttribute(t *testing.T) {
 
 	tracer, err := NewCollectionTracer(cfg, logger)
 	require.NoError(t, err)
-	defer tracer.Shutdown(context.Background())
+	defer func() { _ = tracer.Shutdown(context.Background()) }()
 
 	ctx := context.Background()
 	ctx, finish := tracer.TraceCollection(ctx, "test_collector")
@@ -277,7 +277,7 @@ func TestCollectionTracer_RecordError(t *testing.T) {
 
 	tracer, err := NewCollectionTracer(cfg, logger)
 	require.NoError(t, err)
-	defer tracer.Shutdown(context.Background())
+	defer func() { _ = tracer.Shutdown(context.Background()) }()
 
 	ctx := context.Background()
 	ctx, finish := tracer.TraceCollection(ctx, "test_collector")
@@ -304,7 +304,7 @@ func TestCollectionTracer_GetTraceAndSpanID(t *testing.T) {
 
 	tracer, err := NewCollectionTracer(cfg, logger)
 	require.NoError(t, err)
-	defer tracer.Shutdown(context.Background())
+	defer func() { _ = tracer.Shutdown(context.Background()) }()
 
 	ctx := context.Background()
 
@@ -351,7 +351,7 @@ func TestCollectionTracer_CreateChildSpan(t *testing.T) {
 
 	tracer, err := NewCollectionTracer(cfg, logger)
 	require.NoError(t, err)
-	defer tracer.Shutdown(context.Background())
+	defer func() { _ = tracer.Shutdown(context.Background()) }()
 
 	ctx := context.Background()
 	ctx, parentFinish := tracer.TraceCollection(ctx, "test_collector")
@@ -384,7 +384,7 @@ func TestCollectionTracer_GetStats(t *testing.T) {
 
 	tracer, err := NewCollectionTracer(cfg, logger)
 	require.NoError(t, err)
-	defer tracer.Shutdown(context.Background())
+	defer func() { _ = tracer.Shutdown(context.Background()) }()
 
 	stats := tracer.GetStats()
 	assert.True(t, stats.Enabled)
@@ -415,7 +415,7 @@ func TestCollectionTracer_GetConfig(t *testing.T) {
 
 	tracer, err := NewCollectionTracer(cfg, logger)
 	require.NoError(t, err)
-	defer tracer.Shutdown(context.Background())
+	defer func() { _ = tracer.Shutdown(context.Background()) }()
 
 	returnedCfg := tracer.GetConfig()
 	assert.Equal(t, cfg.Enabled, returnedCfg.Enabled)

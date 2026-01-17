@@ -26,52 +26,52 @@ type PriorityFactorsCollector struct {
 	factorWeightRecommendation *prometheus.GaugeVec
 
 	// Priority Factor Trends
-	factorTrendDirection       *prometheus.GaugeVec
-	factorTrendVelocity        *prometheus.GaugeVec
-	factorTrendAcceleration    *prometheus.GaugeVec
-	factorTrendVolatility      *prometheus.GaugeVec
-	factorTrendPrediction      *prometheus.GaugeVec
+	factorTrendDirection    *prometheus.GaugeVec
+	factorTrendVelocity     *prometheus.GaugeVec
+	factorTrendAcceleration *prometheus.GaugeVec
+	factorTrendVolatility   *prometheus.GaugeVec
+	factorTrendPrediction   *prometheus.GaugeVec
 
 	// Factor Impact Analysis
-	factorImpactScore          *prometheus.GaugeVec
-	factorImpactChange         *prometheus.CounterVec
-	factorImpactCorrelation    *prometheus.GaugeVec
-	factorImpactSensitivity    *prometheus.GaugeVec
+	factorImpactScore       *prometheus.GaugeVec
+	factorImpactChange      *prometheus.CounterVec
+	factorImpactCorrelation *prometheus.GaugeVec
+	factorImpactSensitivity *prometheus.GaugeVec
 
 	// System Factor Configuration
-	systemFactorConfig         *prometheus.GaugeVec
-	systemFactorCalibration    *prometheus.GaugeVec
-	systemFactorEffectiveness  *prometheus.GaugeVec
-	systemFactorOptimality     *prometheus.GaugeVec
+	systemFactorConfig        *prometheus.GaugeVec
+	systemFactorCalibration   *prometheus.GaugeVec
+	systemFactorEffectiveness *prometheus.GaugeVec
+	systemFactorOptimality    *prometheus.GaugeVec
 
 	// User-specific Factor Analysis
-	userFactorProfile          *prometheus.GaugeVec
-	userFactorDeviation        *prometheus.GaugeVec
-	userFactorOptimization     *prometheus.GaugeVec
-	userFactorRecommendation   *prometheus.GaugeVec
+	userFactorProfile        *prometheus.GaugeVec
+	userFactorDeviation      *prometheus.GaugeVec
+	userFactorOptimization   *prometheus.GaugeVec
+	userFactorRecommendation *prometheus.GaugeVec
 
 	// Account Factor Aggregation
-	accountFactorSummary       *prometheus.GaugeVec
-	accountFactorVariance      *prometheus.GaugeVec
-	accountFactorBalance       *prometheus.GaugeVec
-	accountFactorEfficiency    *prometheus.GaugeVec
+	accountFactorSummary    *prometheus.GaugeVec
+	accountFactorVariance   *prometheus.GaugeVec
+	accountFactorBalance    *prometheus.GaugeVec
+	accountFactorEfficiency *prometheus.GaugeVec
 
 	// Partition Factor Analysis
-	partitionFactorWeights     *prometheus.GaugeVec
-	partitionFactorUtilization *prometheus.GaugeVec
+	partitionFactorWeights      *prometheus.GaugeVec
+	partitionFactorUtilization  *prometheus.GaugeVec
 	partitionFactorOptimization *prometheus.GaugeVec
-	partitionFactorBalance     *prometheus.GaugeVec
+	partitionFactorBalance      *prometheus.GaugeVec
 
 	// QoS Factor Tracking
-	qosFactorPriority          *prometheus.GaugeVec
-	qosFactorMultiplier        *prometheus.GaugeVec
-	qosFactorEffectiveness     *prometheus.GaugeVec
-	qosFactorUtilization       *prometheus.GaugeVec
+	qosFactorPriority      *prometheus.GaugeVec
+	qosFactorMultiplier    *prometheus.GaugeVec
+	qosFactorEffectiveness *prometheus.GaugeVec
+	qosFactorUtilization   *prometheus.GaugeVec
 
 	// Temporal Factor Analysis
-	temporalFactorEvolution    *prometheus.GaugeVec
-	temporalFactorCycles       *prometheus.GaugeVec
-	temporalFactorSeasonality  *prometheus.GaugeVec
+	temporalFactorEvolution      *prometheus.GaugeVec
+	temporalFactorCycles         *prometheus.GaugeVec
+	temporalFactorSeasonality    *prometheus.GaugeVec
 	temporalFactorPredictability *prometheus.GaugeVec
 }
 
@@ -91,56 +91,56 @@ type PriorityFactorsSLURMClient interface {
 
 // PriorityFactorBreakdown represents detailed factor analysis
 type PriorityFactorBreakdown struct {
-	JobID           string    `json:"job_id"`
-	UserName        string    `json:"user_name"`
-	AccountName     string    `json:"account_name"`
-	PartitionName   string    `json:"partition_name"`
-	QoSName         string    `json:"qos_name"`
+	JobID         string `json:"job_id"`
+	UserName      string `json:"user_name"`
+	AccountName   string `json:"account_name"`
+	PartitionName string `json:"partition_name"`
+	QoSName       string `json:"qos_name"`
 
 	// Individual Factor Values
-	AgeValue        float64   `json:"age_value"`
-	FairShareValue  float64   `json:"fair_share_value"`
-	QoSValue        float64   `json:"qos_value"`
-	PartitionValue  float64   `json:"partition_value"`
-	SizeValue       float64   `json:"size_value"`
-	AssocValue      float64   `json:"assoc_value"`
-	NiceValue       float64   `json:"nice_value"`
+	AgeValue       float64 `json:"age_value"`
+	FairShareValue float64 `json:"fair_share_value"`
+	QoSValue       float64 `json:"qos_value"`
+	PartitionValue float64 `json:"partition_value"`
+	SizeValue      float64 `json:"size_value"`
+	AssocValue     float64 `json:"assoc_value"`
+	NiceValue      float64 `json:"nice_value"`
 
 	// Factor Weights
-	AgeWeight       float64   `json:"age_weight"`
-	FairShareWeight float64   `json:"fair_share_weight"`
-	QoSWeight       float64   `json:"qos_weight"`
-	PartitionWeight float64   `json:"partition_weight"`
-	SizeWeight      float64   `json:"size_weight"`
-	AssocWeight     float64   `json:"assoc_weight"`
-	NiceWeight      float64   `json:"nice_weight"`
+	AgeWeight       float64 `json:"age_weight"`
+	FairShareWeight float64 `json:"fair_share_weight"`
+	QoSWeight       float64 `json:"qos_weight"`
+	PartitionWeight float64 `json:"partition_weight"`
+	SizeWeight      float64 `json:"size_weight"`
+	AssocWeight     float64 `json:"assoc_weight"`
+	NiceWeight      float64 `json:"nice_weight"`
 
 	// Factor Contributions
-	AgeContribution        float64 `json:"age_contribution"`
-	FairShareContribution  float64 `json:"fair_share_contribution"`
-	QoSContribution        float64 `json:"qos_contribution"`
-	PartitionContribution  float64 `json:"partition_contribution"`
-	SizeContribution       float64 `json:"size_contribution"`
-	AssocContribution      float64 `json:"assoc_contribution"`
-	NiceContribution       float64 `json:"nice_contribution"`
+	AgeContribution       float64 `json:"age_contribution"`
+	FairShareContribution float64 `json:"fair_share_contribution"`
+	QoSContribution       float64 `json:"qos_contribution"`
+	PartitionContribution float64 `json:"partition_contribution"`
+	SizeContribution      float64 `json:"size_contribution"`
+	AssocContribution     float64 `json:"assoc_contribution"`
+	NiceContribution      float64 `json:"nice_contribution"`
 
 	// Normalized Values (0-1 scale)
-	AgeNormalized        float64 `json:"age_normalized"`
-	FairShareNormalized  float64 `json:"fair_share_normalized"`
-	QoSNormalized        float64 `json:"qos_normalized"`
-	PartitionNormalized  float64 `json:"partition_normalized"`
-	SizeNormalized       float64 `json:"size_normalized"`
-	AssocNormalized      float64 `json:"assoc_normalized"`
-	NiceNormalized       float64 `json:"nice_normalized"`
+	AgeNormalized       float64 `json:"age_normalized"`
+	FairShareNormalized float64 `json:"fair_share_normalized"`
+	QoSNormalized       float64 `json:"qos_normalized"`
+	PartitionNormalized float64 `json:"partition_normalized"`
+	SizeNormalized      float64 `json:"size_normalized"`
+	AssocNormalized     float64 `json:"assoc_normalized"`
+	NiceNormalized      float64 `json:"nice_normalized"`
 
 	// Effective Contributions
-	AgeEffective        float64 `json:"age_effective"`
-	FairShareEffective  float64 `json:"fair_share_effective"`
-	QoSEffective        float64 `json:"qos_effective"`
-	PartitionEffective  float64 `json:"partition_effective"`
-	SizeEffective       float64 `json:"size_effective"`
-	AssocEffective      float64 `json:"assoc_effective"`
-	NiceEffective       float64 `json:"nice_effective"`
+	AgeEffective       float64 `json:"age_effective"`
+	FairShareEffective float64 `json:"fair_share_effective"`
+	QoSEffective       float64 `json:"qos_effective"`
+	PartitionEffective float64 `json:"partition_effective"`
+	SizeEffective      float64 `json:"size_effective"`
+	AssocEffective     float64 `json:"assoc_effective"`
+	NiceEffective      float64 `json:"nice_effective"`
 
 	// Analysis Metadata
 	TotalPriority      float64   `json:"total_priority"`
@@ -154,66 +154,66 @@ type PriorityFactorBreakdown struct {
 // SystemFactorWeights represents system-wide factor configuration
 type SystemFactorWeights struct {
 	// Global Weights
-	AgeWeightGlobal        float64 `json:"age_weight_global"`
-	FairShareWeightGlobal  float64 `json:"fair_share_weight_global"`
-	QoSWeightGlobal        float64 `json:"qos_weight_global"`
-	PartitionWeightGlobal  float64 `json:"partition_weight_global"`
-	SizeWeightGlobal       float64 `json:"size_weight_global"`
-	AssocWeightGlobal      float64 `json:"assoc_weight_global"`
-	NiceWeightGlobal       float64 `json:"nice_weight_global"`
+	AgeWeightGlobal       float64 `json:"age_weight_global"`
+	FairShareWeightGlobal float64 `json:"fair_share_weight_global"`
+	QoSWeightGlobal       float64 `json:"qos_weight_global"`
+	PartitionWeightGlobal float64 `json:"partition_weight_global"`
+	SizeWeightGlobal      float64 `json:"size_weight_global"`
+	AssocWeightGlobal     float64 `json:"assoc_weight_global"`
+	NiceWeightGlobal      float64 `json:"nice_weight_global"`
 
 	// Weight Ranges
-	AgeWeightRange        []float64 `json:"age_weight_range"`
-	FairShareWeightRange  []float64 `json:"fair_share_weight_range"`
-	QoSWeightRange        []float64 `json:"qos_weight_range"`
-	PartitionWeightRange  []float64 `json:"partition_weight_range"`
-	SizeWeightRange       []float64 `json:"size_weight_range"`
+	AgeWeightRange       []float64 `json:"age_weight_range"`
+	FairShareWeightRange []float64 `json:"fair_share_weight_range"`
+	QoSWeightRange       []float64 `json:"qos_weight_range"`
+	PartitionWeightRange []float64 `json:"partition_weight_range"`
+	SizeWeightRange      []float64 `json:"size_weight_range"`
 
 	// Configuration Analysis
-	WeightBalance          float64   `json:"weight_balance"`
-	WeightOptimality       float64   `json:"weight_optimality"`
-	WeightEffectiveness    float64   `json:"weight_effectiveness"`
-	ConfigurationVersion   string    `json:"configuration_version"`
-	OptimizationRecommended bool     `json:"optimization_recommended"`
+	WeightBalance           float64 `json:"weight_balance"`
+	WeightOptimality        float64 `json:"weight_optimality"`
+	WeightEffectiveness     float64 `json:"weight_effectiveness"`
+	ConfigurationVersion    string  `json:"configuration_version"`
+	OptimizationRecommended bool    `json:"optimization_recommended"`
 
 	// Calibration Data
-	CalibrationAccuracy    float64   `json:"calibration_accuracy"`
-	CalibrationStability   float64   `json:"calibration_stability"`
-	LastCalibration        time.Time `json:"last_calibration"`
-	NextCalibration        time.Time `json:"next_calibration"`
+	CalibrationAccuracy  float64   `json:"calibration_accuracy"`
+	CalibrationStability float64   `json:"calibration_stability"`
+	LastCalibration      time.Time `json:"last_calibration"`
+	NextCalibration      time.Time `json:"next_calibration"`
 
 	LastUpdated time.Time `json:"last_updated"`
 }
 
 // UserFactorProfile represents user-specific factor analysis
 type UserFactorProfile struct {
-	UserName       string  `json:"user_name"`
-	AccountName    string  `json:"account_name"`
+	UserName    string `json:"user_name"`
+	AccountName string `json:"account_name"`
 
 	// User Factor Averages
-	AvgAgeContribution        float64 `json:"avg_age_contribution"`
-	AvgFairShareContribution  float64 `json:"avg_fair_share_contribution"`
-	AvgQoSContribution        float64 `json:"avg_qos_contribution"`
-	AvgPartitionContribution  float64 `json:"avg_partition_contribution"`
-	AvgSizeContribution       float64 `json:"avg_size_contribution"`
+	AvgAgeContribution       float64 `json:"avg_age_contribution"`
+	AvgFairShareContribution float64 `json:"avg_fair_share_contribution"`
+	AvgQoSContribution       float64 `json:"avg_qos_contribution"`
+	AvgPartitionContribution float64 `json:"avg_partition_contribution"`
+	AvgSizeContribution      float64 `json:"avg_size_contribution"`
 
 	// Factor Variances
-	AgeVariance        float64 `json:"age_variance"`
-	FairShareVariance  float64 `json:"fair_share_variance"`
-	QoSVariance        float64 `json:"qos_variance"`
-	PartitionVariance  float64 `json:"partition_variance"`
-	SizeVariance       float64 `json:"size_variance"`
+	AgeVariance       float64 `json:"age_variance"`
+	FairShareVariance float64 `json:"fair_share_variance"`
+	QoSVariance       float64 `json:"qos_variance"`
+	PartitionVariance float64 `json:"partition_variance"`
+	SizeVariance      float64 `json:"size_variance"`
 
 	// User Behavior Analysis
-	DominantFactorPattern   string  `json:"dominant_factor_pattern"`
-	FactorStability         float64 `json:"factor_stability"`
-	FactorOptimizationScore float64 `json:"factor_optimization_score"`
+	DominantFactorPattern       string   `json:"dominant_factor_pattern"`
+	FactorStability             float64  `json:"factor_stability"`
+	FactorOptimizationScore     float64  `json:"factor_optimization_score"`
 	OptimizationRecommendations []string `json:"optimization_recommendations"`
 
 	// Deviation Analysis
-	DeviationFromNorm       float64 `json:"deviation_from_norm"`
-	DeviationSignificance   string  `json:"deviation_significance"`
-	DeviationExplanation    string  `json:"deviation_explanation"`
+	DeviationFromNorm     float64 `json:"deviation_from_norm"`
+	DeviationSignificance string  `json:"deviation_significance"`
+	DeviationExplanation  string  `json:"deviation_explanation"`
 
 	LastAnalyzed time.Time `json:"last_analyzed"`
 }
@@ -223,21 +223,21 @@ type AccountFactorSummary struct {
 	AccountName string `json:"account_name"`
 
 	// Aggregate Factor Metrics
-	TotalUsers               int     `json:"total_users"`
-	ActiveUsers              int     `json:"active_users"`
-	AvgFactorBalance         float64 `json:"avg_factor_balance"`
-	FactorVarianceScore      float64 `json:"factor_variance_score"`
-	FactorEfficiencyScore    float64 `json:"factor_efficiency_score"`
+	TotalUsers            int     `json:"total_users"`
+	ActiveUsers           int     `json:"active_users"`
+	AvgFactorBalance      float64 `json:"avg_factor_balance"`
+	FactorVarianceScore   float64 `json:"factor_variance_score"`
+	FactorEfficiencyScore float64 `json:"factor_efficiency_score"`
 
 	// Factor Distribution
-	AgeFactorDistribution        map[string]float64 `json:"age_factor_distribution"`
-	FairShareFactorDistribution  map[string]float64 `json:"fair_share_factor_distribution"`
-	QoSFactorDistribution        map[string]float64 `json:"qos_factor_distribution"`
+	AgeFactorDistribution       map[string]float64 `json:"age_factor_distribution"`
+	FairShareFactorDistribution map[string]float64 `json:"fair_share_factor_distribution"`
+	QoSFactorDistribution       map[string]float64 `json:"qos_factor_distribution"`
 
 	// Account Optimization
-	OptimizationPotential    float64 `json:"optimization_potential"`
-	RecommendedActions       []string `json:"recommended_actions"`
-	EstimatedImprovement     float64 `json:"estimated_improvement"`
+	OptimizationPotential float64  `json:"optimization_potential"`
+	RecommendedActions    []string `json:"recommended_actions"`
+	EstimatedImprovement  float64  `json:"estimated_improvement"`
 
 	LastSummarized time.Time `json:"last_summarized"`
 }
@@ -247,14 +247,14 @@ type PartitionFactorAnalysis struct {
 	PartitionName string `json:"partition_name"`
 
 	// Partition Factor Configuration
-	PartitionWeight          float64 `json:"partition_weight"`
-	PartitionPriorityBonus   float64 `json:"partition_priority_bonus"`
+	PartitionWeight           float64 `json:"partition_weight"`
+	PartitionPriorityBonus    float64 `json:"partition_priority_bonus"`
 	PartitionFactorMultiplier float64 `json:"partition_factor_multiplier"`
 
 	// Utilization Analysis
-	FactorUtilizationRate    float64 `json:"factor_utilization_rate"`
-	FactorEffectiveness      float64 `json:"factor_effectiveness"`
-	FactorBalance            float64 `json:"factor_balance"`
+	FactorUtilizationRate float64 `json:"factor_utilization_rate"`
+	FactorEffectiveness   float64 `json:"factor_effectiveness"`
+	FactorBalance         float64 `json:"factor_balance"`
 
 	// Optimization Analysis
 	OptimizationScore        float64 `json:"optimization_score"`
@@ -269,15 +269,15 @@ type QoSFactorAnalysis struct {
 	QoSName string `json:"qos_name"`
 
 	// QoS Factor Configuration
-	QoSPriorityValue         uint64  `json:"qos_priority_value"`
-	QoSWeight                float64 `json:"qos_weight"`
-	QoSMultiplier            float64 `json:"qos_multiplier"`
-	QoSFactorEffectiveness   float64 `json:"qos_factor_effectiveness"`
+	QoSPriorityValue       uint64  `json:"qos_priority_value"`
+	QoSWeight              float64 `json:"qos_weight"`
+	QoSMultiplier          float64 `json:"qos_multiplier"`
+	QoSFactorEffectiveness float64 `json:"qos_factor_effectiveness"`
 
 	// Usage Analysis
-	QoSUtilizationRate       float64 `json:"qos_utilization_rate"`
-	QoSFactorImpact          float64 `json:"qos_factor_impact"`
-	QoSBalanceScore          float64 `json:"qos_balance_score"`
+	QoSUtilizationRate float64 `json:"qos_utilization_rate"`
+	QoSFactorImpact    float64 `json:"qos_factor_impact"`
+	QoSBalanceScore    float64 `json:"qos_balance_score"`
 
 	// Performance Analysis
 	QoSPerformanceScore      float64 `json:"qos_performance_score"`
@@ -292,24 +292,24 @@ type FactorTrendAnalysis struct {
 	AnalysisPeriod string `json:"analysis_period"`
 
 	// Trend Metrics
-	TrendDirection     string  `json:"trend_direction"`
-	TrendVelocity      float64 `json:"trend_velocity"`
-	TrendAcceleration  float64 `json:"trend_acceleration"`
-	TrendVolatility    float64 `json:"trend_volatility"`
+	TrendDirection    string  `json:"trend_direction"`
+	TrendVelocity     float64 `json:"trend_velocity"`
+	TrendAcceleration float64 `json:"trend_acceleration"`
+	TrendVolatility   float64 `json:"trend_volatility"`
 
 	// Predictive Analysis
-	FutureTrendPrediction  string  `json:"future_trend_prediction"`
-	PredictionConfidence   float64 `json:"prediction_confidence"`
-	PredictionTimeframe    string  `json:"prediction_timeframe"`
+	FutureTrendPrediction string  `json:"future_trend_prediction"`
+	PredictionConfidence  float64 `json:"prediction_confidence"`
+	PredictionTimeframe   string  `json:"prediction_timeframe"`
 
 	// Seasonal Analysis
-	SeasonalityDetected    bool    `json:"seasonality_detected"`
-	SeasonalityStrength    float64 `json:"seasonality_strength"`
-	SeasonalityPeriod      string  `json:"seasonality_period"`
+	SeasonalityDetected bool    `json:"seasonality_detected"`
+	SeasonalityStrength float64 `json:"seasonality_strength"`
+	SeasonalityPeriod   string  `json:"seasonality_period"`
 
 	// Cyclical Analysis
-	CyclicalPatterns       []string `json:"cyclical_patterns"`
-	CyclePredictability    float64  `json:"cycle_predictability"`
+	CyclicalPatterns    []string `json:"cyclical_patterns"`
+	CyclePredictability float64  `json:"cycle_predictability"`
 
 	LastAnalyzed time.Time `json:"last_analyzed"`
 }
@@ -319,27 +319,27 @@ type FactorImpactAnalysis struct {
 	FactorName string `json:"factor_name"`
 
 	// Impact Metrics
-	ImpactScore            float64 `json:"impact_score"`
-	ImpactSignificance     string  `json:"impact_significance"`
-	ImpactCorrelation      float64 `json:"impact_correlation"`
-	ImpactSensitivity      float64 `json:"impact_sensitivity"`
+	ImpactScore        float64 `json:"impact_score"`
+	ImpactSignificance string  `json:"impact_significance"`
+	ImpactCorrelation  float64 `json:"impact_correlation"`
+	ImpactSensitivity  float64 `json:"impact_sensitivity"`
 
 	// Change Analysis
-	ImpactChangeRate       float64 `json:"impact_change_rate"`
-	ImpactStability        float64 `json:"impact_stability"`
-	ImpactVolatility       float64 `json:"impact_volatility"`
+	ImpactChangeRate float64 `json:"impact_change_rate"`
+	ImpactStability  float64 `json:"impact_stability"`
+	ImpactVolatility float64 `json:"impact_volatility"`
 
 	// Cross-factor Analysis
-	FactorInteractions     map[string]float64 `json:"factor_interactions"`
-	FactorSynergies        []string           `json:"factor_synergies"`
-	FactorConflicts        []string           `json:"factor_conflicts"`
+	FactorInteractions map[string]float64 `json:"factor_interactions"`
+	FactorSynergies    []string           `json:"factor_synergies"`
+	FactorConflicts    []string           `json:"factor_conflicts"`
 
 	LastAnalyzed time.Time `json:"last_analyzed"`
 }
 
 // FactorOptimizationResult represents optimization analysis
 type FactorOptimizationResult struct {
-	OptimizationScope    string `json:"optimization_scope"`
+	OptimizationScope string `json:"optimization_scope"`
 
 	// Current State
 	CurrentConfiguration map[string]float64 `json:"current_configuration"`
@@ -352,33 +352,33 @@ type FactorOptimizationResult struct {
 	ExpectedImprovement      float64            `json:"expected_improvement"`
 
 	// Implementation Analysis
-	ImplementationComplexity string    `json:"implementation_complexity"`
-	ImplementationRisk       string    `json:"implementation_risk"`
-	ImplementationTimeframe  string    `json:"implementation_timeframe"`
-	RecommendedActions       []string  `json:"recommended_actions"`
+	ImplementationComplexity string   `json:"implementation_complexity"`
+	ImplementationRisk       string   `json:"implementation_risk"`
+	ImplementationTimeframe  string   `json:"implementation_timeframe"`
+	RecommendedActions       []string `json:"recommended_actions"`
 
 	OptimizedAt time.Time `json:"optimized_at"`
 }
 
 // FactorConfigurationValidation represents configuration validation
 type FactorConfigurationValidation struct {
-	ValidationScope   string `json:"validation_scope"`
+	ValidationScope string `json:"validation_scope"`
 
 	// Validation Results
-	IsValid           bool     `json:"is_valid"`
-	ValidationScore   float64  `json:"validation_score"`
-	ValidationIssues  []string `json:"validation_issues"`
+	IsValid            bool     `json:"is_valid"`
+	ValidationScore    float64  `json:"validation_score"`
+	ValidationIssues   []string `json:"validation_issues"`
 	ValidationWarnings []string `json:"validation_warnings"`
 
 	// Configuration Health
-	ConfigurationHealth   string  `json:"configuration_health"`
-	HealthScore          float64 `json:"health_score"`
-	StabilityScore       float64 `json:"stability_score"`
-	OptimalityScore      float64 `json:"optimality_score"`
+	ConfigurationHealth string  `json:"configuration_health"`
+	HealthScore         float64 `json:"health_score"`
+	StabilityScore      float64 `json:"stability_score"`
+	OptimalityScore     float64 `json:"optimality_score"`
 
 	// Recommendations
-	ImmediateActions     []string `json:"immediate_actions"`
-	LongTermActions      []string `json:"long_term_actions"`
+	ImmediateActions          []string `json:"immediate_actions"`
+	LongTermActions           []string `json:"long_term_actions"`
 	MonitoringRecommendations []string `json:"monitoring_recommendations"`
 
 	ValidatedAt time.Time `json:"validated_at"`

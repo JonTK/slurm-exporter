@@ -386,10 +386,13 @@ func (lm *LabelManager) sanitizeSensitiveValue(value string) string {
 	return lm.sanitizeValue(value)
 }
 
+// TODO: Following helper function is unused - preserved for future character validation
+/*
 // isLetter checks if a character is a letter
 func isLetter(ch byte) bool {
 	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
 }
+*/
 
 // GetLabelRecommendations provides recommendations for label optimization
 func (lm *LabelManager) GetLabelRecommendations() []LabelRecommendation {

@@ -14,14 +14,14 @@ import (
 
 // PerformanceMonitor collects runtime performance metrics about the exporter
 type PerformanceMonitor struct {
-	metrics   *PerformanceMetrics
-	process   *process.Process
-	interval  time.Duration
-	ctx       context.Context
-	cancel    context.CancelFunc
-	wg        sync.WaitGroup
-	enabled   bool
-	mu        sync.RWMutex
+	metrics  *PerformanceMetrics
+	process  *process.Process
+	interval time.Duration
+	ctx      context.Context
+	cancel   context.CancelFunc
+	wg       sync.WaitGroup
+	enabled  bool
+	mu       sync.RWMutex
 }
 
 // NewPerformanceMonitor creates a new performance monitor
@@ -148,7 +148,7 @@ func (pm *PerformanceMonitor) collectCPUMetrics() {
 	if cpuTimes, err := cpu.Times(false); err == nil && len(cpuTimes) > 0 {
 		ct := cpuTimes[0]
 		total := ct.User + ct.System + ct.Idle + ct.Nice + ct.Iowait + ct.Irq + ct.Softirq + ct.Steal
-		
+
 		if total > 0 {
 			pm.metrics.UpdateCPUUsage("user", (ct.User/total)*100)
 			pm.metrics.UpdateCPUUsage("system", (ct.System/total)*100)
@@ -237,7 +237,7 @@ func (ct *CardinalityTracker) updateCardinality() {
 			// Parse collector from metric name if possible
 			collector = extractCollectorFromMetric(metricName)
 		}
-		
+
 		ct.metrics.UpdateCardinality(metricName, collector, float64(cardinality))
 	}
 }
@@ -272,15 +272,15 @@ func extractCollectorFromMetric(metricName string) string {
 	if contains(metricName, "system") {
 		return "system"
 	}
-	
+
 	return "unknown"
 }
 
 // contains checks if string contains substring
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) && s[len(s)-len(substr):] == substr || 
-		   len(s) > len(substr) && s[:len(substr)] == substr ||
-		   (len(s) > len(substr) && findInString(s, substr))
+	return len(s) >= len(substr) && s[len(s)-len(substr):] == substr ||
+		len(s) > len(substr) && s[:len(substr)] == substr ||
+		(len(s) > len(substr) && findInString(s, substr))
 }
 
 // findInString checks if substring exists in string

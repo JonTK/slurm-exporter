@@ -13,87 +13,87 @@ type QueueAnalysisCollector struct {
 	client QueueAnalysisSLURMClient
 
 	// Queue Position Metrics
-	queuePosition               *prometheus.GaugeVec
-	queueDepth                  *prometheus.GaugeVec
-	queueMovement               *prometheus.GaugeVec
-	queueAdvancementRate        *prometheus.GaugeVec
-	queueStagnation             *prometheus.GaugeVec
+	queuePosition        *prometheus.GaugeVec
+	queueDepth           *prometheus.GaugeVec
+	queueMovement        *prometheus.GaugeVec
+	queueAdvancementRate *prometheus.GaugeVec
+	queueStagnation      *prometheus.GaugeVec
 
 	// Wait Time Prediction Metrics
-	predictedWaitTime           *prometheus.GaugeVec
-	waitTimePredictionAccuracy  *prometheus.GaugeVec
-	waitTimeVariance            *prometheus.GaugeVec
-	waitTimeConfidence          *prometheus.GaugeVec
-	waitTimeModelPerformance    *prometheus.GaugeVec
+	predictedWaitTime          *prometheus.GaugeVec
+	waitTimePredictionAccuracy *prometheus.GaugeVec
+	waitTimeVariance           *prometheus.GaugeVec
+	waitTimeConfidence         *prometheus.GaugeVec
+	waitTimeModelPerformance   *prometheus.GaugeVec
 
 	// Historical Wait Time Analysis
-	actualWaitTime              *prometheus.HistogramVec
-	waitTimePercentiles         *prometheus.GaugeVec
-	waitTimeTrends              *prometheus.GaugeVec
-	waitTimeAnomalies           *prometheus.GaugeVec
-	waitTimePatterns            *prometheus.GaugeVec
+	actualWaitTime      *prometheus.HistogramVec
+	waitTimePercentiles *prometheus.GaugeVec
+	waitTimeTrends      *prometheus.GaugeVec
+	waitTimeAnomalies   *prometheus.GaugeVec
+	waitTimePatterns    *prometheus.GaugeVec
 
 	// Queue Efficiency Metrics
-	queueThroughput             *prometheus.GaugeVec
-	queueProcessingRate         *prometheus.GaugeVec
-	queueUtilization            *prometheus.GaugeVec
-	queueBottlenecks            *prometheus.GaugeVec
-	queueEfficiencyScore        *prometheus.GaugeVec
+	queueThroughput      *prometheus.GaugeVec
+	queueProcessingRate  *prometheus.GaugeVec
+	queueUtilization     *prometheus.GaugeVec
+	queueBottlenecks     *prometheus.GaugeVec
+	queueEfficiencyScore *prometheus.GaugeVec
 
 	// Resource-Based Queue Analysis
-	resourceQueueDepth          *prometheus.GaugeVec
-	resourceWaitTime            *prometheus.GaugeVec
-	resourceAvailability        *prometheus.GaugeVec
-	resourceContention          *prometheus.GaugeVec
-	resourceAllocationRate      *prometheus.GaugeVec
+	resourceQueueDepth     *prometheus.GaugeVec
+	resourceWaitTime       *prometheus.GaugeVec
+	resourceAvailability   *prometheus.GaugeVec
+	resourceContention     *prometheus.GaugeVec
+	resourceAllocationRate *prometheus.GaugeVec
 
 	// Priority-Based Queue Analysis
-	priorityQueueMetrics        *prometheus.GaugeVec
-	priorityWaitTime            *prometheus.GaugeVec
-	priorityAdvantage           *prometheus.GaugeVec
-	priorityInversion           *prometheus.GaugeVec
-	priorityStarvation          *prometheus.GaugeVec
+	priorityQueueMetrics *prometheus.GaugeVec
+	priorityWaitTime     *prometheus.GaugeVec
+	priorityAdvantage    *prometheus.GaugeVec
+	priorityInversion    *prometheus.GaugeVec
+	priorityStarvation   *prometheus.GaugeVec
 
 	// Partition Queue Analysis
-	partitionQueueDepth         *prometheus.GaugeVec
-	partitionWaitTime           *prometheus.GaugeVec
-	partitionThroughput         *prometheus.GaugeVec
-	partitionEfficiency         *prometheus.GaugeVec
-	partitionLoadBalance        *prometheus.GaugeVec
+	partitionQueueDepth  *prometheus.GaugeVec
+	partitionWaitTime    *prometheus.GaugeVec
+	partitionThroughput  *prometheus.GaugeVec
+	partitionEfficiency  *prometheus.GaugeVec
+	partitionLoadBalance *prometheus.GaugeVec
 
 	// User Queue Experience
-	userQueueMetrics            *prometheus.GaugeVec
-	userWaitExperience          *prometheus.GaugeVec
-	userQueueBehavior           *prometheus.GaugeVec
-	userSubmissionStrategy      *prometheus.GaugeVec
-	userQueueOptimization       *prometheus.GaugeVec
+	userQueueMetrics       *prometheus.GaugeVec
+	userWaitExperience     *prometheus.GaugeVec
+	userQueueBehavior      *prometheus.GaugeVec
+	userSubmissionStrategy *prometheus.GaugeVec
+	userQueueOptimization  *prometheus.GaugeVec
 
 	// Backfill Analysis
-	backfillOpportunities       *prometheus.GaugeVec
-	backfillSuccess             *prometheus.CounterVec
-	backfillEfficiency          *prometheus.GaugeVec
-	backfillImpact              *prometheus.GaugeVec
-	backfillOptimization        *prometheus.GaugeVec
+	backfillOpportunities *prometheus.GaugeVec
+	backfillSuccess       *prometheus.CounterVec
+	backfillEfficiency    *prometheus.GaugeVec
+	backfillImpact        *prometheus.GaugeVec
+	backfillOptimization  *prometheus.GaugeVec
 
 	// Queue State Transitions
-	queueStateChanges           *prometheus.CounterVec
-	queueTransitionTime         *prometheus.HistogramVec
-	queueStateDistribution      *prometheus.GaugeVec
-	queueHealthMetrics          *prometheus.GaugeVec
+	queueStateChanges      *prometheus.CounterVec
+	queueTransitionTime    *prometheus.HistogramVec
+	queueStateDistribution *prometheus.GaugeVec
+	queueHealthMetrics     *prometheus.GaugeVec
 
 	// Prediction Model Metrics
-	modelAccuracy               *prometheus.GaugeVec
-	modelPredictionError        *prometheus.HistogramVec
-	modelCalibration            *prometheus.GaugeVec
-	modelFeatureImportance      *prometheus.GaugeVec
-	modelUpdateFrequency        *prometheus.CounterVec
+	modelAccuracy          *prometheus.GaugeVec
+	modelPredictionError   *prometheus.HistogramVec
+	modelCalibration       *prometheus.GaugeVec
+	modelFeatureImportance *prometheus.GaugeVec
+	modelUpdateFrequency   *prometheus.CounterVec
 
 	// System Load Impact
-	systemLoadImpact            *prometheus.GaugeVec
-	loadBalancingEffectiveness  *prometheus.GaugeVec
-	capacityUtilization         *prometheus.GaugeVec
-	resourceFragmentation       *prometheus.GaugeVec
-	schedulingOverhead          *prometheus.GaugeVec
+	systemLoadImpact           *prometheus.GaugeVec
+	loadBalancingEffectiveness *prometheus.GaugeVec
+	capacityUtilization        *prometheus.GaugeVec
+	resourceFragmentation      *prometheus.GaugeVec
+	schedulingOverhead         *prometheus.GaugeVec
 }
 
 // QueueAnalysisSLURMClient interface for queue analysis operations
@@ -114,102 +114,102 @@ type QueueAnalysisSLURMClient interface {
 
 // QueuePositionAnalysis represents queue position analysis for a job
 type QueuePositionAnalysis struct {
-	JobID               string    `json:"job_id"`
-	UserName            string    `json:"user_name"`
-	AccountName         string    `json:"account_name"`
-	PartitionName       string    `json:"partition_name"`
+	JobID         string `json:"job_id"`
+	UserName      string `json:"user_name"`
+	AccountName   string `json:"account_name"`
+	PartitionName string `json:"partition_name"`
 
 	// Current Position
-	CurrentPosition     int       `json:"current_position"`
-	TotalQueueDepth     int       `json:"total_queue_depth"`
-	PositionPercentile  float64   `json:"position_percentile"`
-	JobsAhead           int       `json:"jobs_ahead"`
-	JobsBehind          int       `json:"jobs_behind"`
+	CurrentPosition    int     `json:"current_position"`
+	TotalQueueDepth    int     `json:"total_queue_depth"`
+	PositionPercentile float64 `json:"position_percentile"`
+	JobsAhead          int     `json:"jobs_ahead"`
+	JobsBehind         int     `json:"jobs_behind"`
 
 	// Position History
-	InitialPosition     int       `json:"initial_position"`
-	PositionChanges     []int     `json:"position_changes"`
-	AdvancementRate     float64   `json:"advancement_rate"`
-	TimeInQueue         time.Duration `json:"time_in_queue"`
-	StagnationTime      time.Duration `json:"stagnation_time"`
+	InitialPosition int           `json:"initial_position"`
+	PositionChanges []int         `json:"position_changes"`
+	AdvancementRate float64       `json:"advancement_rate"`
+	TimeInQueue     time.Duration `json:"time_in_queue"`
+	StagnationTime  time.Duration `json:"stagnation_time"`
 
 	// Movement Analysis
-	MovementDirection   string    `json:"movement_direction"`
-	MovementVelocity    float64   `json:"movement_velocity"`
-	MovementAcceleration float64  `json:"movement_acceleration"`
-	MovementPrediction  string    `json:"movement_prediction"`
+	MovementDirection    string  `json:"movement_direction"`
+	MovementVelocity     float64 `json:"movement_velocity"`
+	MovementAcceleration float64 `json:"movement_acceleration"`
+	MovementPrediction   string  `json:"movement_prediction"`
 
 	// Queue Context
-	QueueClass          string    `json:"queue_class"`
-	PriorityClass       string    `json:"priority_class"`
-	ResourceClass       string    `json:"resource_class"`
-	SubmittedAt         time.Time `json:"submitted_at"`
+	QueueClass    string    `json:"queue_class"`
+	PriorityClass string    `json:"priority_class"`
+	ResourceClass string    `json:"resource_class"`
+	SubmittedAt   time.Time `json:"submitted_at"`
 
 	LastUpdated time.Time `json:"last_updated"`
 }
 
 // QueueWaitTimePrediction represents wait time prediction for a job
 type QueueWaitTimePrediction struct {
-	JobID               string        `json:"job_id"`
-	UserName            string        `json:"user_name"`
-	PartitionName       string        `json:"partition_name"`
+	JobID         string `json:"job_id"`
+	UserName      string `json:"user_name"`
+	PartitionName string `json:"partition_name"`
 
 	// Primary Predictions
-	PredictedWaitTime   time.Duration `json:"predicted_wait_time"`
-	EstimatedStartTime  time.Time     `json:"estimated_start_time"`
-	ConfidenceLevel     float64       `json:"confidence_level"`
-	PredictionMethod    string        `json:"prediction_method"`
+	PredictedWaitTime  time.Duration `json:"predicted_wait_time"`
+	EstimatedStartTime time.Time     `json:"estimated_start_time"`
+	ConfidenceLevel    float64       `json:"confidence_level"`
+	PredictionMethod   string        `json:"prediction_method"`
 
 	// Prediction Ranges
-	MinWaitTime         time.Duration `json:"min_wait_time"`
-	MaxWaitTime         time.Duration `json:"max_wait_time"`
-	MedianWaitTime      time.Duration `json:"median_wait_time"`
-	P90WaitTime         time.Duration `json:"p90_wait_time"`
-	UncertaintyRange    time.Duration `json:"uncertainty_range"`
+	MinWaitTime      time.Duration `json:"min_wait_time"`
+	MaxWaitTime      time.Duration `json:"max_wait_time"`
+	MedianWaitTime   time.Duration `json:"median_wait_time"`
+	P90WaitTime      time.Duration `json:"p90_wait_time"`
+	UncertaintyRange time.Duration `json:"uncertainty_range"`
 
 	// Factors Influencing Prediction
-	QueuePositionFactor float64       `json:"queue_position_factor"`
-	PriorityFactor      float64       `json:"priority_factor"`
-	ResourceFactor      float64       `json:"resource_factor"`
-	HistoricalFactor    float64       `json:"historical_factor"`
-	SystemLoadFactor    float64       `json:"system_load_factor"`
+	QueuePositionFactor float64 `json:"queue_position_factor"`
+	PriorityFactor      float64 `json:"priority_factor"`
+	ResourceFactor      float64 `json:"resource_factor"`
+	HistoricalFactor    float64 `json:"historical_factor"`
+	SystemLoadFactor    float64 `json:"system_load_factor"`
 
 	// Model Information
-	ModelVersion        string        `json:"model_version"`
-	ModelAccuracy       float64       `json:"model_accuracy"`
-	FeatureWeights      map[string]float64 `json:"feature_weights"`
-	TrainingDataSize    int           `json:"training_data_size"`
+	ModelVersion     string             `json:"model_version"`
+	ModelAccuracy    float64            `json:"model_accuracy"`
+	FeatureWeights   map[string]float64 `json:"feature_weights"`
+	TrainingDataSize int                `json:"training_data_size"`
 
 	// Update Information
-	PredictedAt         time.Time     `json:"predicted_at"`
-	NextUpdate          time.Time     `json:"next_update"`
-	UpdateFrequency     time.Duration `json:"update_frequency"`
+	PredictedAt     time.Time     `json:"predicted_at"`
+	NextUpdate      time.Time     `json:"next_update"`
+	UpdateFrequency time.Duration `json:"update_frequency"`
 }
 
 // QueueAnalysisMetrics represents comprehensive queue metrics
 type QueueAnalysisMetrics struct {
-	PartitionName       string    `json:"partition_name"`
+	PartitionName string `json:"partition_name"`
 
 	// Basic Queue Stats
-	TotalJobs           int       `json:"total_jobs"`
-	PendingJobs         int       `json:"pending_jobs"`
-	RunningJobs         int       `json:"running_jobs"`
-	CompletedJobs       int       `json:"completed_jobs"`
-	FailedJobs          int       `json:"failed_jobs"`
+	TotalJobs     int `json:"total_jobs"`
+	PendingJobs   int `json:"pending_jobs"`
+	RunningJobs   int `json:"running_jobs"`
+	CompletedJobs int `json:"completed_jobs"`
+	FailedJobs    int `json:"failed_jobs"`
 
 	// Queue Depth Analysis
-	AverageQueueDepth   float64   `json:"average_queue_depth"`
-	MaxQueueDepth       int       `json:"max_queue_depth"`
-	MinQueueDepth       int       `json:"min_queue_depth"`
-	QueueDepthVariance  float64   `json:"queue_depth_variance"`
-	QueueDepthTrend     string    `json:"queue_depth_trend"`
+	AverageQueueDepth  float64 `json:"average_queue_depth"`
+	MaxQueueDepth      int     `json:"max_queue_depth"`
+	MinQueueDepth      int     `json:"min_queue_depth"`
+	QueueDepthVariance float64 `json:"queue_depth_variance"`
+	QueueDepthTrend    string  `json:"queue_depth_trend"`
 
 	// Throughput Metrics
-	JobsPerHour         float64   `json:"jobs_per_hour"`
-	JobsPerDay          float64   `json:"jobs_per_day"`
-	ThroughputTrend     string    `json:"throughput_trend"`
+	JobsPerHour           float64 `json:"jobs_per_hour"`
+	JobsPerDay            float64 `json:"jobs_per_day"`
+	ThroughputTrend       string  `json:"throughput_trend"`
 	ThroughputVariability float64 `json:"throughput_variability"`
-	PeakThroughput      float64   `json:"peak_throughput"`
+	PeakThroughput        float64 `json:"peak_throughput"`
 
 	// Processing Metrics
 	AverageProcessingTime float64 `json:"average_processing_time"`
@@ -218,34 +218,34 @@ type QueueAnalysisMetrics struct {
 	QueueUtilization      float64 `json:"queue_utilization"`
 
 	// Health Indicators
-	QueueHealth         float64   `json:"queue_health"`
-	BottleneckSeverity  float64   `json:"bottleneck_severity"`
-	StarvationRisk      float64   `json:"starvation_risk"`
-	OverloadRisk        float64   `json:"overload_risk"`
+	QueueHealth        float64 `json:"queue_health"`
+	BottleneckSeverity float64 `json:"bottleneck_severity"`
+	StarvationRisk     float64 `json:"starvation_risk"`
+	OverloadRisk       float64 `json:"overload_risk"`
 
 	LastUpdated time.Time `json:"last_updated"`
 }
 
 // HistoricalWaitTimes represents historical wait time analysis
 type HistoricalWaitTimes struct {
-	AnalysisPeriod      string    `json:"analysis_period"`
-	TotalJobs           int       `json:"total_jobs"`
+	AnalysisPeriod string `json:"analysis_period"`
+	TotalJobs      int    `json:"total_jobs"`
 
 	// Wait Time Statistics
-	MeanWaitTime        float64   `json:"mean_wait_time"`
-	MedianWaitTime      float64   `json:"median_wait_time"`
-	P90WaitTime         float64   `json:"p90_wait_time"`
-	P95WaitTime         float64   `json:"p95_wait_time"`
-	P99WaitTime         float64   `json:"p99_wait_time"`
-	MaxWaitTime         float64   `json:"max_wait_time"`
-	MinWaitTime         float64   `json:"min_wait_time"`
-	StdDevWaitTime      float64   `json:"stddev_wait_time"`
+	MeanWaitTime   float64 `json:"mean_wait_time"`
+	MedianWaitTime float64 `json:"median_wait_time"`
+	P90WaitTime    float64 `json:"p90_wait_time"`
+	P95WaitTime    float64 `json:"p95_wait_time"`
+	P99WaitTime    float64 `json:"p99_wait_time"`
+	MaxWaitTime    float64 `json:"max_wait_time"`
+	MinWaitTime    float64 `json:"min_wait_time"`
+	StdDevWaitTime float64 `json:"stddev_wait_time"`
 
 	// Trends and Patterns
-	WaitTimeTrend       string    `json:"wait_time_trend"`
-	SeasonalPatterns    map[string]float64 `json:"seasonal_patterns"`
-	DailyPatterns       map[string]float64 `json:"daily_patterns"`
-	WeeklyPatterns      map[string]float64 `json:"weekly_patterns"`
+	WaitTimeTrend    string             `json:"wait_time_trend"`
+	SeasonalPatterns map[string]float64 `json:"seasonal_patterns"`
+	DailyPatterns    map[string]float64 `json:"daily_patterns"`
+	WeeklyPatterns   map[string]float64 `json:"weekly_patterns"`
 
 	// Categorized Analysis
 	WaitTimeByPriority  map[string]float64 `json:"wait_time_by_priority"`
@@ -254,72 +254,72 @@ type HistoricalWaitTimes struct {
 	WaitTimeByResource  map[string]float64 `json:"wait_time_by_resource"`
 
 	// Anomalies
-	AnomalousJobs       []string  `json:"anomalous_jobs"`
-	AnomalyThreshold    float64   `json:"anomaly_threshold"`
-	AnomalyRate         float64   `json:"anomaly_rate"`
+	AnomalousJobs    []string `json:"anomalous_jobs"`
+	AnomalyThreshold float64  `json:"anomaly_threshold"`
+	AnomalyRate      float64  `json:"anomaly_rate"`
 
 	LastAnalyzed time.Time `json:"last_analyzed"`
 }
 
 // QueueEfficiencyAnalysis represents queue efficiency analysis
 type QueueEfficiencyAnalysis struct {
-	PartitionName       string    `json:"partition_name"`
+	PartitionName string `json:"partition_name"`
 
 	// Efficiency Metrics
-	OverallEfficiency   float64   `json:"overall_efficiency"`
-	SchedulingEfficiency float64  `json:"scheduling_efficiency"`
-	ResourceEfficiency  float64   `json:"resource_efficiency"`
-	ThroughputEfficiency float64  `json:"throughput_efficiency"`
-	WaitTimeEfficiency  float64   `json:"wait_time_efficiency"`
+	OverallEfficiency    float64 `json:"overall_efficiency"`
+	SchedulingEfficiency float64 `json:"scheduling_efficiency"`
+	ResourceEfficiency   float64 `json:"resource_efficiency"`
+	ThroughputEfficiency float64 `json:"throughput_efficiency"`
+	WaitTimeEfficiency   float64 `json:"wait_time_efficiency"`
 
 	// Bottleneck Analysis
-	BottleneckType      string    `json:"bottleneck_type"`
-	BottleneckSeverity  float64   `json:"bottleneck_severity"`
-	BottleneckImpact    float64   `json:"bottleneck_impact"`
-	BottleneckSources   []string  `json:"bottleneck_sources"`
+	BottleneckType     string   `json:"bottleneck_type"`
+	BottleneckSeverity float64  `json:"bottleneck_severity"`
+	BottleneckImpact   float64  `json:"bottleneck_impact"`
+	BottleneckSources  []string `json:"bottleneck_sources"`
 
 	// Optimization Opportunities
-	OptimizationPotential float64 `json:"optimization_potential"`
-	RecommendedActions   []string `json:"recommended_actions"`
-	ExpectedImprovement  float64  `json:"expected_improvement"`
-	ImplementationCost   string   `json:"implementation_cost"`
+	OptimizationPotential float64  `json:"optimization_potential"`
+	RecommendedActions    []string `json:"recommended_actions"`
+	ExpectedImprovement   float64  `json:"expected_improvement"`
+	ImplementationCost    string   `json:"implementation_cost"`
 
 	// Performance Indicators
-	ResponseTime        float64   `json:"response_time"`
-	ServiceLevel        float64   `json:"service_level"`
-	UserSatisfaction    float64   `json:"user_satisfaction"`
-	SystemStress        float64   `json:"system_stress"`
+	ResponseTime     float64 `json:"response_time"`
+	ServiceLevel     float64 `json:"service_level"`
+	UserSatisfaction float64 `json:"user_satisfaction"`
+	SystemStress     float64 `json:"system_stress"`
 
 	LastAnalyzed time.Time `json:"last_analyzed"`
 }
 
 // ResourceQueueAnalysis represents resource-specific queue analysis
 type ResourceQueueAnalysis struct {
-	ResourceType        string    `json:"resource_type"`
+	ResourceType string `json:"resource_type"`
 
 	// Resource Availability
-	TotalCapacity       float64   `json:"total_capacity"`
-	AvailableCapacity   float64   `json:"available_capacity"`
-	UtilizedCapacity    float64   `json:"utilized_capacity"`
-	ReservedCapacity    float64   `json:"reserved_capacity"`
-	CapacityUtilization float64   `json:"capacity_utilization"`
+	TotalCapacity       float64 `json:"total_capacity"`
+	AvailableCapacity   float64 `json:"available_capacity"`
+	UtilizedCapacity    float64 `json:"utilized_capacity"`
+	ReservedCapacity    float64 `json:"reserved_capacity"`
+	CapacityUtilization float64 `json:"capacity_utilization"`
 
 	// Queue Metrics by Resource
-	JobsWaitingForResource int    `json:"jobs_waiting_for_resource"`
+	JobsWaitingForResource  int     `json:"jobs_waiting_for_resource"`
 	AverageResourceWaitTime float64 `json:"average_resource_wait_time"`
-	ResourceContention     float64  `json:"resource_contention"`
-	ResourceFragmentation  float64  `json:"resource_fragmentation"`
+	ResourceContention      float64 `json:"resource_contention"`
+	ResourceFragmentation   float64 `json:"resource_fragmentation"`
 
 	// Allocation Efficiency
-	AllocationRate         float64  `json:"allocation_rate"`
-	AllocationEfficiency   float64  `json:"allocation_efficiency"`
-	WasteRate              float64  `json:"waste_rate"`
-	FragmentationImpact    float64  `json:"fragmentation_impact"`
+	AllocationRate       float64 `json:"allocation_rate"`
+	AllocationEfficiency float64 `json:"allocation_efficiency"`
+	WasteRate            float64 `json:"waste_rate"`
+	FragmentationImpact  float64 `json:"fragmentation_impact"`
 
 	// Predictions
-	FutureAvailability     float64  `json:"future_availability"`
-	ExpectedWaitTime       float64  `json:"expected_wait_time"`
-	AllocationForecast     string   `json:"allocation_forecast"`
+	FutureAvailability float64 `json:"future_availability"`
+	ExpectedWaitTime   float64 `json:"expected_wait_time"`
+	AllocationForecast string  `json:"allocation_forecast"`
 
 	LastAnalyzed time.Time `json:"last_analyzed"`
 }
@@ -327,141 +327,141 @@ type ResourceQueueAnalysis struct {
 // PriorityQueueAnalysis represents priority-based queue analysis
 type PriorityQueueAnalysis struct {
 	// Priority Level Analysis
-	PriorityLevels      map[string]*PriorityLevelMetrics `json:"priority_levels"`
-	PriorityDistribution map[string]float64              `json:"priority_distribution"`
+	PriorityLevels       map[string]*PriorityLevelMetrics `json:"priority_levels"`
+	PriorityDistribution map[string]float64               `json:"priority_distribution"`
 
 	// Priority Fairness
-	FairnessScore       float64   `json:"fairness_score"`
-	PriorityAdvantage   float64   `json:"priority_advantage"`
-	StarvationRisk      float64   `json:"starvation_risk"`
-	PriorityInversion   float64   `json:"priority_inversion"`
+	FairnessScore     float64 `json:"fairness_score"`
+	PriorityAdvantage float64 `json:"priority_advantage"`
+	StarvationRisk    float64 `json:"starvation_risk"`
+	PriorityInversion float64 `json:"priority_inversion"`
 
 	// Queue Dynamics
-	PriorityMobility    float64   `json:"priority_mobility"`
-	AgingEffectiveness  float64   `json:"aging_effectiveness"`
-	PreemptionRate      float64   `json:"preemption_rate"`
-	EscalationRate      float64   `json:"escalation_rate"`
+	PriorityMobility   float64 `json:"priority_mobility"`
+	AgingEffectiveness float64 `json:"aging_effectiveness"`
+	PreemptionRate     float64 `json:"preemption_rate"`
+	EscalationRate     float64 `json:"escalation_rate"`
 
 	// System Health
-	PrioritySystemHealth float64  `json:"priority_system_health"`
-	PolicyEffectiveness  float64  `json:"policy_effectiveness"`
-	OptimizationNeeded   bool     `json:"optimization_needed"`
+	PrioritySystemHealth float64 `json:"priority_system_health"`
+	PolicyEffectiveness  float64 `json:"policy_effectiveness"`
+	OptimizationNeeded   bool    `json:"optimization_needed"`
 
 	LastAnalyzed time.Time `json:"last_analyzed"`
 }
 
 // PriorityLevelMetrics represents metrics for a specific priority level
 type PriorityLevelMetrics struct {
-	PriorityLevel       string    `json:"priority_level"`
-	JobCount            int       `json:"job_count"`
-	AverageWaitTime     float64   `json:"average_wait_time"`
-	MedianWaitTime      float64   `json:"median_wait_time"`
-	ThroughputRate      float64   `json:"throughput_rate"`
-	QueuePosition       float64   `json:"queue_position"`
-	StarvationRisk      float64   `json:"starvation_risk"`
-	AdvancementRate     float64   `json:"advancement_rate"`
+	PriorityLevel   string  `json:"priority_level"`
+	JobCount        int     `json:"job_count"`
+	AverageWaitTime float64 `json:"average_wait_time"`
+	MedianWaitTime  float64 `json:"median_wait_time"`
+	ThroughputRate  float64 `json:"throughput_rate"`
+	QueuePosition   float64 `json:"queue_position"`
+	StarvationRisk  float64 `json:"starvation_risk"`
+	AdvancementRate float64 `json:"advancement_rate"`
 }
 
 // UserQueueExperience represents user-specific queue experience
 type UserQueueExperience struct {
-	UserName            string    `json:"user_name"`
-	AccountName         string    `json:"account_name"`
+	UserName    string `json:"user_name"`
+	AccountName string `json:"account_name"`
 
 	// User Queue Statistics
-	TotalSubmissions    int       `json:"total_submissions"`
-	AverageWaitTime     float64   `json:"average_wait_time"`
-	MedianWaitTime      float64   `json:"median_wait_time"`
-	WaitTimeVariability float64   `json:"wait_time_variability"`
-	QueueExperienceScore float64  `json:"queue_experience_score"`
+	TotalSubmissions     int     `json:"total_submissions"`
+	AverageWaitTime      float64 `json:"average_wait_time"`
+	MedianWaitTime       float64 `json:"median_wait_time"`
+	WaitTimeVariability  float64 `json:"wait_time_variability"`
+	QueueExperienceScore float64 `json:"queue_experience_score"`
 
 	// Behavioral Analysis
-	SubmissionPatterns  []string  `json:"submission_patterns"`
+	SubmissionPatterns     []string `json:"submission_patterns"`
 	OptimalSubmissionTimes []string `json:"optimal_submission_times"`
-	SubmissionStrategy  string    `json:"submission_strategy"`
-	BehaviorOptimization float64  `json:"behavior_optimization"`
+	SubmissionStrategy     string   `json:"submission_strategy"`
+	BehaviorOptimization   float64  `json:"behavior_optimization"`
 
 	// Performance Metrics
-	JobSuccessRate      float64   `json:"job_success_rate"`
-	ResourceEfficiency  float64   `json:"resource_efficiency"`
-	QueuePosition       float64   `json:"queue_position"`
-	PriorityUtilization float64   `json:"priority_utilization"`
+	JobSuccessRate      float64 `json:"job_success_rate"`
+	ResourceEfficiency  float64 `json:"resource_efficiency"`
+	QueuePosition       float64 `json:"queue_position"`
+	PriorityUtilization float64 `json:"priority_utilization"`
 
 	// Recommendations
-	WaitTimeReduction   float64   `json:"wait_time_reduction"`
-	OptimizationTips    []string  `json:"optimization_tips"`
-	BestPractices       []string  `json:"best_practices"`
+	WaitTimeReduction float64  `json:"wait_time_reduction"`
+	OptimizationTips  []string `json:"optimization_tips"`
+	BestPractices     []string `json:"best_practices"`
 
 	LastAnalyzed time.Time `json:"last_analyzed"`
 }
 
 // BackfillAnalysis represents backfill scheduling analysis
 type BackfillAnalysis struct {
-	PartitionName       string    `json:"partition_name"`
+	PartitionName string `json:"partition_name"`
 
 	// Backfill Opportunities
-	TotalOpportunities  int       `json:"total_opportunities"`
+	TotalOpportunities    int     `json:"total_opportunities"`
 	UtilizedOpportunities int     `json:"utilized_opportunities"`
-	MissedOpportunities int       `json:"missed_opportunities"`
-	BackfillRate        float64   `json:"backfill_rate"`
-	BackfillEfficiency  float64   `json:"backfill_efficiency"`
+	MissedOpportunities   int     `json:"missed_opportunities"`
+	BackfillRate          float64 `json:"backfill_rate"`
+	BackfillEfficiency    float64 `json:"backfill_efficiency"`
 
 	// Impact Analysis
-	JobsBackfilled      int       `json:"jobs_backfilled"`
-	WaitTimeReduction   float64   `json:"wait_time_reduction"`
+	JobsBackfilled         int     `json:"jobs_backfilled"`
+	WaitTimeReduction      float64 `json:"wait_time_reduction"`
 	UtilizationImprovement float64 `json:"utilization_improvement"`
-	ThroughputIncrease  float64   `json:"throughput_increase"`
+	ThroughputIncrease     float64 `json:"throughput_increase"`
 
 	// Backfill Characteristics
-	AverageBackfillDuration float64 `json:"average_backfill_duration"`
-	BackfillJobSizes       map[string]int `json:"backfill_job_sizes"`
-	BackfillSuccess        float64   `json:"backfill_success"`
+	AverageBackfillDuration float64        `json:"average_backfill_duration"`
+	BackfillJobSizes        map[string]int `json:"backfill_job_sizes"`
+	BackfillSuccess         float64        `json:"backfill_success"`
 
 	// Optimization Potential
-	OptimizationScore   float64   `json:"optimization_score"`
+	OptimizationScore    float64  `json:"optimization_score"`
 	ImprovementPotential float64  `json:"improvement_potential"`
-	RecommendedChanges  []string  `json:"recommended_changes"`
+	RecommendedChanges   []string `json:"recommended_changes"`
 
 	LastAnalyzed time.Time `json:"last_analyzed"`
 }
 
 // QueueStateTransitions represents queue state transition analysis
 type QueueStateTransitions struct {
-	AnalysisPeriod      string    `json:"analysis_period"`
+	AnalysisPeriod string `json:"analysis_period"`
 
 	// State Transition Counts
-	StateTransitions    map[string]map[string]int `json:"state_transitions"`
-	TransitionRates     map[string]float64        `json:"transition_rates"`
-	StateDistribution   map[string]float64        `json:"state_distribution"`
+	StateTransitions  map[string]map[string]int `json:"state_transitions"`
+	TransitionRates   map[string]float64        `json:"transition_rates"`
+	StateDistribution map[string]float64        `json:"state_distribution"`
 
 	// Transition Time Analysis
-	AverageTransitionTime map[string]float64      `json:"average_transition_time"`
-	TransitionTimeVariance map[string]float64     `json:"transition_time_variance"`
+	AverageTransitionTime  map[string]float64 `json:"average_transition_time"`
+	TransitionTimeVariance map[string]float64 `json:"transition_time_variance"`
 
 	// Queue Health Indicators
-	HealthyTransitions  float64   `json:"healthy_transitions"`
+	HealthyTransitions     float64 `json:"healthy_transitions"`
 	ProblematicTransitions float64 `json:"problematic_transitions"`
-	TransitionEfficiency float64  `json:"transition_efficiency"`
-	StateStability      float64   `json:"state_stability"`
+	TransitionEfficiency   float64 `json:"transition_efficiency"`
+	StateStability         float64 `json:"state_stability"`
 
 	LastAnalyzed time.Time `json:"last_analyzed"`
 }
 
 // PredictionModelValidation represents prediction model validation
 type PredictionModelValidation struct {
-	ModelName           string    `json:"model_name"`
-	ModelVersion        string    `json:"model_version"`
+	ModelName    string `json:"model_name"`
+	ModelVersion string `json:"model_version"`
 
 	// Accuracy Metrics
-	OverallAccuracy     float64   `json:"overall_accuracy"`
-	PredictionError     float64   `json:"prediction_error"`
-	MeanAbsoluteError   float64   `json:"mean_absolute_error"`
-	RootMeanSquareError float64   `json:"root_mean_square_error"`
-	R2Score             float64   `json:"r2_score"`
+	OverallAccuracy     float64 `json:"overall_accuracy"`
+	PredictionError     float64 `json:"prediction_error"`
+	MeanAbsoluteError   float64 `json:"mean_absolute_error"`
+	RootMeanSquareError float64 `json:"root_mean_square_error"`
+	R2Score             float64 `json:"r2_score"`
 
 	// Calibration Metrics
-	CalibrationScore    float64   `json:"calibration_score"`
-	ConfidenceAccuracy  float64   `json:"confidence_accuracy"`
-	UncertaintyCapture  float64   `json:"uncertainty_capture"`
+	CalibrationScore   float64 `json:"calibration_score"`
+	ConfidenceAccuracy float64 `json:"confidence_accuracy"`
+	UncertaintyCapture float64 `json:"uncertainty_capture"`
 
 	// Feature Analysis
 	FeatureImportance   map[string]float64 `json:"feature_importance"`
@@ -469,10 +469,10 @@ type PredictionModelValidation struct {
 	FeatureStability    float64            `json:"feature_stability"`
 
 	// Performance Analysis
-	PredictionLatency   float64   `json:"prediction_latency"`
-	ModelComplexity     float64   `json:"model_complexity"`
-	UpdateFrequency     float64   `json:"update_frequency"`
-	RetrainingNeeded    bool      `json:"retraining_needed"`
+	PredictionLatency float64 `json:"prediction_latency"`
+	ModelComplexity   float64 `json:"model_complexity"`
+	UpdateFrequency   float64 `json:"update_frequency"`
+	RetrainingNeeded  bool    `json:"retraining_needed"`
 
 	ValidatedAt time.Time `json:"validated_at"`
 }
@@ -480,42 +480,42 @@ type PredictionModelValidation struct {
 // SystemLoadImpact represents system load impact on queue performance
 type SystemLoadImpact struct {
 	// System Load Metrics
-	CPULoad             float64   `json:"cpu_load"`
-	MemoryLoad          float64   `json:"memory_load"`
-	NetworkLoad         float64   `json:"network_load"`
-	StorageLoad         float64   `json:"storage_load"`
-	OverallSystemLoad   float64   `json:"overall_system_load"`
+	CPULoad           float64 `json:"cpu_load"`
+	MemoryLoad        float64 `json:"memory_load"`
+	NetworkLoad       float64 `json:"network_load"`
+	StorageLoad       float64 `json:"storage_load"`
+	OverallSystemLoad float64 `json:"overall_system_load"`
 
 	// Impact on Queue Performance
 	QueuePerformanceImpact float64 `json:"queue_performance_impact"`
-	WaitTimeIncrease      float64  `json:"wait_time_increase"`
-	ThroughputDecrease    float64  `json:"throughput_decrease"`
-	EfficiencyReduction   float64  `json:"efficiency_reduction"`
+	WaitTimeIncrease       float64 `json:"wait_time_increase"`
+	ThroughputDecrease     float64 `json:"throughput_decrease"`
+	EfficiencyReduction    float64 `json:"efficiency_reduction"`
 
 	// Load Balancing
-	LoadBalanceScore      float64  `json:"load_balance_score"`
-	LoadDistribution      map[string]float64 `json:"load_distribution"`
-	LoadBalanceEffectiveness float64 `json:"load_balance_effectiveness"`
+	LoadBalanceScore         float64            `json:"load_balance_score"`
+	LoadDistribution         map[string]float64 `json:"load_distribution"`
+	LoadBalanceEffectiveness float64            `json:"load_balance_effectiveness"`
 
 	// Capacity Management
-	CapacityUtilization   float64  `json:"capacity_utilization"`
-	CapacityFragmentation float64  `json:"capacity_fragmentation"`
-	CapacityOptimization  float64  `json:"capacity_optimization"`
+	CapacityUtilization   float64 `json:"capacity_utilization"`
+	CapacityFragmentation float64 `json:"capacity_fragmentation"`
+	CapacityOptimization  float64 `json:"capacity_optimization"`
 
 	LastMeasured time.Time `json:"last_measured"`
 }
 
 // WaitTimeFilters represents filters for historical wait time analysis
 type WaitTimeFilters struct {
-	StartTime    time.Time `json:"start_time"`
-	EndTime      time.Time `json:"end_time"`
-	UserName     string    `json:"user_name"`
-	AccountName  string    `json:"account_name"`
-	PartitionName string   `json:"partition_name"`
-	MinPriority  int       `json:"min_priority"`
-	MaxPriority  int       `json:"max_priority"`
-	JobSizeMin   int       `json:"job_size_min"`
-	JobSizeMax   int       `json:"job_size_max"`
+	StartTime     time.Time `json:"start_time"`
+	EndTime       time.Time `json:"end_time"`
+	UserName      string    `json:"user_name"`
+	AccountName   string    `json:"account_name"`
+	PartitionName string    `json:"partition_name"`
+	MinPriority   int       `json:"min_priority"`
+	MaxPriority   int       `json:"max_priority"`
+	JobSizeMin    int       `json:"job_size_min"`
+	JobSizeMax    int       `json:"job_size_max"`
 }
 
 // NewQueueAnalysisCollector creates a new queue analysis collector

@@ -216,9 +216,9 @@ func (h *HealthChecker) ReadinessHandler() http.HandlerFunc {
 
 		// Return simplified response for readiness
 		response := map[string]interface{}{
-			"ready":      report.IsReady(),
-			"status":     report.Status,
-			"timestamp":  report.Timestamp,
+			"ready":     report.IsReady(),
+			"status":    report.Status,
+			"timestamp": report.Timestamp,
 			"checks_passed": func() int {
 				passed := 0
 				for _, check := range report.Checks {
@@ -252,7 +252,7 @@ func (h *HealthChecker) LivenessHandler() http.HandlerFunc {
 			"uptime":    time.Since(startTime),
 		}
 
-		json.NewEncoder(w).Encode(response)
+		_ = json.NewEncoder(w).Encode(response)
 	}
 }
 
@@ -343,7 +343,7 @@ func MetricsEndpointCheck(metricsURL string, client *http.Client) CheckFunc {
 				Error:  fmt.Sprintf("Failed to fetch metrics: %v", err),
 			}
 		}
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 
 		check := Check{
 			Metadata: map[string]string{

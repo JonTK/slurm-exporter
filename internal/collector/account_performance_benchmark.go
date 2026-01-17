@@ -27,111 +27,111 @@ type AccountPerformanceBenchmarkSLURMClient interface {
 }
 
 type AccountPerformanceMetrics struct {
-	AccountName              string
-	TotalJobsCompleted       int64
-	AverageJobDuration       time.Duration
-	MedianJobDuration        time.Duration
-	JobThroughput            float64
-	JobSuccessRate           float64
-	JobFailureRate           float64
-	QueueWaitTime            time.Duration
-	AverageQueueTime         time.Duration
-	MedianQueueTime          time.Duration
-	TurnaroundTime           time.Duration
-	ResourceUtilizationCPU   float64
-	ResourceUtilizationGPU   float64
-	ResourceUtilizationMemory float64
+	AccountName                string
+	TotalJobsCompleted         int64
+	AverageJobDuration         time.Duration
+	MedianJobDuration          time.Duration
+	JobThroughput              float64
+	JobSuccessRate             float64
+	JobFailureRate             float64
+	QueueWaitTime              time.Duration
+	AverageQueueTime           time.Duration
+	MedianQueueTime            time.Duration
+	TurnaroundTime             time.Duration
+	ResourceUtilizationCPU     float64
+	ResourceUtilizationGPU     float64
+	ResourceUtilizationMemory  float64
 	ResourceUtilizationStorage float64
-	NetworkUtilization       float64
-	EnergyEfficiency         float64
-	CostEfficiency           float64
-	PerformanceScore         float64
-	ReliabilityScore         float64
-	AvailabilityScore        float64
-	ScalabilityScore         float64
-	LastUpdated              time.Time
-	MeasurementPeriod        string
-	PerformanceGrade         string
+	NetworkUtilization         float64
+	EnergyEfficiency           float64
+	CostEfficiency             float64
+	PerformanceScore           float64
+	ReliabilityScore           float64
+	AvailabilityScore          float64
+	ScalabilityScore           float64
+	LastUpdated                time.Time
+	MeasurementPeriod          string
+	PerformanceGrade           string
 }
 
 type AccountBenchmarkResult struct {
-	BenchmarkID          string
-	AccountName          string
-	BenchmarkType        string
-	BenchmarkName        string
-	ExecutionTime        time.Time
-	Duration             time.Duration
-	Score                float64
-	ReferenceScore       float64
-	PerformanceRatio     float64
-	Percentile           float64
-	Ranking              int
-	TotalParticipants    int
-	BenchmarkCategory    string
-	WorkloadType         string
-	ResourceProfile      string
-	TestConditions       map[string]interface{}
-	Metrics              map[string]float64
-	ComparisonBaseline   string
-	PerformanceClass     string
-	AccuracyLevel        float64
-	ConfidenceInterval   float64
-	StandardDeviation    float64
-	Variance             float64
+	BenchmarkID           string
+	AccountName           string
+	BenchmarkType         string
+	BenchmarkName         string
+	ExecutionTime         time.Time
+	Duration              time.Duration
+	Score                 float64
+	ReferenceScore        float64
+	PerformanceRatio      float64
+	Percentile            float64
+	Ranking               int
+	TotalParticipants     int
+	BenchmarkCategory     string
+	WorkloadType          string
+	ResourceProfile       string
+	TestConditions        map[string]interface{}
+	Metrics               map[string]float64
+	ComparisonBaseline    string
+	PerformanceClass      string
+	AccuracyLevel         float64
+	ConfidenceInterval    float64
+	StandardDeviation     float64
+	Variance              float64
 	OptimizationPotential float64
-	RecommendedActions   []string
+	RecommendedActions    []string
 }
 
 type AccountPerformanceComparisons struct {
-	AccountName               string
-	PeerAccounts              []string
-	PeerAveragePerformance    float64
-	IndustryBenchmark         float64
-	TopPerformerBenchmark     float64
-	PerformanceRank           int
-	TotalAccountsCompared     int
-	PerformancePercentile     float64
-	RelativePerformance       float64
-	PerformanceGap            float64
-	CompetitivePosition       string
-	StrengthAreas             []string
-	ImprovementAreas          []string
-	BenchmarkMetrics          map[string]float64
-	ComparisonPeriod          string
-	ComparisonMethodology     string
-	StatisticalSignificance   float64
-	ConfidenceLevel           float64
-	LastComparison            time.Time
-	TrendDirection            string
-	YearOverYearChange        float64
-	QuarterOverQuarterChange  float64
+	AccountName              string
+	PeerAccounts             []string
+	PeerAveragePerformance   float64
+	IndustryBenchmark        float64
+	TopPerformerBenchmark    float64
+	PerformanceRank          int
+	TotalAccountsCompared    int
+	PerformancePercentile    float64
+	RelativePerformance      float64
+	PerformanceGap           float64
+	CompetitivePosition      string
+	StrengthAreas            []string
+	ImprovementAreas         []string
+	BenchmarkMetrics         map[string]float64
+	ComparisonPeriod         string
+	ComparisonMethodology    string
+	StatisticalSignificance  float64
+	ConfidenceLevel          float64
+	LastComparison           time.Time
+	TrendDirection           string
+	YearOverYearChange       float64
+	QuarterOverQuarterChange float64
 }
 
 type AccountPerformanceTrends struct {
-	AccountName              string
-	TrendPeriod              string
-	PerformanceTrend         string
-	TrendStrength            float64
-	TrendDirection           string
-	LinearRegression         map[string]float64
-	SeasonalPatterns         map[string]float64
-	CyclicalPatterns         []string
-	AnomalyCount             int
-	TrendChangePoints        []time.Time
-	ForecastAccuracy         float64
-	PredictiveConfidence     float64
-	HistoricalVariability    float64
-	PerformanceVolatility    float64
-	GrowthRate               float64
-	DeclineRate              float64
-	StabilityIndex           float64
-	ConsistencyScore         float64
-	ReliabilityTrend         string
-	QualityTrend             string
-	EfficiencyTrend          string
-	ScalabilityTrend         string
-	TrendFactors             []string
-	ExternalInfluences       []string
+	AccountName           string
+	TrendPeriod           string
+	PerformanceTrend      string
+	TrendStrength         float64
+	TrendDirection        string
+	LinearRegression      map[string]float64
+	SeasonalPatterns      map[string]float64
+	CyclicalPatterns      []string
+	AnomalyCount          int
+	TrendChangePoints     []time.Time
+	ForecastAccuracy      float64
+	PredictiveConfidence  float64
+	HistoricalVariability float64
+	PerformanceVolatility float64
+	GrowthRate            float64
+	DeclineRate           float64
+	StabilityIndex        float64
+	ConsistencyScore      float64
+	ReliabilityTrend      string
+	QualityTrend          string
+	EfficiencyTrend       string
+	ScalabilityTrend      string
+	TrendFactors          []string
+	ExternalInfluences    []string
 }
 
 type AccountEfficiencyAnalysis struct {
@@ -190,31 +190,31 @@ type AccountResourceUtilization struct {
 }
 
 type AccountWorkloadCharacteristics struct {
-	AccountName              string
-	WorkloadTypes            []string
-	JobSizeDistribution      map[string]float64
-	JobDurationDistribution  map[string]float64
-	ResourceDemandPatterns   map[string]float64
-	TemporalPatterns         map[string]float64
-	ConcurrencyPatterns      map[string]float64
-	BatchJobCharacteristics  map[string]float64
+	AccountName                   string
+	WorkloadTypes                 []string
+	JobSizeDistribution           map[string]float64
+	JobDurationDistribution       map[string]float64
+	ResourceDemandPatterns        map[string]float64
+	TemporalPatterns              map[string]float64
+	ConcurrencyPatterns           map[string]float64
+	BatchJobCharacteristics       map[string]float64
 	InteractiveJobCharacteristics map[string]float64
 	LongRunningJobCharacteristics map[string]float64
-	CPUIntensiveRatio        float64
-	GPUIntensiveRatio        float64
-	MemoryIntensiveRatio     float64
-	IOIntensiveRatio         float64
-	NetworkIntensiveRatio    float64
-	MixedWorkloadRatio       float64
-	WorkloadComplexity       float64
-	WorkloadVariability      float64
-	WorkloadPredictability   float64
-	SeasonalityIndex         float64
-	WorkloadEfficiency       float64
-	ResourceDiversity        float64
-	ApplicationProfiles      map[string]float64
-	UserBehaviorPatterns     map[string]float64
-	WorkloadTrends           map[string]float64
+	CPUIntensiveRatio             float64
+	GPUIntensiveRatio             float64
+	MemoryIntensiveRatio          float64
+	IOIntensiveRatio              float64
+	NetworkIntensiveRatio         float64
+	MixedWorkloadRatio            float64
+	WorkloadComplexity            float64
+	WorkloadVariability           float64
+	WorkloadPredictability        float64
+	SeasonalityIndex              float64
+	WorkloadEfficiency            float64
+	ResourceDiversity             float64
+	ApplicationProfiles           map[string]float64
+	UserBehaviorPatterns          map[string]float64
+	WorkloadTrends                map[string]float64
 }
 
 type AccountPerformanceBaseline struct {
@@ -245,31 +245,31 @@ type AccountPerformanceBaseline struct {
 }
 
 type AccountSLACompliance struct {
-	AccountName              string
-	SLATargets               map[string]float64
-	CurrentPerformance       map[string]float64
-	ComplianceStatus         map[string]string
-	CompliancePercentage     map[string]float64
-	ViolationCount           map[string]int
-	ViolationSeverity        map[string]string
-	TimeToResolution         map[string]time.Duration
-	SLACredits               map[string]float64
-	PerformanceMargin        map[string]float64
-	RiskLevel                string
-	ComplianceScore          float64
-	AvailabilityCompliance   float64
-	PerformanceCompliance    float64
-	ReliabilityCompliance    float64
-	SLAPeriod                string
-	MonitoringFrequency      string
-	ReportingPeriod          string
-	EscalationTriggers       map[string]interface{}
-	RemediationActions       []string
-	SLAReviewDate            time.Time
-	ContractualObligations   map[string]interface{}
-	PenaltyExposure          float64
-	ComplianceHistory        []string
-	TrendAnalysis            map[string]string
+	AccountName            string
+	SLATargets             map[string]float64
+	CurrentPerformance     map[string]float64
+	ComplianceStatus       map[string]string
+	CompliancePercentage   map[string]float64
+	ViolationCount         map[string]int
+	ViolationSeverity      map[string]string
+	TimeToResolution       map[string]time.Duration
+	SLACredits             map[string]float64
+	PerformanceMargin      map[string]float64
+	RiskLevel              string
+	ComplianceScore        float64
+	AvailabilityCompliance float64
+	PerformanceCompliance  float64
+	ReliabilityCompliance  float64
+	SLAPeriod              string
+	MonitoringFrequency    string
+	ReportingPeriod        string
+	EscalationTriggers     map[string]interface{}
+	RemediationActions     []string
+	SLAReviewDate          time.Time
+	ContractualObligations map[string]interface{}
+	PenaltyExposure        float64
+	ComplianceHistory      []string
+	TrendAnalysis          map[string]string
 }
 
 type AccountPerformanceOptimization struct {
@@ -303,124 +303,124 @@ type AccountPerformanceOptimization struct {
 }
 
 type AccountCapacityPredictions struct {
-	AccountName              string
-	PredictionPeriod         string
-	PredictionConfidence     float64
-	CPUCapacityForecast      map[string]float64
-	GPUCapacityForecast      map[string]float64
-	MemoryCapacityForecast   map[string]float64
-	StorageCapacityForecast  map[string]float64
-	NetworkCapacityForecast  map[string]float64
-	WorkloadGrowthPrediction float64
-	UserGrowthPrediction     float64
-	ResourceDemandGrowth     map[string]float64
+	AccountName                 string
+	PredictionPeriod            string
+	PredictionConfidence        float64
+	CPUCapacityForecast         map[string]float64
+	GPUCapacityForecast         map[string]float64
+	MemoryCapacityForecast      map[string]float64
+	StorageCapacityForecast     map[string]float64
+	NetworkCapacityForecast     map[string]float64
+	WorkloadGrowthPrediction    float64
+	UserGrowthPrediction        float64
+	ResourceDemandGrowth        map[string]float64
 	CapacityUtilizationForecast map[string]float64
-	BottleneckPredictions    []string
-	ScalingRequirements      map[string]interface{}
-	CapacityShortfalls       map[string]float64
-	CapacityExcess           map[string]float64
-	OptimalCapacityPlan      map[string]interface{}
-	InvestmentRequirements   map[string]float64
-	CostProjections          map[string]float64
-	RiskFactors              []string
-	ScenarioAnalysis         map[string]interface{}
-	ContingencyPlanning      map[string]interface{}
-	CapacityMilestones       []string
-	ReviewPoints             []time.Time
-	AccuracyTracking         map[string]float64
-	ModelValidation          map[string]float64
+	BottleneckPredictions       []string
+	ScalingRequirements         map[string]interface{}
+	CapacityShortfalls          map[string]float64
+	CapacityExcess              map[string]float64
+	OptimalCapacityPlan         map[string]interface{}
+	InvestmentRequirements      map[string]float64
+	CostProjections             map[string]float64
+	RiskFactors                 []string
+	ScenarioAnalysis            map[string]interface{}
+	ContingencyPlanning         map[string]interface{}
+	CapacityMilestones          []string
+	ReviewPoints                []time.Time
+	AccuracyTracking            map[string]float64
+	ModelValidation             map[string]float64
 }
 
 type AccountPerformanceAlert struct {
-	AlertID              string
-	AccountName          string
-	AlertType            string
-	Severity             string
-	Metric               string
-	CurrentValue         float64
-	ThresholdValue       float64
-	DeviationPercentage  float64
-	AlertTime            time.Time
-	Status               string
-	Description          string
-	Impact               string
-	RootCause            string
-	RecommendedActions   []string
-	EscalationLevel      int
-	NotificationsSent    int
-	AcknowledgedBy       string
-	AcknowledgedTime     time.Time
-	ResolvedTime         time.Time
-	ResolutionNotes      string
-	RelatedAlerts        []string
-	TrendData            map[string]float64
-	HistoricalContext    string
-	BusinessImpact       string
-	TechnicalImpact      string
-	SLAImpact            string
-	AutoRemediationApplied bool
+	AlertID                    string
+	AccountName                string
+	AlertType                  string
+	Severity                   string
+	Metric                     string
+	CurrentValue               float64
+	ThresholdValue             float64
+	DeviationPercentage        float64
+	AlertTime                  time.Time
+	Status                     string
+	Description                string
+	Impact                     string
+	RootCause                  string
+	RecommendedActions         []string
+	EscalationLevel            int
+	NotificationsSent          int
+	AcknowledgedBy             string
+	AcknowledgedTime           time.Time
+	ResolvedTime               time.Time
+	ResolutionNotes            string
+	RelatedAlerts              []string
+	TrendData                  map[string]float64
+	HistoricalContext          string
+	BusinessImpact             string
+	TechnicalImpact            string
+	SLAImpact                  string
+	AutoRemediationApplied     bool
 	ManualInterventionRequired bool
-	AlertFrequency       string
-	SuppressUntil        time.Time
+	AlertFrequency             string
+	SuppressUntil              time.Time
 }
 
 type AccountBenchmarkHistory struct {
-	HistoryID            string
-	AccountName          string
-	BenchmarkDate        time.Time
-	BenchmarkType        string
-	PerformanceScore     float64
-	PerformanceGrade     string
-	Ranking              int
-	PercentileRank       float64
-	YearOverYearChange   float64
+	HistoryID                string
+	AccountName              string
+	BenchmarkDate            time.Time
+	BenchmarkType            string
+	PerformanceScore         float64
+	PerformanceGrade         string
+	Ranking                  int
+	PercentileRank           float64
+	YearOverYearChange       float64
 	QuarterOverQuarterChange float64
-	MonthOverMonthChange float64
-	TrendDirection       string
-	PerformanceFactors   map[string]float64
-	ExternalFactors      []string
-	SeasonalAdjustment   float64
-	NormalizedScore      float64
-	WeightedScore        float64
-	ComponentScores      map[string]float64
-	BenchmarkNotes       string
-	DataQuality          string
-	MeasurementAccuracy  float64
-	ComparisonBaseline   string
-	MethodologyVersion   string
-	CertificationLevel   string
-	AuditTrail           []string
-	ValidationStatus     string
+	MonthOverMonthChange     float64
+	TrendDirection           string
+	PerformanceFactors       map[string]float64
+	ExternalFactors          []string
+	SeasonalAdjustment       float64
+	NormalizedScore          float64
+	WeightedScore            float64
+	ComponentScores          map[string]float64
+	BenchmarkNotes           string
+	DataQuality              string
+	MeasurementAccuracy      float64
+	ComparisonBaseline       string
+	MethodologyVersion       string
+	CertificationLevel       string
+	AuditTrail               []string
+	ValidationStatus         string
 }
 
 type SystemPerformanceOverview struct {
-	OverviewDate             time.Time
-	TotalAccounts            int
-	AveragePerformanceScore  float64
-	MedianPerformanceScore   float64
-	PerformanceDistribution  map[string]int
-	TopPerformingAccounts    []string
-	UnderperformingAccounts  []string
-	PerformanceTrends        map[string]float64
-	SystemUtilization        map[string]float64
-	SystemEfficiency         float64
-	SystemReliability        float64
-	SystemAvailability       float64
-	SystemScalability        float64
-	ResourceContention       map[string]float64
-	CapacityUtilization      map[string]float64
-	PerformanceBottlenecks   []string
-	SystemAlerts             int
-	SystemViolations         int
-	ComplianceScore          float64
+	OverviewDate              time.Time
+	TotalAccounts             int
+	AveragePerformanceScore   float64
+	MedianPerformanceScore    float64
+	PerformanceDistribution   map[string]int
+	TopPerformingAccounts     []string
+	UnderperformingAccounts   []string
+	PerformanceTrends         map[string]float64
+	SystemUtilization         map[string]float64
+	SystemEfficiency          float64
+	SystemReliability         float64
+	SystemAvailability        float64
+	SystemScalability         float64
+	ResourceContention        map[string]float64
+	CapacityUtilization       map[string]float64
+	PerformanceBottlenecks    []string
+	SystemAlerts              int
+	SystemViolations          int
+	ComplianceScore           float64
 	OptimizationOpportunities int
-	SystemHealthScore        float64
-	OverallSystemGrade       string
-	BenchmarkComparisons     map[string]float64
-	IndustryRanking          int
-	SystemMetrics            map[string]float64
-	QualityMetrics           map[string]float64
-	OperationalMetrics       map[string]float64
+	SystemHealthScore         float64
+	OverallSystemGrade        string
+	BenchmarkComparisons      map[string]float64
+	IndustryRanking           int
+	SystemMetrics             map[string]float64
+	QualityMetrics            map[string]float64
+	OperationalMetrics        map[string]float64
 }
 
 type AccountPerformanceBenchmarkCollector struct {
@@ -428,39 +428,39 @@ type AccountPerformanceBenchmarkCollector struct {
 	mutex  sync.RWMutex
 
 	// Performance metrics
-	totalJobsCompleted       *prometheus.GaugeVec
-	averageJobDuration       *prometheus.GaugeVec
-	medianJobDuration        *prometheus.GaugeVec
-	jobThroughput            *prometheus.GaugeVec
-	jobSuccessRate           *prometheus.GaugeVec
-	jobFailureRate           *prometheus.GaugeVec
-	queueWaitTime            *prometheus.GaugeVec
-	averageQueueTime         *prometheus.GaugeVec
-	medianQueueTime          *prometheus.GaugeVec
-	turnaroundTime           *prometheus.GaugeVec
-	performanceScore         *prometheus.GaugeVec
-	reliabilityScore         *prometheus.GaugeVec
-	availabilityScore        *prometheus.GaugeVec
-	scalabilityScore         *prometheus.GaugeVec
-	performanceGrade         *prometheus.GaugeVec
+	totalJobsCompleted *prometheus.GaugeVec
+	averageJobDuration *prometheus.GaugeVec
+	medianJobDuration  *prometheus.GaugeVec
+	jobThroughput      *prometheus.GaugeVec
+	jobSuccessRate     *prometheus.GaugeVec
+	jobFailureRate     *prometheus.GaugeVec
+	queueWaitTime      *prometheus.GaugeVec
+	averageQueueTime   *prometheus.GaugeVec
+	medianQueueTime    *prometheus.GaugeVec
+	turnaroundTime     *prometheus.GaugeVec
+	performanceScore   *prometheus.GaugeVec
+	reliabilityScore   *prometheus.GaugeVec
+	availabilityScore  *prometheus.GaugeVec
+	scalabilityScore   *prometheus.GaugeVec
+	performanceGrade   *prometheus.GaugeVec
 
 	// Resource utilization metrics
-	resourceUtilizationCPU    *prometheus.GaugeVec
-	resourceUtilizationGPU    *prometheus.GaugeVec
-	resourceUtilizationMemory *prometheus.GaugeVec
+	resourceUtilizationCPU     *prometheus.GaugeVec
+	resourceUtilizationGPU     *prometheus.GaugeVec
+	resourceUtilizationMemory  *prometheus.GaugeVec
 	resourceUtilizationStorage *prometheus.GaugeVec
-	networkUtilization        *prometheus.GaugeVec
-	energyEfficiency          *prometheus.GaugeVec
-	costEfficiency            *prometheus.GaugeVec
+	networkUtilization         *prometheus.GaugeVec
+	energyEfficiency           *prometheus.GaugeVec
+	costEfficiency             *prometheus.GaugeVec
 
 	// Benchmark metrics
-	benchmarkScore           *prometheus.GaugeVec
-	benchmarkReferenceScore  *prometheus.GaugeVec
+	benchmarkScore            *prometheus.GaugeVec
+	benchmarkReferenceScore   *prometheus.GaugeVec
 	benchmarkPerformanceRatio *prometheus.GaugeVec
-	benchmarkPercentile      *prometheus.GaugeVec
-	benchmarkRanking         *prometheus.GaugeVec
-	benchmarkAccuracy        *prometheus.GaugeVec
-	benchmarkConfidence      *prometheus.GaugeVec
+	benchmarkPercentile       *prometheus.GaugeVec
+	benchmarkRanking          *prometheus.GaugeVec
+	benchmarkAccuracy         *prometheus.GaugeVec
+	benchmarkConfidence       *prometheus.GaugeVec
 
 	// Comparison metrics
 	peerAveragePerformance   *prometheus.GaugeVec
@@ -474,45 +474,45 @@ type AccountPerformanceBenchmarkCollector struct {
 	quarterOverQuarterChange *prometheus.GaugeVec
 
 	// Trend metrics
-	trendStrength            *prometheus.GaugeVec
-	forecastAccuracy         *prometheus.GaugeVec
-	predictiveConfidence     *prometheus.GaugeVec
-	performanceVolatility    *prometheus.GaugeVec
-	stabilityIndex           *prometheus.GaugeVec
-	consistencyScore         *prometheus.GaugeVec
-	growthRate               *prometheus.GaugeVec
+	trendStrength         *prometheus.GaugeVec
+	forecastAccuracy      *prometheus.GaugeVec
+	predictiveConfidence  *prometheus.GaugeVec
+	performanceVolatility *prometheus.GaugeVec
+	stabilityIndex        *prometheus.GaugeVec
+	consistencyScore      *prometheus.GaugeVec
+	growthRate            *prometheus.GaugeVec
 
 	// Efficiency metrics
-	overallEfficiencyScore   *prometheus.GaugeVec
-	cpuEfficiency            *prometheus.GaugeVec
-	gpuEfficiency            *prometheus.GaugeVec
-	memoryEfficiency         *prometheus.GaugeVec
-	storageEfficiency        *prometheus.GaugeVec
-	timeEfficiency           *prometheus.GaugeVec
-	resourceWaste            *prometheus.GaugeVec
-	idleTime                 *prometheus.GaugeVec
-	wasteReductionPotential  *prometheus.GaugeVec
-	improvementPotential     *prometheus.GaugeVec
+	overallEfficiencyScore  *prometheus.GaugeVec
+	cpuEfficiency           *prometheus.GaugeVec
+	gpuEfficiency           *prometheus.GaugeVec
+	memoryEfficiency        *prometheus.GaugeVec
+	storageEfficiency       *prometheus.GaugeVec
+	timeEfficiency          *prometheus.GaugeVec
+	resourceWaste           *prometheus.GaugeVec
+	idleTime                *prometheus.GaugeVec
+	wasteReductionPotential *prometheus.GaugeVec
+	improvementPotential    *prometheus.GaugeVec
 
 	// Workload characteristics metrics
-	workloadComplexity       *prometheus.GaugeVec
-	workloadVariability      *prometheus.GaugeVec
-	workloadPredictability   *prometheus.GaugeVec
-	cpuIntensiveRatio        *prometheus.GaugeVec
-	gpuIntensiveRatio        *prometheus.GaugeVec
-	memoryIntensiveRatio     *prometheus.GaugeVec
-	ioIntensiveRatio         *prometheus.GaugeVec
-	workloadEfficiency       *prometheus.GaugeVec
-	resourceDiversity        *prometheus.GaugeVec
+	workloadComplexity     *prometheus.GaugeVec
+	workloadVariability    *prometheus.GaugeVec
+	workloadPredictability *prometheus.GaugeVec
+	cpuIntensiveRatio      *prometheus.GaugeVec
+	gpuIntensiveRatio      *prometheus.GaugeVec
+	memoryIntensiveRatio   *prometheus.GaugeVec
+	ioIntensiveRatio       *prometheus.GaugeVec
+	workloadEfficiency     *prometheus.GaugeVec
+	resourceDiversity      *prometheus.GaugeVec
 
 	// SLA compliance metrics
-	slaComplianceScore       *prometheus.GaugeVec
-	availabilityCompliance   *prometheus.GaugeVec
-	performanceCompliance    *prometheus.GaugeVec
-	reliabilityCompliance    *prometheus.GaugeVec
-	slaViolationsTotal       *prometheus.CounterVec
-	slaCredits               *prometheus.GaugeVec
-	penaltyExposure          *prometheus.GaugeVec
+	slaComplianceScore     *prometheus.GaugeVec
+	availabilityCompliance *prometheus.GaugeVec
+	performanceCompliance  *prometheus.GaugeVec
+	reliabilityCompliance  *prometheus.GaugeVec
+	slaViolationsTotal     *prometheus.CounterVec
+	slaCredits             *prometheus.GaugeVec
+	penaltyExposure        *prometheus.GaugeVec
 
 	// Optimization metrics
 	optimizationsTotal       *prometheus.CounterVec
@@ -531,20 +531,20 @@ type AccountPerformanceBenchmarkCollector struct {
 	capacityExcess           *prometheus.GaugeVec
 
 	// Alert metrics
-	performanceAlertsTotal   *prometheus.CounterVec
-	alertSeverity            *prometheus.GaugeVec
-	alertResolutionTime      *prometheus.HistogramVec
-	alertEscalationLevel     *prometheus.GaugeVec
-	autoRemediationApplied   *prometheus.CounterVec
+	performanceAlertsTotal *prometheus.CounterVec
+	alertSeverity          *prometheus.GaugeVec
+	alertResolutionTime    *prometheus.HistogramVec
+	alertEscalationLevel   *prometheus.GaugeVec
+	autoRemediationApplied *prometheus.CounterVec
 
 	// System overview metrics
-	systemUtilization        *prometheus.GaugeVec
-	systemEfficiency         *prometheus.GaugeVec
-	systemReliability        *prometheus.GaugeVec
-	systemAvailability       *prometheus.GaugeVec
-	systemHealthScore        *prometheus.GaugeVec
-	systemAlertsTotal        *prometheus.CounterVec
-	systemViolationsTotal    *prometheus.CounterVec
+	systemUtilization     *prometheus.GaugeVec
+	systemEfficiency      *prometheus.GaugeVec
+	systemReliability     *prometheus.GaugeVec
+	systemAvailability    *prometheus.GaugeVec
+	systemHealthScore     *prometheus.GaugeVec
+	systemAlertsTotal     *prometheus.CounterVec
+	systemViolationsTotal *prometheus.CounterVec
 }
 
 func NewAccountPerformanceBenchmarkCollector(client AccountPerformanceBenchmarkSLURMClient) *AccountPerformanceBenchmarkCollector {
@@ -1169,8 +1169,8 @@ func NewAccountPerformanceBenchmarkCollector(client AccountPerformanceBenchmarkS
 		),
 		alertResolutionTime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_account_alert_resolution_time_seconds",
-				Help: "Alert resolution time for account",
+				Name:    "slurm_account_alert_resolution_time_seconds",
+				Help:    "Alert resolution time for account",
 				Buckets: []float64{300, 900, 1800, 3600, 7200, 14400, 86400},
 			},
 			[]string{"account", "alert_type"},

@@ -2,9 +2,10 @@ package collector
 
 import (
 	"context"
-	"strconv"
-	"strings"
-	"time"
+	// Commented out as they're only used in commented-out parser functions
+	// "strconv"
+	// "strings"
+	// "time"
 
 	"github.com/prometheus/client_golang/prometheus"
 
@@ -314,6 +315,8 @@ func (cc *ClusterCollector) collectPartitionSummary(ctx context.Context, ch chan
 // Helper methods for simulating SLURM API responses
 // In real implementation, these would be replaced with actual SLURM client calls
 
+// TODO: Following parser functions are unused - preserved for future data parsing needs
+/*
 // parseNodeState converts SLURM node state string to normalized state
 func (cc *ClusterCollector) parseNodeState(slurmState string) string {
 	// SLURM node states can be complex (e.g., "idle+cloud", "allocated+completing")
@@ -451,3 +454,4 @@ func (cc *ClusterCollector) parseTimeString(slurmTime string) (int64, error) {
 		"Check SLURM time format configuration",
 		"Verify time zone settings")
 }
+*/

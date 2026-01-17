@@ -31,21 +31,21 @@ func TestNewSmartFilter_Enabled(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
 	assert.NotNil(t, filter)
 	assert.True(t, filter.IsEnabled())
-	
+
 	// Clean up
-	filter.Close()
+	_ = filter.Close()
 }
 
 func TestNewSmartFilter_InvalidConfig(t *testing.T) {
@@ -121,17 +121,17 @@ func TestSmartFilter_ProcessMetrics_LearningPhase(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	// Create test metrics
 	metrics := createTestMetrics()
@@ -149,17 +149,17 @@ func TestSmartFilter_CreateMetricKey(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	testCases := []struct {
 		name     string
@@ -199,17 +199,17 @@ func TestSmartFilter_ExtractValue(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	testCases := []struct {
 		name     string
@@ -259,17 +259,17 @@ func TestSmartFilter_CalculateStatistics(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	// Create a pattern with known values
 	pattern := &MetricPattern{
@@ -291,23 +291,23 @@ func TestSmartFilter_CalculateCorrelation(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	testCases := []struct {
-		name     string
-		x        []float64
-		y        []float64
-		expected float64
+		name      string
+		x         []float64
+		y         []float64
+		expected  float64
 		tolerance float64
 	}{
 		{
@@ -346,17 +346,17 @@ func TestSmartFilter_Cache(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       3, // Small cache for testing
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      3, // Small cache for testing
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	// Test cache operations
 	filter.cacheDecision("key1", ActionKeep)
@@ -385,17 +385,17 @@ func TestSmartFilter_RegisterMetrics(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	registry := prometheus.NewRegistry()
 	err = filter.RegisterMetrics(registry)
@@ -417,17 +417,17 @@ func TestSmartFilter_GetStats(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	stats := filter.GetStats()
 	assert.Equal(t, true, stats["enabled"])
@@ -449,17 +449,17 @@ func TestSmartFilter_GetPatterns(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	// Initially no patterns
 	patterns := filter.GetPatterns()
@@ -497,24 +497,24 @@ func TestSmartFilter_NoiseScoreCalculation(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	testCases := []struct {
-		name         string
-		variance     float64
-		changeRate   float64
-		expectedMin  float64
-		expectedMax  float64
+		name        string
+		variance    float64
+		changeRate  float64
+		expectedMin float64
+		expectedMax float64
 	}{
 		{
 			name:        "low_noise",

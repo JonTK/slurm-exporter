@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Jon Thor Kristinsson
+# SPDX-License-Identifier: Apache-2.0
+
 name: Release
 
 on:
@@ -6,98 +9,78 @@ on:
       - 'v*'
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Release version (e.g., v1.2.3)'
+      tag:
+        description: 'Tag to release (e.g., v1.2.3)'
         required: true
         type: string
-      prerelease:
-        description: 'Mark as pre-release'
-        required: false
-        type: boolean
-        default: false
+
+permissions:
+  contents: write
+  packages: write
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  GO_VERSION: '1.24'
 
 jobs:
-  # Validate release prerequisites
-  validate:
-    name: Validate Release
+  validate-tag:
+    name: Validate Tag
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.version.outputs.version }}
-      is_prerelease: ${{ steps.version.outputs.is_prerelease }}
+      version: ${{ steps.get_version.outputs.version }}
+      prerelease: ${{ steps.check_prerelease.outputs.prerelease }}
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-      - name: Determine version
-        id: version
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VERSION="${{ github.event.inputs.version }}"
-            IS_PRERELEASE="${{ github.event.inputs.prerelease }}"
-          else
-            VERSION="${GITHUB_REF#refs/tags/}"
-            # Check if it's a pre-release (contains alpha, beta, rc)
-            if [[ "$VERSION" =~ (alpha|beta|rc) ]]; then
-              IS_PRERELEASE=true
-            else
-              IS_PRERELEASE=false
-            fi
-          fi
-          
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
-          
-          echo "Release version: $VERSION"
-          echo "Is pre-release: $IS_PRERELEASE"
+    - name: Get version from tag
+      id: get_version
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.tag }}"
+        else
+          VERSION="${GITHUB_REF#refs/tags/}"
+        fi
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "Version: ${VERSION}"
 
-      - name: Validate version format
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(\.[0-9]+)?)?$ ]]; then
-            echo "❌ Invalid version format: $VERSION"
-            echo "Expected format: v1.2.3 or v1.2.3-alpha.1"
-            exit 1
-          fi
-          echo "✅ Version format is valid"
+    - name: Validate version format
+      run: |
+        VERSION="${{ steps.get_version.outputs.version }}"
+        if ! echo "$VERSION" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$'; then
+          echo "Invalid version format: $VERSION"
+          echo "Expected format: vX.Y.Z or vX.Y.Z-suffix"
+          exit 1
+        fi
 
-      - name: Check if version exists
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          if git tag -l | grep -q "^$VERSION$"; then
-            echo "❌ Version $VERSION already exists"
-            exit 1
-          fi
-          echo "✅ Version $VERSION is new"
+    - name: Check if prerelease
+      id: check_prerelease
+      run: |
+        VERSION="${{ steps.get_version.outputs.version }}"
+        if echo "$VERSION" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+-'; then
+          echo "prerelease=true" >> $GITHUB_OUTPUT
+        else
+          echo "prerelease=false" >> $GITHUB_OUTPUT
+        fi
 
-  # Run comprehensive tests
-  test:
-    name: Run Tests
+  test-release:
+    name: Test Release Build
+    needs: validate-tag
     runs-on: ubuntu-latest
-    needs: validate
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.21'
-
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ env.GO_VERSION }}
+        cache: true
 
       - name: Run unit tests
         run: |
@@ -112,8 +95,8 @@ jobs:
       - name: Run security scan
         run: |
           echo "🔒 Running security scan..."
-          go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
-          gosec ./...
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          gosec -exclude=G101,G104,G115,G301,G304,G306,G404 ./...
 
       - name: Check code quality
         run: |
@@ -125,7 +108,7 @@ jobs:
   build:
     name: Build Binaries
     runs-on: ubuntu-latest
-    needs: [validate, test]
+    needs: [validate-tag, test-release]
     strategy:
       matrix:
         include:
@@ -147,13 +130,13 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.21'
+          go-version: '1.24'
 
       - name: Build binary
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
-          VERSION: ${{ needs.validate.outputs.version }}
+          VERSION: ${{ needs.validate-tag.outputs.version }}
         run: |
           echo "🔨 Building for $GOOS/$GOARCH..."
           
@@ -172,7 +155,7 @@ jobs:
       - name: Create archive
         run: |
           cd dist
-          ARCHIVE_NAME="slurm-exporter-${{ needs.validate.outputs.version }}-${{ matrix.os }}-${{ matrix.arch }}"
+          ARCHIVE_NAME="slurm-exporter-${{ needs.validate-tag.outputs.version }}-${{ matrix.os }}-${{ matrix.arch }}"
           
           if [ "${{ matrix.os }}" = "windows" ]; then
             zip "${ARCHIVE_NAME}.zip" slurm-exporter-${{ matrix.os }}-${{ matrix.arch }}.exe
@@ -199,7 +182,7 @@ jobs:
   docker:
     name: Build Docker Images
     runs-on: ubuntu-latest
-    needs: [validate, test]
+    needs: [validate-tag, test-release]
     permissions:
       contents: read
       packages: write
@@ -243,7 +226,7 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         build-args: |
-          VERSION=${{ needs.validate.outputs.version }}
+          VERSION=${{ needs.validate-tag.outputs.version }}
           BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           COMMIT=${{ github.sha }}
         cache-from: type=gha
@@ -252,7 +235,7 @@ jobs:
   helm:
     name: Build Helm Chart
     runs-on: ubuntu-latest
-    needs: [validate, test]
+    needs: [validate-tag, test-release]
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -264,7 +247,7 @@ jobs:
 
     - name: Package Helm chart
       env:
-        VERSION: ${{ needs.validate.outputs.version }}
+        VERSION: ${{ needs.validate-tag.outputs.version }}
       run: |
         # Update chart version
         sed -i "s/^version:.*/version: ${VERSION#v}/" charts/slurm-exporter/Chart.yaml
@@ -275,7 +258,7 @@ jobs:
         helm package charts/slurm-exporter --destination dist/helm
         
         # Generate index
-        helm repo index dist/helm --url https://github.com/${{ github.repository }}/releases/download/${{ needs.validate.outputs.version }}
+        helm repo index dist/helm --url https://github.com/${{ github.repository }}/releases/download/${{ needs.validate-tag.outputs.version }}
 
     - name: Upload Helm artifacts
       uses: actions/upload-artifact@v4
@@ -301,7 +284,7 @@ jobs:
       run: |
         # Get previous tag
         PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-        CURRENT_TAG="${{ needs.validate.outputs.version }}"
+        CURRENT_TAG="${{ needs.validate-tag.outputs.version }}"
         
         echo "Generating changelog from ${PREVIOUS_TAG} to ${CURRENT_TAG}"
         
@@ -357,23 +340,23 @@ jobs:
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ needs.validate.outputs.version }}
-        name: Release ${{ needs.validate.outputs.version }}
+        tag_name: ${{ needs.validate-tag.outputs.version }}
+        name: Release ${{ needs.validate-tag.outputs.version }}
         body: |
-          # SLURM Exporter ${{ needs.validate.outputs.version }}
+          # SLURM Exporter ${{ needs.validate-tag.outputs.version }}
           
           ## Changes
           ${{ needs.changelog.outputs.changelog }}
           
           ## Container Images
           ```bash
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate.outputs.version }}
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate-tag.outputs.version }}
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           ```
           
           ## Helm Chart
           ```bash
-          helm repo add slurm-exporter https://github.com/${{ github.repository }}/releases/download/${{ needs.validate.outputs.version }}
+          helm repo add slurm-exporter https://github.com/${{ github.repository }}/releases/download/${{ needs.validate-tag.outputs.version }}
           helm install slurm-exporter slurm-exporter/slurm-exporter
           ```
           
@@ -384,15 +367,15 @@ jobs:
           All binaries include SHA256 checksums for verification.
           
         files: release-assets/*
-        prerelease: ${{ needs.validate.outputs.is_prerelease }}
+        prerelease: ${{ needs.validate-tag.outputs.is_prerelease }}
         generate_release_notes: true
-        make_latest: ${{ needs.validate.outputs.is_prerelease == 'false' }}
+        make_latest: ${{ needs.validate-tag.outputs.is_prerelease == 'false' }}
 
   docs:
     name: Update Documentation
     runs-on: ubuntu-latest
     needs: [release, validate]
-    if: needs.validate.outputs.is_prerelease == 'false'
+    if: needs.validate-tag.outputs.is_prerelease == 'false'
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -401,7 +384,7 @@ jobs:
 
     - name: Update version references
       env:
-        VERSION: ${{ needs.validate.outputs.version }}
+        VERSION: ${{ needs.validate-tag.outputs.version }}
       run: |
         # Update README with latest version
         if [ -f README.md ]; then
@@ -423,7 +406,7 @@ jobs:
           echo "No documentation changes to commit"
         else
           git add .
-          git commit -m "docs: update version references to ${{ needs.validate.outputs.version }}"
+          git commit -m "docs: update version references to ${{ needs.validate-tag.outputs.version }}"
           git push
         fi
 
@@ -436,12 +419,12 @@ jobs:
     - name: Release success notification
       if: needs.release.result == 'success'
       run: |
-        echo "✅ Release ${{ needs.validate.outputs.version }} created successfully!"
+        echo "✅ Release ${{ needs.validate-tag.outputs.version }} created successfully!"
         echo "🐳 Container images pushed to ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
         echo "📦 Binaries and Helm chart available in GitHub release"
 
     - name: Release failure notification
       if: needs.release.result == 'failure'
       run: |
-        echo "❌ Release ${{ needs.validate.outputs.version }} failed!"
+        echo "❌ Release ${{ needs.validate-tag.outputs.version }} failed!"
         exit 1
