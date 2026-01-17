@@ -20,13 +20,13 @@ type AssociationsSimpleCollector struct {
 	enabled bool
 
 	// Association metrics
-	associationInfo         *prometheus.Desc
-	associationCPULimit     *prometheus.Desc
-	associationMemoryLimit  *prometheus.Desc
-	associationTimeLimit    *prometheus.Desc
-	associationPriority     *prometheus.Desc
-	associationSharesRaw    *prometheus.Desc
-	associationSharesNorm   *prometheus.Desc
+	associationInfo        *prometheus.Desc
+	associationCPULimit    *prometheus.Desc
+	associationMemoryLimit *prometheus.Desc
+	associationTimeLimit   *prometheus.Desc
+	associationPriority    *prometheus.Desc
+	associationSharesRaw   *prometheus.Desc
+	associationSharesNorm  *prometheus.Desc
 }
 
 // NewAssociationsSimpleCollector creates a new Associations collector
@@ -183,8 +183,7 @@ func (c *AssociationsSimpleCollector) collect(ch chan<- prometheus.Metric) error
 			// CPU limit
 			if cpuStr, ok := assoc.MaxTRESPerJob["cpu"]; ok {
 				var cpuLimit float64
-				fmt.Sscanf(cpuStr, "%f", &cpuLimit)
-				if cpuLimit > 0 {
+				if _, err := fmt.Sscanf(cpuStr, "%f", &cpuLimit); err == nil && cpuLimit > 0 {
 					ch <- prometheus.MustNewConstMetric(
 						c.associationCPULimit,
 						prometheus.GaugeValue,
@@ -197,7 +196,7 @@ func (c *AssociationsSimpleCollector) collect(ch chan<- prometheus.Metric) error
 			// Memory limit
 			if memStr, ok := assoc.MaxTRESPerJob["mem"]; ok {
 				var memLimit float64
-				fmt.Sscanf(memStr, "%f", &memLimit)
+				_, _ = fmt.Sscanf(memStr, "%f", &memLimit)
 				if memLimit > 0 {
 					ch <- prometheus.MustNewConstMetric(
 						c.associationMemoryLimit,

@@ -5,6 +5,7 @@ import (
 	"crypto/subtle"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -213,6 +214,42 @@ func (s *Server) RecoveryMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// timeoutWriter wraps http.ResponseWriter to prevent concurrent writes
+type timeoutWriter struct {
+	http.ResponseWriter
+	mu          sync.Mutex
+	timedOut    bool
+	wroteHeader bool
+}
+
+func (tw *timeoutWriter) WriteHeader(code int) {
+	tw.mu.Lock()
+	defer tw.mu.Unlock()
+	if !tw.timedOut && !tw.wroteHeader {
+		tw.wroteHeader = true
+		tw.ResponseWriter.WriteHeader(code)
+	}
+}
+
+func (tw *timeoutWriter) Write(b []byte) (int, error) {
+	tw.mu.Lock()
+	defer tw.mu.Unlock()
+	if tw.timedOut {
+		return 0, http.ErrHandlerTimeout
+	}
+	if !tw.wroteHeader {
+		tw.wroteHeader = true
+		tw.ResponseWriter.WriteHeader(http.StatusOK)
+	}
+	return tw.ResponseWriter.Write(b)
+}
+
+func (tw *timeoutWriter) markTimeout() {
+	tw.mu.Lock()
+	defer tw.mu.Unlock()
+	tw.timedOut = true
+}
+
 // TimeoutMiddleware adds request timeout handling with context cancellation
 func (s *Server) TimeoutMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -257,13 +294,16 @@ func (s *Server) TimeoutMiddleware(next http.Handler) http.Handler {
 		// Add timeout information to request context
 		r = r.WithContext(ctx)
 
+		// Wrap response writer to prevent concurrent writes
+		tw := &timeoutWriter{ResponseWriter: w}
+
 		// Create a channel to handle completion
 		done := make(chan struct{})
 
 		// Run the request handler in a goroutine
 		go func() {
 			defer close(done)
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(tw, r)
 		}()
 
 		// Wait for completion or timeout
@@ -272,6 +312,9 @@ func (s *Server) TimeoutMiddleware(next http.Handler) http.Handler {
 			// Request completed normally
 			return
 		case <-ctx.Done():
+			// Mark the writer as timed out to prevent further writes
+			tw.markTimeout()
+
 			// Request timed out or was cancelled
 			if ctx.Err() == context.DeadlineExceeded {
 				s.logger.WithFields(logrus.Fields{
@@ -281,7 +324,13 @@ func (s *Server) TimeoutMiddleware(next http.Handler) http.Handler {
 					"timeout":   timeout,
 				}).Warn("Request timeout exceeded")
 
-				http.Error(w, "Request timeout", http.StatusGatewayTimeout)
+				// Only write timeout response if handler hasn't written yet
+				tw.mu.Lock()
+				if !tw.wroteHeader {
+					tw.ResponseWriter.WriteHeader(http.StatusGatewayTimeout)
+					_, _ = tw.ResponseWriter.Write([]byte("Request timeout\n"))
+				}
+				tw.mu.Unlock()
 			} else {
 				s.logger.WithFields(logrus.Fields{
 					"component": "timeout_middleware",
@@ -290,7 +339,13 @@ func (s *Server) TimeoutMiddleware(next http.Handler) http.Handler {
 					"error":     ctx.Err(),
 				}).Debug("Request cancelled")
 
-				http.Error(w, "Request cancelled", http.StatusRequestTimeout)
+				// Only write cancellation response if handler hasn't written yet
+				tw.mu.Lock()
+				if !tw.wroteHeader {
+					tw.ResponseWriter.WriteHeader(http.StatusRequestTimeout)
+					_, _ = tw.ResponseWriter.Write([]byte("Request cancelled\n"))
+				}
+				tw.mu.Unlock()
 			}
 			return
 		}

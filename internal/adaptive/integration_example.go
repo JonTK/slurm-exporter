@@ -12,14 +12,14 @@ import (
 
 // ExampleCollectorManager demonstrates how to integrate the adaptive scheduler with collectors
 type ExampleCollectorManager struct {
-	scheduler   *CollectorScheduler
-	collectors  map[string]*ExampleCollector
-	logger      *logrus.Logger
-	ctx         context.Context
-	cancel      context.CancelFunc
-	wg          sync.WaitGroup
-	mu          sync.RWMutex
-	
+	scheduler  *CollectorScheduler
+	collectors map[string]*ExampleCollector
+	logger     *logrus.Logger
+	ctx        context.Context
+	cancel     context.CancelFunc
+	wg         sync.WaitGroup
+	mu         sync.RWMutex
+
 	// SLURM client for monitoring cluster state
 	slurmClient ExampleSLURMClient
 }
@@ -33,12 +33,12 @@ type ExampleSLURMClient interface {
 
 // ExampleCollector represents a collector that uses adaptive scheduling
 type ExampleCollector struct {
-	name         string
-	collectFunc  func(ctx context.Context) error
-	lastRun      time.Time
-	nextRun      time.Time
-	isRunning    bool
-	mu           sync.RWMutex
+	name        string
+	collectFunc func(ctx context.Context) error
+	lastRun     time.Time
+	nextRun     time.Time
+	isRunning   bool
+	mu          sync.RWMutex
 }
 
 // NewExampleCollectorManager creates a new collector manager with adaptive scheduling
@@ -47,7 +47,7 @@ func NewExampleCollectorManager(
 	slurmClient ExampleSLURMClient,
 	logger *logrus.Logger,
 ) (*ExampleCollectorManager, error) {
-	
+
 	// Create adaptive scheduler
 	scheduler, err := NewCollectorScheduler(cfg, 30*time.Second, logger)
 	if err != nil {
@@ -226,7 +226,7 @@ func (cm *ExampleCollectorManager) runCollector(collector *ExampleCollector, sch
 	}()
 
 	actualStartTime := time.Now()
-	
+
 	// Record collection timing
 	cm.scheduler.RecordCollection(collector.name, scheduledTime, actualStartTime)
 
@@ -240,7 +240,7 @@ func (cm *ExampleCollectorManager) runCollector(collector *ExampleCollector, sch
 	// Update collector state
 	collector.mu.Lock()
 	collector.lastRun = actualStartTime
-	
+
 	// Get current adaptive interval
 	interval := cm.scheduler.GetCollectionInterval(collector.name)
 	collector.nextRun = actualStartTime.Add(interval)
@@ -272,12 +272,12 @@ func (cm *ExampleCollectorManager) GetCollectorStatus() map[string]CollectorStat
 	for name, collector := range cm.collectors {
 		collector.mu.RLock()
 		status[name] = CollectorStatus{
-			Name:              name,
-			LastRun:           collector.lastRun,
-			NextRun:           collector.nextRun,
-			IsRunning:         collector.isRunning,
-			CurrentInterval:   cm.scheduler.GetCollectionInterval(name),
-			ActivityScore:     cm.scheduler.GetCurrentScore(),
+			Name:            name,
+			LastRun:         collector.lastRun,
+			NextRun:         collector.nextRun,
+			IsRunning:       collector.isRunning,
+			CurrentInterval: cm.scheduler.GetCollectionInterval(name),
+			ActivityScore:   cm.scheduler.GetCurrentScore(),
 		}
 		collector.mu.RUnlock()
 	}
@@ -314,12 +314,12 @@ func NewMockSLURMClient() *MockSLURMClient {
 		jobCount:  100,
 		nodeCount: 50,
 		metrics: map[string]interface{}{
-			"queue_length":     25,
-			"cluster_load":     0.7,
-			"pending_jobs":     10,
-			"running_jobs":     90,
-			"failed_jobs":      5,
-			"completed_jobs":   1000,
+			"queue_length":   25,
+			"cluster_load":   0.7,
+			"pending_jobs":   10,
+			"running_jobs":   90,
+			"failed_jobs":    5,
+			"completed_jobs": 1000,
 		},
 	}
 }
@@ -339,7 +339,7 @@ func (m *MockSLURMClient) GetNodeCount(ctx context.Context) (int, error) {
 func (m *MockSLURMClient) GetClusterMetrics(ctx context.Context) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	// Create a copy to avoid concurrent map access
 	metrics := make(map[string]interface{})
 	for k, v := range m.metrics {

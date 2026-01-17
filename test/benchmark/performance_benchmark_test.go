@@ -13,11 +13,11 @@ import (
 // BenchmarkRegistryCreation tests registry creation performance
 func BenchmarkRegistryCreation(b *testing.B) {
 	cfg := &config.CollectorsConfig{
-		Jobs: config.CollectorConfig{Enabled: true},
-		Nodes: config.CollectorConfig{Enabled: true},
+		Jobs:       config.CollectorConfig{Enabled: true},
+		Nodes:      config.CollectorConfig{Enabled: true},
 		Partitions: config.CollectorConfig{Enabled: true},
 	}
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
 
@@ -35,7 +35,7 @@ func BenchmarkRegistryCreation(b *testing.B) {
 func BenchmarkMetricCreation(b *testing.B) {
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		gauge := prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
@@ -51,12 +51,12 @@ func BenchmarkMetricCreation(b *testing.B) {
 // BenchmarkMemoryUsage tests memory allocation patterns
 func BenchmarkMemoryUsage(b *testing.B) {
 	cfg := &config.CollectorsConfig{
-		Jobs: config.CollectorConfig{Enabled: true},
-		Nodes: config.CollectorConfig{Enabled: true},
+		Jobs:       config.CollectorConfig{Enabled: true},
+		Nodes:      config.CollectorConfig{Enabled: true},
 		Partitions: config.CollectorConfig{Enabled: true},
 	}
 	promRegistry := prometheus.NewRegistry()
-	
+
 	registry, err := collector.NewRegistry(cfg, promRegistry)
 	if err != nil {
 		b.Fatalf("Failed to create registry: %v", err)

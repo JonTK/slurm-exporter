@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
-	io_prometheus_client "github.com/prometheus/client_model/go"
 	"github.com/prometheus/client_golang/prometheus/testutil"
+	io_prometheus_client "github.com/prometheus/client_model/go"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
@@ -50,7 +50,7 @@ func GetMetricValue(collector prometheus.Collector, metricName string, labels pr
 
 	for metric := range ch {
 		dto := &io_prometheus_client.Metric{}
-		metric.Write(dto)
+		_ = metric.Write(dto)
 
 		// Check if this is the metric we're looking for
 		desc := metric.Desc()

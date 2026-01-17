@@ -24,20 +24,20 @@ type ActivityScore struct {
 
 // CollectorScheduler manages adaptive collection intervals based on cluster activity
 type CollectorScheduler struct {
-	config          config.AdaptiveCollectionConfig
-	logger          *logrus.Logger
-	metrics         *SchedulerMetrics
-	mu              sync.RWMutex
-	
+	config  config.AdaptiveCollectionConfig
+	logger  *logrus.Logger
+	metrics *SchedulerMetrics
+	mu      sync.RWMutex
+
 	// Activity tracking
 	activityHistory []ActivityScore
 	lastCollection  map[string]time.Time
 	lastMetrics     map[string]interface{}
-	
+
 	// Collector intervals
 	collectorIntervals map[string]time.Duration
 	defaultInterval    time.Duration
-	
+
 	// Internal state
 	enabled   bool
 	startTime time.Time
@@ -45,11 +45,11 @@ type CollectorScheduler struct {
 
 // SchedulerMetrics holds Prometheus metrics for the adaptive scheduler
 type SchedulerMetrics struct {
-	activityScore        *prometheus.GaugeVec
-	adaptedInterval      *prometheus.GaugeVec
-	intervalAdjustments  *prometheus.CounterVec
-	collectionDelay      *prometheus.HistogramVec
-	adaptationEvents     *prometheus.CounterVec
+	activityScore       *prometheus.GaugeVec
+	adaptedInterval     *prometheus.GaugeVec
+	intervalAdjustments *prometheus.CounterVec
+	collectionDelay     *prometheus.HistogramVec
+	adaptationEvents    *prometheus.CounterVec
 }
 
 // NewCollectorScheduler creates a new adaptive collection scheduler
@@ -211,7 +211,7 @@ func (s *CollectorScheduler) UpdateActivity(ctx context.Context, jobCount, nodeC
 
 	// Calculate activity score
 	score := s.calculateActivityScore(jobCount, nodeCount, changeData)
-	
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -226,7 +226,7 @@ func (s *CollectorScheduler) UpdateActivity(ctx context.Context, jobCount, nodeC
 	}
 
 	s.activityHistory = append(s.activityHistory, activityScore)
-	
+
 	// Keep only recent history within score window
 	cutoff := time.Now().Add(-s.config.ScoreWindow)
 	var filtered []ActivityScore
@@ -268,7 +268,7 @@ func (s *CollectorScheduler) calculateActivityScore(jobCount, nodeCount int, cha
 	// Factor 1: Absolute cluster size (normalized)
 	clusterSize := float64(jobCount + nodeCount)
 	sizeScore := math.Min(clusterSize/1000.0, 1.0) // Normalize to 1000 jobs+nodes = 1.0
-	score += sizeScore * 0.3 // 30% weight
+	score += sizeScore * 0.3                       // 30% weight
 	if sizeScore > 0.5 {
 		factors = append(factors, "large-cluster")
 	}
@@ -278,7 +278,7 @@ func (s *CollectorScheduler) calculateActivityScore(jobCount, nodeCount int, cha
 	if nodeCount > 0 {
 		density := float64(jobCount) / float64(nodeCount)
 		densityScore = math.Min(density/10.0, 1.0) // Normalize to 10 jobs/node = 1.0
-		score += densityScore * 0.2 // 20% weight
+		score += densityScore * 0.2                // 20% weight
 		if densityScore > 0.7 {
 			factors = append(factors, "high-density")
 		}
@@ -395,7 +395,7 @@ func (s *CollectorScheduler) toFloat64(val interface{}) (float64, bool) {
 func (s *CollectorScheduler) getTimeBasedScore() float64 {
 	now := time.Now()
 	hour := now.Hour()
-	
+
 	// Assume business hours 8 AM to 6 PM are higher activity
 	if hour >= 8 && hour <= 18 {
 		return 0.7
@@ -413,23 +413,23 @@ func (s *CollectorScheduler) adaptIntervals(activityScore float64) {
 	// Calculate target interval using inverse relationship
 	// High activity (score → 1.0) = shorter intervals (→ min_interval)
 	// Low activity (score → 0.0) = longer intervals (→ max_interval)
-	
+
 	minInterval := s.config.MinInterval.Seconds()
 	maxInterval := s.config.MaxInterval.Seconds()
-	
+
 	// Use exponential scaling for smoother adaptation
 	targetInterval := maxInterval - (maxInterval-minInterval)*math.Pow(activityScore, 0.5)
 	targetDuration := time.Duration(targetInterval * float64(time.Second))
-	
+
 	// Apply the same interval to all collectors
 	// In a more sophisticated implementation, different collectors could have different adaptations
 	for collector := range s.collectorIntervals {
 		oldInterval := s.collectorIntervals[collector]
 		s.collectorIntervals[collector] = targetDuration
-		
+
 		// Record metrics
 		s.metrics.adaptedInterval.WithLabelValues(collector).Set(targetDuration.Seconds())
-		
+
 		// Record adjustment direction
 		if targetDuration < oldInterval {
 			s.metrics.intervalAdjustments.WithLabelValues(collector, "decrease").Inc()
@@ -437,10 +437,10 @@ func (s *CollectorScheduler) adaptIntervals(activityScore float64) {
 			s.metrics.intervalAdjustments.WithLabelValues(collector, "increase").Inc()
 		}
 	}
-	
+
 	// Update global metrics for overall tracking
 	s.metrics.adaptedInterval.WithLabelValues("global").Set(targetDuration.Seconds())
-	
+
 	s.metrics.adaptationEvents.WithLabelValues("interval_update").Inc()
 }
 
@@ -456,9 +456,9 @@ func (s *CollectorScheduler) RegisterCollector(name string) {
 	// Start with base interval
 	s.collectorIntervals[name] = s.config.BaseInterval
 	s.lastCollection[name] = time.Now()
-	
+
 	s.metrics.adaptedInterval.WithLabelValues(name).Set(s.config.BaseInterval.Seconds())
-	
+
 	s.logger.WithFields(logrus.Fields{
 		"collector": name,
 		"interval":  s.config.BaseInterval,
@@ -535,11 +535,11 @@ func (s *CollectorScheduler) GetStats() map[string]interface{} {
 	defer s.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"enabled":            true,
-		"uptime_seconds":     time.Since(s.startTime).Seconds(),
-		"activity_entries":   len(s.activityHistory),
+		"enabled":               true,
+		"uptime_seconds":        time.Since(s.startTime).Seconds(),
+		"activity_entries":      len(s.activityHistory),
 		"registered_collectors": len(s.collectorIntervals),
-		"current_score":      s.GetCurrentScore(),
+		"current_score":         s.GetCurrentScore(),
 		"config": map[string]interface{}{
 			"min_interval":  s.config.MinInterval.String(),
 			"max_interval":  s.config.MaxInterval.String(),

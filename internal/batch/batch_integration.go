@@ -97,11 +97,11 @@ func NewBatchedCollector(
 	}
 
 	metricConfig := performance.MetricBatcherConfig{
-		BatchConfig:      batchConfig,
-		EnableSampling:   true,
+		BatchConfig:       batchConfig,
+		EnableSampling:    true,
 		EnableAggregation: true,
 		AggregationWindow: 30 * time.Second,
-		MaxMetricAge:     5 * time.Minute,
+		MaxMetricAge:      5 * time.Minute,
 	}
 
 	batcher, err := performance.NewMetricBatcher(metricConfig, nil, logger)
@@ -194,7 +194,7 @@ func (bc *BatchedCollector) processJobBatch(ctx context.Context, jobs []*slurm.J
 		labels := prometheus.Labels{
 			"state": state,
 		}
-		
+
 		if err := bc.batcher.BatchMetric(
 			"slurm_jobs_total",
 			labels,
@@ -212,8 +212,8 @@ func (bc *BatchedCollector) processJobBatch(ctx context.Context, jobs []*slurm.J
 		}
 
 		// Batch resource metrics
-		bc.batcher.BatchMetric("slurm_jobs_cpus_total", labels, float64(totalCPUs), "gauge")
-		bc.batcher.BatchMetric("slurm_jobs_memory_bytes_total", labels, float64(totalMemory)*1024*1024, "gauge")
+		_ = bc.batcher.BatchMetric("slurm_jobs_cpus_total", labels, float64(totalCPUs), "gauge")
+		_ = bc.batcher.BatchMetric("slurm_jobs_memory_bytes_total", labels, float64(totalMemory)*1024*1024, "gauge")
 	}
 
 	return nil
@@ -235,7 +235,7 @@ func (bc *BatchedCollector) processNodeBatch(ctx context.Context, nodes []*slurm
 			"state": state,
 		}
 
-		bc.batcher.BatchMetric("slurm_nodes_total", labels, float64(len(stateNodes)), "gauge")
+		_ = bc.batcher.BatchMetric("slurm_nodes_total", labels, float64(len(stateNodes)), "gauge")
 
 		// Calculate resource totals
 		var totalCPUs, totalMemory int
@@ -244,8 +244,8 @@ func (bc *BatchedCollector) processNodeBatch(ctx context.Context, nodes []*slurm
 			totalMemory += node.Memory
 		}
 
-		bc.batcher.BatchMetric("slurm_nodes_cpus_total", labels, float64(totalCPUs), "gauge")
-		bc.batcher.BatchMetric("slurm_nodes_memory_bytes_total", labels, float64(totalMemory)*1024*1024, "gauge")
+		_ = bc.batcher.BatchMetric("slurm_nodes_cpus_total", labels, float64(totalCPUs), "gauge")
+		_ = bc.batcher.BatchMetric("slurm_nodes_memory_bytes_total", labels, float64(totalMemory)*1024*1024, "gauge")
 	}
 
 	return nil
@@ -262,10 +262,10 @@ func (bc *BatchedCollector) processPartitionBatch(ctx context.Context, partition
 		}
 
 		// Batch partition metrics
-		bc.batcher.BatchMetric("slurm_partition_nodes_total", labels, float64(partition.TotalNodes), "gauge")
-		bc.batcher.BatchMetric("slurm_partition_nodes_available", labels, float64(partition.AvailableNodes), "gauge")
-		bc.batcher.BatchMetric("slurm_partition_cpus_total", labels, float64(partition.TotalCPUs), "gauge")
-		bc.batcher.BatchMetric("slurm_partition_cpus_idle", labels, float64(partition.IdleCPUs), "gauge")
+		_ = bc.batcher.BatchMetric("slurm_partition_nodes_total", labels, float64(partition.TotalNodes), "gauge")
+		_ = bc.batcher.BatchMetric("slurm_partition_nodes_available", labels, float64(partition.AvailableNodes), "gauge")
+		_ = bc.batcher.BatchMetric("slurm_partition_cpus_total", labels, float64(partition.TotalCPUs), "gauge")
+		_ = bc.batcher.BatchMetric("slurm_partition_cpus_idle", labels, float64(partition.IdleCPUs), "gauge")
 	}
 
 	return nil
@@ -319,7 +319,7 @@ func (bc *BatchedCollector) Describe(ch chan<- *prometheus.Desc) {
 func (bc *BatchedCollector) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Flush any pending batches
 	bc.processor.FlushAll()
-	
+
 	// Collect batched metrics
 	metrics, err := bc.batcher.CollectBatchedMetrics()
 	if err != nil {

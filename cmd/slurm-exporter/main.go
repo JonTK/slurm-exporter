@@ -65,7 +65,11 @@ func main() {
 	if err != nil {
 		logrus.WithError(err).Fatal("Failed to initialize logger")
 	}
-	defer logger.Close()
+	defer func() {
+		if err := logger.Close(); err != nil {
+			logrus.WithError(err).Error("Failed to close logger")
+		}
+	}()
 
 	// Create context that can be cancelled
 	ctx, cancel := context.WithCancel(context.Background())
@@ -126,7 +130,11 @@ func main() {
 		} else {
 			logger.WithComponent("main").Info("Configuration hot-reload enabled")
 		}
-		defer configWatcher.Stop()
+		defer func() {
+			if err := configWatcher.Stop(); err != nil {
+				logger.WithComponent("main").WithError(err).Error("Failed to stop config watcher")
+			}
+		}()
 	}
 
 	// Create and start the server
@@ -203,7 +211,7 @@ func performHealthCheck() error {
 	if err != nil {
 		return fmt.Errorf("failed to connect to health endpoint: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// Check response status
 	if resp.StatusCode != http.StatusOK {

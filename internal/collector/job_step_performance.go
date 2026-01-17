@@ -13,44 +13,44 @@ import (
 
 // JobStepPerformanceCollector collects job step-level performance metrics and detects bottlenecks
 type JobStepPerformanceCollector struct {
-	slurmClient      slurm.SlurmClient
-	logger           *slog.Logger
-	config           *JobStepConfig
-	metrics          *JobStepMetrics
-	lastCollection   time.Time
-	mu               sync.RWMutex
+	slurmClient    slurm.SlurmClient
+	logger         *slog.Logger
+	config         *JobStepConfig
+	metrics        *JobStepMetrics
+	lastCollection time.Time
+	mu             sync.RWMutex
 
 	// Cache for step data
-	stepCache        map[string]*JobStepDetails
-	bottleneckCache  map[string]*BottleneckAnalysis
-	cacheTTL         time.Duration
+	stepCache       map[string]*JobStepDetails
+	bottleneckCache map[string]*BottleneckAnalysis
+	cacheTTL        time.Duration
 }
 
 // JobStepDetails represents detailed job step information
 type JobStepDetails struct {
-	JobID         string
-	StepID        string
-	StepName      string
-	State         string
-	StartTime     *time.Time
-	EndTime       *time.Time
-	CPUs          int
-	Memory        int64
-	Tasks         int
-	Nodes         int
-	CPUTime       float64
-	UserTime      float64
-	SystemTime    float64
+	JobID      string
+	StepID     string
+	StepName   string
+	State      string
+	StartTime  *time.Time
+	EndTime    *time.Time
+	CPUs       int
+	Memory     int64
+	Tasks      int
+	Nodes      int
+	CPUTime    float64
+	UserTime   float64
+	SystemTime float64
 }
 
 // JobStepConfig holds configuration for job step performance collection
 type JobStepConfig struct {
-	CollectionInterval    time.Duration `yaml:"collection_interval"`
-	MaxJobsPerCollection  int           `yaml:"max_jobs_per_collection"`
-	EnableBottleneckDetection bool      `yaml:"enable_bottleneck_detection"`
-	BottleneckThresholds     *BottleneckThresholds `yaml:"bottleneck_thresholds"`
-	CacheTTL              time.Duration `yaml:"cache_ttl"`
-	OnlyRunningJobs       bool          `yaml:"only_running_jobs"`
+	CollectionInterval        time.Duration         `yaml:"collection_interval"`
+	MaxJobsPerCollection      int                   `yaml:"max_jobs_per_collection"`
+	EnableBottleneckDetection bool                  `yaml:"enable_bottleneck_detection"`
+	BottleneckThresholds      *BottleneckThresholds `yaml:"bottleneck_thresholds"`
+	CacheTTL                  time.Duration         `yaml:"cache_ttl"`
+	OnlyRunningJobs           bool                  `yaml:"only_running_jobs"`
 }
 
 // BottleneckThresholds defines thresholds for bottleneck detection
@@ -65,31 +65,31 @@ type BottleneckThresholds struct {
 // JobStepMetrics holds Prometheus metrics for job step performance
 type JobStepMetrics struct {
 	// Step-level resource utilization
-	StepCPUUtilization       *prometheus.GaugeVec
-	StepMemoryUtilization    *prometheus.GaugeVec
-	StepIOUtilization        *prometheus.GaugeVec
-	StepNetworkUtilization   *prometheus.GaugeVec
-	StepLoadAverage          *prometheus.GaugeVec
+	StepCPUUtilization     *prometheus.GaugeVec
+	StepMemoryUtilization  *prometheus.GaugeVec
+	StepIOUtilization      *prometheus.GaugeVec
+	StepNetworkUtilization *prometheus.GaugeVec
+	StepLoadAverage        *prometheus.GaugeVec
 
 	// Step timing and performance
-	StepDuration             *prometheus.GaugeVec
-	StepExecutionEfficiency  *prometheus.GaugeVec
-	StepResourceEfficiency   *prometheus.GaugeVec
+	StepDuration            *prometheus.GaugeVec
+	StepExecutionEfficiency *prometheus.GaugeVec
+	StepResourceEfficiency  *prometheus.GaugeVec
 
 	// Bottleneck detection
-	StepBottleneckDetected   *prometheus.GaugeVec
-	StepBottleneckSeverity   *prometheus.GaugeVec
-	StepBottleneckType       *prometheus.GaugeVec
+	StepBottleneckDetected *prometheus.GaugeVec
+	StepBottleneckSeverity *prometheus.GaugeVec
+	StepBottleneckType     *prometheus.GaugeVec
 
 	// Step state and progress
-	StepsByState             *prometheus.GaugeVec
-	StepProgressRatio        *prometheus.GaugeVec
+	StepsByState      *prometheus.GaugeVec
+	StepProgressRatio *prometheus.GaugeVec
 
 	// Collection performance
-	CollectionDuration       prometheus.Histogram
-	CollectionErrors         *prometheus.CounterVec
-	StepsProcessed           prometheus.Counter
-	BottlenecksDetected      prometheus.Counter
+	CollectionDuration  prometheus.Histogram
+	CollectionErrors    *prometheus.CounterVec
+	StepsProcessed      prometheus.Counter
+	BottlenecksDetected prometheus.Counter
 }
 
 // Note: Reusing JobStepDetails type defined earlier in this file
@@ -108,8 +108,8 @@ type BottleneckAnalysis struct {
 func NewJobStepPerformanceCollector(slurmClient slurm.SlurmClient, logger *slog.Logger, config *JobStepConfig) (*JobStepPerformanceCollector, error) {
 	if config == nil {
 		config = &JobStepConfig{
-			CollectionInterval:       30 * time.Second,
-			MaxJobsPerCollection:     500,
+			CollectionInterval:        30 * time.Second,
+			MaxJobsPerCollection:      500,
 			EnableBottleneckDetection: true,
 			BottleneckThresholds: &BottleneckThresholds{
 				CPUUtilizationLow:      0.3,  // Less than 30% CPU usage
@@ -344,29 +344,29 @@ func (c *JobStepPerformanceCollector) collectJobStepMetrics(ctx context.Context)
 	// Skipping job step processing for now
 	_ = jobs // Suppress unused variable warning
 	/*
-	for _, job := range jobs.Jobs {
-		// For now, create simplified step analysis since GetJobStepDetails doesn't exist yet
-		// This would use jobManager.GetJobStepDetails(ctx, job.JobID) when available
-		stepDetails := c.createSimplifiedStepDetails(job)
+		for _, job := range jobs.Jobs {
+			// For now, create simplified step analysis since GetJobStepDetails doesn't exist yet
+			// This would use jobManager.GetJobStepDetails(ctx, job.JobID) when available
+			stepDetails := c.createSimplifiedStepDetails(job)
 
-		// Cache the step details
-		stepKey := fmt.Sprintf("%s:0", job.JobID) // Step 0 for main job step
-		c.stepCache[stepKey] = stepDetails
+			// Cache the step details
+			stepKey := fmt.Sprintf("%s:0", job.JobID) // Step 0 for main job step
+			c.stepCache[stepKey] = stepDetails
 
-		// Update metrics from step details
-		c.updateMetricsFromStepDetails(job, stepDetails)
+			// Update metrics from step details
+			c.updateMetricsFromStepDetails(job, stepDetails)
 
-		// Perform bottleneck analysis if enabled
-		if c.config.EnableBottleneckDetection {
-			bottleneckAnalysis := c.analyzeBottlenecks(job, stepDetails)
-			c.bottleneckCache[stepKey] = bottleneckAnalysis
-			c.updateBottleneckMetrics(job, stepDetails, bottleneckAnalysis)
+			// Perform bottleneck analysis if enabled
+			if c.config.EnableBottleneckDetection {
+				bottleneckAnalysis := c.analyzeBottlenecks(job, stepDetails)
+				c.bottleneckCache[stepKey] = bottleneckAnalysis
+				c.updateBottleneckMetrics(job, stepDetails, bottleneckAnalysis)
+			}
+
+			// Update aggregation counters
+			c.updateStepStateCounts(job, stepDetails, stepStateCounts)
+			c.metrics.StepsProcessed.Inc()
 		}
-
-		// Update aggregation counters
-		c.updateStepStateCounts(job, stepDetails, stepStateCounts)
-		c.metrics.StepsProcessed.Inc()
-	}
 	*/
 
 	// Update aggregation metrics
@@ -379,6 +379,9 @@ func (c *JobStepPerformanceCollector) collectJobStepMetrics(ctx context.Context)
 	return nil
 }
 
+// TODO: Following functions are unused - preserved for future job step performance analysis features
+// These implement detailed step-level performance tracking, bottleneck analysis, and metrics reporting.
+/*
 // createSimplifiedStepDetails creates step details from basic job data
 func (c *JobStepPerformanceCollector) createSimplifiedStepDetails(job *slurm.Job) *JobStepDetails {
 	// TODO: Job field names are not compatible with current slurm-client version
@@ -536,6 +539,7 @@ func (c *JobStepPerformanceCollector) updateStepStateCounts(job *slurm.Job, step
 	}
 	stateCounts[partition][step.State]++
 }
+*/
 
 // updateStepAggregationMetrics updates aggregated step metrics
 func (c *JobStepPerformanceCollector) updateStepAggregationMetrics(stateCounts map[string]map[string]int) {

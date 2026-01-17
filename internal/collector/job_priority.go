@@ -13,22 +13,22 @@ type JobPriorityCollector struct {
 	client JobPrioritySLURMClient
 
 	// Job Priority Prediction Metrics
-	jobPriorityScore       *prometheus.GaugeVec
-	jobPriorityRank        *prometheus.GaugeVec
-	jobPriorityAgeScore    *prometheus.GaugeVec
-	jobPriorityFairShare   *prometheus.GaugeVec
-	jobPriorityQoSScore    *prometheus.GaugeVec
-	jobPriorityPartition   *prometheus.GaugeVec
-	jobPrioritySize        *prometheus.GaugeVec
-	jobPriorityAssoc       *prometheus.GaugeVec
-	jobPriorityNice        *prometheus.GaugeVec
+	jobPriorityScore     *prometheus.GaugeVec
+	jobPriorityRank      *prometheus.GaugeVec
+	jobPriorityAgeScore  *prometheus.GaugeVec
+	jobPriorityFairShare *prometheus.GaugeVec
+	jobPriorityQoSScore  *prometheus.GaugeVec
+	jobPriorityPartition *prometheus.GaugeVec
+	jobPrioritySize      *prometheus.GaugeVec
+	jobPriorityAssoc     *prometheus.GaugeVec
+	jobPriorityNice      *prometheus.GaugeVec
 
 	// Priority Prediction Metrics
-	jobEstimatedWaitTime    *prometheus.GaugeVec
-	jobQueuePosition        *prometheus.GaugeVec
-	jobPriorityTrend        *prometheus.GaugeVec
-	jobPriorityChanges      *prometheus.CounterVec
-	jobPriorityVolatility   *prometheus.GaugeVec
+	jobEstimatedWaitTime  *prometheus.GaugeVec
+	jobQueuePosition      *prometheus.GaugeVec
+	jobPriorityTrend      *prometheus.GaugeVec
+	jobPriorityChanges    *prometheus.CounterVec
+	jobPriorityVolatility *prometheus.GaugeVec
 
 	// System Priority Metrics
 	systemPriorityStats     *prometheus.GaugeVec
@@ -37,22 +37,22 @@ type JobPriorityCollector struct {
 	priorityAlgorithmStats  *prometheus.GaugeVec
 
 	// Queue Analysis Metrics
-	queueDepth             *prometheus.GaugeVec
-	queueProcessingRate    *prometheus.GaugeVec
-	queueStarvationRisk    *prometheus.GaugeVec
-	queueEfficiencyScore   *prometheus.GaugeVec
+	queueDepth           *prometheus.GaugeVec
+	queueProcessingRate  *prometheus.GaugeVec
+	queueStarvationRisk  *prometheus.GaugeVec
+	queueEfficiencyScore *prometheus.GaugeVec
 
 	// User Priority Behavior Metrics
-	userPriorityPattern    *prometheus.GaugeVec
-	userPriorityAverage    *prometheus.GaugeVec
-	userPriorityVariance   *prometheus.GaugeVec
-	userSubmissionPattern  *prometheus.GaugeVec
+	userPriorityPattern   *prometheus.GaugeVec
+	userPriorityAverage   *prometheus.GaugeVec
+	userPriorityVariance  *prometheus.GaugeVec
+	userSubmissionPattern *prometheus.GaugeVec
 
 	// Prediction Accuracy Metrics
-	predictionAccuracy     *prometheus.GaugeVec
-	predictionError        *prometheus.HistogramVec
-	predictionConfidence   *prometheus.GaugeVec
-	predictionModel        *prometheus.GaugeVec
+	predictionAccuracy   *prometheus.GaugeVec
+	predictionError      *prometheus.HistogramVec
+	predictionConfidence *prometheus.GaugeVec
+	predictionModel      *prometheus.GaugeVec
 }
 
 // JobPrioritySLURMClient interface for job priority operations
@@ -67,38 +67,38 @@ type JobPrioritySLURMClient interface {
 
 // DetailedJobPriorityFactors represents detailed priority breakdown
 type DetailedJobPriorityFactors struct {
-	JobID           string    `json:"job_id"`
-	UserName        string    `json:"user_name"`
-	AccountName     string    `json:"account_name"`
-	PartitionName   string    `json:"partition_name"`
-	QoSName         string    `json:"qos_name"`
+	JobID         string `json:"job_id"`
+	UserName      string `json:"user_name"`
+	AccountName   string `json:"account_name"`
+	PartitionName string `json:"partition_name"`
+	QoSName       string `json:"qos_name"`
 
 	// Priority Components
-	TotalPriority   uint64    `json:"total_priority"`
-	AgePriority     uint64    `json:"age_priority"`
-	FairShareFactor float64   `json:"fair_share_factor"`
-	QoSPriority     uint64    `json:"qos_priority"`
-	PartitionPrio   uint64    `json:"partition_priority"`
-	SizePriority    uint64    `json:"size_priority"`
-	AssocPriority   uint64    `json:"assoc_priority"`
-	NicePriority    int32     `json:"nice_priority"`
+	TotalPriority   uint64  `json:"total_priority"`
+	AgePriority     uint64  `json:"age_priority"`
+	FairShareFactor float64 `json:"fair_share_factor"`
+	QoSPriority     uint64  `json:"qos_priority"`
+	PartitionPrio   uint64  `json:"partition_priority"`
+	SizePriority    uint64  `json:"size_priority"`
+	AssocPriority   uint64  `json:"assoc_priority"`
+	NicePriority    int32   `json:"nice_priority"`
 
 	// Priority Weighting
-	AgeWeight       float64   `json:"age_weight"`
-	FairShareWeight float64   `json:"fair_share_weight"`
-	QoSWeight       float64   `json:"qos_weight"`
-	PartitionWeight float64   `json:"partition_weight"`
-	SizeWeight      float64   `json:"size_weight"`
+	AgeWeight       float64 `json:"age_weight"`
+	FairShareWeight float64 `json:"fair_share_weight"`
+	QoSWeight       float64 `json:"qos_weight"`
+	PartitionWeight float64 `json:"partition_weight"`
+	SizeWeight      float64 `json:"size_weight"`
 
 	// Ranking Information
-	QueueRank       int       `json:"queue_rank"`
-	PartitionRank   int       `json:"partition_rank"`
-	UserRank        int       `json:"user_rank"`
+	QueueRank     int `json:"queue_rank"`
+	PartitionRank int `json:"partition_rank"`
+	UserRank      int `json:"user_rank"`
 
 	// Temporal Data
-	SubmittedAt     time.Time `json:"submitted_at"`
-	LastCalculated  time.Time `json:"last_calculated"`
-	NextUpdate      time.Time `json:"next_update"`
+	SubmittedAt    time.Time `json:"submitted_at"`
+	LastCalculated time.Time `json:"last_calculated"`
+	NextUpdate     time.Time `json:"next_update"`
 }
 
 // JobSchedulingPrediction represents scheduling predictions
@@ -110,10 +110,10 @@ type JobSchedulingPrediction struct {
 	PredictionMethod   string        `json:"prediction_method"`
 
 	// Queue Analysis
-	QueuePosition      int     `json:"queue_position"`
-	QueueDepth         int     `json:"queue_depth"`
-	JobsAhead          int     `json:"jobs_ahead"`
-	ProcessingRate     float64 `json:"processing_rate"`
+	QueuePosition  int     `json:"queue_position"`
+	QueueDepth     int     `json:"queue_depth"`
+	JobsAhead      int     `json:"jobs_ahead"`
+	ProcessingRate float64 `json:"processing_rate"`
 
 	// Priority Trends
 	PriorityTrend      string  `json:"priority_trend"`
@@ -121,13 +121,13 @@ type JobSchedulingPrediction struct {
 	PriorityVolatility float64 `json:"priority_volatility"`
 
 	// Resource Availability
-	ResourceAvailability   float64 `json:"resource_availability"`
-	NodeAvailabilityScore  float64 `json:"node_availability_score"`
-	PartitionUtilization   float64 `json:"partition_utilization"`
+	ResourceAvailability  float64 `json:"resource_availability"`
+	NodeAvailabilityScore float64 `json:"node_availability_score"`
+	PartitionUtilization  float64 `json:"partition_utilization"`
 
 	// Risk Factors
-	StarvationRisk     float64 `json:"starvation_risk"`
-	PreemptionRisk     float64 `json:"preemption_risk"`
+	StarvationRisk      float64 `json:"starvation_risk"`
+	PreemptionRisk      float64 `json:"preemption_risk"`
 	BackfillProbability float64 `json:"backfill_probability"`
 
 	LastUpdated time.Time `json:"last_updated"`
@@ -135,106 +135,106 @@ type JobSchedulingPrediction struct {
 
 // QueueAnalysis represents queue state analysis
 type QueueAnalysis struct {
-	PartitionName    string  `json:"partition_name"`
-	TotalJobs        int     `json:"total_jobs"`
-	PendingJobs      int     `json:"pending_jobs"`
-	RunningJobs      int     `json:"running_jobs"`
-	ProcessingRate   float64 `json:"processing_rate"`
-	AverageWaitTime  float64 `json:"average_wait_time"`
-	EfficiencyScore  float64 `json:"efficiency_score"`
+	PartitionName   string  `json:"partition_name"`
+	TotalJobs       int     `json:"total_jobs"`
+	PendingJobs     int     `json:"pending_jobs"`
+	RunningJobs     int     `json:"running_jobs"`
+	ProcessingRate  float64 `json:"processing_rate"`
+	AverageWaitTime float64 `json:"average_wait_time"`
+	EfficiencyScore float64 `json:"efficiency_score"`
 
 	// Priority Distribution
-	HighPriorityJobs   int     `json:"high_priority_jobs"`
-	MediumPriorityJobs int     `json:"medium_priority_jobs"`
-	LowPriorityJobs    int     `json:"low_priority_jobs"`
+	HighPriorityJobs   int `json:"high_priority_jobs"`
+	MediumPriorityJobs int `json:"medium_priority_jobs"`
+	LowPriorityJobs    int `json:"low_priority_jobs"`
 
 	// Starvation Analysis
-	StarvationRisk     float64 `json:"starvation_risk"`
-	OldestJobAge       float64 `json:"oldest_job_age"`
+	StarvationRisk      float64 `json:"starvation_risk"`
+	OldestJobAge        float64 `json:"oldest_job_age"`
 	StarvationThreshold float64 `json:"starvation_threshold"`
 
 	// Trends
-	ThroughputTrend    string  `json:"throughput_trend"`
-	LatencyTrend       string  `json:"latency_trend"`
-	UtilizationTrend   string  `json:"utilization_trend"`
+	ThroughputTrend  string `json:"throughput_trend"`
+	LatencyTrend     string `json:"latency_trend"`
+	UtilizationTrend string `json:"utilization_trend"`
 
 	LastAnalyzed time.Time `json:"last_analyzed"`
 }
 
 // SystemPriorityStats represents system-wide priority statistics
 type SystemPriorityStats struct {
-	TotalJobs              int     `json:"total_jobs"`
-	AveragePriority        float64 `json:"average_priority"`
-	PriorityStdDev         float64 `json:"priority_std_dev"`
-	PriorityRange          uint64  `json:"priority_range"`
-	PriorityMedian         float64 `json:"priority_median"`
+	TotalJobs       int     `json:"total_jobs"`
+	AveragePriority float64 `json:"average_priority"`
+	PriorityStdDev  float64 `json:"priority_std_dev"`
+	PriorityRange   uint64  `json:"priority_range"`
+	PriorityMedian  float64 `json:"priority_median"`
 
 	// Algorithm Performance
-	AlgorithmVersion       string  `json:"algorithm_version"`
-	RebalanceFrequency     float64 `json:"rebalance_frequency"`
-	CalculationTime        float64 `json:"calculation_time"`
-	CalculationAccuracy    float64 `json:"calculation_accuracy"`
+	AlgorithmVersion    string  `json:"algorithm_version"`
+	RebalanceFrequency  float64 `json:"rebalance_frequency"`
+	CalculationTime     float64 `json:"calculation_time"`
+	CalculationAccuracy float64 `json:"calculation_accuracy"`
 
 	// Factor Weights
-	AgeWeightGlobal        float64 `json:"age_weight_global"`
-	FairShareWeightGlobal  float64 `json:"fair_share_weight_global"`
-	QoSWeightGlobal        float64 `json:"qos_weight_global"`
-	PartitionWeightGlobal  float64 `json:"partition_weight_global"`
+	AgeWeightGlobal       float64 `json:"age_weight_global"`
+	FairShareWeightGlobal float64 `json:"fair_share_weight_global"`
+	QoSWeightGlobal       float64 `json:"qos_weight_global"`
+	PartitionWeightGlobal float64 `json:"partition_weight_global"`
 
 	// Trends
-	PriorityInflation      float64 `json:"priority_inflation"`
-	PriorityDeflation      float64 `json:"priority_deflation"`
-	PriorityVolatility     float64 `json:"priority_volatility"`
+	PriorityInflation  float64 `json:"priority_inflation"`
+	PriorityDeflation  float64 `json:"priority_deflation"`
+	PriorityVolatility float64 `json:"priority_volatility"`
 
 	LastUpdated time.Time `json:"last_updated"`
 }
 
 // UserPriorityPattern represents user priority behavior patterns
 type UserPriorityPattern struct {
-	UserName           string  `json:"user_name"`
-	AccountName        string  `json:"account_name"`
-	AveragePriority    float64 `json:"average_priority"`
-	PriorityVariance   float64 `json:"priority_variance"`
-	SubmissionPattern  string  `json:"submission_pattern"`
+	UserName          string  `json:"user_name"`
+	AccountName       string  `json:"account_name"`
+	AveragePriority   float64 `json:"average_priority"`
+	PriorityVariance  float64 `json:"priority_variance"`
+	SubmissionPattern string  `json:"submission_pattern"`
 
 	// Behavior Analysis
-	HighPriorityRatio     float64 `json:"high_priority_ratio"`
-	LowPriorityRatio      float64 `json:"low_priority_ratio"`
-	PriorityConsistency   float64 `json:"priority_consistency"`
-	BehaviorScore         float64 `json:"behavior_score"`
+	HighPriorityRatio   float64 `json:"high_priority_ratio"`
+	LowPriorityRatio    float64 `json:"low_priority_ratio"`
+	PriorityConsistency float64 `json:"priority_consistency"`
+	BehaviorScore       float64 `json:"behavior_score"`
 
 	// Temporal Patterns
-	PeakSubmissionHours   []int   `json:"peak_submission_hours"`
-	SubmissionFrequency   float64 `json:"submission_frequency"`
-	BatchingBehavior      float64 `json:"batching_behavior"`
+	PeakSubmissionHours []int   `json:"peak_submission_hours"`
+	SubmissionFrequency float64 `json:"submission_frequency"`
+	BatchingBehavior    float64 `json:"batching_behavior"`
 
 	// Efficiency Metrics
-	WaitTimeEfficiency    float64 `json:"wait_time_efficiency"`
-	ResourceEfficiency    float64 `json:"resource_efficiency"`
-	SchedulingEfficiency  float64 `json:"scheduling_efficiency"`
+	WaitTimeEfficiency   float64 `json:"wait_time_efficiency"`
+	ResourceEfficiency   float64 `json:"resource_efficiency"`
+	SchedulingEfficiency float64 `json:"scheduling_efficiency"`
 
 	LastAnalyzed time.Time `json:"last_analyzed"`
 }
 
 // PriorityPredictionValidation represents prediction accuracy validation
 type PriorityPredictionValidation struct {
-	JobID                string    `json:"job_id"`
-	PredictedWaitTime    float64   `json:"predicted_wait_time"`
-	ActualWaitTime       float64   `json:"actual_wait_time"`
-	PredictionError      float64   `json:"prediction_error"`
-	PredictionAccuracy   float64   `json:"prediction_accuracy"`
-	ConfidenceLevel      float64   `json:"confidence_level"`
+	JobID              string  `json:"job_id"`
+	PredictedWaitTime  float64 `json:"predicted_wait_time"`
+	ActualWaitTime     float64 `json:"actual_wait_time"`
+	PredictionError    float64 `json:"prediction_error"`
+	PredictionAccuracy float64 `json:"prediction_accuracy"`
+	ConfidenceLevel    float64 `json:"confidence_level"`
 
 	// Error Analysis
-	AbsoluteError        float64   `json:"absolute_error"`
-	RelativeError        float64   `json:"relative_error"`
-	ErrorCategory        string    `json:"error_category"`
-	ErrorSeverity        string    `json:"error_severity"`
+	AbsoluteError float64 `json:"absolute_error"`
+	RelativeError float64 `json:"relative_error"`
+	ErrorCategory string  `json:"error_category"`
+	ErrorSeverity string  `json:"error_severity"`
 
 	// Model Performance
-	ModelVersion         string    `json:"model_version"`
-	ModelAccuracy        float64   `json:"model_accuracy"`
-	ModelConfidence      float64   `json:"model_confidence"`
+	ModelVersion    string  `json:"model_version"`
+	ModelAccuracy   float64 `json:"model_accuracy"`
+	ModelConfidence float64 `json:"model_confidence"`
 
 	ValidatedAt time.Time `json:"validated_at"`
 }

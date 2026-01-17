@@ -29,10 +29,10 @@ type ReservationCollector struct {
 	reservationCores *prometheus.Desc
 
 	// Reservation time metrics
-	reservationStartTime  *prometheus.Desc
-	reservationEndTime    *prometheus.Desc
-	reservationDuration   *prometheus.Desc
-	reservationRemaining  *prometheus.Desc
+	reservationStartTime *prometheus.Desc
+	reservationEndTime   *prometheus.Desc
+	reservationDuration  *prometheus.Desc
+	reservationRemaining *prometheus.Desc
 
 	// Reservation info
 	reservationInfo *prometheus.Desc
@@ -45,7 +45,6 @@ func NewReservationCollector(client slurm.SlurmClient, logger *logrus.Entry) *Re
 		logger:  logger.WithField("collector", "reservation"),
 		enabled: true,
 	}
-
 
 	// Initialize metrics
 	c.reservationState = prometheus.NewDesc(

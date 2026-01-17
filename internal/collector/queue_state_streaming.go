@@ -173,402 +173,402 @@ type QueueStreamingConfiguration struct {
 }
 
 type ActiveQueueStream struct {
-	StreamID             string
-	QueueID              string
-	QueueName            string
-	PartitionName        string
-	StreamStartTime      time.Time
-	LastEventTime        time.Time
-	EventCount           int64
-	StreamStatus         string
-	StreamType           string
-	ConsumerID           string
-	ConsumerEndpoint     string
-	StreamPriority       int
-	BufferedEvents       int
-	ProcessedEvents      int64
-	FailedEvents         int64
-	RetryCount           int
-	LastError            string
-	StreamMetadata       map[string]interface{}
-	Bandwidth            float64
-	Latency              time.Duration
-	CompressionRatio     float64
-	EventRate            float64
-	ConnectionQuality    float64
-	StreamHealth         string
-	LastHeartbeat        time.Time
-	BackpressureActive   bool
-	FailoverActive       bool
-	QueuedEvents         int
-	DroppedEvents        int64
-	FilterMatches        int64
-	ValidationErrors     int64
-	EnrichmentFailures   int64
-	DeliveryAttempts     int64
-	AckRate              float64
-	ResourceUsage        map[string]float64
-	ConfigurationHash    string
-	SecurityContext      string
-	ComplianceFlags      []string
-	PerformanceProfile   string
-	QualityScore         float64
-	AlertsGenerated      int64
-	ActionsTriggered     int64
+	StreamID               string
+	QueueID                string
+	QueueName              string
+	PartitionName          string
+	StreamStartTime        time.Time
+	LastEventTime          time.Time
+	EventCount             int64
+	StreamStatus           string
+	StreamType             string
+	ConsumerID             string
+	ConsumerEndpoint       string
+	StreamPriority         int
+	BufferedEvents         int
+	ProcessedEvents        int64
+	FailedEvents           int64
+	RetryCount             int
+	LastError              string
+	StreamMetadata         map[string]interface{}
+	Bandwidth              float64
+	Latency                time.Duration
+	CompressionRatio       float64
+	EventRate              float64
+	ConnectionQuality      float64
+	StreamHealth           string
+	LastHeartbeat          time.Time
+	BackpressureActive     bool
+	FailoverActive         bool
+	QueuedEvents           int
+	DroppedEvents          int64
+	FilterMatches          int64
+	ValidationErrors       int64
+	EnrichmentFailures     int64
+	DeliveryAttempts       int64
+	AckRate                float64
+	ResourceUsage          map[string]float64
+	ConfigurationHash      string
+	SecurityContext        string
+	ComplianceFlags        []string
+	PerformanceProfile     string
+	QualityScore           float64
+	AlertsGenerated        int64
+	ActionsTriggered       int64
 	OptimizationsSuggested int64
-	PredictionsAccuracy  float64
-	AnomaliesDetected    int64
-	TrendsIdentified     int64
-	CostImpact           float64
-	BusinessValue        float64
-	UserSatisfaction     float64
-	SLACompliance        float64
-	SystemImpact         float64
+	PredictionsAccuracy    float64
+	AnomaliesDetected      int64
+	TrendsIdentified       int64
+	CostImpact             float64
+	BusinessValue          float64
+	UserSatisfaction       float64
+	SLACompliance          float64
+	SystemImpact           float64
 }
 
 type QueueEvent struct {
-	EventID           string
-	QueueID           string
-	EventType         string
-	EventTime         time.Time
-	EventData         map[string]interface{}
-	EventSource       string
-	EventPriority     int
-	ProcessingDelay   time.Duration
-	EventSize         int64
-	EventVersion      string
-	CorrelationID     string
-	CausationID       string
-	Metadata          map[string]interface{}
-	Tags              []string
-	Fingerprint       string
-	ProcessedBy       string
-	ProcessedTime     time.Time
-	ValidationStatus  string
-	EnrichmentData    map[string]interface{}
-	DeliveryAttempts  int
-	DeliveryStatus    string
-	AcknowledgedAt    *time.Time
-	ExpiresAt         *time.Time
-	RetryPolicy       string
-	ErrorDetails      string
-	ImpactLevel       string
-	ResolutionTime    *time.Time
-	ResolutionBy      string
-	ResolutionNotes   string
-	EscalationLevel   int
-	RootCause         string
-	RelatedEvents     []string
-	Dependencies      []string
-	Notifications     []string
-	Workflows         []string
-	ComplianceData    map[string]interface{}
-	SecurityContext   map[string]interface{}
-	QualityMetrics    map[string]float64
-	PerformanceData   map[string]interface{}
-	BusinessContext   string
+	EventID            string
+	QueueID            string
+	EventType          string
+	EventTime          time.Time
+	EventData          map[string]interface{}
+	EventSource        string
+	EventPriority      int
+	ProcessingDelay    time.Duration
+	EventSize          int64
+	EventVersion       string
+	CorrelationID      string
+	CausationID        string
+	Metadata           map[string]interface{}
+	Tags               []string
+	Fingerprint        string
+	ProcessedBy        string
+	ProcessedTime      time.Time
+	ValidationStatus   string
+	EnrichmentData     map[string]interface{}
+	DeliveryAttempts   int
+	DeliveryStatus     string
+	AcknowledgedAt     *time.Time
+	ExpiresAt          *time.Time
+	RetryPolicy        string
+	ErrorDetails       string
+	ImpactLevel        string
+	ResolutionTime     *time.Time
+	ResolutionBy       string
+	ResolutionNotes    string
+	EscalationLevel    int
+	RootCause          string
+	RelatedEvents      []string
+	Dependencies       []string
+	Notifications      []string
+	Workflows          []string
+	ComplianceData     map[string]interface{}
+	SecurityContext    map[string]interface{}
+	QualityMetrics     map[string]float64
+	PerformanceData    map[string]interface{}
+	BusinessContext    string
 	OperationalContext string
-	TechnicalContext  string
-	UserContext       string
-	AlertData         map[string]interface{}
-	ActionData        map[string]interface{}
-	OptimizationData  map[string]interface{}
-	PredictionData    map[string]interface{}
-	AnomalyData       map[string]interface{}
-	TrendData         map[string]interface{}
-	CostData          map[string]interface{}
+	TechnicalContext   string
+	UserContext        string
+	AlertData          map[string]interface{}
+	ActionData         map[string]interface{}
+	OptimizationData   map[string]interface{}
+	PredictionData     map[string]interface{}
+	AnomalyData        map[string]interface{}
+	TrendData          map[string]interface{}
+	CostData           map[string]interface{}
 }
 
 type QueueStreamingMetrics struct {
-	TotalStreams             int64
-	ActiveStreams            int64
-	PausedStreams            int64
-	FailedStreams            int64
-	EventsPerSecond          float64
-	AverageEventLatency      time.Duration
-	MaxEventLatency          time.Duration
-	MinEventLatency          time.Duration
-	TotalEventsProcessed     int64
-	TotalEventsDropped       int64
-	TotalEventsFailed        int64
-	AverageStreamDuration    time.Duration
-	MaxStreamDuration        time.Duration
-	TotalBandwidthUsed       float64
-	CompressionEfficiency    float64
-	DeduplicationRate        float64
-	ErrorRate                float64
-	SuccessRate              float64
-	BackpressureOccurrences  int64
-	FailoverOccurrences      int64
-	ReconnectionAttempts     int64
-	MemoryUsage              int64
-	CPUUsage                 float64
-	NetworkUsage             float64
-	DiskUsage                int64
-	CacheHitRate             float64
-	QueueDepth               int64
-	ProcessingEfficiency     float64
-	StreamingHealth          float64
-	QueueCoverage            float64
-	StateChangeAccuracy      float64
-	PredictionAccuracy       float64
-	AlertResponseTime        time.Duration
+	TotalStreams              int64
+	ActiveStreams             int64
+	PausedStreams             int64
+	FailedStreams             int64
+	EventsPerSecond           float64
+	AverageEventLatency       time.Duration
+	MaxEventLatency           time.Duration
+	MinEventLatency           time.Duration
+	TotalEventsProcessed      int64
+	TotalEventsDropped        int64
+	TotalEventsFailed         int64
+	AverageStreamDuration     time.Duration
+	MaxStreamDuration         time.Duration
+	TotalBandwidthUsed        float64
+	CompressionEfficiency     float64
+	DeduplicationRate         float64
+	ErrorRate                 float64
+	SuccessRate               float64
+	BackpressureOccurrences   int64
+	FailoverOccurrences       int64
+	ReconnectionAttempts      int64
+	MemoryUsage               int64
+	CPUUsage                  float64
+	NetworkUsage              float64
+	DiskUsage                 int64
+	CacheHitRate              float64
+	QueueDepth                int64
+	ProcessingEfficiency      float64
+	StreamingHealth           float64
+	QueueCoverage             float64
+	StateChangeAccuracy       float64
+	PredictionAccuracy        float64
+	AlertResponseTime         time.Duration
 	OptimizationEffectiveness float64
-	QualityScore             float64
-	ComplianceScore          float64
-	SecurityScore            float64
-	PerformanceScore         float64
-	BusinessValue            float64
-	UserSatisfaction         float64
-	CostEfficiency           float64
-	ResourceUtilization      float64
-	ThroughputOptimization   float64
-	LatencyOptimization      float64
-	CapacityUtilization      float64
-	LoadBalanceEfficiency    float64
-	BackfillEfficiency       float64
-	PreemptionEfficiency     float64
-	SLACompliance            float64
-	AnomalyDetectionRate     float64
-	TrendPredictionAccuracy  float64
-	ForecastAccuracy         float64
-	OptimizationImpact       float64
-	AutomationEffectiveness  float64
+	QualityScore              float64
+	ComplianceScore           float64
+	SecurityScore             float64
+	PerformanceScore          float64
+	BusinessValue             float64
+	UserSatisfaction          float64
+	CostEfficiency            float64
+	ResourceUtilization       float64
+	ThroughputOptimization    float64
+	LatencyOptimization       float64
+	CapacityUtilization       float64
+	LoadBalanceEfficiency     float64
+	BackfillEfficiency        float64
+	PreemptionEfficiency      float64
+	SLACompliance             float64
+	AnomalyDetectionRate      float64
+	TrendPredictionAccuracy   float64
+	ForecastAccuracy          float64
+	OptimizationImpact        float64
+	AutomationEffectiveness   float64
 }
 
 type QueueEventFilter struct {
-	FilterID           string
-	FilterName         string
-	FilterType         string
-	FilterExpression   string
-	IncludePattern     string
-	ExcludePattern     string
-	QueueStates        []string
-	Partitions         []string
-	Queues             []string
-	EventTypes         []string
-	Priorities         []int
-	QueueLengthRange   []int
-	WaitTimeRange      []time.Duration
-	ResourceCriteria   map[string]interface{}
-	PerformanceCriteria map[string]interface{}
-	QualityCriteria    map[string]interface{}
-	ComplianceCriteria map[string]interface{}
-	BusinessCriteria   map[string]interface{}
-	CustomCriteria     map[string]interface{}
-	FilterEnabled      bool
-	FilterPriority     int
-	CreatedBy          string
-	CreatedTime        time.Time
-	ModifiedBy         string
-	ModifiedTime       time.Time
-	UsageCount         int64
-	LastUsedTime       time.Time
-	FilterDescription  string
-	FilterTags         []string
-	ValidationRules    []string
-	MatchCount         int64
-	FilteredCount      int64
-	ErrorCount         int64
-	PerformanceImpact  float64
-	MaintenanceWindow  string
-	EmergencyBypass    bool
-	ComplianceLevel    string
-	AuditTrail         []string
-	BusinessContext    string
-	TechnicalContext   string
-	OperationalContext string
-	CostImplications   float64
-	RiskAssessment     string
-	QualityImpact      float64
-	UserImpact         float64
-	SystemImpact       float64
+	FilterID             string
+	FilterName           string
+	FilterType           string
+	FilterExpression     string
+	IncludePattern       string
+	ExcludePattern       string
+	QueueStates          []string
+	Partitions           []string
+	Queues               []string
+	EventTypes           []string
+	Priorities           []int
+	QueueLengthRange     []int
+	WaitTimeRange        []time.Duration
+	ResourceCriteria     map[string]interface{}
+	PerformanceCriteria  map[string]interface{}
+	QualityCriteria      map[string]interface{}
+	ComplianceCriteria   map[string]interface{}
+	BusinessCriteria     map[string]interface{}
+	CustomCriteria       map[string]interface{}
+	FilterEnabled        bool
+	FilterPriority       int
+	CreatedBy            string
+	CreatedTime          time.Time
+	ModifiedBy           string
+	ModifiedTime         time.Time
+	UsageCount           int64
+	LastUsedTime         time.Time
+	FilterDescription    string
+	FilterTags           []string
+	ValidationRules      []string
+	MatchCount           int64
+	FilteredCount        int64
+	ErrorCount           int64
+	PerformanceImpact    float64
+	MaintenanceWindow    string
+	EmergencyBypass      bool
+	ComplianceLevel      string
+	AuditTrail           []string
+	BusinessContext      string
+	TechnicalContext     string
+	OperationalContext   string
+	CostImplications     float64
+	RiskAssessment       string
+	QualityImpact        float64
+	UserImpact           float64
+	SystemImpact         float64
 	SecurityImplications string
-	DataRetention      string
-	PrivacySettings    map[string]bool
+	DataRetention        string
+	PrivacySettings      map[string]bool
 }
 
 type QueueStreamingHealthStatus struct {
-	OverallHealth           string
-	ComponentHealth         map[string]string
-	LastHealthCheck         time.Time
-	HealthCheckDuration     time.Duration
-	HealthScore             float64
-	CriticalIssues          []string
-	WarningIssues           []string
-	InfoMessages            []string
-	StreamingUptime         time.Duration
-	ServiceAvailability     float64
-	ResourceUtilization     map[string]float64
-	PerformanceMetrics      map[string]float64
-	ErrorSummary            map[string]int64
-	HealthTrends            map[string]float64
-	PredictedIssues         []string
-	RecommendedActions      []string
-	SystemCapacity          map[string]float64
-	AlertThresholds         map[string]float64
-	SLACompliance           map[string]float64
-	DependencyStatus        map[string]string
-	ConfigurationValid      bool
-	SecurityStatus          string
-	BackupStatus            string
-	MonitoringEnabled       bool
-	LoggingEnabled          bool
-	MaintenanceSchedule     []string
-	CapacityForecasts       map[string]float64
-	RiskIndicators          map[string]float64
-	ComplianceMetrics       map[string]float64
-	QualityMetrics          map[string]float64
-	PerformanceBaselines    map[string]float64
-	AnomalyDetectors        map[string]bool
-	AutomationStatus        map[string]bool
-	IntegrationHealth       map[string]string
-	BusinessMetrics         map[string]float64
-	UserExperience          map[string]float64
-	CostMetrics             map[string]float64
-	EfficiencyMetrics       map[string]float64
+	OverallHealth             string
+	ComponentHealth           map[string]string
+	LastHealthCheck           time.Time
+	HealthCheckDuration       time.Duration
+	HealthScore               float64
+	CriticalIssues            []string
+	WarningIssues             []string
+	InfoMessages              []string
+	StreamingUptime           time.Duration
+	ServiceAvailability       float64
+	ResourceUtilization       map[string]float64
+	PerformanceMetrics        map[string]float64
+	ErrorSummary              map[string]int64
+	HealthTrends              map[string]float64
+	PredictedIssues           []string
+	RecommendedActions        []string
+	SystemCapacity            map[string]float64
+	AlertThresholds           map[string]float64
+	SLACompliance             map[string]float64
+	DependencyStatus          map[string]string
+	ConfigurationValid        bool
+	SecurityStatus            string
+	BackupStatus              string
+	MonitoringEnabled         bool
+	LoggingEnabled            bool
+	MaintenanceSchedule       []string
+	CapacityForecasts         map[string]float64
+	RiskIndicators            map[string]float64
+	ComplianceMetrics         map[string]float64
+	QualityMetrics            map[string]float64
+	PerformanceBaselines      map[string]float64
+	AnomalyDetectors          map[string]bool
+	AutomationStatus          map[string]bool
+	IntegrationHealth         map[string]string
+	BusinessMetrics           map[string]float64
+	UserExperience            map[string]float64
+	CostMetrics               map[string]float64
+	EfficiencyMetrics         map[string]float64
 	OptimizationOpportunities []string
-	TrendAnalysis           map[string]interface{}
-	PredictiveInsights      map[string]interface{}
-	RecommendationEngine    map[string]interface{}
-	AlertingEffectiveness   float64
-	ResponseTimeMetrics     map[string]float64
-	EscalationEffectiveness float64
-	ResolutionRates         map[string]float64
-	PreventativeActions     []string
+	TrendAnalysis             map[string]interface{}
+	PredictiveInsights        map[string]interface{}
+	RecommendationEngine      map[string]interface{}
+	AlertingEffectiveness     float64
+	ResponseTimeMetrics       map[string]float64
+	EscalationEffectiveness   float64
+	ResolutionRates           map[string]float64
+	PreventativeActions       []string
 }
 
 type QueueEventSubscription struct {
-	SubscriptionID           string
-	SubscriberName           string
-	SubscriberEndpoint       string
-	SubscriptionType         string
-	EventTypes               []string
-	FilterCriteria           string
-	DeliveryMethod           string
-	DeliveryFormat           string
-	SubscriptionStatus       string
-	CreatedTime              time.Time
-	LastDeliveryTime         time.Time
-	DeliveryCount            int64
-	FailedDeliveries         int64
-	RetryPolicy              string
-	MaxRetries               int
-	RetryDelay               time.Duration
-	ExpirationTime           *time.Time
-	Priority                 int
-	BatchDelivery            bool
-	BatchSize                int
-	BatchTimeout             time.Duration
-	CompressionEnabled       bool
-	EncryptionEnabled        bool
-	AuthenticationToken      string
-	CallbackURL              string
-	ErrorHandling            string
-	DeliveryGuarantee        string
-	Metadata                 map[string]interface{}
-	Tags                     []string
-	SubscriberContact        string
-	BusinessContext          string
-	TechnicalContext         string
-	OperationalContext       string
-	UsageQuota               int64
-	UsedQuota                int64
-	BandwidthLimit           float64
-	CostCenter               string
-	ServiceLevel             string
-	MaintenanceWindow        string
-	EmergencyContacts        []string
-	EscalationProcedure      string
-	ComplianceRequirements   []string
-	QualityRequirements      []string
-	PerformanceRequirements  []string
-	SecurityRequirements     []string
-	AuditSettings            map[string]bool
-	DataRetention            string
-	PrivacySettings          map[string]bool
-	IntegrationSettings      map[string]interface{}
-	CustomSettings           map[string]interface{}
-	AlertingEnabled          bool
-	MonitoringEnabled        bool
-	ReportingEnabled         bool
-	DashboardEnabled         bool
-	AnalyticsEnabled         bool
-	OptimizationEnabled      bool
-	PredictiveEnabled        bool
-	AnomalyDetectionEnabled  bool
-	TrendAnalysisEnabled     bool
-	ForecastingEnabled       bool
-	RecommendationEnabled    bool
-	AutomationEnabled        bool
+	SubscriptionID          string
+	SubscriberName          string
+	SubscriberEndpoint      string
+	SubscriptionType        string
+	EventTypes              []string
+	FilterCriteria          string
+	DeliveryMethod          string
+	DeliveryFormat          string
+	SubscriptionStatus      string
+	CreatedTime             time.Time
+	LastDeliveryTime        time.Time
+	DeliveryCount           int64
+	FailedDeliveries        int64
+	RetryPolicy             string
+	MaxRetries              int
+	RetryDelay              time.Duration
+	ExpirationTime          *time.Time
+	Priority                int
+	BatchDelivery           bool
+	BatchSize               int
+	BatchTimeout            time.Duration
+	CompressionEnabled      bool
+	EncryptionEnabled       bool
+	AuthenticationToken     string
+	CallbackURL             string
+	ErrorHandling           string
+	DeliveryGuarantee       string
+	Metadata                map[string]interface{}
+	Tags                    []string
+	SubscriberContact       string
+	BusinessContext         string
+	TechnicalContext        string
+	OperationalContext      string
+	UsageQuota              int64
+	UsedQuota               int64
+	BandwidthLimit          float64
+	CostCenter              string
+	ServiceLevel            string
+	MaintenanceWindow       string
+	EmergencyContacts       []string
+	EscalationProcedure     string
+	ComplianceRequirements  []string
+	QualityRequirements     []string
+	PerformanceRequirements []string
+	SecurityRequirements    []string
+	AuditSettings           map[string]bool
+	DataRetention           string
+	PrivacySettings         map[string]bool
+	IntegrationSettings     map[string]interface{}
+	CustomSettings          map[string]interface{}
+	AlertingEnabled         bool
+	MonitoringEnabled       bool
+	ReportingEnabled        bool
+	DashboardEnabled        bool
+	AnalyticsEnabled        bool
+	OptimizationEnabled     bool
+	PredictiveEnabled       bool
+	AnomalyDetectionEnabled bool
+	TrendAnalysisEnabled    bool
+	ForecastingEnabled      bool
+	RecommendationEnabled   bool
+	AutomationEnabled       bool
 }
 
 type QueueEventProcessingStats struct {
-	ProcessingStartTime      time.Time
-	TotalEventsReceived      int64
-	TotalEventsProcessed     int64
-	TotalEventsFiltered      int64
-	TotalEventsDropped       int64
-	TotalProcessingTime      time.Duration
-	AverageProcessingTime    time.Duration
-	MaxProcessingTime        time.Duration
-	MinProcessingTime        time.Duration
-	ProcessingThroughput     float64
-	ErrorRate                float64
-	SuccessRate              float64
-	FilterEfficiency         float64
-	ValidationErrors         int64
-	EnrichmentErrors         int64
-	DeliveryErrors           int64
-	TransformationErrors     int64
-	SerializationErrors      int64
-	NetworkErrors            int64
-	AuthenticationErrors     int64
-	AuthorizationErrors      int64
-	RateLimitExceeded        int64
-	BackpressureEvents       int64
-	CircuitBreakerTrips      int64
-	RetryAttempts            int64
-	DeadLetterEvents         int64
-	DuplicateEvents          int64
-	OutOfOrderEvents         int64
-	LateArrivingEvents       int64
-	ProcessingQueues         map[string]int64
-	WorkerStatistics         map[string]interface{}
-	ResourceUtilization      map[string]float64
-	PerformanceCounters      map[string]int64
-	QueueStateAccuracy       float64
-	EventCorrelationRate     float64
-	AnomalyDetectionRate     float64
-	TrendDetectionRate       float64
-	PredictionAccuracy       float64
-	OptimizationImpact       float64
-	AlertGenerationRate      float64
-	ActionExecutionRate      float64
-	ComplianceChecks         int64
-	QualityChecks            int64
-	SecurityScans            int64
-	PerformanceAnalysis      int64
-	BusinessAnalysis         int64
-	CostAnalysis             int64
-	UserAnalysis             int64
-	SystemAnalysis           int64
-	DataQualityScore         float64
-	SystemLoadImpact         float64
-	BusinessImpact           float64
-	UserImpact               float64
-	OperationalImpact        float64
-	FinancialImpact          float64
-	StrategicImpact          float64
-	CompetitiveImpact        float64
-	RiskImpact               float64
-	ComplianceImpact         float64
-	QualityImpact            float64
-	PerformanceImpact        float64
-	EfficiencyImpact         float64
-	ProductivityImpact       float64
-	InnovationImpact         float64
-	SustainabilityImpact     float64
+	ProcessingStartTime   time.Time
+	TotalEventsReceived   int64
+	TotalEventsProcessed  int64
+	TotalEventsFiltered   int64
+	TotalEventsDropped    int64
+	TotalProcessingTime   time.Duration
+	AverageProcessingTime time.Duration
+	MaxProcessingTime     time.Duration
+	MinProcessingTime     time.Duration
+	ProcessingThroughput  float64
+	ErrorRate             float64
+	SuccessRate           float64
+	FilterEfficiency      float64
+	ValidationErrors      int64
+	EnrichmentErrors      int64
+	DeliveryErrors        int64
+	TransformationErrors  int64
+	SerializationErrors   int64
+	NetworkErrors         int64
+	AuthenticationErrors  int64
+	AuthorizationErrors   int64
+	RateLimitExceeded     int64
+	BackpressureEvents    int64
+	CircuitBreakerTrips   int64
+	RetryAttempts         int64
+	DeadLetterEvents      int64
+	DuplicateEvents       int64
+	OutOfOrderEvents      int64
+	LateArrivingEvents    int64
+	ProcessingQueues      map[string]int64
+	WorkerStatistics      map[string]interface{}
+	ResourceUtilization   map[string]float64
+	PerformanceCounters   map[string]int64
+	QueueStateAccuracy    float64
+	EventCorrelationRate  float64
+	AnomalyDetectionRate  float64
+	TrendDetectionRate    float64
+	PredictionAccuracy    float64
+	OptimizationImpact    float64
+	AlertGenerationRate   float64
+	ActionExecutionRate   float64
+	ComplianceChecks      int64
+	QualityChecks         int64
+	SecurityScans         int64
+	PerformanceAnalysis   int64
+	BusinessAnalysis      int64
+	CostAnalysis          int64
+	UserAnalysis          int64
+	SystemAnalysis        int64
+	DataQualityScore      float64
+	SystemLoadImpact      float64
+	BusinessImpact        float64
+	UserImpact            float64
+	OperationalImpact     float64
+	FinancialImpact       float64
+	StrategicImpact       float64
+	CompetitiveImpact     float64
+	RiskImpact            float64
+	ComplianceImpact      float64
+	QualityImpact         float64
+	PerformanceImpact     float64
+	EfficiencyImpact      float64
+	ProductivityImpact    float64
+	InnovationImpact      float64
+	SustainabilityImpact  float64
 }
 
 type QueueStreamingPerformanceMetrics struct {
@@ -674,118 +674,118 @@ type QueueStateStreamingCollector struct {
 	mutex  sync.RWMutex
 
 	// Queue state event metrics
-	queueEventsTotal           *prometheus.CounterVec
-	queueEventRate             *prometheus.GaugeVec
-	queueEventLatency          *prometheus.HistogramVec
-	queueEventSize             *prometheus.HistogramVec
-	queueEventsDropped         *prometheus.CounterVec
-	queueEventsFailed          *prometheus.CounterVec
-	queueEventsProcessed       *prometheus.CounterVec
+	queueEventsTotal     *prometheus.CounterVec
+	queueEventRate       *prometheus.GaugeVec
+	queueEventLatency    *prometheus.HistogramVec
+	queueEventSize       *prometheus.HistogramVec
+	queueEventsDropped   *prometheus.CounterVec
+	queueEventsFailed    *prometheus.CounterVec
+	queueEventsProcessed *prometheus.CounterVec
 
 	// Queue state metrics
-	queueStateChanges          *prometheus.CounterVec
-	queueLength                *prometheus.GaugeVec
-	queueWaitTime              *prometheus.HistogramVec
-	queueThroughput            *prometheus.GaugeVec
-	queueUtilization           *prometheus.GaugeVec
-	queueEfficiency            *prometheus.GaugeVec
-	backfillJobs               *prometheus.CounterVec
-	backfillEfficiency         *prometheus.GaugeVec
-	preemptedJobs              *prometheus.CounterVec
-	preemptionRate             *prometheus.GaugeVec
+	queueStateChanges  *prometheus.CounterVec
+	queueLength        *prometheus.GaugeVec
+	queueWaitTime      *prometheus.HistogramVec
+	queueThroughput    *prometheus.GaugeVec
+	queueUtilization   *prometheus.GaugeVec
+	queueEfficiency    *prometheus.GaugeVec
+	backfillJobs       *prometheus.CounterVec
+	backfillEfficiency *prometheus.GaugeVec
+	preemptedJobs      *prometheus.CounterVec
+	preemptionRate     *prometheus.GaugeVec
 
 	// Job flow metrics
-	jobSubmissionRate          *prometheus.GaugeVec
-	jobCompletionRate          *prometheus.GaugeVec
-	jobFailureRate             *prometheus.GaugeVec
-	jobCancellationRate        *prometheus.GaugeVec
-	pendingJobs                *prometheus.GaugeVec
-	runningJobs                *prometheus.GaugeVec
-	completedJobs              *prometheus.CounterVec
-	failedJobs                 *prometheus.CounterVec
-	cancelledJobs              *prometheus.CounterVec
+	jobSubmissionRate   *prometheus.GaugeVec
+	jobCompletionRate   *prometheus.GaugeVec
+	jobFailureRate      *prometheus.GaugeVec
+	jobCancellationRate *prometheus.GaugeVec
+	pendingJobs         *prometheus.GaugeVec
+	runningJobs         *prometheus.GaugeVec
+	completedJobs       *prometheus.CounterVec
+	failedJobs          *prometheus.CounterVec
+	cancelledJobs       *prometheus.CounterVec
 
 	// Resource metrics
-	pendingCPUs                *prometheus.GaugeVec
-	pendingMemory              *prometheus.GaugeVec
-	pendingGPUs                *prometheus.GaugeVec
-	runningCPUs                *prometheus.GaugeVec
-	runningMemory              *prometheus.GaugeVec
-	runningGPUs                *prometheus.GaugeVec
-	resourceUtilization        *prometheus.GaugeVec
-	capacityMetrics            *prometheus.GaugeVec
+	pendingCPUs         *prometheus.GaugeVec
+	pendingMemory       *prometheus.GaugeVec
+	pendingGPUs         *prometheus.GaugeVec
+	runningCPUs         *prometheus.GaugeVec
+	runningMemory       *prometheus.GaugeVec
+	runningGPUs         *prometheus.GaugeVec
+	resourceUtilization *prometheus.GaugeVec
+	capacityMetrics     *prometheus.GaugeVec
 
 	// Stream metrics
-	activeQueueStreams         *prometheus.GaugeVec
-	queueStreamDuration        *prometheus.HistogramVec
-	queueStreamBandwidth       *prometheus.GaugeVec
-	queueStreamLatency         *prometheus.GaugeVec
-	queueStreamHealth          *prometheus.GaugeVec
-	queueStreamBackpressure    *prometheus.CounterVec
-	queueStreamFailover        *prometheus.CounterVec
-	queueStreamReconnections   *prometheus.CounterVec
+	activeQueueStreams       *prometheus.GaugeVec
+	queueStreamDuration      *prometheus.HistogramVec
+	queueStreamBandwidth     *prometheus.GaugeVec
+	queueStreamLatency       *prometheus.GaugeVec
+	queueStreamHealth        *prometheus.GaugeVec
+	queueStreamBackpressure  *prometheus.CounterVec
+	queueStreamFailover      *prometheus.CounterVec
+	queueStreamReconnections *prometheus.CounterVec
 
 	// Configuration metrics
-	streamingEnabled           *prometheus.GaugeVec
-	maxConcurrentStreams       *prometheus.GaugeVec
-	eventBufferSize            *prometheus.GaugeVec
-	eventBatchSize             *prometheus.GaugeVec
-	rateLimitPerSecond         *prometheus.GaugeVec
-	backpressureThreshold      *prometheus.GaugeVec
+	streamingEnabled      *prometheus.GaugeVec
+	maxConcurrentStreams  *prometheus.GaugeVec
+	eventBufferSize       *prometheus.GaugeVec
+	eventBatchSize        *prometheus.GaugeVec
+	rateLimitPerSecond    *prometheus.GaugeVec
+	backpressureThreshold *prometheus.GaugeVec
 
 	// Performance metrics
-	streamingThroughput        *prometheus.GaugeVec
-	streamingCPUUsage          *prometheus.GaugeVec
-	streamingMemoryUsage       *prometheus.GaugeVec
-	streamingNetworkUsage      *prometheus.GaugeVec
-	streamingDiskUsage         *prometheus.GaugeVec
-	compressionEfficiency      *prometheus.GaugeVec
-	deduplicationRate          *prometheus.GaugeVec
-	cacheHitRate               *prometheus.GaugeVec
-	queueDepth                 *prometheus.GaugeVec
-	processingEfficiency       *prometheus.GaugeVec
+	streamingThroughput   *prometheus.GaugeVec
+	streamingCPUUsage     *prometheus.GaugeVec
+	streamingMemoryUsage  *prometheus.GaugeVec
+	streamingNetworkUsage *prometheus.GaugeVec
+	streamingDiskUsage    *prometheus.GaugeVec
+	compressionEfficiency *prometheus.GaugeVec
+	deduplicationRate     *prometheus.GaugeVec
+	cacheHitRate          *prometheus.GaugeVec
+	queueDepth            *prometheus.GaugeVec
+	processingEfficiency  *prometheus.GaugeVec
 
 	// Health metrics
-	streamingHealthScore       *prometheus.GaugeVec
-	serviceAvailability        *prometheus.GaugeVec
-	streamingUptime            *prometheus.CounterVec
-	criticalIssues             *prometheus.GaugeVec
-	warningIssues              *prometheus.GaugeVec
-	healthCheckDuration        *prometheus.HistogramVec
-	slaCompliance              *prometheus.GaugeVec
+	streamingHealthScore *prometheus.GaugeVec
+	serviceAvailability  *prometheus.GaugeVec
+	streamingUptime      *prometheus.CounterVec
+	criticalIssues       *prometheus.GaugeVec
+	warningIssues        *prometheus.GaugeVec
+	healthCheckDuration  *prometheus.HistogramVec
+	slaCompliance        *prometheus.GaugeVec
 
 	// Subscription metrics
-	eventSubscriptionsTotal    *prometheus.CounterVec
-	subscriptionDeliveries     *prometheus.CounterVec
-	subscriptionFailures       *prometheus.CounterVec
-	subscriptionRetries        *prometheus.CounterVec
-	subscriptionLatency        *prometheus.HistogramVec
+	eventSubscriptionsTotal *prometheus.CounterVec
+	subscriptionDeliveries  *prometheus.CounterVec
+	subscriptionFailures    *prometheus.CounterVec
+	subscriptionRetries     *prometheus.CounterVec
+	subscriptionLatency     *prometheus.HistogramVec
 
 	// Filter metrics
-	eventFiltersActive         *prometheus.GaugeVec
-	filterMatchCount           *prometheus.CounterVec
-	filterProcessingTime       *prometheus.HistogramVec
-	filterEfficiency           *prometheus.GaugeVec
+	eventFiltersActive   *prometheus.GaugeVec
+	filterMatchCount     *prometheus.CounterVec
+	filterProcessingTime *prometheus.HistogramVec
+	filterEfficiency     *prometheus.GaugeVec
 
 	// Error metrics
-	streamingErrors            *prometheus.CounterVec
-	validationErrors           *prometheus.CounterVec
-	enrichmentErrors           *prometheus.CounterVec
-	deliveryErrors             *prometheus.CounterVec
-	transformationErrors       *prometheus.CounterVec
-	networkErrors              *prometheus.CounterVec
-	authenticationErrors       *prometheus.CounterVec
+	streamingErrors      *prometheus.CounterVec
+	validationErrors     *prometheus.CounterVec
+	enrichmentErrors     *prometheus.CounterVec
+	deliveryErrors       *prometheus.CounterVec
+	transformationErrors *prometheus.CounterVec
+	networkErrors        *prometheus.CounterVec
+	authenticationErrors *prometheus.CounterVec
 
 	// Queue-specific metrics
-	queueCoverage              *prometheus.GaugeVec
-	stateChangeAccuracy        *prometheus.GaugeVec
-	predictionAccuracy         *prometheus.GaugeVec
-	optimizationEffectiveness  *prometheus.GaugeVec
-	qualityScore               *prometheus.GaugeVec
-	complianceScore            *prometheus.GaugeVec
-	businessValue              *prometheus.GaugeVec
-	userSatisfaction           *prometheus.GaugeVec
-	costEfficiency             *prometheus.GaugeVec
+	queueCoverage             *prometheus.GaugeVec
+	stateChangeAccuracy       *prometheus.GaugeVec
+	predictionAccuracy        *prometheus.GaugeVec
+	optimizationEffectiveness *prometheus.GaugeVec
+	qualityScore              *prometheus.GaugeVec
+	complianceScore           *prometheus.GaugeVec
+	businessValue             *prometheus.GaugeVec
+	userSatisfaction          *prometheus.GaugeVec
+	costEfficiency            *prometheus.GaugeVec
 }
 
 func NewQueueStateStreamingCollector(client QueueStateStreamingSLURMClient) *QueueStateStreamingCollector {
@@ -809,16 +809,16 @@ func NewQueueStateStreamingCollector(client QueueStateStreamingSLURMClient) *Que
 		),
 		queueEventLatency: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_queue_event_latency_seconds",
-				Help: "Latency of queue event processing",
+				Name:    "slurm_queue_event_latency_seconds",
+				Help:    "Latency of queue event processing",
 				Buckets: []float64{0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10},
 			},
 			[]string{"event_type", "processing_stage"},
 		),
 		queueEventSize: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_queue_event_size_bytes",
-				Help: "Size of queue events in bytes",
+				Name:    "slurm_queue_event_size_bytes",
+				Help:    "Size of queue events in bytes",
 				Buckets: []float64{100, 500, 1000, 5000, 10000, 50000, 100000},
 			},
 			[]string{"event_type"},
@@ -862,8 +862,8 @@ func NewQueueStateStreamingCollector(client QueueStateStreamingSLURMClient) *Que
 		),
 		queueWaitTime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_queue_wait_time_seconds",
-				Help: "Distribution of job wait times in queues",
+				Name:    "slurm_queue_wait_time_seconds",
+				Help:    "Distribution of job wait times in queues",
 				Buckets: []float64{60, 300, 900, 1800, 3600, 7200, 14400, 86400},
 			},
 			[]string{"queue_name", "partition", "wait_type"},
@@ -1051,8 +1051,8 @@ func NewQueueStateStreamingCollector(client QueueStateStreamingSLURMClient) *Que
 		),
 		queueStreamDuration: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_queue_stream_duration_seconds",
-				Help: "Duration of queue streams",
+				Name:    "slurm_queue_stream_duration_seconds",
+				Help:    "Duration of queue streams",
 				Buckets: []float64{60, 300, 900, 1800, 3600, 7200, 14400, 86400},
 			},
 			[]string{"stream_type"},
@@ -1254,8 +1254,8 @@ func NewQueueStateStreamingCollector(client QueueStateStreamingSLURMClient) *Que
 		),
 		healthCheckDuration: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_queue_streaming_health_check_duration_seconds",
-				Help: "Duration of health checks for queue streaming system",
+				Name:    "slurm_queue_streaming_health_check_duration_seconds",
+				Help:    "Duration of health checks for queue streaming system",
 				Buckets: []float64{0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5},
 			},
 			[]string{"component"},
@@ -1299,8 +1299,8 @@ func NewQueueStateStreamingCollector(client QueueStateStreamingSLURMClient) *Que
 		),
 		subscriptionLatency: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_queue_subscription_latency_seconds",
-				Help: "Latency of subscription deliveries",
+				Name:    "slurm_queue_subscription_latency_seconds",
+				Help:    "Latency of subscription deliveries",
 				Buckets: []float64{0.01, 0.05, 0.1, 0.5, 1, 5, 10, 30},
 			},
 			[]string{"subscription_id", "delivery_method"},
@@ -1323,8 +1323,8 @@ func NewQueueStateStreamingCollector(client QueueStateStreamingSLURMClient) *Que
 		),
 		filterProcessingTime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_queue_filter_processing_time_seconds",
-				Help: "Processing time for queue event filters",
+				Name:    "slurm_queue_filter_processing_time_seconds",
+				Help:    "Processing time for queue event filters",
 				Buckets: []float64{0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1},
 			},
 			[]string{"filter_id", "filter_type"},

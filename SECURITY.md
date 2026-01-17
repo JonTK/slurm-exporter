@@ -165,8 +165,8 @@ We appreciate security researchers who help keep our project safe:
 
 ### Tools & Scanners
 
-- [Gosec](https://github.com/securecodewarrior/gosec) - Go security analyzer
-- [Nancy](https://github.com/sonatypecommunity/nancy) - Dependency vulnerability scanner
+- [Gosec](https://github.com/securego/gosec) - Go security analyzer
+- [govulncheck](https://pkg.go.dev/golang.org/x/vuln/cmd/govulncheck) - Go vulnerability scanner
 - [Trivy](https://github.com/aquasecurity/trivy) - Container vulnerability scanner
 - [TruffleHog](https://github.com/trufflesecurity/trufflehog) - Secret scanner
 

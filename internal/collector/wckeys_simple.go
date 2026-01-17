@@ -20,11 +20,11 @@ type WCKeysCollector struct {
 	timeout time.Duration
 
 	// Metrics
-	wckeysTotal     *prometheus.Desc
-	wckeysActive    *prometheus.Desc
-	wckeysJobCount  *prometheus.Desc
-	wckeysUsage     *prometheus.Desc
-	wckeysInfo      *prometheus.Desc
+	wckeysTotal    *prometheus.Desc
+	wckeysActive   *prometheus.Desc
+	wckeysJobCount *prometheus.Desc
+	wckeysUsage    *prometheus.Desc
+	wckeysInfo     *prometheus.Desc
 }
 
 // NewWCKeysCollector creates a new WCKeys (Workload Characterization Keys) collector

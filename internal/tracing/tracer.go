@@ -440,7 +440,7 @@ func (ct *CollectionTracer) GetStats() TracingStats {
 		stats.DetailedTracing = make(map[string]string)
 		for collector := range ct.detailCollectors {
 			if time.Now().Before(ct.detailModeUntil) {
-				stats.DetailedTracing[collector] = ct.detailModeUntil.Sub(time.Now()).String()
+				stats.DetailedTracing[collector] = time.Until(ct.detailModeUntil).String()
 			}
 		}
 		stats.DetailModeUntil = ct.detailModeUntil

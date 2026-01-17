@@ -35,7 +35,7 @@ func NewWatcher(configFile string, handler ReloadHandler, logger *logrus.Entry) 
 	// Load initial configuration
 	initialConfig, err := Load(configFile)
 	if err != nil {
-		fsWatcher.Close()
+		_ = fsWatcher.Close()
 		return nil, fmt.Errorf("failed to load initial configuration: %w", err)
 	}
 
@@ -51,7 +51,7 @@ func NewWatcher(configFile string, handler ReloadHandler, logger *logrus.Entry) 
 
 	// Add the config file to the watcher
 	if err := fsWatcher.Add(configFile); err != nil {
-		fsWatcher.Close()
+		_ = fsWatcher.Close()
 		return nil, fmt.Errorf("failed to watch config file: %w", err)
 	}
 

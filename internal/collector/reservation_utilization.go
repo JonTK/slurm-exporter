@@ -66,34 +66,34 @@ type ReservationUtilizationMetrics struct {
 
 // ReservationInfo represents detailed reservation information
 type ReservationInfo struct {
-	Name             string
-	State            string
-	StartTime        time.Time
-	EndTime          time.Time
-	Duration         time.Duration
-	NodeCount        int
-	CoreCount        int
-	NodeList         []string
-	Features         []string
-	PartitionName    string
-	Flags            []string
-	Licenses         []string
-	BurstBuffer      string
-	TRES             map[string]int64
-	Accounts         []string
-	Users            []string
-	Groups           []string
-	Owner            string
-	Comment          string
-	MaxStartDelay    time.Duration
-	Purge            time.Duration
-	Watts            int
-	ReservationType  string
-	CreatedTime      time.Time
-	ModifiedTime     time.Time
-	LastUpdate       time.Time
-	Priority         int
-	Recurring        bool
+	Name              string
+	State             string
+	StartTime         time.Time
+	EndTime           time.Time
+	Duration          time.Duration
+	NodeCount         int
+	CoreCount         int
+	NodeList          []string
+	Features          []string
+	PartitionName     string
+	Flags             []string
+	Licenses          []string
+	BurstBuffer       string
+	TRES              map[string]int64
+	Accounts          []string
+	Users             []string
+	Groups            []string
+	Owner             string
+	Comment           string
+	MaxStartDelay     time.Duration
+	Purge             time.Duration
+	Watts             int
+	ReservationType   string
+	CreatedTime       time.Time
+	ModifiedTime      time.Time
+	LastUpdate        time.Time
+	Priority          int
+	Recurring         bool
 	RecurrencePattern string
 	ParentReservation string
 	ChildReservations []string
@@ -117,15 +117,15 @@ type ReservationFilter struct {
 
 // ReservationList represents a list of reservations with metadata
 type ReservationList struct {
-	Reservations    []ReservationInfo
-	TotalCount      int
-	ActiveCount     int
-	PlannedCount    int
-	CompletedCount  int
-	CancelledCount  int
-	ExpiredCount    int
-	FilteredCount   int
-	LastUpdated     time.Time
+	Reservations   []ReservationInfo
+	TotalCount     int
+	ActiveCount    int
+	PlannedCount   int
+	CompletedCount int
+	CancelledCount int
+	ExpiredCount   int
+	FilteredCount  int
+	LastUpdated    time.Time
 }
 
 // ReservationStatistics represents reservation performance statistics
@@ -189,31 +189,31 @@ type ReservationEfficiency struct {
 
 // ReservationConflicts represents detected conflicts
 type ReservationConflicts struct {
-	TotalConflicts     int
-	ActiveConflicts    int
-	ResolvedConflicts  int
-	Conflicts          []ReservationConflict
-	ConflictsByType    map[string]int
-	ConflictsByOwner   map[string]int
-	ResolutionStats    ConflictResolutionStats
-	LastAnalyzed       time.Time
-	NextAnalysis       time.Time
+	TotalConflicts    int
+	ActiveConflicts   int
+	ResolvedConflicts int
+	Conflicts         []ReservationConflict
+	ConflictsByType   map[string]int
+	ConflictsByOwner  map[string]int
+	ResolutionStats   ConflictResolutionStats
+	LastAnalyzed      time.Time
+	NextAnalysis      time.Time
 }
 
 // ReservationConflict represents a single conflict
 type ReservationConflict struct {
-	ConflictID          string
-	Type                string
-	Severity            string
+	ConflictID           string
+	Type                 string
+	Severity             string
 	AffectedReservations []string
-	Description         string
-	Impact              string
-	DetectedTime        time.Time
-	ResolutionTime      time.Time
-	Status              string
-	Resolution          string
-	PreventionSteps     []string
-	Recurrence          bool
+	Description          string
+	Impact               string
+	DetectedTime         time.Time
+	ResolutionTime       time.Time
+	Status               string
+	Resolution           string
+	PreventionSteps      []string
+	Recurrence           bool
 }
 
 // ConflictResolutionStats represents conflict resolution statistics
@@ -229,19 +229,19 @@ type ConflictResolutionStats struct {
 
 // ReservationTrends represents trend analysis
 type ReservationTrends struct {
-	ReservationName      string
-	Period               string
-	UtilizationTrend     []float64
-	JobCountTrend        []float64
-	EfficiencyTrend      []float64
-	CostTrend            []float64
-	UserTrend            []float64
-	TrendAnalysis        ReservationTrendAnalysis
-	SeasonalityDetected  bool
-	CyclicalPatterns     []ReservationCyclicalPattern
-	ForecastAccuracy     float64
-	ConfidenceInterval   float64
-	Timestamps           []time.Time
+	ReservationName     string
+	Period              string
+	UtilizationTrend    []float64
+	JobCountTrend       []float64
+	EfficiencyTrend     []float64
+	CostTrend           []float64
+	UserTrend           []float64
+	TrendAnalysis       ReservationTrendAnalysis
+	SeasonalityDetected bool
+	CyclicalPatterns    []ReservationCyclicalPattern
+	ForecastAccuracy    float64
+	ConfidenceInterval  float64
+	Timestamps          []time.Time
 }
 
 // TrendAnalysis represents trend analysis results
@@ -266,65 +266,65 @@ type ReservationCyclicalPattern struct {
 
 // ReservationPredictions represents prediction analysis
 type ReservationPredictions struct {
-	ReservationName       string
-	PredictionHorizon     time.Duration
-	UtilizationForecast   []float64
-	JobCountForecast      []float64
-	EfficiencyForecast    []float64
-	CostForecast          []float64
-	CapacityRequirements  []CapacityRequirement
-	OptimalAdjustments    []OptimizationSuggestion
-	RiskAssessment        RiskAssessment
-	ConfidenceLevel       float64
-	ModelAccuracy         float64
-	LastModelUpdate       time.Time
-	NextPredictionUpdate  time.Time
+	ReservationName      string
+	PredictionHorizon    time.Duration
+	UtilizationForecast  []float64
+	JobCountForecast     []float64
+	EfficiencyForecast   []float64
+	CostForecast         []float64
+	CapacityRequirements []CapacityRequirement
+	OptimalAdjustments   []OptimizationSuggestion
+	RiskAssessment       RiskAssessment
+	ConfidenceLevel      float64
+	ModelAccuracy        float64
+	LastModelUpdate      time.Time
+	NextPredictionUpdate time.Time
 }
 
 // CapacityRequirement represents predicted capacity needs
 type CapacityRequirement struct {
-	StartTime        time.Time
-	EndTime          time.Time
-	RequiredNodes    int
-	RequiredCores    int
-	RequiredMemory   int64
-	RequiredGPUs     int
-	Confidence       float64
+	StartTime         time.Time
+	EndTime           time.Time
+	RequiredNodes     int
+	RequiredCores     int
+	RequiredMemory    int64
+	RequiredGPUs      int
+	Confidence        float64
 	JustificationText string
 }
 
 // OptimizationSuggestion represents optimization recommendations
 type OptimizationSuggestion struct {
-	Type            string
-	Priority        string
-	Description     string
-	ExpectedBenefit float64
+	Type               string
+	Priority           string
+	Description        string
+	ExpectedBenefit    float64
 	ImplementationCost float64
-	Timeline        time.Duration
-	RiskLevel       string
-	Dependencies    []string
+	Timeline           time.Duration
+	RiskLevel          string
+	Dependencies       []string
 }
 
 // RiskAssessment represents risk analysis for reservations
 type ReservationRiskAssessment struct {
-	OverallRisk     float64
-	RiskFactors     map[string]float64
-	Mitigations     []string
-	MonitoringPlan  []string
-	EscalationPlan  []string
-	ReviewSchedule  time.Duration
+	OverallRisk    float64
+	RiskFactors    map[string]float64
+	Mitigations    []string
+	MonitoringPlan []string
+	EscalationPlan []string
+	ReviewSchedule time.Duration
 }
 
 // ReservationAlerts represents alert data
 type ReservationAlerts struct {
-	AlertType       string
-	TotalAlerts     int
-	ActiveAlerts    int
-	ResolvedAlerts  int
-	Alerts          []ReservationAlert
-	AlertsByType    map[string]int
+	AlertType        string
+	TotalAlerts      int
+	ActiveAlerts     int
+	ResolvedAlerts   int
+	Alerts           []ReservationAlert
+	AlertsByType     map[string]int
 	AlertsBySeverity map[string]int
-	ResolutionStats AlertResolutionStats
+	ResolutionStats  AlertResolutionStats
 }
 
 // ReservationAlert represents a single alert
@@ -362,106 +362,106 @@ type AlertResolutionStats struct {
 
 // ReservationAnalytics represents comprehensive analytics
 type ReservationAnalytics struct {
-	ReservationName    string
-	AnalysisDate       time.Time
-	PerformanceMetrics PerformanceMetrics
-	UsagePatterns      UsagePatterns
-	CostAnalysis       CostAnalysis
-	UserBehavior       UserBehavior
+	ReservationName      string
+	AnalysisDate         time.Time
+	PerformanceMetrics   PerformanceMetrics
+	UsagePatterns        UsagePatterns
+	CostAnalysis         CostAnalysis
+	UserBehavior         UserBehavior
 	ResourceOptimization ResourceOptimization
-	Recommendations    []AnalyticsRecommendation
-	CompetitiveAnalysis CompetitiveAnalysis
-	BenchmarkResults   BenchmarkResults
+	Recommendations      []AnalyticsRecommendation
+	CompetitiveAnalysis  CompetitiveAnalysis
+	BenchmarkResults     BenchmarkResults
 }
 
 // PerformanceMetrics represents performance analysis
 type ReservationPerformanceMetrics struct {
-	ThroughputScore    float64
-	LatencyScore       float64
-	ReliabilityScore   float64
-	AvailabilityScore  float64
-	ScalabilityScore   float64
-	ConsistencyScore   float64
-	OverallScore       float64
+	ThroughputScore   float64
+	LatencyScore      float64
+	ReliabilityScore  float64
+	AvailabilityScore float64
+	ScalabilityScore  float64
+	ConsistencyScore  float64
+	OverallScore      float64
 }
 
 // UsagePatterns represents usage pattern analysis
 type UsagePatterns struct {
-	PeakUsageHours    []int
-	WeeklyPattern     []float64
-	MonthlyPattern    []float64
-	SeasonalPattern   []float64
-	UserDistribution  map[string]float64
-	JobTypeDistribution map[string]float64
+	PeakUsageHours       []int
+	WeeklyPattern        []float64
+	MonthlyPattern       []float64
+	SeasonalPattern      []float64
+	UserDistribution     map[string]float64
+	JobTypeDistribution  map[string]float64
 	ResourceDistribution map[string]float64
 }
 
 // CostAnalysis represents cost analysis
 type ReservationCostAnalysis struct {
-	TotalCost        float64
-	CostPerHour      float64
-	CostPerJob       float64
-	CostPerUser      float64
-	CostTrend        []float64
-	CostOptimization float64
+	TotalCost         float64
+	CostPerHour       float64
+	CostPerJob        float64
+	CostPerUser       float64
+	CostTrend         []float64
+	CostOptimization  float64
 	BudgetUtilization float64
-	ROI              float64
-	CostBreakdown    map[string]float64
+	ROI               float64
+	CostBreakdown     map[string]float64
 }
 
 // UserBehavior represents user behavior analysis
 type UserBehavior struct {
-	ActiveUsers        int
-	UserSatisfaction   float64
-	UsageEfficiency    map[string]float64
-	BehaviorPatterns   map[string]interface{}
-	TrainingNeeds      []string
-	SupportRequests    int
-	ComplianceScore    float64
+	ActiveUsers      int
+	UserSatisfaction float64
+	UsageEfficiency  map[string]float64
+	BehaviorPatterns map[string]interface{}
+	TrainingNeeds    []string
+	SupportRequests  int
+	ComplianceScore  float64
 }
 
 // ResourceOptimization represents resource optimization analysis
 type ReservationResourceOptimization struct {
-	CurrentEfficiency   float64
-	OptimalEfficiency   float64
-	ImprovementPotential float64
+	CurrentEfficiency       float64
+	OptimalEfficiency       float64
+	ImprovementPotential    float64
 	ResourceRecommendations []ResourceRecommendation
 	ConfigurationChanges    []ConfigurationChange
-	CostSavingsPotential   float64
+	CostSavingsPotential    float64
 }
 
 // ResourceRecommendation represents resource optimization recommendations
 type ResourceRecommendation struct {
-	ResourceType    string
-	CurrentValue    interface{}
-	RecommendedValue interface{}
-	ExpectedImpact  float64
+	ResourceType       string
+	CurrentValue       interface{}
+	RecommendedValue   interface{}
+	ExpectedImpact     float64
 	ImplementationCost float64
-	Priority        string
+	Priority           string
 }
 
 // ConfigurationChange represents recommended configuration changes
 type ConfigurationChange struct {
-	Parameter       string
-	CurrentValue    interface{}
+	Parameter        string
+	CurrentValue     interface{}
 	RecommendedValue interface{}
-	Justification   string
-	Impact          string
-	RiskLevel       string
+	Justification    string
+	Impact           string
+	RiskLevel        string
 }
 
 // AnalyticsRecommendation represents analytics-driven recommendations
 type AnalyticsRecommendation struct {
-	ID              string
-	Type            string
-	Priority        string
-	Title           string
-	Description     string
-	ExpectedBenefit string
+	ID                  string
+	Type                string
+	Priority            string
+	Title               string
+	Description         string
+	ExpectedBenefit     string
 	ImplementationSteps []string
-	Timeline        time.Duration
-	ResourcesRequired []string
-	SuccessMetrics  []string
+	Timeline            time.Duration
+	ResourcesRequired   []string
+	SuccessMetrics      []string
 }
 
 // CompetitiveAnalysis represents competitive analysis
@@ -475,9 +475,9 @@ type ReservationCompetitiveAnalysis struct {
 
 // BenchmarkResults represents benchmark results
 type BenchmarkResults struct {
-	BenchmarkSuite   string
-	OverallScore     float64
-	CategoryScores   map[string]float64
+	BenchmarkSuite     string
+	OverallScore       float64
+	CategoryScores     map[string]float64
 	ComparisonBaseline string
 	PerformanceRanking int
 	ImprovementAreas   []string
@@ -485,88 +485,88 @@ type BenchmarkResults struct {
 
 // SystemReservationOverview represents system-wide reservation overview
 type SystemReservationOverview struct {
-	TotalReservations    int
-	ActiveReservations   int
-	PlannedReservations  int
-	ExpiredReservations  int
-	CancelledReservations int
-	TotalNodes           int
-	ReservedNodes        int
-	AvailableNodes       int
+	TotalReservations      int
+	ActiveReservations     int
+	PlannedReservations    int
+	ExpiredReservations    int
+	CancelledReservations  int
+	TotalNodes             int
+	ReservedNodes          int
+	AvailableNodes         int
 	ReservationUtilization float64
-	SystemEfficiency     float64
-	TotalCost            float64
-	CostPerHour          float64
-	OptimizationScore    float64
-	RecommendedActions   []string
-	SystemHealth         string
-	LastUpdated          time.Time
+	SystemEfficiency       float64
+	TotalCost              float64
+	CostPerHour            float64
+	OptimizationScore      float64
+	RecommendedActions     []string
+	SystemHealth           string
+	LastUpdated            time.Time
 }
 
 // ReservationOptimization represents optimization analysis
 type ReservationOptimization struct {
-	ReservationName      string
-	CurrentConfiguration ReservationConfig
-	OptimalConfiguration ReservationConfig
+	ReservationName       string
+	CurrentConfiguration  ReservationConfig
+	OptimalConfiguration  ReservationConfig
 	OptimizationPotential OptimizationPotential
-	RecommendedChanges   []OptimizationChange
-	ImplementationPlan   ImplementationPlan
-	RiskAssessment       OptimizationRisk
-	ExpectedOutcomes     ExpectedOutcomes
+	RecommendedChanges    []OptimizationChange
+	ImplementationPlan    ImplementationPlan
+	RiskAssessment        OptimizationRisk
+	ExpectedOutcomes      ExpectedOutcomes
 }
 
 // ReservationConfig represents reservation configuration
 type ReservationConfig struct {
-	NodeCount    int
-	CoreCount    int
-	Duration     time.Duration
-	StartTime    time.Time
-	Features     []string
-	Accounts     []string
-	Users        []string
-	Priority     int
-	Flags        []string
+	NodeCount int
+	CoreCount int
+	Duration  time.Duration
+	StartTime time.Time
+	Features  []string
+	Accounts  []string
+	Users     []string
+	Priority  int
+	Flags     []string
 }
 
 // OptimizationPotential represents optimization potential
 type OptimizationPotential struct {
-	EfficiencyGain   float64
-	CostSavings      float64
-	PerformanceGain  float64
-	ResourceSavings  map[string]float64
+	EfficiencyGain              float64
+	CostSavings                 float64
+	PerformanceGain             float64
+	ResourceSavings             map[string]float64
 	UserSatisfactionImprovement float64
 }
 
 // OptimizationChange represents a specific optimization change
 type OptimizationChange struct {
-	Type           string
-	Parameter      string
-	CurrentValue   interface{}
+	Type             string
+	Parameter        string
+	CurrentValue     interface{}
 	RecommendedValue interface{}
-	Justification  string
-	ExpectedImpact string
-	Priority       string
-	Dependencies   []string
+	Justification    string
+	ExpectedImpact   string
+	Priority         string
+	Dependencies     []string
 }
 
 // ImplementationPlan represents implementation planning
 type ReservationImplementationPlan struct {
-	Phases              []ReservationImplementationPhase
-	TotalDuration       time.Duration
+	Phases               []ReservationImplementationPhase
+	TotalDuration        time.Duration
 	ResourceRequirements []string
-	RiskMitigation      []string
-	SuccessMetrics      []string
-	RollbackPlan        []string
+	RiskMitigation       []string
+	SuccessMetrics       []string
+	RollbackPlan         []string
 }
 
 // ImplementationPhase represents a phase of implementation
 type ReservationImplementationPhase struct {
-	PhaseNumber   int
-	Name          string
-	Duration      time.Duration
-	Dependencies  []string
-	Activities    []string
-	Deliverables  []string
+	PhaseNumber     int
+	Name            string
+	Duration        time.Duration
+	Dependencies    []string
+	Activities      []string
+	Deliverables    []string
 	SuccessCriteria []string
 }
 
@@ -595,30 +595,30 @@ type ReservationUtilizationCollector struct {
 	mutex  sync.RWMutex
 
 	// Basic reservation metrics
-	reservationCount              *prometheus.GaugeVec
-	reservationState              *prometheus.GaugeVec
-	reservationDuration           *prometheus.GaugeVec
-	reservationNodeCount          *prometheus.GaugeVec
-	reservationCoreCount          *prometheus.GaugeVec
-	reservationUtilization        *prometheus.GaugeVec
+	reservationCount       *prometheus.GaugeVec
+	reservationState       *prometheus.GaugeVec
+	reservationDuration    *prometheus.GaugeVec
+	reservationNodeCount   *prometheus.GaugeVec
+	reservationCoreCount   *prometheus.GaugeVec
+	reservationUtilization *prometheus.GaugeVec
 
 	// Resource utilization metrics
-	reservationNodesAllocated     *prometheus.GaugeVec
-	reservationCoresAllocated     *prometheus.GaugeVec
-	reservationNodesIdle          *prometheus.GaugeVec
-	reservationCoresIdle          *prometheus.GaugeVec
-	reservationNodesDown          *prometheus.GaugeVec
-	reservationNodesDrained       *prometheus.GaugeVec
-	reservationWalltimeUsed       *prometheus.CounterVec
+	reservationNodesAllocated      *prometheus.GaugeVec
+	reservationCoresAllocated      *prometheus.GaugeVec
+	reservationNodesIdle           *prometheus.GaugeVec
+	reservationCoresIdle           *prometheus.GaugeVec
+	reservationNodesDown           *prometheus.GaugeVec
+	reservationNodesDrained        *prometheus.GaugeVec
+	reservationWalltimeUsed        *prometheus.CounterVec
 	reservationWalltimeUtilization *prometheus.GaugeVec
 
 	// Job metrics
-	reservationJobsRunning        *prometheus.GaugeVec
-	reservationJobsCompleted      *prometheus.CounterVec
-	reservationJobsPending        *prometheus.GaugeVec
-	reservationJobThroughput      *prometheus.GaugeVec
-	reservationAverageJobRuntime  *prometheus.GaugeVec
-	reservationAverageQueueTime   *prometheus.GaugeVec
+	reservationJobsRunning       *prometheus.GaugeVec
+	reservationJobsCompleted     *prometheus.CounterVec
+	reservationJobsPending       *prometheus.GaugeVec
+	reservationJobThroughput     *prometheus.GaugeVec
+	reservationAverageJobRuntime *prometheus.GaugeVec
+	reservationAverageQueueTime  *prometheus.GaugeVec
 
 	// Efficiency metrics
 	reservationEfficiencyScore    *prometheus.GaugeVec
@@ -629,54 +629,54 @@ type ReservationUtilizationCollector struct {
 	reservationWastedResources    *prometheus.GaugeVec
 
 	// User and account metrics
-	reservationUserCount          *prometheus.GaugeVec
-	reservationAccountCount       *prometheus.GaugeVec
-	reservationUserSatisfaction   *prometheus.GaugeVec
-	reservationSLACompliance      *prometheus.GaugeVec
+	reservationUserCount        *prometheus.GaugeVec
+	reservationAccountCount     *prometheus.GaugeVec
+	reservationUserSatisfaction *prometheus.GaugeVec
+	reservationSLACompliance    *prometheus.GaugeVec
 
 	// Cost metrics
-	reservationCostEstimate       *prometheus.GaugeVec
-	reservationCostPerHour        *prometheus.GaugeVec
-	reservationROI                *prometheus.GaugeVec
-	reservationTotalCost          *prometheus.CounterVec
+	reservationCostEstimate *prometheus.GaugeVec
+	reservationCostPerHour  *prometheus.GaugeVec
+	reservationROI          *prometheus.GaugeVec
+	reservationTotalCost    *prometheus.CounterVec
 
 	// Conflict metrics
 	reservationConflicts          *prometheus.GaugeVec
 	reservationConflictResolution *prometheus.HistogramVec
 
 	// Alert metrics
-	reservationAlerts             *prometheus.CounterVec
-	reservationActiveAlerts       *prometheus.GaugeVec
-	reservationAlertResolution    *prometheus.HistogramVec
-	reservationFalsePositiveRate  *prometheus.GaugeVec
+	reservationAlerts            *prometheus.CounterVec
+	reservationActiveAlerts      *prometheus.GaugeVec
+	reservationAlertResolution   *prometheus.HistogramVec
+	reservationFalsePositiveRate *prometheus.GaugeVec
 
 	// Trend and prediction metrics
-	reservationUtilizationTrend   *prometheus.GaugeVec
-	reservationEfficiencyTrend    *prometheus.GaugeVec
-	reservationForecastAccuracy   *prometheus.GaugeVec
+	reservationUtilizationTrend     *prometheus.GaugeVec
+	reservationEfficiencyTrend      *prometheus.GaugeVec
+	reservationForecastAccuracy     *prometheus.GaugeVec
 	reservationPredictionConfidence *prometheus.GaugeVec
 
 	// Performance metrics
-	reservationPerformanceScore   *prometheus.GaugeVec
-	reservationThroughputScore    *prometheus.GaugeVec
-	reservationReliabilityScore   *prometheus.GaugeVec
-	reservationAvailabilityScore  *prometheus.GaugeVec
+	reservationPerformanceScore  *prometheus.GaugeVec
+	reservationThroughputScore   *prometheus.GaugeVec
+	reservationReliabilityScore  *prometheus.GaugeVec
+	reservationAvailabilityScore *prometheus.GaugeVec
 
 	// Optimization metrics
-	reservationOptimizationScore  *prometheus.GaugeVec
+	reservationOptimizationScore     *prometheus.GaugeVec
 	reservationOptimizationPotential *prometheus.GaugeVec
 	reservationImprovementPotential  *prometheus.GaugeVec
 
 	// System metrics
-	systemReservationUtilization  *prometheus.GaugeVec
-	systemReservationEfficiency   *prometheus.GaugeVec
-	systemReservationCost         *prometheus.GaugeVec
-	systemReservationHealth       *prometheus.GaugeVec
+	systemReservationUtilization *prometheus.GaugeVec
+	systemReservationEfficiency  *prometheus.GaugeVec
+	systemReservationCost        *prometheus.GaugeVec
+	systemReservationHealth      *prometheus.GaugeVec
 
 	// Collection metrics
-	collectionDuration            *prometheus.HistogramVec
-	collectionErrors              *prometheus.CounterVec
-	lastCollectionTime            *prometheus.GaugeVec
+	collectionDuration *prometheus.HistogramVec
+	collectionErrors   *prometheus.CounterVec
+	lastCollectionTime *prometheus.GaugeVec
 }
 
 // NewReservationUtilizationCollector creates a new reservation utilization collector

@@ -52,10 +52,13 @@ func (h *ProfilingDebugHandler) handleProfilingStatus(w http.ResponseWriter, r *
 	acceptJSON := r.Header.Get("Accept") == "application/json"
 
 	stats := h.manager.GetStats()
-	
+
 	if acceptJSON {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(stats)
+		if err := json.NewEncoder(w).Encode(stats); err != nil {
+			h.logger.WithError(err).Error("Failed to encode profiling stats")
+			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -140,7 +143,7 @@ func (h *ProfilingDebugHandler) handleProfilingStatus(w http.ResponseWriter, r *
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	t.Execute(w, data)
+	_ = t.Execute(w, data)
 }
 
 // handleListProfiles lists available profiles
@@ -169,7 +172,10 @@ func (h *ProfilingDebugHandler) handleListProfiles(w http.ResponseWriter, r *htt
 
 	if acceptJSON {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(profiles)
+		if err := json.NewEncoder(w).Encode(profiles); err != nil {
+			h.logger.WithError(err).Error("Failed to encode profile list")
+			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -243,7 +249,7 @@ func (h *ProfilingDebugHandler) handleListProfiles(w http.ResponseWriter, r *htt
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	t.Execute(w, data)
+	_ = t.Execute(w, data)
 }
 
 // handleGetProfile shows profile details
@@ -269,7 +275,10 @@ func (h *ProfilingDebugHandler) handleGetProfile(w http.ResponseWriter, r *http.
 			"phases":         profile.Phases,
 			"metadata":       profile.Metadata,
 		}
-		json.NewEncoder(w).Encode(data)
+		if err := json.NewEncoder(w).Encode(data); err != nil {
+			h.logger.WithError(err).Error("Failed to encode profile data")
+			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -350,15 +359,15 @@ func (h *ProfilingDebugHandler) handleGetProfile(w http.ResponseWriter, r *http.
 	}
 
 	data := map[string]interface{}{
-		"ID":      id,
-		"profile": profile,
-		"metadata": fmt.Sprintf("%+v", profile.Metadata),
-		"cpuSize": 0,
-		"heapSize": 0,
+		"ID":            id,
+		"profile":       profile,
+		"metadata":      fmt.Sprintf("%+v", profile.Metadata),
+		"cpuSize":       0,
+		"heapSize":      0,
 		"goroutineSize": 0,
-		"blockSize": 0,
-		"mutexSize": 0,
-		"traceSize": 0,
+		"blockSize":     0,
+		"mutexSize":     0,
+		"traceSize":     0,
 	}
 
 	// Calculate sizes
@@ -382,7 +391,7 @@ func (h *ProfilingDebugHandler) handleGetProfile(w http.ResponseWriter, r *http.
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	t.Execute(w, data)
+	_ = t.Execute(w, data)
 }
 
 // handleEnableProfiling enables profiling for a collector
@@ -397,7 +406,7 @@ func (h *ProfilingDebugHandler) handleEnableProfiling(w http.ResponseWriter, r *
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Profiling enabled"))
+	_, _ = w.Write([]byte("Profiling enabled"))
 }
 
 // handleDisableProfiling disables profiling for a collector
@@ -412,7 +421,7 @@ func (h *ProfilingDebugHandler) handleDisableProfiling(w http.ResponseWriter, r 
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Profiling disabled"))
+	_, _ = w.Write([]byte("Profiling disabled"))
 }
 
 // handleDownloadProfile downloads a profile as a zip file
@@ -433,44 +442,44 @@ func (h *ProfilingDebugHandler) handleDownloadProfile(w http.ResponseWriter, r *
 	// Add metadata
 	metadata := fmt.Sprintf("Profile ID: %s\nCollector: %s\nStart: %s\nEnd: %s\nDuration: %s\n\nMetadata:\n%+v",
 		id, profile.CollectorName, profile.StartTime, profile.EndTime, profile.Duration, profile.Metadata)
-	
+
 	metaFile, _ := zipWriter.Create("metadata.txt")
-	metaFile.Write([]byte(metadata))
+	_, _ = metaFile.Write([]byte(metadata))
 
 	// Add CPU profile
 	if profile.CPUProfile != nil && profile.CPUProfile.Len() > 0 {
 		cpuFile, _ := zipWriter.Create("cpu.pprof")
-		io.Copy(cpuFile, profile.CPUProfile)
+		_, _ = io.Copy(cpuFile, profile.CPUProfile)
 	}
 
 	// Add heap profile
 	if profile.HeapProfile != nil && profile.HeapProfile.Len() > 0 {
 		heapFile, _ := zipWriter.Create("heap.pprof")
-		io.Copy(heapFile, profile.HeapProfile)
+		_, _ = io.Copy(heapFile, profile.HeapProfile)
 	}
 
 	// Add goroutine profile
 	if profile.GoroutineProfile != nil && profile.GoroutineProfile.Len() > 0 {
 		goroutineFile, _ := zipWriter.Create("goroutine.pprof")
-		io.Copy(goroutineFile, profile.GoroutineProfile)
+		_, _ = io.Copy(goroutineFile, profile.GoroutineProfile)
 	}
 
 	// Add block profile
 	if profile.BlockProfile != nil && profile.BlockProfile.Len() > 0 {
 		blockFile, _ := zipWriter.Create("block.pprof")
-		io.Copy(blockFile, profile.BlockProfile)
+		_, _ = io.Copy(blockFile, profile.BlockProfile)
 	}
 
 	// Add mutex profile
 	if profile.MutexProfile != nil && profile.MutexProfile.Len() > 0 {
 		mutexFile, _ := zipWriter.Create("mutex.pprof")
-		io.Copy(mutexFile, profile.MutexProfile)
+		_, _ = io.Copy(mutexFile, profile.MutexProfile)
 	}
 
 	// Add trace data
 	if profile.TraceData != nil && profile.TraceData.Len() > 0 {
 		traceFile, _ := zipWriter.Create("trace.out")
-		io.Copy(traceFile, profile.TraceData)
+		_, _ = io.Copy(traceFile, profile.TraceData)
 	}
 
 	// Add phases report
@@ -480,21 +489,25 @@ func (h *ProfilingDebugHandler) handleDownloadProfile(w http.ResponseWriter, r *
 			name, phase.Duration, phase.Allocations)
 	}
 	phasesFile, _ := zipWriter.Create("phases.txt")
-	phasesFile.Write([]byte(phasesReport))
+	_, _ = phasesFile.Write([]byte(phasesReport))
 
-	zipWriter.Close()
+	_ = zipWriter.Close()
 
 	// Send zip file
 	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"profile_%s.zip\"", id))
 	w.Header().Set("Content-Length", strconv.Itoa(buf.Len()))
-	w.Write(buf.Bytes())
+	if _, err := w.Write(buf.Bytes()); err != nil {
+		h.logger.WithError(err).Error("Failed to write profile zip")
+	}
 }
 
 // handleStats shows profiling statistics
 func (h *ProfilingDebugHandler) handleStats(w http.ResponseWriter, r *http.Request) {
 	stats := h.profiler.GetStats()
-	
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(stats)
+	if err := json.NewEncoder(w).Encode(stats); err != nil {
+		h.logger.WithError(err).Error("Failed to encode profiler stats")
+	}
 }

@@ -13,7 +13,7 @@ import (
 
 // CardinalityOptimizer manages metric cardinality to prevent memory issues
 type CardinalityOptimizer struct {
-	logger         *logrus.Entry
+	logger *logrus.Entry
 
 	// Configuration
 	maxCardinality int
@@ -28,7 +28,7 @@ type CardinalityOptimizer struct {
 	cleanupInterval   time.Duration
 
 	// Sampling state
-	samplingSeeds     map[string]uint64
+	samplingSeeds map[string]uint64
 
 	// Metrics
 	cardinalityTotal    prometheus.Gauge
@@ -83,8 +83,8 @@ func (co *CardinalityOptimizer) initMetrics() {
 	})
 
 	co.cleanupDuration = prometheus.NewHistogram(prometheus.HistogramOpts{
-		Name: "slurm_exporter_cardinality_cleanup_duration_seconds",
-		Help: "Time spent cleaning up cardinality tracking",
+		Name:    "slurm_exporter_cardinality_cleanup_duration_seconds",
+		Help:    "Time spent cleaning up cardinality tracking",
 		Buckets: []float64{0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5},
 	})
 }

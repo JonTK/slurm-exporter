@@ -21,11 +21,11 @@ type TRESCollector struct {
 	timeout time.Duration
 
 	// Metrics
-	tresInfo        *prometheus.Desc
-	tresCount       *prometheus.Desc
-	tresAllocated   *prometheus.Desc
-	tresAvailable   *prometheus.Desc
-	tresConfigured  *prometheus.Desc
+	tresInfo       *prometheus.Desc
+	tresCount      *prometheus.Desc
+	tresAllocated  *prometheus.Desc
+	tresAvailable  *prometheus.Desc
+	tresConfigured *prometheus.Desc
 }
 
 // NewTRESCollector creates a new TRES (Trackable Resources) collector
@@ -117,7 +117,7 @@ func (c *TRESCollector) Collect(ctx context.Context, ch chan<- prometheus.Metric
 		tresID := fmt.Sprintf("%d", tres.ID)
 		tresType := tres.Type
 		tresName := tres.Name
-		
+
 		if tresName == "" {
 			tresName = tresType // Use type as name if name is empty
 		}
@@ -138,8 +138,8 @@ func (c *TRESCollector) Collect(ctx context.Context, ch chan<- prometheus.Metric
 	// Export TRES counts
 	for key, count := range tresCounts {
 		var tresType, tresName string
-		fmt.Sscanf(key, "%s:%s", &tresType, &tresName)
-		
+		_, _ = fmt.Sscanf(key, "%s:%s", &tresType, &tresName)
+
 		ch <- prometheus.MustNewConstMetric(
 			c.tresCount,
 			prometheus.GaugeValue,
@@ -175,48 +175,48 @@ func (c *TRESCollector) collectNodeTRES(ctx context.Context, ch chan<- prometheu
 	// Node-level TRES data not available in current Node struct
 	// TODO: Update when Node struct includes TRES fields
 	/*
-	for _, node := range nodes.Nodes {
-		nodeName := node.Name
-		
-		// Process allocated TRES
-		if node.TRESAllocated != nil {
-			for tresType, value := range node.TRESAllocated {
-				ch <- prometheus.MustNewConstMetric(
-					c.tresAllocated,
-					prometheus.GaugeValue,
-					float64(value),
-					tresType, tresType, nodeName, clusterName,
-				)
-			}
-		}
+		for _, node := range nodes.Nodes {
+			nodeName := node.Name
 
-		// Process configured TRES
-		if node.TRESConfigured != nil {
-			for tresType, value := range node.TRESConfigured {
-				ch <- prometheus.MustNewConstMetric(
-					c.tresConfigured,
-					prometheus.GaugeValue,
-					float64(value),
-					tresType, tresType, nodeName, clusterName,
-				)
+			// Process allocated TRES
+			if node.TRESAllocated != nil {
+				for tresType, value := range node.TRESAllocated {
+					ch <- prometheus.MustNewConstMetric(
+						c.tresAllocated,
+						prometheus.GaugeValue,
+						float64(value),
+						tresType, tresType, nodeName, clusterName,
+					)
+				}
 			}
-		}
 
-		// Calculate available TRES (configured - allocated)
-		if node.TRESConfigured != nil && node.TRESAllocated != nil {
-			for tresType, configured := range node.TRESConfigured {
-				allocated := node.TRESAllocated[tresType]
-				available := configured - allocated
-				
-				ch <- prometheus.MustNewConstMetric(
-					c.tresAvailable,
-					prometheus.GaugeValue,
-					float64(available),
-					tresType, tresType, nodeName, clusterName,
-				)
+			// Process configured TRES
+			if node.TRESConfigured != nil {
+				for tresType, value := range node.TRESConfigured {
+					ch <- prometheus.MustNewConstMetric(
+						c.tresConfigured,
+						prometheus.GaugeValue,
+						float64(value),
+						tresType, tresType, nodeName, clusterName,
+					)
+				}
+			}
+
+			// Calculate available TRES (configured - allocated)
+			if node.TRESConfigured != nil && node.TRESAllocated != nil {
+				for tresType, configured := range node.TRESConfigured {
+					allocated := node.TRESAllocated[tresType]
+					available := configured - allocated
+
+					ch <- prometheus.MustNewConstMetric(
+						c.tresAvailable,
+						prometheus.GaugeValue,
+						float64(available),
+						tresType, tresType, nodeName, clusterName,
+					)
+				}
 			}
 		}
-	}
 	*/
 }
 

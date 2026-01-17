@@ -171,8 +171,8 @@ func GenerateLargeNodeList(count int) *slurm.NodeList {
 		partitions := partitionSets[i%len(partitionSets)]
 
 		// Create realistic node with varying specifications
-		cpus := 16 + (i%9)*8        // 16, 24, 32, 40, 48, 56, 64, 72, 80 CPUs
-		memory := 32768 + (i%16)*8192 // 32GB-128GB memory in MB
+		cpus := 16 + (i%9)*8              // 16, 24, 32, 40, 48, 56, 64, 72, 80 CPUs
+		memory := 32768 + (i%16)*8192     // 32GB-128GB memory in MB
 		tmpDisk := 500000 + (i%20)*100000 // 500GB-2.5TB temp disk
 
 		// Calculate allocation based on state

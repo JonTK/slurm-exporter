@@ -24,12 +24,12 @@ type MetricBatcher struct {
 
 // MetricBatcherConfig holds configuration for metric batching
 type MetricBatcherConfig struct {
-	BatchConfig      BatchConfig       `yaml:"batch_config"`
-	EnableSampling   bool              `yaml:"enable_sampling"`
-	SamplingRates    map[string]float64 `yaml:"sampling_rates"`
-	EnableAggregation bool             `yaml:"enable_aggregation"`
-	AggregationWindow time.Duration    `yaml:"aggregation_window"`
-	MaxMetricAge     time.Duration     `yaml:"max_metric_age"`
+	BatchConfig       BatchConfig        `yaml:"batch_config"`
+	EnableSampling    bool               `yaml:"enable_sampling"`
+	SamplingRates     map[string]float64 `yaml:"sampling_rates"`
+	EnableAggregation bool               `yaml:"enable_aggregation"`
+	AggregationWindow time.Duration      `yaml:"aggregation_window"`
+	MaxMetricAge      time.Duration      `yaml:"max_metric_age"`
 }
 
 // MetricItem implements BatchItem for Prometheus metrics
@@ -45,19 +45,19 @@ type MetricItem struct {
 func (m *MetricItem) Key() string {
 	// Create unique key from metric name and sorted labels
 	key := m.metricName
-	
+
 	// Sort label keys for consistent ordering
 	keys := make([]string, 0, len(m.labels))
 	for k := range m.labels {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
-	
+
 	// Append label values
 	for _, k := range keys {
 		key += fmt.Sprintf("_%s_%s", k, m.labels[k])
 	}
-	
+
 	return key
 }
 
@@ -121,13 +121,13 @@ func NewMetricBatcher(config MetricBatcherConfig, registry prometheus.Gatherer, 
 func (mb *MetricBatcher) registerProcessors() {
 	// Counter processor
 	mb.processor.ProcessBatch("counter", mb.processCounterBatch)
-	
+
 	// Gauge processor
 	mb.processor.ProcessBatch("gauge", mb.processGaugeBatch)
-	
+
 	// Histogram processor
 	mb.processor.ProcessBatch("histogram", mb.processHistogramBatch)
-	
+
 	// Summary processor
 	mb.processor.ProcessBatch("summary", mb.processSummaryBatch)
 }
@@ -148,7 +148,7 @@ func (mb *MetricBatcher) BatchMetric(name string, labels prometheus.Labels, valu
 		if !exists {
 			rate = 1.0 // Default to no sampling
 		}
-		
+
 		// Simple sampling based on hash of key
 		if hashSample(item.Key(), rate) {
 			return nil // Skip this sample
@@ -161,7 +161,7 @@ func (mb *MetricBatcher) BatchMetric(name string, labels prometheus.Labels, valu
 // processCounterBatch processes a batch of counter metrics
 func (mb *MetricBatcher) processCounterBatch(ctx context.Context, items []BatchItem) error {
 	mb.logger.WithField("items", len(items)).Debug("Processing counter batch")
-	
+
 	// Group by metric name
 	grouped := make(map[string][]*MetricItem)
 	for _, item := range items {
@@ -192,14 +192,14 @@ func (mb *MetricBatcher) processCounterBatch(ctx context.Context, items []BatchI
 // processGaugeBatch processes a batch of gauge metrics
 func (mb *MetricBatcher) processGaugeBatch(ctx context.Context, items []BatchItem) error {
 	mb.logger.WithField("items", len(items)).Debug("Processing gauge batch")
-	
+
 	// For gauges, we typically want the most recent value
 	latest := make(map[string]*MetricItem)
-	
+
 	for _, item := range items {
 		metric := item.(*MetricItem)
 		key := metric.Key()
-		
+
 		existing, exists := latest[key]
 		if !exists || metric.timestamp.After(existing.timestamp) {
 			latest[key] = metric
@@ -221,10 +221,10 @@ func (mb *MetricBatcher) processGaugeBatch(ctx context.Context, items []BatchIte
 // processHistogramBatch processes a batch of histogram metrics
 func (mb *MetricBatcher) processHistogramBatch(ctx context.Context, items []BatchItem) error {
 	mb.logger.WithField("items", len(items)).Debug("Processing histogram batch")
-	
+
 	// Group observations by metric and labels
 	observations := make(map[string][]float64)
-	
+
 	for _, item := range items {
 		metric := item.(*MetricItem)
 		key := metric.Key()
@@ -235,7 +235,7 @@ func (mb *MetricBatcher) processHistogramBatch(ctx context.Context, items []Batc
 	for key, values := range observations {
 		// Calculate histogram buckets
 		buckets := calculateHistogramBuckets(values)
-		
+
 		mb.logger.WithFields(logrus.Fields{
 			"key":          key,
 			"observations": len(values),
@@ -249,10 +249,10 @@ func (mb *MetricBatcher) processHistogramBatch(ctx context.Context, items []Batc
 // processSummaryBatch processes a batch of summary metrics
 func (mb *MetricBatcher) processSummaryBatch(ctx context.Context, items []BatchItem) error {
 	mb.logger.WithField("items", len(items)).Debug("Processing summary batch")
-	
+
 	// Similar to histogram but calculate quantiles
 	observations := make(map[string][]float64)
-	
+
 	for _, item := range items {
 		metric := item.(*MetricItem)
 		key := metric.Key()
@@ -263,7 +263,7 @@ func (mb *MetricBatcher) processSummaryBatch(ctx context.Context, items []BatchI
 	for key, values := range observations {
 		// Calculate quantiles
 		quantiles := calculateQuantiles(values, []float64{0.5, 0.9, 0.99})
-		
+
 		mb.logger.WithFields(logrus.Fields{
 			"key":          key,
 			"observations": len(values),
@@ -296,7 +296,7 @@ func (mb *MetricBatcher) aggregateMetrics(metrics []*MetricItem) []*MetricItem {
 			// Aggregate window
 			agg := mb.aggregateWindow(windowMetrics)
 			aggregated = append(aggregated, agg)
-			
+
 			// Start new window
 			windowStart = metrics[i].timestamp
 			windowMetrics = []*MetricItem{metrics[i]}
@@ -339,22 +339,22 @@ func (mb *MetricBatcher) aggregateWindow(metrics []*MetricItem) *MetricItem {
 func (mb *MetricBatcher) CollectBatchedMetrics() ([]*dto.MetricFamily, error) {
 	// Force flush all pending batches
 	mb.processor.FlushAll()
-	
+
 	// Wait a bit for processing
 	time.Sleep(100 * time.Millisecond)
-	
+
 	// Collect metrics from registry
 	if mb.registry != nil {
 		return mb.registry.Gather()
 	}
-	
+
 	return nil, nil
 }
 
 // GetStats returns batcher statistics
 func (mb *MetricBatcher) GetStats() map[string]interface{} {
 	processorStats := mb.processor.GetStats()
-	
+
 	mb.mu.RLock()
 	bufferSizes := make(map[string]int)
 	for metricType, items := range mb.metricBuffer {
@@ -363,10 +363,10 @@ func (mb *MetricBatcher) GetStats() map[string]interface{} {
 	mb.mu.RUnlock()
 
 	return map[string]interface{}{
-		"processor_stats":   processorStats,
-		"buffer_sizes":      bufferSizes,
-		"config":           mb.config,
-		"sampling_enabled": mb.config.EnableSampling,
+		"processor_stats":     processorStats,
+		"buffer_sizes":        bufferSizes,
+		"config":              mb.config,
+		"sampling_enabled":    mb.config.EnableSampling,
 		"aggregation_enabled": mb.config.EnableAggregation,
 	}
 }
@@ -392,7 +392,7 @@ func hashSample(key string, rate float64) bool {
 	for _, b := range []byte(key) {
 		hash = hash*31 + uint32(b)
 	}
-	
+
 	threshold := uint32(rate * float64(^uint32(0)))
 	return hash > threshold
 }

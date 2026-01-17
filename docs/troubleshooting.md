@@ -513,9 +513,9 @@ Include in your bug report:
 
 ### Community Resources
 
-- **GitHub Issues:** https://github.com/your-org/slurm-exporter/issues
-- **Documentation:** https://slurm-exporter.readthedocs.io
-- **Discussions:** https://github.com/your-org/slurm-exporter/discussions
+- **GitHub Issues:** https://github.com/jontk/slurm-exporter/issues
+- **GitHub Discussions:** https://github.com/jontk/slurm-exporter/discussions
+- **Documentation:** https://github.com/jontk/slurm-exporter/tree/main/docs
 
 ---
 

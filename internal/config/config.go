@@ -3,7 +3,6 @@ package config
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -108,37 +107,37 @@ type AuthConfig struct {
 
 // CollectorsConfig holds configuration for metric collectors.
 type CollectorsConfig struct {
-	Global             GlobalCollectorConfig `yaml:"global"`
-	Cluster            CollectorConfig       `yaml:"cluster"`
-	Nodes              CollectorConfig       `yaml:"nodes"`
-	Jobs               CollectorConfig       `yaml:"jobs"`
-	Users              CollectorConfig       `yaml:"users"`
-	Accounts           CollectorConfig       `yaml:"accounts"`
-	Associations       CollectorConfig       `yaml:"associations"`
-	Partitions         CollectorConfig       `yaml:"partitions"`
-	Performance        CollectorConfig       `yaml:"performance"`
-	System             CollectorConfig       `yaml:"system"`
-	QoS                CollectorConfig       `yaml:"qos"`
-	Reservations       CollectorConfig       `yaml:"reservations"`
-	Licenses           CollectorConfig       `yaml:"licenses"`
-	Shares             CollectorConfig       `yaml:"shares"`
-	Diagnostics        CollectorConfig       `yaml:"diagnostics"`
-	TRES               CollectorConfig       `yaml:"tres"`
-	WCKeys             CollectorConfig       `yaml:"wckeys"`
-	Clusters           CollectorConfig       `yaml:"clusters"`
-	Degradation        DegradationConfig     `yaml:"degradation"`
-	CollectionTimeout  time.Duration         `yaml:"collection_timeout"`
+	Global            GlobalCollectorConfig `yaml:"global"`
+	Cluster           CollectorConfig       `yaml:"cluster"`
+	Nodes             CollectorConfig       `yaml:"nodes"`
+	Jobs              CollectorConfig       `yaml:"jobs"`
+	Users             CollectorConfig       `yaml:"users"`
+	Accounts          CollectorConfig       `yaml:"accounts"`
+	Associations      CollectorConfig       `yaml:"associations"`
+	Partitions        CollectorConfig       `yaml:"partitions"`
+	Performance       CollectorConfig       `yaml:"performance"`
+	System            CollectorConfig       `yaml:"system"`
+	QoS               CollectorConfig       `yaml:"qos"`
+	Reservations      CollectorConfig       `yaml:"reservations"`
+	Licenses          CollectorConfig       `yaml:"licenses"`
+	Shares            CollectorConfig       `yaml:"shares"`
+	Diagnostics       CollectorConfig       `yaml:"diagnostics"`
+	TRES              CollectorConfig       `yaml:"tres"`
+	WCKeys            CollectorConfig       `yaml:"wckeys"`
+	Clusters          CollectorConfig       `yaml:"clusters"`
+	Degradation       DegradationConfig     `yaml:"degradation"`
+	CollectionTimeout time.Duration         `yaml:"collection_timeout"`
 }
 
 // GlobalCollectorConfig holds global collector settings.
 type GlobalCollectorConfig struct {
-	DefaultInterval     time.Duration        `yaml:"default_interval"`
-	DefaultTimeout      time.Duration        `yaml:"default_timeout"`
-	MaxConcurrency      int                  `yaml:"max_concurrency"`
+	DefaultInterval     time.Duration         `yaml:"default_interval"`
+	DefaultTimeout      time.Duration         `yaml:"default_timeout"`
+	MaxConcurrency      int                   `yaml:"max_concurrency"`
 	BatchProcessing     BatchProcessingConfig `yaml:"batch_processing"`
-	ErrorThreshold      int           `yaml:"error_threshold"`
-	RecoveryDelay       time.Duration `yaml:"recovery_delay"`
-	GracefulDegradation bool          `yaml:"graceful_degradation"`
+	ErrorThreshold      int                   `yaml:"error_threshold"`
+	RecoveryDelay       time.Duration         `yaml:"recovery_delay"`
+	GracefulDegradation bool                  `yaml:"graceful_degradation"`
 }
 
 // CollectorConfig holds configuration for individual collectors.
@@ -180,12 +179,12 @@ type MetricFilterConfig struct {
 	ExcludeMetrics []string `yaml:"exclude_metrics"`
 
 	// Metric-specific configurations
-	OnlyInfo           bool `yaml:"only_info"`            // Only collect info metrics
-	OnlyCounters       bool `yaml:"only_counters"`        // Only collect counter metrics
-	OnlyGauges         bool `yaml:"only_gauges"`          // Only collect gauge metrics
-	OnlyHistograms     bool `yaml:"only_histograms"`      // Only collect histogram metrics
-	SkipHistograms     bool `yaml:"skip_histograms"`      // Skip histogram metrics (reduce cardinality)
-	SkipTimingMetrics  bool `yaml:"skip_timing_metrics"`  // Skip timing-related metrics
+	OnlyInfo            bool `yaml:"only_info"`             // Only collect info metrics
+	OnlyCounters        bool `yaml:"only_counters"`         // Only collect counter metrics
+	OnlyGauges          bool `yaml:"only_gauges"`           // Only collect gauge metrics
+	OnlyHistograms      bool `yaml:"only_histograms"`       // Only collect histogram metrics
+	SkipHistograms      bool `yaml:"skip_histograms"`       // Skip histogram metrics (reduce cardinality)
+	SkipTimingMetrics   bool `yaml:"skip_timing_metrics"`   // Skip timing-related metrics
 	SkipResourceMetrics bool `yaml:"skip_resource_metrics"` // Skip resource usage metrics
 }
 
@@ -209,25 +208,25 @@ type DegradationConfig struct {
 
 // BatchProcessingConfig holds batch processing configuration.
 type BatchProcessingConfig struct {
-	Enabled           bool                       `yaml:"enabled"`
-	MaxBatchSize      int                        `yaml:"max_batch_size"`
-	MaxBatchWait      time.Duration              `yaml:"max_batch_wait"`
-	FlushInterval     time.Duration              `yaml:"flush_interval"`
-	MaxConcurrency    int                        `yaml:"max_concurrency"`
-	EnableCompression bool                       `yaml:"enable_compression"`
-	RetryAttempts     int                        `yaml:"retry_attempts"`
-	RetryDelay        time.Duration              `yaml:"retry_delay"`
-	MetricBatching    MetricBatchingConfig       `yaml:"metric_batching"`
+	Enabled           bool                         `yaml:"enabled"`
+	MaxBatchSize      int                          `yaml:"max_batch_size"`
+	MaxBatchWait      time.Duration                `yaml:"max_batch_wait"`
+	FlushInterval     time.Duration                `yaml:"flush_interval"`
+	MaxConcurrency    int                          `yaml:"max_concurrency"`
+	EnableCompression bool                         `yaml:"enable_compression"`
+	RetryAttempts     int                          `yaml:"retry_attempts"`
+	RetryDelay        time.Duration                `yaml:"retry_delay"`
+	MetricBatching    MetricBatchingConfig         `yaml:"metric_batching"`
 	EntityBatching    map[string]EntityBatchConfig `yaml:"entity_batching"`
 }
 
 // MetricBatchingConfig holds metric-specific batching configuration.
 type MetricBatchingConfig struct {
-	EnableSampling    bool                `yaml:"enable_sampling"`
-	SamplingRates     map[string]float64  `yaml:"sampling_rates"`
-	EnableAggregation bool                `yaml:"enable_aggregation"`
-	AggregationWindow time.Duration       `yaml:"aggregation_window"`
-	MaxMetricAge      time.Duration       `yaml:"max_metric_age"`
+	EnableSampling    bool               `yaml:"enable_sampling"`
+	SamplingRates     map[string]float64 `yaml:"sampling_rates"`
+	EnableAggregation bool               `yaml:"enable_aggregation"`
+	AggregationWindow time.Duration      `yaml:"aggregation_window"`
+	MaxMetricAge      time.Duration      `yaml:"max_metric_age"`
 }
 
 // EntityBatchConfig holds entity-specific batch configuration.
@@ -292,7 +291,7 @@ func Default() *Config {
 			HealthPath:     "/health",
 			ReadyPath:      "/ready",
 			Timeout:        30 * time.Second,
-			ReadTimeout:    10 * time.Second,
+			ReadTimeout:    15 * time.Second, // Must be longer than max collection timeout (10s)
 			WriteTimeout:   10 * time.Second,
 			IdleTimeout:    60 * time.Second,
 			MaxRequestSize: 1024 * 1024, // 1MB
@@ -373,6 +372,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 30 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true, // Collect all metrics by default
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -384,6 +388,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 30 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -395,6 +404,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 15 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -406,6 +420,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 60 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -417,6 +436,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 60 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -428,6 +452,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 30 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -439,6 +468,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 60 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -450,6 +484,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 60 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -461,6 +500,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 60 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -472,6 +516,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 60 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -483,6 +532,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 120 * time.Second, // Less frequent as fairshare changes slowly
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -494,6 +548,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 30 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -505,6 +564,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 60 * time.Second,
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -513,7 +577,7 @@ func Default() *Config {
 				},
 			},
 			WCKeys: CollectorConfig{
-				Enabled:  false, // Disabled by default as not all clusters use WCKeys
+				Enabled:  false,             // Disabled by default as not all clusters use WCKeys
 				Interval: 300 * time.Second, // 5 minutes
 				Timeout:  10 * time.Second,
 				ErrorHandling: ErrorHandlingConfig{
@@ -527,6 +591,11 @@ func Default() *Config {
 				Enabled:  true,
 				Interval: 300 * time.Second, // 5 minutes - cluster info changes rarely
 				Timeout:  10 * time.Second,
+				Filters: FilterConfig{
+					Metrics: MetricFilterConfig{
+						EnableAll: true,
+					},
+				},
 				ErrorHandling: ErrorHandlingConfig{
 					MaxRetries:    3,
 					RetryDelay:    5 * time.Second,
@@ -575,8 +644,8 @@ func Default() *Config {
 				CardinalityUpdate: 60 * time.Second,  // 1 minute
 			},
 			Tracing: TracingConfig{
-				Enabled:    false,        // Disabled by default for performance
-				SampleRate: 0.01,         // 1% sampling when enabled
+				Enabled:    false, // Disabled by default for performance
+				SampleRate: 0.01,  // 1% sampling when enabled
 				Endpoint:   "localhost:4317",
 				Insecure:   true,
 			},
@@ -588,12 +657,12 @@ func Default() *Config {
 				ScoreWindow:  10 * time.Minute,
 			},
 			SmartFiltering: SmartFilteringConfig{
-				Enabled:         true,
-				NoiseThreshold:  0.8,
-				CacheSize:       10000,
-				LearningWindow:  100,
-				VarianceLimit:   0.8,
-				CorrelationMin:  0.2,
+				Enabled:        true,
+				NoiseThreshold: 0.8,
+				CacheSize:      10000,
+				LearningWindow: 100,
+				VarianceLimit:  0.8,
+				CorrelationMin: 0.2,
 			},
 			CircuitBreaker: CircuitBreakerConfig{
 				Enabled:          true,
@@ -630,10 +699,10 @@ func Default() *Config {
 				CleanupInterval: 5 * time.Minute,
 				ChangeTracking:  true,
 				AdaptiveTTL: AdaptiveTTLConfig{
-					Enabled:          true,
-					MinTTL:           30 * time.Second,
-					MaxTTL:           30 * time.Minute,
-					StabilityWindow:  10 * time.Minute,
+					Enabled:           true,
+					MinTTL:            30 * time.Second,
+					MaxTTL:            30 * time.Minute,
+					StabilityWindow:   10 * time.Minute,
 					VarianceThreshold: 0.1,
 					ChangeThreshold:   0.05,
 					ExtensionFactor:   2.0,
@@ -641,10 +710,10 @@ func Default() *Config {
 				},
 			},
 			BatchProcessing: BatchProcessingConfig{
-				Enabled:       true,
-				MaxBatchSize:  1000,
-				MaxBatchWait:  5 * time.Second,
-				FlushInterval: 10 * time.Second,
+				Enabled:        true,
+				MaxBatchSize:   1000,
+				MaxBatchWait:   5 * time.Second,
+				FlushInterval:  10 * time.Second,
 				MaxConcurrency: 4,
 			},
 		},
@@ -677,7 +746,7 @@ func Load(filename string) (*Config, error) {
 	}
 
 	// Read file content
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		return cfg, fmt.Errorf("failed to read configuration file %s: %w", filename, err)
 	}
@@ -1598,7 +1667,7 @@ func NewReloader(configFile string, initialConfig *Config, callback func(*Config
 	// Add the configuration file to the watcher
 	err = watcher.Add(configFile)
 	if err != nil {
-		watcher.Close()
+		_ = watcher.Close()
 		return nil, fmt.Errorf("failed to watch config file %s: %w", configFile, err)
 	}
 
@@ -1675,6 +1744,8 @@ func (r *Reloader) Close() error {
 	return r.watcher.Close()
 }
 
+// TODO: Following validation helper functions are unused - preserved for future validation enhancements
+/*
 // validateDuration validates that a duration string is properly formatted
 func validateDuration(duration time.Duration, field string) error {
 	if duration <= 0 {
@@ -1682,6 +1753,7 @@ func validateDuration(duration time.Duration, field string) error {
 	}
 	return nil
 }
+*/
 
 // validateURL validates that a URL is properly formatted
 func validateURL(url, field string) error {
@@ -1696,6 +1768,7 @@ func validateURL(url, field string) error {
 	return nil
 }
 
+/*
 // validatePath validates that a file path is specified when required
 func validatePath(path, field string) error {
 	if path == "" {
@@ -1703,6 +1776,7 @@ func validatePath(path, field string) error {
 	}
 	return nil
 }
+*/
 
 // validateAPIVersion validates that the SLURM API version is supported
 func validateAPIVersion(version string) error {
@@ -1719,28 +1793,28 @@ func validateAPIVersion(version string) error {
 type ObservabilityConfig struct {
 	// Performance monitoring
 	PerformanceMonitoring PerformanceMonitoringConfig `yaml:"performance_monitoring"`
-	
+
 	// Collection tracing
 	Tracing TracingConfig `yaml:"tracing"`
-	
+
 	// Adaptive collection
 	AdaptiveCollection AdaptiveCollectionConfig `yaml:"adaptive_collection"`
-	
+
 	// Smart filtering
 	SmartFiltering SmartFilteringConfig `yaml:"smart_filtering"`
-	
+
 	// Circuit breaker
 	CircuitBreaker CircuitBreakerConfig `yaml:"circuit_breaker"`
-	
+
 	// Health checks
 	Health HealthConfig `yaml:"health"`
-	
+
 	// Debug endpoints
 	Debug DebugConfig `yaml:"debug"`
-	
+
 	// Intelligent caching
 	Caching CachingConfig `yaml:"caching"`
-	
+
 	// Batch processing
 	BatchProcessing BatchProcessingConfig `yaml:"batch_processing"`
 }
@@ -1773,12 +1847,12 @@ type AdaptiveCollectionConfig struct {
 
 // SmartFilteringConfig holds smart filtering configuration
 type SmartFilteringConfig struct {
-	Enabled         bool    `yaml:"enabled"`
-	NoiseThreshold  float64 `yaml:"noise_threshold"`
-	CacheSize       int     `yaml:"cache_size"`
-	LearningWindow  int     `yaml:"learning_window"`
-	VarianceLimit   float64 `yaml:"variance_limit"`
-	CorrelationMin  float64 `yaml:"correlation_min"`
+	Enabled        bool    `yaml:"enabled"`
+	NoiseThreshold float64 `yaml:"noise_threshold"`
+	CacheSize      int     `yaml:"cache_size"`
+	LearningWindow int     `yaml:"learning_window"`
+	VarianceLimit  float64 `yaml:"variance_limit"`
+	CorrelationMin float64 `yaml:"correlation_min"`
 }
 
 // CircuitBreakerConfig holds circuit breaker configuration
@@ -1791,19 +1865,19 @@ type CircuitBreakerConfig struct {
 
 // HealthConfig holds health monitoring configuration
 type HealthConfig struct {
-	Enabled   bool          `yaml:"enabled"`
-	Interval  time.Duration `yaml:"interval"`
-	Timeout   time.Duration `yaml:"timeout"`
-	Checks    []string      `yaml:"checks"`
+	Enabled   bool                  `yaml:"enabled"`
+	Interval  time.Duration         `yaml:"interval"`
+	Timeout   time.Duration         `yaml:"timeout"`
+	Checks    []string              `yaml:"checks"`
 	Endpoints HealthEndpointsConfig `yaml:"endpoints"`
 }
 
 // HealthEndpointsConfig holds health endpoint configuration
 type HealthEndpointsConfig struct {
-	Enabled    bool   `yaml:"enabled"`
-	Path       string `yaml:"path"`
-	ReadyPath  string `yaml:"ready_path"`
-	LivePath   string `yaml:"live_path"`
+	Enabled   bool   `yaml:"enabled"`
+	Path      string `yaml:"path"`
+	ReadyPath string `yaml:"ready_path"`
+	LivePath  string `yaml:"live_path"`
 }
 
 // DebugConfig holds debug configuration
@@ -1817,28 +1891,27 @@ type DebugConfig struct {
 
 // CachingConfig holds intelligent caching configuration
 type CachingConfig struct {
-	Intelligent   bool          `yaml:"intelligent"`
-	BaseTTL       time.Duration `yaml:"base_ttl"`
-	MaxEntries    int           `yaml:"max_entries"`
+	Intelligent     bool          `yaml:"intelligent"`
+	BaseTTL         time.Duration `yaml:"base_ttl"`
+	MaxEntries      int           `yaml:"max_entries"`
 	CleanupInterval time.Duration `yaml:"cleanup_interval"`
 	ChangeTracking  bool          `yaml:"change_tracking"`
-	
+
 	// Adaptive TTL configuration
 	AdaptiveTTL AdaptiveTTLConfig `yaml:"adaptive_ttl"`
 }
 
 // AdaptiveTTLConfig holds configuration for adaptive TTL calculation
 type AdaptiveTTLConfig struct {
-	Enabled        bool          `yaml:"enabled"`
-	MinTTL         time.Duration `yaml:"min_ttl"`
-	MaxTTL         time.Duration `yaml:"max_ttl"`
-	StabilityWindow time.Duration `yaml:"stability_window"`
-	VarianceThreshold float64    `yaml:"variance_threshold"`
-	ChangeThreshold   float64    `yaml:"change_threshold"`
-	ExtensionFactor   float64    `yaml:"extension_factor"`
-	ReductionFactor   float64    `yaml:"reduction_factor"`
+	Enabled           bool          `yaml:"enabled"`
+	MinTTL            time.Duration `yaml:"min_ttl"`
+	MaxTTL            time.Duration `yaml:"max_ttl"`
+	StabilityWindow   time.Duration `yaml:"stability_window"`
+	VarianceThreshold float64       `yaml:"variance_threshold"`
+	ChangeThreshold   float64       `yaml:"change_threshold"`
+	ExtensionFactor   float64       `yaml:"extension_factor"`
+	ReductionFactor   float64       `yaml:"reduction_factor"`
 }
-
 
 // Validate validates the observability configuration
 func (o *ObservabilityConfig) Validate() error {
@@ -2052,7 +2125,6 @@ func (h *HealthEndpointsConfig) Validate() error {
 	return nil
 }
 
-
 // Validate validates the caching configuration
 func (c *CachingConfig) Validate() error {
 	if c.Intelligent {
@@ -2144,7 +2216,7 @@ func (d *DebugConfig) Validate() error {
 		if d.RequireAuth && (d.Username == "" || d.Password == "") {
 			return fmt.Errorf("username and password must be specified when auth is required")
 		}
-		
+
 		// Validate enabled endpoints
 		validEndpoints := map[string]bool{
 			"collectors": true,
@@ -2155,13 +2227,13 @@ func (d *DebugConfig) Validate() error {
 			"runtime":    true,
 			"config":     true,
 		}
-		
+
 		for _, endpoint := range d.EnabledEndpoints {
 			if !validEndpoints[endpoint] {
 				return fmt.Errorf("invalid endpoint '%s', valid endpoints: collectors, tracing, patterns, scheduler, health, runtime, config", endpoint)
 			}
 		}
 	}
-	
+
 	return nil
 }

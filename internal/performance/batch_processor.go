@@ -18,29 +18,30 @@ type BatchProcessor struct {
 	mu         sync.RWMutex
 	batches    map[string]*batch
 	processors map[string]BatchProcessorFunc
-	flushTimer *time.Timer
-	ctx        context.Context
-	cancel     context.CancelFunc
-	wg         sync.WaitGroup
+	// TODO: Unused field - preserved for future timer-based flushing
+	// flushTimer *time.Timer
+	ctx    context.Context
+	cancel context.CancelFunc
+	wg     sync.WaitGroup
 }
 
 // BatchConfig holds configuration for batch processing
 type BatchConfig struct {
-	MaxBatchSize     int           `yaml:"max_batch_size"`     // Maximum items per batch
-	MaxBatchWait     time.Duration `yaml:"max_batch_wait"`     // Maximum wait time before flush
-	MaxConcurrency   int           `yaml:"max_concurrency"`    // Maximum concurrent batch processors
-	FlushInterval    time.Duration `yaml:"flush_interval"`     // Regular flush interval
-	EnableCompression bool         `yaml:"enable_compression"` // Enable batch compression
-	RetryAttempts    int           `yaml:"retry_attempts"`     // Number of retry attempts
-	RetryDelay       time.Duration `yaml:"retry_delay"`        // Delay between retries
+	MaxBatchSize      int           `yaml:"max_batch_size"`     // Maximum items per batch
+	MaxBatchWait      time.Duration `yaml:"max_batch_wait"`     // Maximum wait time before flush
+	MaxConcurrency    int           `yaml:"max_concurrency"`    // Maximum concurrent batch processors
+	FlushInterval     time.Duration `yaml:"flush_interval"`     // Regular flush interval
+	EnableCompression bool          `yaml:"enable_compression"` // Enable batch compression
+	RetryAttempts     int           `yaml:"retry_attempts"`     // Number of retry attempts
+	RetryDelay        time.Duration `yaml:"retry_delay"`        // Delay between retries
 }
 
 // BatchItem represents a single item in a batch
 type BatchItem interface {
-	Key() string       // Unique key for deduplication
-	Size() int         // Size in bytes for memory tracking
-	Type() string      // Type for routing to correct processor
-	Priority() int     // Priority for ordering (higher = more important)
+	Key() string          // Unique key for deduplication
+	Size() int            // Size in bytes for memory tracking
+	Type() string         // Type for routing to correct processor
+	Priority() int        // Priority for ordering (higher = more important)
 	Timestamp() time.Time // Timestamp for age tracking
 }
 
@@ -159,11 +160,11 @@ func (bp *BatchProcessor) ProcessBatch(batchType string, processor BatchProcesso
 	bp.mu.Lock()
 	bp.processors[batchType] = processor
 	bp.mu.Unlock()
-	
+
 	bp.wg.Add(1)
 	go func() {
 		defer bp.wg.Done()
-		
+
 		for {
 			select {
 			case <-bp.ctx.Done():
@@ -187,7 +188,7 @@ func (bp *BatchProcessor) checkAndFlushBatch(batchType string, processor BatchPr
 	// Check if batch should be flushed
 	shouldFlush := false
 	waitTime := time.Since(batch.createTime)
-	
+
 	if len(batch.items) >= bp.config.MaxBatchSize {
 		shouldFlush = true
 		bp.metrics.flushTrigger.WithLabelValues(batchType, "size").Inc()
@@ -217,7 +218,7 @@ func (bp *BatchProcessor) checkAndFlushBatch(batchType string, processor BatchPr
 // processBatchWithRetry processes a batch with retry logic
 func (bp *BatchProcessor) processBatchWithRetry(batchType string, items []BatchItem, processor BatchProcessorFunc, waitTime time.Duration) {
 	start := time.Now()
-	
+
 	// Record metrics
 	bp.metrics.batchSize.WithLabelValues(batchType).Observe(float64(len(items)))
 	bp.metrics.batchWaitTime.WithLabelValues(batchType).Observe(waitTime.Seconds())
@@ -256,7 +257,7 @@ func (bp *BatchProcessor) processBatchWithRetry(batchType string, items []BatchI
 	} else {
 		bp.metrics.batchesProcessed.WithLabelValues(batchType, "success").Inc()
 		bp.metrics.itemsProcessed.WithLabelValues(batchType).Add(float64(len(items)))
-		
+
 		bp.logger.WithFields(logrus.Fields{
 			"batch_type": batchType,
 			"items":      len(items),
@@ -278,7 +279,7 @@ func (bp *BatchProcessor) flushBatch(batchType string) {
 	items := batch.items
 	waitTime := time.Since(batch.createTime)
 	delete(bp.batches, batchType)
-	
+
 	// Get processor
 	processor := bp.processors[batchType]
 	bp.mu.Unlock()
@@ -336,18 +337,18 @@ func (bp *BatchProcessor) GetStats() map[string]interface{} {
 	defer bp.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"config":       bp.config,
-		"batch_count":  len(bp.batches),
-		"batch_types":  make(map[string]interface{}),
+		"config":      bp.config,
+		"batch_count": len(bp.batches),
+		"batch_types": make(map[string]interface{}),
 	}
 
 	for batchType, batch := range bp.batches {
 		stats["batch_types"].(map[string]interface{})[batchType] = map[string]interface{}{
-			"items":       len(batch.items),
-			"total_size":  batch.totalSize,
-			"age":         time.Since(batch.createTime),
-			"last_add":    time.Since(batch.lastAdd),
-			"priority":    batch.priority,
+			"items":      len(batch.items),
+			"total_size": batch.totalSize,
+			"age":        time.Since(batch.createTime),
+			"last_add":   time.Since(batch.lastAdd),
+			"priority":   batch.priority,
 		}
 	}
 
@@ -357,20 +358,20 @@ func (bp *BatchProcessor) GetStats() map[string]interface{} {
 // Stop gracefully stops the batch processor
 func (bp *BatchProcessor) Stop() error {
 	bp.logger.Info("Stopping batch processor")
-	
+
 	// Flush all pending batches
 	bp.FlushAll()
-	
+
 	// Cancel context
 	bp.cancel()
-	
+
 	// Wait for all goroutines
 	done := make(chan struct{})
 	go func() {
 		bp.wg.Wait()
 		close(done)
 	}()
-	
+
 	select {
 	case <-done:
 		bp.logger.Info("Batch processor stopped")

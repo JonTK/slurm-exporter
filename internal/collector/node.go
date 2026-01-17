@@ -2,7 +2,8 @@ package collector
 
 import (
 	"context"
-	"strconv"
+	// Commented out as only used in commented-out parser function
+	// "strconv"
 	"strings"
 	"time"
 
@@ -408,6 +409,8 @@ func (nc *NodeCollector) parseNodeState(slurmState string) string {
 	}
 }
 
+// TODO: parseMemorySize is unused - preserved for future data parsing needs
+/*
 // parseMemorySize converts SLURM memory specification to bytes
 func (nc *NodeCollector) parseMemorySize(slurmMemory string) (int64, error) {
 	// SLURM memory can be in various formats: "1024M", "2G", "500000K", etc.
@@ -466,3 +469,4 @@ func (nc *NodeCollector) parseMemorySize(slurmMemory string) (int64, error) {
 		return int64(value), nil
 	}
 }
+*/

@@ -16,19 +16,19 @@ import (
 
 // IntelligentCacheEntry represents a cache entry with adaptive TTL capabilities
 type IntelligentCacheEntry struct {
-	Key        string      `json:"key"`
-	Value      interface{} `json:"value"`
-	CreatedAt  time.Time   `json:"created_at"`
-	ExpiresAt  time.Time   `json:"expires_at"`
-	LastUsed   time.Time   `json:"last_used"`
-	HitCount   int64       `json:"hit_count"`
-	Size       int         `json:"size"` // Estimated size in bytes
-	TTL        time.Duration `json:"ttl"`
-	
+	Key       string        `json:"key"`
+	Value     interface{}   `json:"value"`
+	CreatedAt time.Time     `json:"created_at"`
+	ExpiresAt time.Time     `json:"expires_at"`
+	LastUsed  time.Time     `json:"last_used"`
+	HitCount  int64         `json:"hit_count"`
+	Size      int           `json:"size"` // Estimated size in bytes
+	TTL       time.Duration `json:"ttl"`
+
 	// Change tracking for adaptive TTL
-	ChangeHistory []ChangeRecord `json:"change_history,omitempty"`
-	LastValue     interface{}    `json:"last_value,omitempty"`
-	StabilityScore float64       `json:"stability_score"`
+	ChangeHistory  []ChangeRecord `json:"change_history,omitempty"`
+	LastValue      interface{}    `json:"last_value,omitempty"`
+	StabilityScore float64        `json:"stability_score"`
 }
 
 // ChangeRecord tracks when and how much a cached value changed
@@ -40,21 +40,21 @@ type ChangeRecord struct {
 
 // IntelligentCache implements adaptive TTL caching based on change patterns
 type IntelligentCache struct {
-	entries   map[string]*IntelligentCacheEntry
-	config    config.CachingConfig
-	logger    *logrus.Entry
-	mu        sync.RWMutex
-	
+	entries map[string]*IntelligentCacheEntry
+	config  config.CachingConfig
+	logger  *logrus.Entry
+	mu      sync.RWMutex
+
 	// Statistics
 	hits        int64
 	misses      int64
 	evictions   int64
 	totalSize   int64
 	lastCleanup time.Time
-	
+
 	// Metrics
 	metrics *IntelligentCacheMetrics
-	
+
 	// Background cleanup
 	cleanupTicker *time.Ticker
 	stopCleanup   chan struct{}
@@ -62,18 +62,18 @@ type IntelligentCache struct {
 
 // IntelligentCacheMetrics provides detailed cache performance metrics
 type IntelligentCacheMetrics struct {
-	Hits              int64   `json:"hits"`
-	Misses            int64   `json:"misses"`
-	HitRate           float64 `json:"hit_rate"`
-	Evictions         int64   `json:"evictions"`
-	TotalSize         int64   `json:"total_size_bytes"`
-	EntryCount        int     `json:"entry_count"`
-	AverageTTL        time.Duration `json:"average_ttl"`
-	TTLExtensions     int64   `json:"ttl_extensions"`
-	TTLReductions     int64   `json:"ttl_reductions"`
-	LastCleanup       time.Time `json:"last_cleanup"`
-	MemoryPressure    bool    `json:"memory_pressure"`
-	
+	Hits           int64         `json:"hits"`
+	Misses         int64         `json:"misses"`
+	HitRate        float64       `json:"hit_rate"`
+	Evictions      int64         `json:"evictions"`
+	TotalSize      int64         `json:"total_size_bytes"`
+	EntryCount     int           `json:"entry_count"`
+	AverageTTL     time.Duration `json:"average_ttl"`
+	TTLExtensions  int64         `json:"ttl_extensions"`
+	TTLReductions  int64         `json:"ttl_reductions"`
+	LastCleanup    time.Time     `json:"last_cleanup"`
+	MemoryPressure bool          `json:"memory_pressure"`
+
 	// TTL distribution
 	TTLDistribution map[string]int `json:"ttl_distribution"`
 }
@@ -90,12 +90,12 @@ func NewIntelligentCache(cfg config.CachingConfig, logger *logrus.Logger) *Intel
 		},
 		stopCleanup: make(chan struct{}),
 	}
-	
+
 	// Start background cleanup if intelligent caching is enabled
 	if cfg.Intelligent {
 		cache.startBackgroundCleanup()
 	}
-	
+
 	cache.logger.WithFields(logrus.Fields{
 		"max_entries":      cfg.MaxEntries,
 		"base_ttl":         cfg.BaseTTL,
@@ -103,7 +103,7 @@ func NewIntelligentCache(cfg config.CachingConfig, logger *logrus.Logger) *Intel
 		"intelligent":      cfg.Intelligent,
 		"adaptive_ttl":     cfg.AdaptiveTTL.Enabled,
 	}).Info("Intelligent cache initialized")
-	
+
 	return cache
 }
 
@@ -112,30 +112,30 @@ func (c *IntelligentCache) Get(key string) (interface{}, bool) {
 	c.mu.RLock()
 	entry, exists := c.entries[key]
 	c.mu.RUnlock()
-	
+
 	if !exists {
 		c.recordMiss()
 		return nil, false
 	}
-	
+
 	// Check if entry has expired
 	if time.Now().After(entry.ExpiresAt) {
 		c.mu.Lock()
 		delete(c.entries, key)
 		c.totalSize -= int64(entry.Size)
 		c.mu.Unlock()
-		
+
 		c.recordMiss()
 		c.logger.WithField("key", key).Debug("Cache entry expired")
 		return nil, false
 	}
-	
+
 	// Update access statistics
 	c.mu.Lock()
 	entry.LastUsed = time.Now()
 	entry.HitCount++
 	c.mu.Unlock()
-	
+
 	c.recordHit()
 	return entry.Value, true
 }
@@ -144,26 +144,25 @@ func (c *IntelligentCache) Get(key string) (interface{}, bool) {
 func (c *IntelligentCache) Set(key string, value interface{}) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	now := time.Now()
 	ttl := c.calculateTTL(key, value)
-	
+
 	// Calculate estimated size
 	size := c.estimateSize(value)
-	
+
 	// Check if we need to evict entries
 	if len(c.entries) >= c.config.MaxEntries {
 		c.evictLRU()
 	}
-	
+
 	// Check for existing entry to track changes
 	var changeHistory []ChangeRecord
-	var stabilityScore float64 = 0.5 // Default stability
-	
+	stabilityScore := 0.5 // Default stability
+
 	if existing, exists := c.entries[key]; exists && c.config.ChangeTracking {
 		changeHistory = existing.ChangeHistory
-		stabilityScore = existing.StabilityScore
-		
+
 		// Record change
 		changeScore := c.calculateChangeScore(existing.Value, value)
 		changeRecord := ChangeRecord{
@@ -171,9 +170,9 @@ func (c *IntelligentCache) Set(key string, value interface{}) {
 			ChangeScore: changeScore,
 			ValueHash:   c.hashValue(value),
 		}
-		
+
 		changeHistory = append(changeHistory, changeRecord)
-		
+
 		// Keep only recent history within stability window
 		cutoff := now.Add(-c.config.AdaptiveTTL.StabilityWindow)
 		filtered := make([]ChangeRecord, 0, len(changeHistory))
@@ -183,14 +182,14 @@ func (c *IntelligentCache) Set(key string, value interface{}) {
 			}
 		}
 		changeHistory = filtered
-		
+
 		// Update stability score
 		stabilityScore = c.calculateStabilityScore(changeHistory)
-		
+
 		// Remove old entry size from total
 		c.totalSize -= int64(existing.Size)
 	}
-	
+
 	// Create new entry
 	entry := &IntelligentCacheEntry{
 		Key:            key,
@@ -205,19 +204,19 @@ func (c *IntelligentCache) Set(key string, value interface{}) {
 		LastValue:      value,
 		StabilityScore: stabilityScore,
 	}
-	
+
 	c.entries[key] = entry
 	c.totalSize += int64(size)
-	
+
 	// Update TTL distribution metrics
 	c.updateTTLDistribution(ttl)
-	
+
 	c.logger.WithFields(logrus.Fields{
-		"key":              key,
-		"ttl":              ttl,
-		"size":             size,
-		"stability_score":  stabilityScore,
-		"change_records":   len(changeHistory),
+		"key":             key,
+		"ttl":             ttl,
+		"size":            size,
+		"stability_score": stabilityScore,
+		"change_records":  len(changeHistory),
 	}).Debug("Cache entry stored")
 }
 
@@ -225,16 +224,16 @@ func (c *IntelligentCache) Set(key string, value interface{}) {
 func (c *IntelligentCache) calculateTTL(key string, value interface{}) time.Duration {
 	// Start with base TTL
 	ttl := c.config.BaseTTL
-	
+
 	// If adaptive TTL is not enabled, return base TTL
 	if !c.config.AdaptiveTTL.Enabled {
 		return ttl
 	}
-	
+
 	// Check if we have an existing entry with change history
 	if existing, exists := c.entries[key]; exists && len(existing.ChangeHistory) > 0 {
 		stabilityScore := c.calculateStabilityScore(existing.ChangeHistory)
-		
+
 		// Calculate adaptive TTL based on stability
 		if stabilityScore < c.config.AdaptiveTTL.ChangeThreshold {
 			// High change rate - reduce TTL
@@ -245,7 +244,7 @@ func (c *IntelligentCache) calculateTTL(key string, value interface{}) time.Dura
 			ttl = time.Duration(float64(ttl) * c.config.AdaptiveTTL.ExtensionFactor)
 			c.metrics.TTLExtensions++
 		}
-		
+
 		// Ensure TTL is within bounds
 		if ttl < c.config.AdaptiveTTL.MinTTL {
 			ttl = c.config.AdaptiveTTL.MinTTL
@@ -253,7 +252,7 @@ func (c *IntelligentCache) calculateTTL(key string, value interface{}) time.Dura
 			ttl = c.config.AdaptiveTTL.MaxTTL
 		}
 	}
-	
+
 	return ttl
 }
 
@@ -262,17 +261,17 @@ func (c *IntelligentCache) calculateStabilityScore(history []ChangeRecord) float
 	if len(history) == 0 {
 		return 0.5 // Default stability
 	}
-	
+
 	// Calculate average change score
 	totalChange := 0.0
 	for _, record := range history {
 		totalChange += record.ChangeScore
 	}
 	avgChange := totalChange / float64(len(history))
-	
+
 	// Stability is inverse of change rate
 	stability := 1.0 - avgChange
-	
+
 	// Consider change frequency
 	if len(history) > 1 {
 		timespan := history[len(history)-1].Timestamp.Sub(history[0].Timestamp)
@@ -282,7 +281,7 @@ func (c *IntelligentCache) calculateStabilityScore(history []ChangeRecord) float
 			stability *= math.Max(0.1, 1.0-frequency*0.1)
 		}
 	}
-	
+
 	return math.Max(0.0, math.Min(1.0, stability))
 }
 
@@ -291,11 +290,11 @@ func (c *IntelligentCache) calculateChangeScore(oldValue, newValue interface{}) 
 	// Simple hash-based comparison for now
 	oldHash := c.hashValue(oldValue)
 	newHash := c.hashValue(newValue)
-	
+
 	if oldHash == newHash {
 		return 0.0 // No change
 	}
-	
+
 	// For more sophisticated comparison, we could analyze structural changes
 	// For now, any difference is considered a significant change
 	return 1.0
@@ -304,15 +303,15 @@ func (c *IntelligentCache) calculateChangeScore(oldValue, newValue interface{}) 
 // hashValue creates a hash of a value for change detection
 func (c *IntelligentCache) hashValue(value interface{}) uint64 {
 	h := fnv.New64a()
-	
+
 	// Convert value to JSON for consistent hashing
 	if data, err := json.Marshal(value); err == nil {
 		h.Write(data)
 	} else {
 		// Fallback to string representation
-		h.Write([]byte(fmt.Sprintf("%v", value)))
+		_, _ = fmt.Fprintf(h, "%v", value)
 	}
-	
+
 	return h.Sum64()
 }
 
@@ -321,7 +320,7 @@ func (c *IntelligentCache) estimateSize(value interface{}) int {
 	if data, err := json.Marshal(value); err == nil {
 		return len(data)
 	}
-	
+
 	// Fallback size estimation
 	return len(fmt.Sprintf("%v", value)) * 2 // Rough estimate
 }
@@ -331,10 +330,10 @@ func (c *IntelligentCache) evictLRU() {
 	if len(c.entries) == 0 {
 		return
 	}
-	
+
 	var oldestKey string
-	var oldestTime time.Time = time.Now()
-	
+	oldestTime := time.Now()
+
 	// Find least recently used entry
 	for key, entry := range c.entries {
 		if entry.LastUsed.Before(oldestTime) {
@@ -342,14 +341,14 @@ func (c *IntelligentCache) evictLRU() {
 			oldestKey = key
 		}
 	}
-	
+
 	// Remove the entry
 	if oldestKey != "" {
 		if entry, exists := c.entries[oldestKey]; exists {
 			c.totalSize -= int64(entry.Size)
 			delete(c.entries, oldestKey)
 			c.evictions++
-			
+
 			c.logger.WithFields(logrus.Fields{
 				"key":       oldestKey,
 				"last_used": oldestTime,
@@ -362,7 +361,7 @@ func (c *IntelligentCache) evictLRU() {
 // startBackgroundCleanup starts the background cleanup routine
 func (c *IntelligentCache) startBackgroundCleanup() {
 	c.cleanupTicker = time.NewTicker(c.config.CleanupInterval)
-	
+
 	go func() {
 		for {
 			select {
@@ -380,10 +379,10 @@ func (c *IntelligentCache) startBackgroundCleanup() {
 func (c *IntelligentCache) cleanup() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	now := time.Now()
 	expired := 0
-	
+
 	for key, entry := range c.entries {
 		if now.After(entry.ExpiresAt) {
 			c.totalSize -= int64(entry.Size)
@@ -391,10 +390,10 @@ func (c *IntelligentCache) cleanup() {
 			expired++
 		}
 	}
-	
+
 	c.lastCleanup = now
 	c.updateMetrics()
-	
+
 	c.logger.WithFields(logrus.Fields{
 		"expired_entries": expired,
 		"total_entries":   len(c.entries),
@@ -408,14 +407,14 @@ func (c *IntelligentCache) updateMetrics() {
 	if total > 0 {
 		c.metrics.HitRate = float64(c.hits) / float64(total)
 	}
-	
+
 	c.metrics.Hits = c.hits
 	c.metrics.Misses = c.misses
 	c.metrics.Evictions = c.evictions
 	c.metrics.TotalSize = c.totalSize
 	c.metrics.EntryCount = len(c.entries)
 	c.metrics.LastCleanup = c.lastCleanup
-	
+
 	// Calculate average TTL
 	if len(c.entries) > 0 {
 		totalTTL := time.Duration(0)
@@ -424,9 +423,9 @@ func (c *IntelligentCache) updateMetrics() {
 		}
 		c.metrics.AverageTTL = totalTTL / time.Duration(len(c.entries))
 	}
-	
+
 	// Check memory pressure (simple heuristic)
-	maxSize := int64(c.config.MaxEntries * 1024) // Assume 1KB average per entry
+	maxSize := int64(c.config.MaxEntries * 1024)          // Assume 1KB average per entry
 	c.metrics.MemoryPressure = c.totalSize > maxSize*8/10 // 80% threshold
 }
 
@@ -469,18 +468,18 @@ func (c *IntelligentCache) recordMiss() {
 func (c *IntelligentCache) GetMetrics() IntelligentCacheMetrics {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	c.updateMetrics()
-	
+
 	// Create a copy to avoid race conditions
 	metrics := *c.metrics
-	
+
 	// Copy TTL distribution map
 	metrics.TTLDistribution = make(map[string]int)
 	for k, v := range c.metrics.TTLDistribution {
 		metrics.TTLDistribution[k] = v
 	}
-	
+
 	return metrics
 }
 
@@ -488,7 +487,7 @@ func (c *IntelligentCache) GetMetrics() IntelligentCacheMetrics {
 func (c *IntelligentCache) GetStats() map[string]interface{} {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	// Calculate stability distribution
 	stabilityBuckets := map[string]int{
 		"very_stable":   0, // > 0.8
@@ -497,7 +496,7 @@ func (c *IntelligentCache) GetStats() map[string]interface{} {
 		"unstable":      0, // 0.2-0.4
 		"very_unstable": 0, // < 0.2
 	}
-	
+
 	for _, entry := range c.entries {
 		score := entry.StabilityScore
 		if score > 0.8 {
@@ -512,24 +511,24 @@ func (c *IntelligentCache) GetStats() map[string]interface{} {
 			stabilityBuckets["very_unstable"]++
 		}
 	}
-	
+
 	return map[string]interface{}{
-		"enabled":               c.config.Intelligent,
-		"adaptive_ttl_enabled":  c.config.AdaptiveTTL.Enabled,
-		"entry_count":           len(c.entries),
-		"max_entries":           c.config.MaxEntries,
-		"total_size_bytes":      c.totalSize,
-		"hits":                  c.hits,
-		"misses":                c.misses,
-		"hit_rate":              c.metrics.HitRate,
-		"evictions":             c.evictions,
-		"ttl_extensions":        c.metrics.TTLExtensions,
-		"ttl_reductions":        c.metrics.TTLReductions,
-		"average_ttl":           c.metrics.AverageTTL,
-		"last_cleanup":          c.lastCleanup,
-		"memory_pressure":       c.metrics.MemoryPressure,
+		"enabled":                c.config.Intelligent,
+		"adaptive_ttl_enabled":   c.config.AdaptiveTTL.Enabled,
+		"entry_count":            len(c.entries),
+		"max_entries":            c.config.MaxEntries,
+		"total_size_bytes":       c.totalSize,
+		"hits":                   c.hits,
+		"misses":                 c.misses,
+		"hit_rate":               c.metrics.HitRate,
+		"evictions":              c.evictions,
+		"ttl_extensions":         c.metrics.TTLExtensions,
+		"ttl_reductions":         c.metrics.TTLReductions,
+		"average_ttl":            c.metrics.AverageTTL,
+		"last_cleanup":           c.lastCleanup,
+		"memory_pressure":        c.metrics.MemoryPressure,
 		"stability_distribution": stabilityBuckets,
-		"ttl_distribution":      c.metrics.TTLDistribution,
+		"ttl_distribution":       c.metrics.TTLDistribution,
 	}
 }
 
@@ -537,21 +536,21 @@ func (c *IntelligentCache) GetStats() map[string]interface{} {
 func (c *IntelligentCache) GetTopEntries(limit int) []IntelligentCacheEntry {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	entries := make([]IntelligentCacheEntry, 0, len(c.entries))
 	for _, entry := range c.entries {
 		entries = append(entries, *entry)
 	}
-	
+
 	// Sort by hit count (descending)
 	sort.Slice(entries, func(i, j int) bool {
 		return entries[i].HitCount > entries[j].HitCount
 	})
-	
+
 	if limit > 0 && limit < len(entries) {
 		entries = entries[:limit]
 	}
-	
+
 	return entries
 }
 
@@ -559,7 +558,7 @@ func (c *IntelligentCache) GetTopEntries(limit int) []IntelligentCacheEntry {
 func (c *IntelligentCache) Clear() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	c.entries = make(map[string]*IntelligentCacheEntry, c.config.MaxEntries)
 	c.totalSize = 0
 	c.hits = 0
@@ -568,7 +567,7 @@ func (c *IntelligentCache) Clear() {
 	c.metrics.TTLExtensions = 0
 	c.metrics.TTLReductions = 0
 	c.metrics.TTLDistribution = make(map[string]int)
-	
+
 	c.logger.Info("Cache cleared")
 }
 
@@ -578,7 +577,7 @@ func (c *IntelligentCache) Close() {
 		close(c.stopCleanup)
 		c.cleanupTicker.Stop()
 	}
-	
+
 	c.logger.Info("Intelligent cache closed")
 }
 
@@ -589,16 +588,16 @@ func (c *IntelligentCache) CachedFunction(fn func(ctx context.Context, key strin
 		if value, found := c.Get(key); found {
 			return value, nil
 		}
-		
+
 		// Call original function
 		result, err := fn(ctx, key)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		// Cache the result
 		c.Set(key, result)
-		
+
 		return result, nil
 	}
 }
