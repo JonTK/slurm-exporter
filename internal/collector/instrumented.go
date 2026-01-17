@@ -12,19 +12,19 @@ import (
 
 // InstrumentedCollector provides automatic performance monitoring for collectors
 type InstrumentedCollector struct {
-	name               string
-	collector          Collector
-	perfMetrics        *metrics.PerformanceMetrics
-	logger             *logrus.Logger
-	enabled            bool
-	lastCollection     time.Time
-	lastDuration       time.Duration
-	lastError          error
-	consecutiveErrors  int
-	totalCollections   int64
-	totalErrors        int64
-	isCollecting       bool
-	mu                 sync.RWMutex
+	name              string
+	collector         Collector
+	perfMetrics       *metrics.PerformanceMetrics
+	logger            *logrus.Logger
+	enabled           bool
+	lastCollection    time.Time
+	lastDuration      time.Duration
+	lastError         error
+	consecutiveErrors int
+	totalCollections  int64
+	totalErrors       int64
+	isCollecting      bool
+	mu                sync.RWMutex
 }
 
 // NewInstrumentedCollector wraps a collector with performance monitoring
@@ -105,7 +105,7 @@ func (ic *InstrumentedCollector) Collect(ctx context.Context, ch chan<- promethe
 
 	// Execute the actual collection
 	collectErr = ic.collector.Collect(ctx, ch)
-	
+
 	return collectErr
 }
 
@@ -191,16 +191,16 @@ func NewAPIInstrumentedCollector(name string, collector Collector, perfMetrics *
 // TimeAPICall provides a helper to time API calls
 func (aic *APIInstrumentedCollector) TimeAPICall(endpoint, method string, fn func() error) error {
 	timer := aic.perfMetrics.NewAPITimer(endpoint, method)
-	
+
 	err := fn()
-	
+
 	status := "success"
 	if err != nil {
 		status = "error"
 		statusCode := extractStatusCode(err)
 		errorType := classifyError(err)
 		aic.perfMetrics.RecordAPIError(endpoint, statusCode, errorType)
-		
+
 		aic.logger.WithFields(logrus.Fields{
 			"collector":  aic.name,
 			"endpoint":   endpoint,
@@ -209,7 +209,7 @@ func (aic *APIInstrumentedCollector) TimeAPICall(endpoint, method string, fn fun
 			"error_type": errorType,
 		}).Error("API call failed")
 	}
-	
+
 	timer.StopWithStatus(status)
 	return err
 }
@@ -221,47 +221,47 @@ func classifyError(err error) string {
 	}
 
 	errStr := err.Error()
-	
+
 	// Network errors
 	if contains(errStr, "connection refused") || contains(errStr, "no route to host") {
 		return "network"
 	}
-	
-	// Timeout errors  
+
+	// Timeout errors
 	if contains(errStr, "timeout") || contains(errStr, "deadline exceeded") {
 		return "timeout"
 	}
-	
+
 	// Authentication errors
 	if contains(errStr, "unauthorized") || contains(errStr, "forbidden") || contains(errStr, "401") || contains(errStr, "403") {
 		return "auth"
 	}
-	
+
 	// Rate limiting
 	if contains(errStr, "rate limit") || contains(errStr, "too many requests") || contains(errStr, "429") {
 		return "rate_limit"
 	}
-	
+
 	// Server errors
 	if contains(errStr, "500") || contains(errStr, "502") || contains(errStr, "503") || contains(errStr, "504") {
 		return "server"
 	}
-	
+
 	// Client errors
 	if contains(errStr, "400") || contains(errStr, "404") || contains(errStr, "422") {
 		return "client"
 	}
-	
+
 	// Parse errors
 	if contains(errStr, "json") || contains(errStr, "xml") || contains(errStr, "parse") {
 		return "parse"
 	}
-	
+
 	// Configuration errors
 	if contains(errStr, "config") || contains(errStr, "invalid") {
 		return "config"
 	}
-	
+
 	return "unknown"
 }
 
@@ -270,18 +270,18 @@ func extractStatusCode(err error) string {
 	if err == nil {
 		return "200"
 	}
-	
+
 	errStr := err.Error()
-	
+
 	// Common HTTP status codes
 	statusCodes := []string{"400", "401", "403", "404", "422", "429", "500", "502", "503", "504"}
-	
+
 	for _, code := range statusCodes {
 		if contains(errStr, code) {
 			return code
 		}
 	}
-	
+
 	return "unknown"
 }
 
@@ -290,7 +290,7 @@ func contains(s, substr string) bool {
 	if len(substr) > len(s) {
 		return false
 	}
-	
+
 	for i := 0; i <= len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {
 			return true
@@ -320,7 +320,7 @@ func NewCollectorRegistry(perfMetrics *metrics.PerformanceMetrics, logger *logru
 func (cr *CollectorRegistry) Register(name string, collector Collector) {
 	cr.mu.Lock()
 	defer cr.mu.Unlock()
-	
+
 	instrumented := NewInstrumentedCollector(name, collector, cr.perfMetrics, cr.logger)
 	cr.collectors[name] = instrumented
 }
@@ -329,7 +329,7 @@ func (cr *CollectorRegistry) Register(name string, collector Collector) {
 func (cr *CollectorRegistry) RegisterAPI(name string, collector Collector) {
 	cr.mu.Lock()
 	defer cr.mu.Unlock()
-	
+
 	instrumented := NewAPIInstrumentedCollector(name, collector, cr.perfMetrics, cr.logger)
 	cr.collectors[name] = instrumented.InstrumentedCollector
 }
@@ -338,7 +338,7 @@ func (cr *CollectorRegistry) RegisterAPI(name string, collector Collector) {
 func (cr *CollectorRegistry) Get(name string) (*InstrumentedCollector, bool) {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
-	
+
 	collector, exists := cr.collectors[name]
 	return collector, exists
 }
@@ -347,7 +347,7 @@ func (cr *CollectorRegistry) Get(name string) (*InstrumentedCollector, bool) {
 func (cr *CollectorRegistry) List() map[string]*InstrumentedCollector {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
-	
+
 	result := make(map[string]*InstrumentedCollector)
 	for name, collector := range cr.collectors {
 		result[name] = collector
@@ -359,7 +359,7 @@ func (cr *CollectorRegistry) List() map[string]*InstrumentedCollector {
 func (cr *CollectorRegistry) GetStates() map[string]CollectorState {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
-	
+
 	states := make(map[string]CollectorState)
 	for name, collector := range cr.collectors {
 		states[name] = collector.GetState()

@@ -31,12 +31,12 @@ func TestNewSmartFilter_Enabled(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
@@ -121,12 +121,12 @@ func TestSmartFilter_ProcessMetrics_LearningPhase(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
@@ -149,12 +149,12 @@ func TestSmartFilter_CreateMetricKey(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
@@ -199,12 +199,12 @@ func TestSmartFilter_ExtractValue(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
@@ -259,12 +259,12 @@ func TestSmartFilter_CalculateStatistics(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
@@ -291,12 +291,12 @@ func TestSmartFilter_CalculateCorrelation(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
@@ -304,10 +304,10 @@ func TestSmartFilter_CalculateCorrelation(t *testing.T) {
 	defer func() { _ = filter.Close() }()
 
 	testCases := []struct {
-		name     string
-		x        []float64
-		y        []float64
-		expected float64
+		name      string
+		x         []float64
+		y         []float64
+		expected  float64
 		tolerance float64
 	}{
 		{
@@ -346,12 +346,12 @@ func TestSmartFilter_Cache(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       3, // Small cache for testing
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      3, // Small cache for testing
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
@@ -385,12 +385,12 @@ func TestSmartFilter_RegisterMetrics(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
@@ -417,12 +417,12 @@ func TestSmartFilter_GetStats(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
@@ -449,12 +449,12 @@ func TestSmartFilter_GetPatterns(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
@@ -497,12 +497,12 @@ func TestSmartFilter_NoiseScoreCalculation(t *testing.T) {
 	logger.SetLevel(logrus.WarnLevel)
 
 	cfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.8,
-		CacheSize:       1000,
-		LearningWindow:  50,
-		VarianceLimit:   10.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.8,
+		CacheSize:      1000,
+		LearningWindow: 50,
+		VarianceLimit:  10.0,
+		CorrelationMin: 0.1,
 	}
 
 	filter, err := NewSmartFilter(cfg, logger)
@@ -510,11 +510,11 @@ func TestSmartFilter_NoiseScoreCalculation(t *testing.T) {
 	defer func() { _ = filter.Close() }()
 
 	testCases := []struct {
-		name         string
-		variance     float64
-		changeRate   float64
-		expectedMin  float64
-		expectedMax  float64
+		name        string
+		variance    float64
+		changeRate  float64
+		expectedMin float64
+		expectedMax float64
 	}{
 		{
 			name:        "low_noise",

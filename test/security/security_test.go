@@ -17,17 +17,17 @@ import (
 // SecurityTestSuite provides security testing capabilities
 type SecurityTestSuite struct {
 	testutil.BaseTestSuite
-	server   *httptest.Server
-	client   *http.Client
+	server *httptest.Server
+	client *http.Client
 }
 
 func (s *SecurityTestSuite) SetupTest() {
 	s.BaseTestSuite.SetupTest()
-	
+
 	// Create test server
 	handler := s.createTestHandler()
 	s.server = httptest.NewServer(handler)
-	
+
 	// Create HTTP client
 	s.client = &http.Client{
 		Timeout: 10 * time.Second,
@@ -53,15 +53,15 @@ func TestSecurityTestSuite(t *testing.T) {
 func (s *SecurityTestSuite) TestSecurityHeaders() {
 	// Test that security headers are properly set
 	resp := s.makeRequest("GET", "/metrics", nil, nil)
-	
+
 	expectedHeaders := map[string]string{
-		"X-Content-Type-Options": "nosniff",
-		"X-Frame-Options":        "DENY",
-		"X-XSS-Protection":       "1; mode=block",
-		"Referrer-Policy":        "strict-origin-when-cross-origin",
+		"X-Content-Type-Options":  "nosniff",
+		"X-Frame-Options":         "DENY",
+		"X-XSS-Protection":        "1; mode=block",
+		"Referrer-Policy":         "strict-origin-when-cross-origin",
 		"Content-Security-Policy": "default-src 'self'",
 	}
-	
+
 	for header, expected := range expectedHeaders {
 		actual := resp.Header.Get(header)
 		s.Equal(expected, actual, "Security header %s should be set correctly", header)
@@ -77,10 +77,10 @@ func (s *SecurityTestSuite) TestHTTPSRedirect() {
 func (s *SecurityTestSuite) TestAuthenticationBypass() {
 	// Test various authentication bypass attempts
 	bypassAttempts := []struct {
-		name    string
-		headers map[string]string
-		method  string
-		path    string
+		name     string
+		headers  map[string]string
+		method   string
+		path     string
 		expected int
 	}{
 		{
@@ -95,7 +95,7 @@ func (s *SecurityTestSuite) TestAuthenticationBypass() {
 			headers: map[string]string{
 				"Authorization": "Bearer invalid-token",
 			},
-			method:   "GET", 
+			method:   "GET",
 			path:     "/debug/collectors",
 			expected: 401,
 		},
@@ -105,7 +105,7 @@ func (s *SecurityTestSuite) TestAuthenticationBypass() {
 				"Authorization": "Bearer ' OR '1'='1",
 			},
 			method:   "GET",
-			path:     "/debug/collectors", 
+			path:     "/debug/collectors",
 			expected: 401,
 		},
 		{
@@ -122,7 +122,7 @@ func (s *SecurityTestSuite) TestAuthenticationBypass() {
 			headers: map[string]string{
 				"Authorization": "Bearer <script>alert('xss')</script>",
 			},
-			method:   "GET", 
+			method:   "GET",
 			path:     "/debug/collectors",
 			expected: 401,
 		},
@@ -166,7 +166,7 @@ func (s *SecurityTestSuite) TestPathTraversalAttacks() {
 		{"long_path", "/debug/" + strings.Repeat("../", 100) + "etc/passwd"},
 		{"null_byte", "/debug/config\x00.txt"},
 	}
-	
+
 	for _, attempt := range pathTraversalAttempts {
 		s.Run(attempt.name, func() {
 			// Null bytes in URLs are rejected by Go's URL parser
@@ -180,7 +180,7 @@ func (s *SecurityTestSuite) TestPathTraversalAttacks() {
 			// Should return 404 or 400, not 200
 			s.NotEqual(200, resp.StatusCode,
 				"Path traversal should not succeed")
-			
+
 			// Response should not contain sensitive file content
 			body := s.readResponseBody(resp)
 			s.NotContains(body, "root:x:", "Should not return /etc/passwd content")
@@ -201,15 +201,15 @@ func (s *SecurityTestSuite) TestXSSPrevention() {
 		"javascript:/*--></title></style></textarea></script></xmp>",
 		"<iframe src=javascript:alert('xss')>",
 	}
-	
+
 	// Test in URL parameters
 	for i, payload := range xssPayloads {
 		s.Run(fmt.Sprintf("url_param_%d", i), func() {
 			path := fmt.Sprintf("/debug/collectors?filter=%s", payload)
 			resp := s.makeRequest("GET", path, nil, nil)
-			
+
 			body := s.readResponseBody(resp)
-			
+
 			// Verify payload is properly escaped/sanitized
 			s.NotContains(body, "<script>", "Script tags should be escaped")
 			s.NotContains(body, "javascript:", "JavaScript URLs should be blocked")
@@ -231,7 +231,7 @@ func (s *SecurityTestSuite) TestSQLInjection() {
 		"' OR 'x'='x",
 		"1' AND (SELECT COUNT(*) FROM users)>0 --",
 	}
-	
+
 	for i, payload := range sqlPayloads {
 		s.Run(fmt.Sprintf("sql_injection_%d", i), func() {
 			// Test in various parameters
@@ -239,10 +239,10 @@ func (s *SecurityTestSuite) TestSQLInjection() {
 				fmt.Sprintf("/debug/collectors?name=%s", payload),
 				fmt.Sprintf("/debug/profiling/profile/%s", payload),
 			}
-			
+
 			for _, path := range paths {
 				resp := s.makeRequest("GET", path, nil, nil)
-				
+
 				// Should not return database errors or succeed inappropriately
 				body := s.readResponseBody(resp)
 				s.NotContains(body, "SQL error", "Should not leak SQL errors")
@@ -265,14 +265,14 @@ func (s *SecurityTestSuite) TestCSRFProtection() {
 		{"PUT", "/debug/config/reload"},
 		{"DELETE", "/debug/cache/clear"},
 	}
-	
+
 	for _, req := range stateChangingRequests {
 		s.Run(fmt.Sprintf("csrf_%s_%s", req.method, strings.ReplaceAll(req.path, "/", "_")), func() {
 			// Request without CSRF token should fail
 			resp := s.makeRequest(req.method, req.path, nil, nil)
-			
+
 			// Should require proper CSRF protection
-			s.NotEqual(200, resp.StatusCode, 
+			s.NotEqual(200, resp.StatusCode,
 				"State-changing request without CSRF token should fail")
 		})
 	}
@@ -285,27 +285,27 @@ func (s *SecurityTestSuite) TestRateLimiting() {
 		"/debug/collectors",
 		"/debug/cache",
 	}
-	
+
 	for _, endpoint := range sensitiveEndpoints {
 		s.Run(fmt.Sprintf("rate_limit_%s", strings.ReplaceAll(endpoint, "/", "_")), func() {
 			// Make many rapid requests
 			const requestCount = 100
 			const timeWindow = 1 * time.Second
-			
+
 			start := time.Now()
 			successCount := 0
-			
+
 			for i := 0; i < requestCount; i++ {
 				resp := s.makeRequest("GET", endpoint, nil, nil)
 				if resp.StatusCode == 200 {
 					successCount++
 				}
-				
+
 				// Don't sleep - test rapid requests
 			}
-			
+
 			elapsed := time.Since(start)
-			
+
 			// Should have some rate limiting in place
 			if elapsed < timeWindow {
 				s.Less(successCount, requestCount,
@@ -330,7 +330,7 @@ func (s *SecurityTestSuite) TestInputValidation() {
 		{"xml_injection", "test<foo>bar</foo>"},
 		{"json_injection", `test","admin":true,"foo":"bar`},
 	}
-	
+
 	// Test various input parameters
 	for _, input := range maliciousInputs {
 		s.Run(input.name, func() {
@@ -373,7 +373,7 @@ func (s *SecurityTestSuite) TestInformationDisclosure() {
 		"database connection",
 		"connection string",
 	}
-	
+
 	for _, info := range sensitiveInfo {
 		s.NotContains(strings.ToLower(body), info,
 			"Response should not contain sensitive information: %s", info)
@@ -383,11 +383,11 @@ func (s *SecurityTestSuite) TestInformationDisclosure() {
 func (s *SecurityTestSuite) TestHTTPMethodSecurity() {
 	// Test HTTP method restrictions
 	methods := []string{"GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS", "TRACE"}
-	
+
 	for _, method := range methods {
 		s.Run(fmt.Sprintf("method_%s", method), func() {
 			resp := s.makeRequest(method, "/metrics", nil, nil)
-			
+
 			switch method {
 			case "GET", "HEAD":
 				// These should be allowed
@@ -417,10 +417,10 @@ func (s *SecurityTestSuite) TestTimeoutAttacks() {
 func (s *SecurityTestSuite) createTestHandler() http.Handler {
 	// Create a minimal test handler that simulates the real server
 	mux := http.NewServeMux()
-	
+
 	// Add security middleware
 	secureHandler := s.addSecurityMiddleware(mux)
-	
+
 	// Add test routes
 	mux.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
@@ -441,7 +441,7 @@ func (s *SecurityTestSuite) createTestHandler() http.Handler {
 		w.WriteHeader(200)
 		_, _ = w.Write([]byte(`{"status": "ok"}`))
 	})
-	
+
 	return secureHandler
 }
 
@@ -453,13 +453,13 @@ func (s *SecurityTestSuite) addSecurityMiddleware(handler http.Handler) http.Han
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
 		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
 		w.Header().Set("Content-Security-Policy", "default-src 'self'")
-		
+
 		// Block TRACE method
 		if r.Method == "TRACE" {
 			w.WriteHeader(405)
 			return
 		}
-		
+
 		handler.ServeHTTP(w, r)
 	})
 }
@@ -472,15 +472,15 @@ func (s *SecurityTestSuite) makeRequest(method, path string, headers map[string]
 
 	req, err := http.NewRequest(method, s.server.URL+path, reqBody)
 	s.Require().NoError(err)
-	
+
 	// Add headers
 	for k, v := range headers {
 		req.Header.Set(k, v)
 	}
-	
+
 	resp, err := s.client.Do(req)
 	s.Require().NoError(err)
-	
+
 	return resp
 }
 
@@ -489,6 +489,6 @@ func (s *SecurityTestSuite) readResponseBody(resp *http.Response) string {
 
 	body := make([]byte, 10240) // Read up to 10KB
 	n, _ := resp.Body.Read(body)
-	
+
 	return string(body[:n])
 }

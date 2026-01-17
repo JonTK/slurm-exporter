@@ -26,50 +26,50 @@ type QoSLimitsSLURMClient interface {
 
 // QoSResourceLimits represents Quality of Service resource limits
 type QoSResourceLimits struct {
-	QoSName          string
-	Description      string
-	Priority         int
-	UsageFactor      float64
-	UsageThreshold   float64
-	GrpCPUs          int
-	GrpCPUsRunning   int
-	GrpMem           int64
-	GrpMemRunning    int64
-	GrpNodes         int
-	GrpNodesRunning  int
-	GrpJobs          int
-	GrpJobsRunning   int
-	GrpSubmitJobs    int
-	GrpWall          time.Duration
-	MaxCPUs          int
-	MaxCPUsPerUser   int
-	MaxMem           int64
-	MaxMemPerUser    int64
-	MaxNodes         int
-	MaxNodesPerUser  int
-	MaxJobs          int
-	MaxJobsPerUser   int
-	MaxSubmitJobs    int
+	QoSName              string
+	Description          string
+	Priority             int
+	UsageFactor          float64
+	UsageThreshold       float64
+	GrpCPUs              int
+	GrpCPUsRunning       int
+	GrpMem               int64
+	GrpMemRunning        int64
+	GrpNodes             int
+	GrpNodesRunning      int
+	GrpJobs              int
+	GrpJobsRunning       int
+	GrpSubmitJobs        int
+	GrpWall              time.Duration
+	MaxCPUs              int
+	MaxCPUsPerUser       int
+	MaxMem               int64
+	MaxMemPerUser        int64
+	MaxNodes             int
+	MaxNodesPerUser      int
+	MaxJobs              int
+	MaxJobsPerUser       int
+	MaxSubmitJobs        int
 	MaxSubmitJobsPerUser int
-	MaxWall          time.Duration
-	MaxWallPerJob    time.Duration
-	MinCPUs          int
-	MinMem           int64
-	MinNodes         int
-	Preempt          []string
-	PreemptMode      string
-	Flags            []string
-	GraceTime        time.Duration
-	OverPartQoS      string
-	PartitionQoS     string
-	CreatedAt        time.Time
-	ModifiedAt       time.Time
-	LastUsed         time.Time
-	UserCount        int
-	AccountCount     int
-	ActiveJobs       int
-	PendingJobs      int
-	RunningJobs      int
+	MaxWall              time.Duration
+	MaxWallPerJob        time.Duration
+	MinCPUs              int
+	MinMem               int64
+	MinNodes             int
+	Preempt              []string
+	PreemptMode          string
+	Flags                []string
+	GraceTime            time.Duration
+	OverPartQoS          string
+	PartitionQoS         string
+	CreatedAt            time.Time
+	ModifiedAt           time.Time
+	LastUsed             time.Time
+	UserCount            int
+	AccountCount         int
+	ActiveJobs           int
+	PendingJobs          int
+	RunningJobs          int
 }
 
 // QoSViolationOptions represents options for querying QoS violations
@@ -123,59 +123,59 @@ type QoSLimitViolation struct {
 
 // ViolationResolutionStats represents violation resolution statistics
 type ViolationResolutionStats struct {
-	MeanResolutionTime    time.Duration
-	MedianResolutionTime  time.Duration
-	AutoResolutionRate    float64
-	ManualResolutionRate  float64
-	EscalationRate        float64
-	RecurrenceRate        float64
+	MeanResolutionTime   time.Duration
+	MedianResolutionTime time.Duration
+	AutoResolutionRate   float64
+	ManualResolutionRate float64
+	EscalationRate       float64
+	RecurrenceRate       float64
 }
 
 // QoSUsage represents current QoS usage
 type QoSUsage struct {
-	QoSName              string
-	CPUsInUse            int
-	CPUsAllocated        int
-	CPUUtilization       float64
-	MemoryInUse          int64
-	MemoryAllocated      int64
-	MemoryUtilization    float64
-	NodesInUse           int
-	NodesAllocated       int
-	NodeUtilization      float64
-	JobsRunning          int
-	JobsPending          int
-	JobsCompleted        int
-	JobsFailed           int
-	UsersActive          int
-	AccountsActive       int
-	WalltimeConsumed     time.Duration
-	WalltimeAllocated    time.Duration
-	WalltimeUtilization  float64
-	EfficiencyScore      float64
-	ThroughputScore      float64
-	LoadFactor           float64
-	QueueDepth           int
-	WaitTimeAverage      time.Duration
-	WaitTimeMedian       time.Duration
+	QoSName               string
+	CPUsInUse             int
+	CPUsAllocated         int
+	CPUUtilization        float64
+	MemoryInUse           int64
+	MemoryAllocated       int64
+	MemoryUtilization     float64
+	NodesInUse            int
+	NodesAllocated        int
+	NodeUtilization       float64
+	JobsRunning           int
+	JobsPending           int
+	JobsCompleted         int
+	JobsFailed            int
+	UsersActive           int
+	AccountsActive        int
+	WalltimeConsumed      time.Duration
+	WalltimeAllocated     time.Duration
+	WalltimeUtilization   float64
+	EfficiencyScore       float64
+	ThroughputScore       float64
+	LoadFactor            float64
+	QueueDepth            int
+	WaitTimeAverage       time.Duration
+	WaitTimeMedian        time.Duration
 	TurnaroundTimeAverage time.Duration
 }
 
 // QoSConfiguration represents QoS configuration details
 type QoSConfiguration struct {
-	QoSName            string
-	ConfigVersion      string
-	LastModified       time.Time
-	ModifiedBy         string
-	InheritanceRules   map[string]bool
-	OverrideRules      map[string]interface{}
-	EnforcementPolicy  string
-	ViolationHandling  string
-	EscalationRules    []EscalationRule
-	NotificationRules  []NotificationRule
-	AuditSettings      AuditSettings
-	ComplianceLevel    string
-	PerformanceTarget  float64
+	QoSName           string
+	ConfigVersion     string
+	LastModified      time.Time
+	ModifiedBy        string
+	InheritanceRules  map[string]bool
+	OverrideRules     map[string]interface{}
+	EnforcementPolicy string
+	ViolationHandling string
+	EscalationRules   []EscalationRule
+	NotificationRules []NotificationRule
+	AuditSettings     AuditSettings
+	ComplianceLevel   string
+	PerformanceTarget float64
 }
 
 // EscalationRule represents escalation configuration
@@ -199,11 +199,11 @@ type NotificationRule struct {
 
 // AuditSettings represents audit configuration
 type AuditSettings struct {
-	Enabled          bool
-	LogLevel         string
-	RetentionPeriod  time.Duration
-	ArchiveLocation  string
-	ComplianceFlags  []string
+	Enabled         bool
+	LogLevel        string
+	RetentionPeriod time.Duration
+	ArchiveLocation string
+	ComplianceFlags []string
 }
 
 // QoSHierarchy represents the QoS hierarchy structure
@@ -220,29 +220,29 @@ type QoSHierarchy struct {
 
 // QoSPriorities represents QoS priority assignments
 type QoSPriorities struct {
-	PriorityMap       map[string]int
+	PriorityMap          map[string]int
 	NormalizedPriorities map[string]float64
-	PriorityGroups    map[string][]string
-	PreemptionMatrix  map[string][]string
-	PriorityTrends    map[string][]float64
-	LastUpdated       time.Time
+	PriorityGroups       map[string][]string
+	PreemptionMatrix     map[string][]string
+	PriorityTrends       map[string][]float64
+	LastUpdated          time.Time
 }
 
 // QoSAssignments represents QoS assignments to entities
 type QoSAssignments struct {
-	EntityType        string
-	Assignments       []QoSAssignment
-	TotalAssignments  int
-	DefaultAssigned   int
-	ExplicitAssigned  int
-	InheritedAssigned int
+	EntityType             string
+	Assignments            []QoSAssignment
+	TotalAssignments       int
+	DefaultAssigned        int
+	ExplicitAssigned       int
+	InheritedAssigned      int
 	ConflictingAssignments []AssignmentConflict
 }
 
 // QoSAssignment represents a single QoS assignment
 type QoSAssignment struct {
-	EntityID     string
-	QoSName      string
+	EntityID       string
+	QoSName        string
 	AssignmentType string
 	EffectiveFrom  time.Time
 	EffectiveTo    time.Time
@@ -254,16 +254,16 @@ type QoSAssignment struct {
 
 // AssignmentConflict represents conflicting QoS assignments
 type AssignmentConflict struct {
-	EntityID         string
-	ConflictingQoS   []string
-	ConflictType     string
-	ResolutionRule   string
-	ResolvedQoS      string
+	EntityID       string
+	ConflictingQoS []string
+	ConflictType   string
+	ResolutionRule string
+	ResolvedQoS    string
 }
 
 // QoSEnforcement represents QoS enforcement status
 type QoSEnforcement struct {
-	QoSName           string
+	QoSName            string
 	EnforcementEnabled bool
 	EnforcementLevel   string
 	ViolationActions   map[string]string
@@ -295,21 +295,21 @@ type QoSStatistics struct {
 	Period                string
 	JobsSubmitted         int
 	JobsCompleted         int
-	JobsFailed           int
-	JobsCanceled         int
-	JobsPreempted        int
-	AverageQueueTime     time.Duration
-	AverageRunTime       time.Duration
+	JobsFailed            int
+	JobsCanceled          int
+	JobsPreempted         int
+	AverageQueueTime      time.Duration
+	AverageRunTime        time.Duration
 	AverageTurnaroundTime time.Duration
-	ResourceEfficiency   float64
-	Throughput           float64
-	UtilizationRate      float64
-	SLACompliance        float64
-	PerformanceScore     float64
-	UserSatisfaction     float64
-	CostEffectiveness    float64
-	TrendDirection       string
-	PreviousPeriodChange float64
+	ResourceEfficiency    float64
+	Throughput            float64
+	UtilizationRate       float64
+	SLACompliance         float64
+	PerformanceScore      float64
+	UserSatisfaction      float64
+	CostEffectiveness     float64
+	TrendDirection        string
+	PreviousPeriodChange  float64
 }
 
 // QoSEffectiveness represents QoS effectiveness analysis
@@ -332,12 +332,12 @@ type QoSEffectiveness struct {
 
 // QoSConflicts represents detected QoS conflicts
 type QoSConflicts struct {
-	TotalConflicts     int
-	CriticalConflicts  int
-	ConflictsByType    map[string]int
-	Conflicts          []QoSConflict
-	ResolutionMatrix   map[string]string
-	LastAnalyzed       time.Time
+	TotalConflicts    int
+	CriticalConflicts int
+	ConflictsByType   map[string]int
+	Conflicts         []QoSConflict
+	ResolutionMatrix  map[string]string
+	LastAnalyzed      time.Time
 }
 
 // QoSConflict represents a single QoS conflict
@@ -356,19 +356,19 @@ type QoSConflict struct {
 
 // SystemQoSOverview represents system-wide QoS overview
 type SystemQoSOverview struct {
-	TotalQoS           int
-	ActiveQoS          int
-	DefaultQoS         string
-	HighestPriorityQoS string
-	LowestPriorityQoS  string
-	QoSUtilization     map[string]float64
-	SystemLoad         float64
-	OverallEfficiency  float64
-	ViolationRate      float64
-	ComplianceScore    float64
+	TotalQoS                 int
+	ActiveQoS                int
+	DefaultQoS               string
+	HighestPriorityQoS       string
+	LowestPriorityQoS        string
+	QoSUtilization           map[string]float64
+	SystemLoad               float64
+	OverallEfficiency        float64
+	ViolationRate            float64
+	ComplianceScore          float64
 	RecommendedOptimizations []string
-	SystemHealth       string
-	LastUpdated        time.Time
+	SystemHealth             string
+	LastUpdated              time.Time
 }
 
 // QoSLimitsCollector collects QoS limits and violations from SLURM
@@ -377,63 +377,63 @@ type QoSLimitsCollector struct {
 	mutex  sync.RWMutex
 
 	// QoS limit metrics
-	qosLimitCPUs              *prometheus.GaugeVec
-	qosLimitMemory            *prometheus.GaugeVec
-	qosLimitNodes             *prometheus.GaugeVec
-	qosLimitJobs              *prometheus.GaugeVec
-	qosLimitWalltime          *prometheus.GaugeVec
-	qosMaxCPUsPerUser         *prometheus.GaugeVec
-	qosMaxMemoryPerUser       *prometheus.GaugeVec
-	qosMaxJobsPerUser         *prometheus.GaugeVec
-	qosMinCPUs                *prometheus.GaugeVec
-	qosMinMemory              *prometheus.GaugeVec
-	qosMinNodes               *prometheus.GaugeVec
+	qosLimitCPUs        *prometheus.GaugeVec
+	qosLimitMemory      *prometheus.GaugeVec
+	qosLimitNodes       *prometheus.GaugeVec
+	qosLimitJobs        *prometheus.GaugeVec
+	qosLimitWalltime    *prometheus.GaugeVec
+	qosMaxCPUsPerUser   *prometheus.GaugeVec
+	qosMaxMemoryPerUser *prometheus.GaugeVec
+	qosMaxJobsPerUser   *prometheus.GaugeVec
+	qosMinCPUs          *prometheus.GaugeVec
+	qosMinMemory        *prometheus.GaugeVec
+	qosMinNodes         *prometheus.GaugeVec
 
 	// QoS priority and configuration metrics
-	qosPriority               *prometheus.GaugeVec
-	qosUsageFactor            *prometheus.GaugeVec
-	qosUsageThreshold         *prometheus.GaugeVec
-	qosGraceTime              *prometheus.GaugeVec
-	qosUserCount              *prometheus.GaugeVec
-	qosAccountCount           *prometheus.GaugeVec
+	qosPriority       *prometheus.GaugeVec
+	qosUsageFactor    *prometheus.GaugeVec
+	qosUsageThreshold *prometheus.GaugeVec
+	qosGraceTime      *prometheus.GaugeVec
+	qosUserCount      *prometheus.GaugeVec
+	qosAccountCount   *prometheus.GaugeVec
 
 	// QoS usage metrics
-	qosResourceUsage          *prometheus.GaugeVec
-	qosResourceUtilization    *prometheus.GaugeVec
-	qosJobsRunning            *prometheus.GaugeVec
-	qosJobsPending            *prometheus.GaugeVec
-	qosJobsCompleted          *prometheus.CounterVec
-	qosJobsFailed             *prometheus.CounterVec
-	qosUsersActive            *prometheus.GaugeVec
-	qosWalltimeConsumed       *prometheus.CounterVec
-	qosEfficiencyScore        *prometheus.GaugeVec
+	qosResourceUsage       *prometheus.GaugeVec
+	qosResourceUtilization *prometheus.GaugeVec
+	qosJobsRunning         *prometheus.GaugeVec
+	qosJobsPending         *prometheus.GaugeVec
+	qosJobsCompleted       *prometheus.CounterVec
+	qosJobsFailed          *prometheus.CounterVec
+	qosUsersActive         *prometheus.GaugeVec
+	qosWalltimeConsumed    *prometheus.CounterVec
+	qosEfficiencyScore     *prometheus.GaugeVec
 
 	// QoS violation metrics
-	qosViolations             *prometheus.CounterVec
-	qosViolationSeverity      *prometheus.GaugeVec
-	qosActiveViolations       *prometheus.GaugeVec
-	qosViolationDuration      *prometheus.HistogramVec
+	qosViolations              *prometheus.CounterVec
+	qosViolationSeverity       *prometheus.GaugeVec
+	qosActiveViolations        *prometheus.GaugeVec
+	qosViolationDuration       *prometheus.HistogramVec
 	qosViolationResolutionTime *prometheus.HistogramVec
-	qosAutoResolutionRate     *prometheus.GaugeVec
-	qosRecurrenceRate         *prometheus.GaugeVec
+	qosAutoResolutionRate      *prometheus.GaugeVec
+	qosRecurrenceRate          *prometheus.GaugeVec
 
 	// QoS enforcement metrics
-	qosEnforcementEnabled     *prometheus.GaugeVec
-	qosEnforcementActions     *prometheus.CounterVec
-	qosPreemptions            *prometheus.CounterVec
-	qosJobsTerminated         *prometheus.CounterVec
-	qosJobsSuspended          *prometheus.CounterVec
-	qosUsersWarned            *prometheus.CounterVec
+	qosEnforcementEnabled       *prometheus.GaugeVec
+	qosEnforcementActions       *prometheus.CounterVec
+	qosPreemptions              *prometheus.CounterVec
+	qosJobsTerminated           *prometheus.CounterVec
+	qosJobsSuspended            *prometheus.CounterVec
+	qosUsersWarned              *prometheus.CounterVec
 	qosEnforcementEffectiveness *prometheus.GaugeVec
 
 	// QoS performance metrics
-	qosAverageQueueTime       *prometheus.GaugeVec
-	qosAverageRunTime         *prometheus.GaugeVec
-	qosThroughput             *prometheus.GaugeVec
-	qosSLACompliance          *prometheus.GaugeVec
-	qosPerformanceScore       *prometheus.GaugeVec
-	qosUserSatisfaction       *prometheus.GaugeVec
-	qosCostEffectiveness      *prometheus.GaugeVec
+	qosAverageQueueTime  *prometheus.GaugeVec
+	qosAverageRunTime    *prometheus.GaugeVec
+	qosThroughput        *prometheus.GaugeVec
+	qosSLACompliance     *prometheus.GaugeVec
+	qosPerformanceScore  *prometheus.GaugeVec
+	qosUserSatisfaction  *prometheus.GaugeVec
+	qosCostEffectiveness *prometheus.GaugeVec
 
 	// QoS hierarchy metrics
 	qosHierarchyDepth         *prometheus.GaugeVec
@@ -442,24 +442,24 @@ type QoSLimitsCollector struct {
 	qosConflicts              *prometheus.GaugeVec
 
 	// QoS effectiveness metrics
-	qosOverallEffectiveness   *prometheus.GaugeVec
-	qosResourceOptimization   *prometheus.GaugeVec
-	qosFairnessScore          *prometheus.GaugeVec
-	qosSystemThroughput       *prometheus.GaugeVec
-	qosPolicyCompliance       *prometheus.GaugeVec
-	qosCostBenefitRatio       *prometheus.GaugeVec
+	qosOverallEffectiveness *prometheus.GaugeVec
+	qosResourceOptimization *prometheus.GaugeVec
+	qosFairnessScore        *prometheus.GaugeVec
+	qosSystemThroughput     *prometheus.GaugeVec
+	qosPolicyCompliance     *prometheus.GaugeVec
+	qosCostBenefitRatio     *prometheus.GaugeVec
 
 	// System QoS metrics
-	systemQoSUtilization      *prometheus.GaugeVec
-	systemQoSLoad             *prometheus.GaugeVec
-	systemQoSEfficiency       *prometheus.GaugeVec
-	systemQoSViolationRate    *prometheus.GaugeVec
-	systemQoSComplianceScore  *prometheus.GaugeVec
+	systemQoSUtilization     *prometheus.GaugeVec
+	systemQoSLoad            *prometheus.GaugeVec
+	systemQoSEfficiency      *prometheus.GaugeVec
+	systemQoSViolationRate   *prometheus.GaugeVec
+	systemQoSComplianceScore *prometheus.GaugeVec
 
 	// Collection metrics
-	collectionDuration        *prometheus.HistogramVec
-	collectionErrors          *prometheus.CounterVec
-	lastCollectionTime        *prometheus.GaugeVec
+	collectionDuration *prometheus.HistogramVec
+	collectionErrors   *prometheus.CounterVec
+	lastCollectionTime *prometheus.GaugeVec
 }
 
 // NewQoSLimitsCollector creates a new QoS limits collector

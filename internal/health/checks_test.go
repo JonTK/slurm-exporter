@@ -47,7 +47,7 @@ func TestSLURMAPIHealthCheck_Healthy(t *testing.T) {
 	assert.Contains(t, result.Message, "responding normally")
 	assert.Equal(t, "true", result.Metadata["ping_successful"])
 	assert.Equal(t, "true", result.Metadata["info_successful"])
-	
+
 	client.AssertExpectations(t)
 }
 
@@ -61,7 +61,7 @@ func TestSLURMAPIHealthCheck_PingFails(t *testing.T) {
 	assert.Equal(t, StatusUnhealthy, result.Status)
 	assert.Contains(t, result.Error, "ping failed")
 	assert.Contains(t, result.Error, "connection refused")
-	
+
 	client.AssertExpectations(t)
 }
 
@@ -77,7 +77,7 @@ func TestSLURMAPIHealthCheck_InfoFails(t *testing.T) {
 	assert.Contains(t, result.Error, "info call failed")
 	assert.Contains(t, result.Error, "unauthorized")
 	assert.Equal(t, "true", result.Metadata["ping_successful"])
-	
+
 	client.AssertExpectations(t)
 }
 

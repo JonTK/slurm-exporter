@@ -18,30 +18,30 @@ type EfficiencyCalculator struct {
 // EfficiencyConfig holds configuration for efficiency calculations
 type EfficiencyConfig struct {
 	// CPU efficiency thresholds
-	CPUIdleThreshold      float64 `yaml:"cpu_idle_threshold"`      // Below this is considered idle
-	CPUOptimalThreshold   float64 `yaml:"cpu_optimal_threshold"`   // Above this is considered optimal
+	CPUIdleThreshold    float64 `yaml:"cpu_idle_threshold"`    // Below this is considered idle
+	CPUOptimalThreshold float64 `yaml:"cpu_optimal_threshold"` // Above this is considered optimal
 
 	// Memory efficiency thresholds
-	MemoryWasteThreshold  float64 `yaml:"memory_waste_threshold"`  // Above this allocation is wasteful
+	MemoryWasteThreshold    float64 `yaml:"memory_waste_threshold"`    // Above this allocation is wasteful
 	MemoryPressureThreshold float64 `yaml:"memory_pressure_threshold"` // Above this is memory pressure
 
 	// I/O efficiency thresholds
-	IOOptimalBandwidth    float64 `yaml:"io_optimal_bandwidth"`    // Optimal I/O bandwidth in MB/s
-	IOLatencyThreshold    float64 `yaml:"io_latency_threshold"`    // Maximum acceptable I/O latency in ms
+	IOOptimalBandwidth float64 `yaml:"io_optimal_bandwidth"` // Optimal I/O bandwidth in MB/s
+	IOLatencyThreshold float64 `yaml:"io_latency_threshold"` // Maximum acceptable I/O latency in ms
 
 	// Network efficiency thresholds
 	NetworkOptimalBandwidth float64 `yaml:"network_optimal_bandwidth"` // Optimal network bandwidth in MB/s
 
 	// Overall efficiency calculation weights
-	CPUWeight       float64 `yaml:"cpu_weight"`       // Weight for CPU efficiency in overall score
-	MemoryWeight    float64 `yaml:"memory_weight"`    // Weight for memory efficiency in overall score
-	IOWeight        float64 `yaml:"io_weight"`        // Weight for I/O efficiency in overall score
-	NetworkWeight   float64 `yaml:"network_weight"`   // Weight for network efficiency in overall score
+	CPUWeight     float64 `yaml:"cpu_weight"`     // Weight for CPU efficiency in overall score
+	MemoryWeight  float64 `yaml:"memory_weight"`  // Weight for memory efficiency in overall score
+	IOWeight      float64 `yaml:"io_weight"`      // Weight for I/O efficiency in overall score
+	NetworkWeight float64 `yaml:"network_weight"` // Weight for network efficiency in overall score
 
 	// Efficiency scoring parameters
-	MinEfficiencyScore    float64 `yaml:"min_efficiency_score"`    // Minimum efficiency score (0.0-1.0)
-	MaxEfficiencyScore    float64 `yaml:"max_efficiency_score"`    // Maximum efficiency score (0.0-1.0)
-	OptimalUtilization    float64 `yaml:"optimal_utilization"`     // Target utilization percentage
+	MinEfficiencyScore float64 `yaml:"min_efficiency_score"` // Minimum efficiency score (0.0-1.0)
+	MaxEfficiencyScore float64 `yaml:"max_efficiency_score"` // Maximum efficiency score (0.0-1.0)
+	OptimalUtilization float64 `yaml:"optimal_utilization"`  // Target utilization percentage
 }
 
 // Note: EfficiencyMetrics type is defined in common_types.go
@@ -49,57 +49,57 @@ type EfficiencyConfig struct {
 // ResourceUtilizationData represents actual resource usage data
 type ResourceUtilizationData struct {
 	// CPU metrics
-	CPURequested    float64 `json:"cpu_requested"`    // CPUs requested
-	CPUAllocated    float64 `json:"cpu_allocated"`    // CPUs allocated
-	CPUUsed         float64 `json:"cpu_used"`         // CPUs actually used
-	CPUTimeTotal    float64 `json:"cpu_time_total"`   // Total CPU time in seconds
-	CPUTimeUser     float64 `json:"cpu_time_user"`    // User CPU time in seconds
-	CPUTimeSystem   float64 `json:"cpu_time_system"`  // System CPU time in seconds
-	WallTime        float64 `json:"wall_time"`        // Wall clock time in seconds
+	CPURequested  float64 `json:"cpu_requested"`   // CPUs requested
+	CPUAllocated  float64 `json:"cpu_allocated"`   // CPUs allocated
+	CPUUsed       float64 `json:"cpu_used"`        // CPUs actually used
+	CPUTimeTotal  float64 `json:"cpu_time_total"`  // Total CPU time in seconds
+	CPUTimeUser   float64 `json:"cpu_time_user"`   // User CPU time in seconds
+	CPUTimeSystem float64 `json:"cpu_time_system"` // System CPU time in seconds
+	WallTime      float64 `json:"wall_time"`       // Wall clock time in seconds
 
 	// Memory metrics
-	MemoryRequested int64   `json:"memory_requested"` // Memory requested in bytes
-	MemoryAllocated int64   `json:"memory_allocated"` // Memory allocated in bytes
-	MemoryUsed      int64   `json:"memory_used"`      // Memory used in bytes
-	MemoryPeak      int64   `json:"memory_peak"`      // Peak memory usage in bytes
+	MemoryRequested int64 `json:"memory_requested"` // Memory requested in bytes
+	MemoryAllocated int64 `json:"memory_allocated"` // Memory allocated in bytes
+	MemoryUsed      int64 `json:"memory_used"`      // Memory used in bytes
+	MemoryPeak      int64 `json:"memory_peak"`      // Peak memory usage in bytes
 
 	// I/O metrics
-	IOReadBytes     int64   `json:"io_read_bytes"`    // Bytes read
-	IOWriteBytes    int64   `json:"io_write_bytes"`   // Bytes written
-	IOReadOps       int64   `json:"io_read_ops"`      // Read operations
-	IOWriteOps      int64   `json:"io_write_ops"`     // Write operations
-	IOWaitTime      float64 `json:"io_wait_time"`     // I/O wait time in seconds
+	IOReadBytes  int64   `json:"io_read_bytes"`  // Bytes read
+	IOWriteBytes int64   `json:"io_write_bytes"` // Bytes written
+	IOReadOps    int64   `json:"io_read_ops"`    // Read operations
+	IOWriteOps   int64   `json:"io_write_ops"`   // Write operations
+	IOWaitTime   float64 `json:"io_wait_time"`   // I/O wait time in seconds
 
 	// Network metrics
-	NetworkRxBytes  int64   `json:"network_rx_bytes"` // Bytes received
-	NetworkTxBytes  int64   `json:"network_tx_bytes"` // Bytes transmitted
-	NetworkRxPackets int64  `json:"network_rx_packets"` // Packets received
-	NetworkTxPackets int64  `json:"network_tx_packets"` // Packets transmitted
+	NetworkRxBytes   int64 `json:"network_rx_bytes"`   // Bytes received
+	NetworkTxBytes   int64 `json:"network_tx_bytes"`   // Bytes transmitted
+	NetworkRxPackets int64 `json:"network_rx_packets"` // Packets received
+	NetworkTxPackets int64 `json:"network_tx_packets"` // Packets transmitted
 
 	// Job timing
-	StartTime       time.Time `json:"start_time"`
-	EndTime         time.Time `json:"end_time"`
-	JobState        string    `json:"job_state"`
+	StartTime time.Time `json:"start_time"`
+	EndTime   time.Time `json:"end_time"`
+	JobState  string    `json:"job_state"`
 }
 
 // NewEfficiencyCalculator creates a new efficiency calculator
 func NewEfficiencyCalculator(logger *slog.Logger, config *EfficiencyConfig) *EfficiencyCalculator {
 	if config == nil {
 		config = &EfficiencyConfig{
-			CPUIdleThreshold:        0.1,   // 10% CPU usage considered idle
-			CPUOptimalThreshold:     0.8,   // 80% CPU usage considered optimal
-			MemoryWasteThreshold:    0.5,   // 50% memory waste is excessive
-			MemoryPressureThreshold: 0.9,   // 90% memory usage is pressure
-			IOOptimalBandwidth:      100.0, // 100 MB/s optimal I/O
-			IOLatencyThreshold:      10.0,  // 10ms maximum I/O latency
+			CPUIdleThreshold:        0.1,    // 10% CPU usage considered idle
+			CPUOptimalThreshold:     0.8,    // 80% CPU usage considered optimal
+			MemoryWasteThreshold:    0.5,    // 50% memory waste is excessive
+			MemoryPressureThreshold: 0.9,    // 90% memory usage is pressure
+			IOOptimalBandwidth:      100.0,  // 100 MB/s optimal I/O
+			IOLatencyThreshold:      10.0,   // 10ms maximum I/O latency
 			NetworkOptimalBandwidth: 1000.0, // 1 GB/s optimal network
-			CPUWeight:               0.4,   // 40% weight for CPU
-			MemoryWeight:            0.3,   // 30% weight for memory
-			IOWeight:                0.2,   // 20% weight for I/O
-			NetworkWeight:           0.1,   // 10% weight for network
+			CPUWeight:               0.4,    // 40% weight for CPU
+			MemoryWeight:            0.3,    // 30% weight for memory
+			IOWeight:                0.2,    // 20% weight for I/O
+			NetworkWeight:           0.1,    // 10% weight for network
 			MinEfficiencyScore:      0.0,
 			MaxEfficiencyScore:      1.0,
-			OptimalUtilization:      0.8,   // 80% optimal utilization
+			OptimalUtilization:      0.8, // 80% optimal utilization
 		}
 	}
 
@@ -219,15 +219,15 @@ func (e *EfficiencyCalculator) calculateIOEfficiency(data *ResourceUtilizationDa
 
 	// Calculate I/O bandwidth efficiency
 	ioThroughputMBps := float64(totalIOBytes) / (data.WallTime * 1024 * 1024)
-	bandwidthEfficiency := math.Min(ioThroughputMBps / e.config.IOOptimalBandwidth, 1.0)
+	bandwidthEfficiency := math.Min(ioThroughputMBps/e.config.IOOptimalBandwidth, 1.0)
 
 	// Calculate I/O wait efficiency (lower wait time is better)
 	ioWaitRatio := data.IOWaitTime / data.WallTime
-	waitEfficiency := math.Max(0.0, 1.0 - (ioWaitRatio * 2.0)) // Penalize high I/O wait
+	waitEfficiency := math.Max(0.0, 1.0-(ioWaitRatio*2.0)) // Penalize high I/O wait
 
 	// Calculate operation efficiency (operations per second)
 	opsPerSecond := float64(totalIOOps) / data.WallTime
-	opsEfficiency := math.Min(opsPerSecond / 1000.0, 1.0) // Assume 1000 ops/sec is optimal
+	opsEfficiency := math.Min(opsPerSecond/1000.0, 1.0) // Assume 1000 ops/sec is optimal
 
 	// Combine efficiency scores
 	ioEfficiency := (0.5 * bandwidthEfficiency) + (0.3 * waitEfficiency) + (0.2 * opsEfficiency)
@@ -251,18 +251,18 @@ func (e *EfficiencyCalculator) calculateNetworkEfficiency(data *ResourceUtilizat
 
 	// Calculate network bandwidth efficiency
 	networkThroughputMBps := float64(totalNetworkBytes) / (data.WallTime * 1024 * 1024)
-	bandwidthEfficiency := math.Min(networkThroughputMBps / e.config.NetworkOptimalBandwidth, 1.0)
+	bandwidthEfficiency := math.Min(networkThroughputMBps/e.config.NetworkOptimalBandwidth, 1.0)
 
 	// Calculate packet efficiency
 	packetsPerSecond := float64(totalNetworkPackets) / data.WallTime
-	packetEfficiency := math.Min(packetsPerSecond / 10000.0, 1.0) // Assume 10k packets/sec is optimal
+	packetEfficiency := math.Min(packetsPerSecond/10000.0, 1.0) // Assume 10k packets/sec is optimal
 
 	// Calculate average packet size efficiency (larger packets are generally more efficient)
 	avgPacketSize := 0.0
 	if totalNetworkPackets > 0 {
 		avgPacketSize = float64(totalNetworkBytes) / float64(totalNetworkPackets)
 	}
-	sizeEfficiency := math.Min(avgPacketSize / 1500.0, 1.0) // 1500 bytes (MTU) is optimal
+	sizeEfficiency := math.Min(avgPacketSize/1500.0, 1.0) // 1500 bytes (MTU) is optimal
 
 	// Combine efficiency scores
 	networkEfficiency := (0.6 * bandwidthEfficiency) + (0.2 * packetEfficiency) + (0.2 * sizeEfficiency)
@@ -287,9 +287,9 @@ func (e *EfficiencyCalculator) calculateThroughputEfficiency(ioEff, networkEff f
 // calculateOverallEfficiency calculates the overall weighted efficiency score
 func (e *EfficiencyCalculator) calculateOverallEfficiency(metrics *EfficiencyMetrics) float64 {
 	overallEfficiency := (e.config.CPUWeight * metrics.CPUEfficiency) +
-						 (e.config.MemoryWeight * metrics.MemoryEfficiency) +
-						 (e.config.IOWeight * metrics.IOEfficiency) +
-						 (e.config.NetworkWeight * metrics.NetworkEfficiency)
+		(e.config.MemoryWeight * metrics.MemoryEfficiency) +
+		(e.config.IOWeight * metrics.IOEfficiency) +
+		(e.config.NetworkWeight * metrics.NetworkEfficiency)
 
 	return e.clampEfficiency(overallEfficiency)
 }
@@ -298,12 +298,12 @@ func (e *EfficiencyCalculator) calculateOverallEfficiency(metrics *EfficiencyMet
 func (e *EfficiencyCalculator) calculateWasteRatio(data *ResourceUtilizationData) float64 {
 	cpuWaste := 0.0
 	if data.CPUAllocated > 0 {
-		cpuWaste = math.Max(0.0, (data.CPUAllocated - data.CPUUsed) / data.CPUAllocated)
+		cpuWaste = math.Max(0.0, (data.CPUAllocated-data.CPUUsed)/data.CPUAllocated)
 	}
 
 	memoryWaste := 0.0
 	if data.MemoryAllocated > 0 {
-		memoryWaste = math.Max(0.0, float64(data.MemoryAllocated - data.MemoryUsed) / float64(data.MemoryAllocated))
+		memoryWaste = math.Max(0.0, float64(data.MemoryAllocated-data.MemoryUsed)/float64(data.MemoryAllocated))
 	}
 
 	// Average waste across CPU and memory (weight CPU more heavily)
@@ -319,14 +319,14 @@ func (e *EfficiencyCalculator) calculateOptimalityScore(data *ResourceUtilizatio
 	// CPU optimality
 	if data.CPUAllocated > 0 {
 		cpuUtil := data.CPUUsed / data.CPUAllocated
-		cpuOptimality := 1.0 - math.Abs(cpuUtil - e.config.OptimalUtilization)
+		cpuOptimality := 1.0 - math.Abs(cpuUtil-e.config.OptimalUtilization)
 		scores = append(scores, math.Max(0.0, cpuOptimality))
 	}
 
 	// Memory optimality
 	if data.MemoryAllocated > 0 {
 		memoryUtil := float64(data.MemoryUsed) / float64(data.MemoryAllocated)
-		memoryOptimality := 1.0 - math.Abs(memoryUtil - e.config.OptimalUtilization)
+		memoryOptimality := 1.0 - math.Abs(memoryUtil-e.config.OptimalUtilization)
 		scores = append(scores, math.Max(0.0, memoryOptimality))
 	}
 
@@ -379,7 +379,7 @@ func (e *EfficiencyCalculator) calculateUtilizationScore(utilization float64) fl
 	} else {
 		// Over-utilization - declining efficiency
 		overuse := utilization - e.config.CPUOptimalThreshold
-		return math.Max(0.5, 0.8 - (overuse * 2.0))
+		return math.Max(0.5, 0.8-(overuse*2.0))
 	}
 }
 
@@ -484,7 +484,7 @@ func CreateResourceUtilizationDataFromJob(job *slurm.Job) *ResourceUtilizationDa
 	data := &ResourceUtilizationData{
 		CPURequested:    float64(job.CPUs),
 		CPUAllocated:    float64(job.CPUs),
-		CPUUsed:         float64(job.CPUs) * 0.75, // Estimate 75% usage
+		CPUUsed:         float64(job.CPUs) * 0.75,        // Estimate 75% usage
 		MemoryRequested: int64(job.Memory) * 1024 * 1024, // Convert MB to bytes
 		MemoryAllocated: int64(job.Memory) * 1024 * 1024,
 		MemoryUsed:      int64(job.Memory) * 1024 * 1024 * 65 / 100, // Estimate 65% usage
@@ -505,7 +505,7 @@ func CreateResourceUtilizationDataFromJob(job *slurm.Job) *ResourceUtilizationDa
 	// Estimate CPU time based on wall time and usage
 	if data.WallTime > 0 {
 		data.CPUTimeTotal = data.CPUUsed * data.WallTime
-		data.CPUTimeUser = data.CPUTimeTotal * 0.9  // 90% user time
+		data.CPUTimeUser = data.CPUTimeTotal * 0.9   // 90% user time
 		data.CPUTimeSystem = data.CPUTimeTotal * 0.1 // 10% system time
 	}
 

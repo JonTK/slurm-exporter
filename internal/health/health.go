@@ -216,9 +216,9 @@ func (h *HealthChecker) ReadinessHandler() http.HandlerFunc {
 
 		// Return simplified response for readiness
 		response := map[string]interface{}{
-			"ready":      report.IsReady(),
-			"status":     report.Status,
-			"timestamp":  report.Timestamp,
+			"ready":     report.IsReady(),
+			"status":    report.Status,
+			"timestamp": report.Timestamp,
 			"checks_passed": func() int {
 				passed := 0
 				for _, check := range report.Checks {

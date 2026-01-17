@@ -118,7 +118,7 @@ func (c *ClustersCollector) Collect(ctx context.Context, ch chan<- prometheus.Me
 	// Process each cluster
 	for _, cluster := range clusters.Clusters {
 		clusterName := cluster.Name
-		
+
 		// Export cluster info
 		ch <- prometheus.MustNewConstMetric(
 			c.clusterInfo,
@@ -146,7 +146,7 @@ func (c *ClustersCollector) Collect(ctx context.Context, ch chan<- prometheus.Me
 				clusterName, "select", fmt.Sprintf("%d", cluster.PluginIDSelect),
 			)
 		}
-		
+
 		if cluster.PluginIDAuth > 0 {
 			ch <- prometheus.MustNewConstMetric(
 				c.clusterPluginInfo,
@@ -155,7 +155,7 @@ func (c *ClustersCollector) Collect(ctx context.Context, ch chan<- prometheus.Me
 				clusterName, "auth", fmt.Sprintf("%d", cluster.PluginIDAuth),
 			)
 		}
-		
+
 		if cluster.PluginIDAcct > 0 {
 			ch <- prometheus.MustNewConstMetric(
 				c.clusterPluginInfo,

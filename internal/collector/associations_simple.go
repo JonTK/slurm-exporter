@@ -20,13 +20,13 @@ type AssociationsSimpleCollector struct {
 	enabled bool
 
 	// Association metrics
-	associationInfo         *prometheus.Desc
-	associationCPULimit     *prometheus.Desc
-	associationMemoryLimit  *prometheus.Desc
-	associationTimeLimit    *prometheus.Desc
-	associationPriority     *prometheus.Desc
-	associationSharesRaw    *prometheus.Desc
-	associationSharesNorm   *prometheus.Desc
+	associationInfo        *prometheus.Desc
+	associationCPULimit    *prometheus.Desc
+	associationMemoryLimit *prometheus.Desc
+	associationTimeLimit   *prometheus.Desc
+	associationPriority    *prometheus.Desc
+	associationSharesRaw   *prometheus.Desc
+	associationSharesNorm  *prometheus.Desc
 }
 
 // NewAssociationsSimpleCollector creates a new Associations collector

@@ -73,7 +73,7 @@ func (pc *ProfiledCollector) Collect(ctx context.Context, ch chan<- prometheus.M
 
 	// Phase: Post-collection
 	op.Phase("post_collection")
-	
+
 	// Log collection results
 	if err != nil {
 		pc.logger.WithError(err).Error("Collection failed")

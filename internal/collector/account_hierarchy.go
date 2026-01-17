@@ -44,15 +44,15 @@ type UserAccount struct {
 
 // AccountAssociations represents all associations for an account
 type AccountAssociations struct {
-	AccountName       string
-	Users             []*UserAccount
-	ParentAssociations []*ParentAssociation
-	ChildAssociations  []*ChildAssociation
-	PeerAssociations   []*PeerAssociation
+	AccountName          string
+	Users                []*UserAccount
+	ParentAssociations   []*ParentAssociation
+	ChildAssociations    []*ChildAssociation
+	PeerAssociations     []*PeerAssociation
 	ExternalAssociations []*ExternalAssociation
-	TotalAssociations  int
-	ActiveAssociations int
-	PendingAssociations int
+	TotalAssociations    int
+	ActiveAssociations   int
+	PendingAssociations  int
 }
 
 // SubAccount represents a sub-account relationship
@@ -82,9 +82,9 @@ type ChildAssociation struct {
 
 // PeerAssociation represents a peer account association
 type PeerAssociation struct {
-	PeerAccount      string
-	AssociationType  string
-	SharedResources  []string
+	PeerAccount       string
+	AssociationType   string
+	SharedResources   []string
 	MutualPermissions map[string]bool
 }
 
@@ -98,30 +98,30 @@ type ExternalAssociation struct {
 
 // AccountPermissions represents account permissions
 type AccountPermissions struct {
-	AccountName      string
-	AdminUsers       []string
-	OperatorUsers    []string
-	ViewOnlyUsers    []string
-	SubmitUsers      []string
-	CustomRoles      map[string][]string
-	InheritedPerms   map[string]bool
-	EffectivePerms   map[string][]string
+	AccountName    string
+	AdminUsers     []string
+	OperatorUsers  []string
+	ViewOnlyUsers  []string
+	SubmitUsers    []string
+	CustomRoles    map[string][]string
+	InheritedPerms map[string]bool
+	EffectivePerms map[string][]string
 }
 
 // UserAccountMapping represents system-wide user-account mappings
 type UserAccountMapping struct {
-	TotalMappings    int
+	TotalMappings     int
 	UsersWithMultiple int
-	OrphanedUsers    []string
-	MappingsByType   map[string]int
+	OrphanedUsers     []string
+	MappingsByType    map[string]int
 }
 
 // AccountRelationships represents account relationships
 type AccountRelationships struct {
-	ParentRelations  []*ParentRelation
-	ChildRelations   []*ChildRelation
-	PeerRelations    []*PeerRelation
-	DependencyGraph  map[string][]string
+	ParentRelations []*ParentRelation
+	ChildRelations  []*ChildRelation
+	PeerRelations   []*PeerRelation
+	DependencyGraph map[string][]string
 }
 
 // ParentRelation represents a parent relationship
@@ -140,20 +140,20 @@ type ChildRelation struct {
 
 // PeerRelation represents a peer relationship
 type PeerRelation struct {
-	PeerAccount  string
-	RelationType string
+	PeerAccount   string
+	RelationType  string
 	Bidirectional bool
-	Strength     float64
+	Strength      float64
 }
 
 // AccountInheritance represents inheritance settings
 type AccountInheritance struct {
-	AccountName         string
-	InheritedFrom       []string
-	InheritedProperties map[string]interface{}
+	AccountName          string
+	InheritedFrom        []string
+	InheritedProperties  map[string]interface{}
 	OverriddenProperties map[string]interface{}
-	InheritanceChain    []string
-	EffectiveSettings   map[string]interface{}
+	InheritanceChain     []string
+	EffectiveSettings    map[string]interface{}
 }
 
 // AccountDelegations represents delegation settings
@@ -168,10 +168,10 @@ type AccountDelegations struct {
 
 // AccountAccessMatrix represents the access control matrix
 type AccountAccessMatrix struct {
-	Matrix            map[string]map[string][]string
-	TotalPermissions  int
-	ConflictingPerms  int
-	EffectivePerms    map[string]map[string]bool
+	Matrix           map[string]map[string][]string
+	TotalPermissions int
+	ConflictingPerms int
+	EffectivePerms   map[string]map[string]bool
 }
 
 // HierarchyValidation represents hierarchy validation results
@@ -196,26 +196,26 @@ type AccountConflicts struct {
 
 // PermissionConflict represents a permission conflict
 type PermissionConflict struct {
-	AccountName    string
-	ConflictType   string
+	AccountName      string
+	ConflictType     string
 	ConflictingPerms []string
-	Resolution     string
+	Resolution       string
 }
 
 // QuotaConflict represents a quota conflict
 type QuotaConflict struct {
-	AccountName     string
-	ConflictType    string
+	AccountName       string
+	ConflictType      string
 	ConflictingQuotas map[string]float64
-	Resolution      string
+	Resolution        string
 }
 
 // HierarchyConflict represents a hierarchy conflict
 type HierarchyConflict struct {
-	AccountName    string
-	ConflictType   string
+	AccountName      string
+	ConflictType     string
 	ConflictingPaths []string
-	Resolution     string
+	Resolution       string
 }
 
 // OrganizationalUnit represents an organizational unit
@@ -232,33 +232,33 @@ type AccountHierarchyCollector struct {
 	mutex  sync.RWMutex
 
 	// Hierarchy structure metrics
-	accountHierarchyDepth     *prometheus.GaugeVec
-	accountHierarchyAccounts  *prometheus.GaugeVec
-	accountHierarchyUsers     *prometheus.GaugeVec
-	accountChildCount         *prometheus.GaugeVec
-	accountUserCount          *prometheus.GaugeVec
-	accountActiveUsers        *prometheus.GaugeVec
+	accountHierarchyDepth    *prometheus.GaugeVec
+	accountHierarchyAccounts *prometheus.GaugeVec
+	accountHierarchyUsers    *prometheus.GaugeVec
+	accountChildCount        *prometheus.GaugeVec
+	accountUserCount         *prometheus.GaugeVec
+	accountActiveUsers       *prometheus.GaugeVec
 
 	// Association metrics
-	userAccountAssociations   *prometheus.GaugeVec
-	accountAssociationCount   *prometheus.GaugeVec
-	userDefaultAccount        *prometheus.GaugeVec
-	accountAssociationType    *prometheus.GaugeVec
-	orphanedUsers             *prometheus.GaugeVec
-	multiAccountUsers         *prometheus.GaugeVec
+	userAccountAssociations *prometheus.GaugeVec
+	accountAssociationCount *prometheus.GaugeVec
+	userDefaultAccount      *prometheus.GaugeVec
+	accountAssociationType  *prometheus.GaugeVec
+	orphanedUsers           *prometheus.GaugeVec
+	multiAccountUsers       *prometheus.GaugeVec
 
 	// Permission metrics
-	accountPermissionUsers    *prometheus.GaugeVec
-	accountEffectivePerms     *prometheus.GaugeVec
-	accountInheritedPerms     *prometheus.GaugeVec
-	accountCustomRoles        *prometheus.GaugeVec
-	permissionConflicts       *prometheus.GaugeVec
+	accountPermissionUsers *prometheus.GaugeVec
+	accountEffectivePerms  *prometheus.GaugeVec
+	accountInheritedPerms  *prometheus.GaugeVec
+	accountCustomRoles     *prometheus.GaugeVec
+	permissionConflicts    *prometheus.GaugeVec
 
 	// Inheritance metrics
-	accountInheritanceDepth   *prometheus.GaugeVec
-	accountInheritedProps     *prometheus.GaugeVec
-	accountOverriddenProps    *prometheus.GaugeVec
-	inheritanceChainLength    *prometheus.GaugeVec
+	accountInheritanceDepth *prometheus.GaugeVec
+	accountInheritedProps   *prometheus.GaugeVec
+	accountOverriddenProps  *prometheus.GaugeVec
+	inheritanceChainLength  *prometheus.GaugeVec
 
 	// Delegation metrics
 	accountDelegationsActive  *prometheus.GaugeVec
@@ -273,24 +273,24 @@ type AccountHierarchyCollector struct {
 	hierarchyConflicts        *prometheus.GaugeVec
 
 	// Access matrix metrics
-	accessMatrixPermissions   *prometheus.GaugeVec
-	accessMatrixConflicts     *prometheus.GaugeVec
-	effectivePermissions      *prometheus.GaugeVec
+	accessMatrixPermissions *prometheus.GaugeVec
+	accessMatrixConflicts   *prometheus.GaugeVec
+	effectivePermissions    *prometheus.GaugeVec
 
 	// Organizational metrics
-	organizationalUnitCount   *prometheus.GaugeVec
-	organizationalUnitUsers   *prometheus.GaugeVec
-	organizationalUnitShare   *prometheus.GaugeVec
+	organizationalUnitCount *prometheus.GaugeVec
+	organizationalUnitUsers *prometheus.GaugeVec
+	organizationalUnitShare *prometheus.GaugeVec
 
 	// Relationship metrics
-	accountRelationships      *prometheus.GaugeVec
-	relationshipStrength      *prometheus.GaugeVec
-	bidirectionalRelations    *prometheus.GaugeVec
+	accountRelationships   *prometheus.GaugeVec
+	relationshipStrength   *prometheus.GaugeVec
+	bidirectionalRelations *prometheus.GaugeVec
 
 	// Collection metrics
-	collectionDuration        *prometheus.HistogramVec
-	collectionErrors          *prometheus.CounterVec
-	lastCollectionTime        *prometheus.GaugeVec
+	collectionDuration *prometheus.HistogramVec
+	collectionErrors   *prometheus.CounterVec
+	lastCollectionTime *prometheus.GaugeVec
 }
 
 // NewAccountHierarchyCollector creates a new account hierarchy collector
@@ -1114,8 +1114,8 @@ func (c *AccountHierarchyCollector) collectOrganizationalMetrics() {
 // Helper function to check if a string contains a substring
 func hierarchyContains(s, substr string) bool {
 	return len(s) >= len(substr) && s[:len(substr)] == substr ||
-		   len(s) >= len(substr) && s[len(s)-len(substr):] == substr ||
-		   len(s) > len(substr) && hierarchyContainsMiddle(s, substr)
+		len(s) >= len(substr) && s[len(s)-len(substr):] == substr ||
+		len(s) > len(substr) && hierarchyContainsMiddle(s, substr)
 }
 
 func hierarchyContainsMiddle(s, substr string) bool {

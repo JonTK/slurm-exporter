@@ -23,10 +23,10 @@ type mockBatchItem struct {
 	timestamp time.Time
 }
 
-func (m *mockBatchItem) Key() string         { return m.key }
-func (m *mockBatchItem) Size() int           { return m.size }
-func (m *mockBatchItem) Type() string        { return m.itemType }
-func (m *mockBatchItem) Priority() int       { return m.priority }
+func (m *mockBatchItem) Key() string          { return m.key }
+func (m *mockBatchItem) Size() int            { return m.size }
+func (m *mockBatchItem) Type() string         { return m.itemType }
+func (m *mockBatchItem) Priority() int        { return m.priority }
 func (m *mockBatchItem) Timestamp() time.Time { return m.timestamp }
 
 func TestNewBatchProcessor(t *testing.T) {
@@ -241,7 +241,7 @@ func TestBatchProcessor_RetryLogic(t *testing.T) {
 	items := []BatchItem{
 		&mockBatchItem{key: "item1", size: 10, itemType: "test", priority: 1, timestamp: time.Now()},
 	}
-	
+
 	bp.processBatchWithRetry("test", items, processor, time.Second)
 
 	// Check retry count
@@ -263,7 +263,7 @@ func TestBatchProcessor_ConcurrentAdd(t *testing.T) {
 	// Concurrent adds
 	var wg sync.WaitGroup
 	itemCount := 50
-	
+
 	for i := 0; i < itemCount; i++ {
 		wg.Add(1)
 		go func(idx int) {
@@ -359,10 +359,10 @@ func TestBatchProcessor_GetStats(t *testing.T) {
 	stats := bp.GetStats()
 
 	assert.Equal(t, 1, stats["batch_count"])
-	
+
 	batchTypes := stats["batch_types"].(map[string]interface{})
 	testBatch := batchTypes["test"].(map[string]interface{})
-	
+
 	assert.Equal(t, 2, testBatch["items"])
 	assert.Equal(t, 300, testBatch["total_size"])
 	assert.Equal(t, 10, testBatch["priority"])

@@ -23,10 +23,10 @@ func TestNewIntelligentCache(t *testing.T) {
 		CleanupInterval: 5 * time.Minute,
 		ChangeTracking:  true,
 		AdaptiveTTL: config.AdaptiveTTLConfig{
-			Enabled:          true,
-			MinTTL:           30 * time.Second,
-			MaxTTL:           10 * time.Minute,
-			StabilityWindow:  5 * time.Minute,
+			Enabled:           true,
+			MinTTL:            30 * time.Second,
+			MaxTTL:            10 * time.Minute,
+			StabilityWindow:   5 * time.Minute,
 			VarianceThreshold: 0.1,
 			ChangeThreshold:   0.05,
 			ExtensionFactor:   2.0,
@@ -38,7 +38,7 @@ func TestNewIntelligentCache(t *testing.T) {
 	require.NotNil(t, cache)
 	assert.True(t, cache.config.Intelligent)
 	assert.True(t, cache.config.AdaptiveTTL.Enabled)
-	
+
 	// Clean up
 	cache.Close()
 }
@@ -87,10 +87,10 @@ func TestIntelligentCache_AdaptiveTTL(t *testing.T) {
 		CleanupInterval: 5 * time.Minute,
 		ChangeTracking:  true,
 		AdaptiveTTL: config.AdaptiveTTLConfig{
-			Enabled:          true,
-			MinTTL:           30 * time.Second,
-			MaxTTL:           10 * time.Minute,
-			StabilityWindow:  100 * time.Millisecond, // Much shorter for testing
+			Enabled:           true,
+			MinTTL:            30 * time.Second,
+			MaxTTL:            10 * time.Minute,
+			StabilityWindow:   100 * time.Millisecond, // Much shorter for testing
 			VarianceThreshold: 0.1,
 			ChangeThreshold:   0.05,
 			ExtensionFactor:   2.0,
@@ -102,7 +102,7 @@ func TestIntelligentCache_AdaptiveTTL(t *testing.T) {
 	defer cache.Close()
 
 	key := "adaptive_key"
-	
+
 	// First set - should use base TTL
 	cache.Set(key, "value1")
 	entry, exists := cache.entries[key]
@@ -112,7 +112,7 @@ func TestIntelligentCache_AdaptiveTTL(t *testing.T) {
 	// Set same value multiple times to establish stability
 	for i := 0; i < 5; i++ {
 		time.Sleep(10 * time.Millisecond) // Small delay to create history
-		cache.Set(key, "value1") // Same value - should increase stability
+		cache.Set(key, "value1")          // Same value - should increase stability
 	}
 
 	// Wait for stability window to be processed
@@ -136,7 +136,7 @@ func TestIntelligentCache_AdaptiveTTL(t *testing.T) {
 	cache.Set(key, "new_changing_value")
 	entry, exists = cache.entries[key]
 	require.True(t, exists)
-	
+
 	// Note: TTL might not be reduced immediately as it depends on the stability calculation
 	// but we can verify that the change tracking is working
 	assert.Greater(t, len(entry.ChangeHistory), 0)
@@ -220,7 +220,7 @@ func TestIntelligentCache_ChangeDetection(t *testing.T) {
 	hash1 := cache.hashValue("test")
 	hash2 := cache.hashValue("test")
 	hash3 := cache.hashValue("different")
-	
+
 	assert.Equal(t, hash1, hash2)
 	assert.NotEqual(t, hash1, hash3)
 }
@@ -273,7 +273,7 @@ func TestIntelligentCache_LRUEviction(t *testing.T) {
 
 	// Access key1 to make it more recently used
 	cache.Get("key1")
-	
+
 	// Add one more entry, should evict least recently used (key2 or key3)
 	cache.Set("key4", "value4")
 
@@ -309,7 +309,7 @@ func TestIntelligentCache_TTLExpiration(t *testing.T) {
 
 	// Set a value
 	cache.Set("expiring_key", "value")
-	
+
 	// Should exist immediately
 	value, found := cache.Get("expiring_key")
 	assert.True(t, found)
@@ -386,12 +386,12 @@ func TestIntelligentCache_GetStats(t *testing.T) {
 	// Add some entries with different stability scores
 	cache.Set("stable_key", "value1")
 	cache.Set("stable_key", "value1") // Same value for stability
-	
+
 	cache.Set("unstable_key", "value1")
 	cache.Set("unstable_key", "value2") // Different value for instability
 
 	stats := cache.GetStats()
-	
+
 	// Verify stats structure
 	assert.Contains(t, stats, "enabled")
 	assert.Contains(t, stats, "adaptive_ttl_enabled")

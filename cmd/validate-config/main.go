@@ -42,10 +42,10 @@ func main() {
 	// Output validation results
 	if *format == "json" {
 		output := map[string]interface{}{
-			"valid":        true,
-			"config_file":  *configFile,
-			"strict_mode":  *strict,
-			"message":      "Configuration validation passed",
+			"valid":       true,
+			"config_file": *configFile,
+			"strict_mode": *strict,
+			"message":     "Configuration validation passed",
 		}
 		_ = json.NewEncoder(os.Stdout).Encode(output)
 	} else {

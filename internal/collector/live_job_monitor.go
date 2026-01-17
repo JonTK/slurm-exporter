@@ -15,16 +15,16 @@ import (
 
 // LiveJobMonitor provides real-time job performance monitoring using GetJobLiveMetrics()
 type LiveJobMonitor struct {
-	slurmClient     slurm.SlurmClient
-	logger          *slog.Logger
-	config          *LiveMonitorConfig
-	metrics         *LiveJobMetrics
-	efficiencyCalc  *EfficiencyCalculator
+	slurmClient    slurm.SlurmClient
+	logger         *slog.Logger
+	config         *LiveMonitorConfig
+	metrics        *LiveJobMetrics
+	efficiencyCalc *EfficiencyCalculator
 
 	// Real-time data tracking
-	liveData        map[string]*JobLiveMetrics
-	lastCollection  time.Time
-	mu              sync.RWMutex
+	liveData       map[string]*JobLiveMetrics
+	lastCollection time.Time
+	mu             sync.RWMutex
 
 	// Streaming and alerting
 	alertChannels   map[string]chan *PerformanceAlert
@@ -34,14 +34,14 @@ type LiveJobMonitor struct {
 
 // LiveMonitorConfig configures the live job monitoring collector
 type LiveMonitorConfig struct {
-	MonitoringInterval        time.Duration
-	MaxJobsPerCollection      int
-	EnableRealTimeAlerting    bool
+	MonitoringInterval         time.Duration
+	MaxJobsPerCollection       int
+	EnableRealTimeAlerting     bool
 	EnablePerformanceStreaming bool
-	AlertThresholds          *AlertThresholds
-	StreamingBufferSize      int
-	DataRetentionPeriod      time.Duration
-	CacheTTL                 time.Duration
+	AlertThresholds            *AlertThresholds
+	StreamingBufferSize        int
+	DataRetentionPeriod        time.Duration
+	CacheTTL                   time.Duration
 
 	// Performance optimization
 	BatchSize                int
@@ -61,14 +61,14 @@ type JobLiveMetrics struct {
 	CurrentNetworkRate float64
 
 	// Real-time efficiency metrics
-	InstantCPUEfficiency    float64
-	InstantMemoryEfficiency float64
+	InstantCPUEfficiency     float64
+	InstantMemoryEfficiency  float64
 	InstantOverallEfficiency float64
 
 	// Performance indicators
-	ThroughputRate         float64
-	ResponseTime           float64
-	ResourceWasteRate      float64
+	ThroughputRate    float64
+	ResponseTime      float64
+	ResourceWasteRate float64
 
 	// Prediction data
 	EstimatedCompletion    *time.Time
@@ -76,36 +76,36 @@ type JobLiveMetrics struct {
 	PerformanceTrend       string
 
 	// Health status
-	HealthScore           float64
-	PerformanceGrade      string
-	CriticalIssues        []string
-	Recommendations       []string
+	HealthScore      float64
+	PerformanceGrade string
+	CriticalIssues   []string
+	Recommendations  []string
 }
 
 // AlertThresholds defines thresholds for performance alerting
 type AlertThresholds struct {
-	CPUUtilizationHigh     float64
-	CPUUtilizationLow      float64
-	MemoryUtilizationHigh  float64
-	MemoryUtilizationLow   float64
-	EfficiencyLow          float64
-	ResourceWasteHigh      float64
-	ThroughputLow          float64
-	ResponseTimeHigh       float64
-	HealthScoreLow         float64
+	CPUUtilizationHigh    float64
+	CPUUtilizationLow     float64
+	MemoryUtilizationHigh float64
+	MemoryUtilizationLow  float64
+	EfficiencyLow         float64
+	ResourceWasteHigh     float64
+	ThroughputLow         float64
+	ResponseTimeHigh      float64
+	HealthScoreLow        float64
 }
 
 // PerformanceAlert represents a real-time performance alert
 type PerformanceAlert struct {
-	JobID        string
-	AlertType    string
-	Severity     string
-	Message      string
-	Timestamp    time.Time
-	CurrentValue float64
-	ThresholdValue float64
+	JobID           string
+	AlertType       string
+	Severity        string
+	Message         string
+	Timestamp       time.Time
+	CurrentValue    float64
+	ThresholdValue  float64
 	Recommendations []string
-	AlertID      string
+	AlertID         string
 }
 
 // LiveJobMetrics holds Prometheus metrics for live job monitoring
@@ -117,8 +117,8 @@ type LiveJobMetrics struct {
 	CurrentNetworkRate *prometheus.GaugeVec
 
 	// Real-time efficiency metrics
-	InstantCPUEfficiency    *prometheus.GaugeVec
-	InstantMemoryEfficiency *prometheus.GaugeVec
+	InstantCPUEfficiency     *prometheus.GaugeVec
+	InstantMemoryEfficiency  *prometheus.GaugeVec
 	InstantOverallEfficiency *prometheus.GaugeVec
 
 	// Performance indicators
@@ -128,9 +128,9 @@ type LiveJobMetrics struct {
 	HealthScore       *prometheus.GaugeVec
 
 	// Alert metrics
-	ActiveAlerts      *prometheus.GaugeVec
-	AlertsGenerated   *prometheus.CounterVec
-	AlertResolutions  *prometheus.CounterVec
+	ActiveAlerts     *prometheus.GaugeVec
+	AlertsGenerated  *prometheus.CounterVec
+	AlertResolutions *prometheus.CounterVec
 
 	// Prediction metrics
 	EstimatedTimeRemaining *prometheus.GaugeVec
@@ -147,27 +147,27 @@ type LiveJobMetrics struct {
 func NewLiveJobMonitor(client slurm.SlurmClient, logger *slog.Logger, config *LiveMonitorConfig) (*LiveJobMonitor, error) {
 	if config == nil {
 		config = &LiveMonitorConfig{
-			MonitoringInterval:        5 * time.Second,
-			MaxJobsPerCollection:      50,
-			EnableRealTimeAlerting:    true,
+			MonitoringInterval:         5 * time.Second,
+			MaxJobsPerCollection:       50,
+			EnableRealTimeAlerting:     true,
 			EnablePerformanceStreaming: true,
-			StreamingBufferSize:       1000,
-			DataRetentionPeriod:       1 * time.Hour,
-			CacheTTL:                  30 * time.Second,
-			BatchSize:                 10,
-			EnablePredictiveAlerting:  true,
-			MinDataPointsForAlert:     3,
-			AlertCooldownPeriod:       5 * time.Minute,
+			StreamingBufferSize:        1000,
+			DataRetentionPeriod:        1 * time.Hour,
+			CacheTTL:                   30 * time.Second,
+			BatchSize:                  10,
+			EnablePredictiveAlerting:   true,
+			MinDataPointsForAlert:      3,
+			AlertCooldownPeriod:        5 * time.Minute,
 			AlertThresholds: &AlertThresholds{
-				CPUUtilizationHigh:     0.95,
-				CPUUtilizationLow:      0.10,
-				MemoryUtilizationHigh:  0.90,
-				MemoryUtilizationLow:   0.10,
-				EfficiencyLow:          0.30,
-				ResourceWasteHigh:      0.50,
-				ThroughputLow:          0.20,
-				ResponseTimeHigh:       10.0,
-				HealthScoreLow:         0.40,
+				CPUUtilizationHigh:    0.95,
+				CPUUtilizationLow:     0.10,
+				MemoryUtilizationHigh: 0.90,
+				MemoryUtilizationLow:  0.10,
+				EfficiencyLow:         0.30,
+				ResourceWasteHigh:     0.50,
+				ThroughputLow:         0.20,
+				ResponseTimeHigh:      10.0,
+				HealthScoreLow:        0.40,
 			},
 		}
 	}
@@ -414,18 +414,18 @@ func (l *LiveJobMonitor) collectLiveJobMetrics(ctx context.Context) error {
 	// Skipping job processing for now
 	_ = jobs // Suppress unused variable warning
 	/*
-	for i := 0; i < len(jobs.Jobs); i += l.config.BatchSize {
-		end := i + l.config.BatchSize
-		if end > len(jobs.Jobs) {
-			end = len(jobs.Jobs)
-		}
+		for i := 0; i < len(jobs.Jobs); i += l.config.BatchSize {
+			end := i + l.config.BatchSize
+			if end > len(jobs.Jobs) {
+				end = len(jobs.Jobs)
+			}
 
-		batch := jobs.Jobs[i:end]
-		if err := l.processBatch(ctx, batch); err != nil {
-			l.logger.Error("Failed to process job batch", "error", err, "batch_size", len(batch))
-			l.metrics.LiveDataCollectionErrors.WithLabelValues("process_batch", "batch_error").Inc()
+			batch := jobs.Jobs[i:end]
+			if err := l.processBatch(ctx, batch); err != nil {
+				l.logger.Error("Failed to process job batch", "error", err, "batch_size", len(batch))
+				l.metrics.LiveDataCollectionErrors.WithLabelValues("process_batch", "batch_error").Inc()
+			}
 		}
-	}
 	*/
 
 	// Clean old data
@@ -986,10 +986,10 @@ func (l *LiveJobMonitor) GetMonitoringStats() map[string]interface{} {
 	defer l.streamingMu.RUnlock()
 
 	return map[string]interface{}{
-		"monitored_jobs":    len(l.liveData),
-		"active_streams":    len(l.alertChannels),
-		"streaming_active":  l.streamingActive,
-		"last_collection":   l.lastCollection,
-		"config":            l.config,
+		"monitored_jobs":   len(l.liveData),
+		"active_streams":   len(l.alertChannels),
+		"streaming_active": l.streamingActive,
+		"last_collection":  l.lastCollection,
+		"config":           l.config,
 	}
 }

@@ -168,8 +168,8 @@ func (s *ServiceAccountAuth) ToAuthProvider() (slurmauth.Provider, error) {
 
 // RefreshableAuth provides an authentication mechanism that can refresh tokens
 type RefreshableAuth struct {
-	provider     slurmauth.Provider
-	refreshFunc  func() (slurmauth.Provider, error)
+	provider    slurmauth.Provider
+	refreshFunc func() (slurmauth.Provider, error)
 	// TODO: Unused field - preserved for future refresh tracking
 	// lastRefresh  int64
 	refreshAfter int64 // seconds

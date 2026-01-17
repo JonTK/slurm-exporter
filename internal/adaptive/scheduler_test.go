@@ -233,9 +233,9 @@ func TestCollectorScheduler_ActivityScoreCalculation(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			result := scheduler.calculateActivityScore(tc.jobCount, tc.nodeCount, tc.changeData)
-			assert.True(t, result.Score >= tc.expectedMin, 
+			assert.True(t, result.Score >= tc.expectedMin,
 				"Score %f should be >= %f", result.Score, tc.expectedMin)
-			assert.True(t, result.Score <= tc.expectedMax, 
+			assert.True(t, result.Score <= tc.expectedMax,
 				"Score %f should be <= %f", result.Score, tc.expectedMax)
 			assert.True(t, result.Score >= 0.0 && result.Score <= 1.0,
 				"Score should be normalized between 0 and 1")
@@ -262,19 +262,19 @@ func TestCollectorScheduler_IntervalAdaptation(t *testing.T) {
 
 	// Test high activity should decrease interval
 	highActivityData := map[string]interface{}{
-		"jobs": 1000,
+		"jobs":  1000,
 		"nodes": 100,
 	}
-	
+
 	scheduler.UpdateActivity(context.Background(), 1000, 100, highActivityData)
 	highActivityInterval := scheduler.GetCollectionInterval("test_collector")
 
 	// Test low activity should increase interval
 	lowActivityData := map[string]interface{}{
-		"jobs": 5,
+		"jobs":  5,
 		"nodes": 10,
 	}
-	
+
 	scheduler.UpdateActivity(context.Background(), 5, 10, lowActivityData)
 	lowActivityInterval := scheduler.GetCollectionInterval("test_collector")
 
@@ -367,7 +367,7 @@ func TestCollectorScheduler_RegisterMetrics(t *testing.T) {
 	// Register a collector and trigger some activity to populate metrics
 	scheduler.RegisterCollector("test_collector")
 	scheduler.UpdateActivity(context.Background(), 100, 50, map[string]interface{}{"test": 1})
-	
+
 	// Record a collection to populate the delay histogram
 	scheduledTime := time.Now()
 	actualTime := scheduledTime.Add(100 * time.Millisecond)
@@ -462,7 +462,7 @@ func TestCollectorScheduler_CompareValues(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			result := scheduler.compareValues(tc.old, tc.new)
-			assert.InDelta(t, tc.expected, result, 0.01, 
+			assert.InDelta(t, tc.expected, result, 0.01,
 				"Expected %f, got %f for comparing %v to %v", tc.expected, result, tc.old, tc.new)
 		})
 	}

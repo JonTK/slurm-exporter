@@ -18,17 +18,17 @@ type CacheManager struct {
 	mu     sync.RWMutex
 
 	// Metrics
-	cacheHits     *prometheus.CounterVec
-	cacheMisses   *prometheus.CounterVec
-	cacheSize     *prometheus.GaugeVec
+	cacheHits      *prometheus.CounterVec
+	cacheMisses    *prometheus.CounterVec
+	cacheSize      *prometheus.GaugeVec
 	cacheEvictions *prometheus.CounterVec
 }
 
 // CacheStore represents a single cache with TTL and size limits
 type CacheStore struct {
-	name        string
-	maxSize     int
-	defaultTTL  time.Duration
+	name       string
+	maxSize    int
+	defaultTTL time.Duration
 
 	// Storage
 	data        map[string]*CacheEntry
@@ -36,17 +36,17 @@ type CacheStore struct {
 	mu          sync.RWMutex
 
 	// Metrics
-	hitCount    int64
-	missCount   int64
-	evictCount  int64
+	hitCount   int64
+	missCount  int64
+	evictCount int64
 }
 
 // CacheEntry represents a cached item
 type CacheEntry struct {
-	value     interface{}
-	createdAt time.Time
-	ttl       time.Duration
-	lastAccess time.Time
+	value       interface{}
+	createdAt   time.Time
+	ttl         time.Duration
+	lastAccess  time.Time
 	accessCount int64
 }
 
@@ -301,14 +301,14 @@ func (cs *CacheStore) Stats() CacheStats {
 	}
 
 	return CacheStats{
-		Name:        cs.name,
-		Size:        len(cs.data),
-		MaxSize:     cs.maxSize,
-		HitCount:    cs.hitCount,
-		MissCount:   cs.missCount,
-		EvictCount:  cs.evictCount,
-		HitRate:     hitRate,
-		DefaultTTL:  cs.defaultTTL,
+		Name:       cs.name,
+		Size:       len(cs.data),
+		MaxSize:    cs.maxSize,
+		HitCount:   cs.hitCount,
+		MissCount:  cs.missCount,
+		EvictCount: cs.evictCount,
+		HitRate:    hitRate,
+		DefaultTTL: cs.defaultTTL,
 	}
 }
 

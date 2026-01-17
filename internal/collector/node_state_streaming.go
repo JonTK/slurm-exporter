@@ -25,127 +25,127 @@ type NodeStateStreamingSLURMClient interface {
 }
 
 type NodeStateChangeEvent struct {
-	EventID           string
-	NodeID            string
-	NodeName          string
-	PreviousState     string
-	CurrentState      string
-	StateChangeTime   time.Time
-	StateChangeReason string
-	EventType         string
-	Priority          int
-	PartitionName     string
-	TotalCPUs         int
-	AllocatedCPUs     int
-	FreeCPUs          int
-	TotalMemory       int64
-	AllocatedMemory   int64
-	FreeMemory        int64
-	TotalGPUs         int
-	AllocatedGPUs     int
-	FreeGPUs          int
-	Features          []string
-	ActiveFeatures    []string
-	Architecture      string
-	OS                string
-	KernelVersion     string
-	LoadAverage       []float64
-	BootTime          time.Time
-	LastResponseTime  time.Time
-	SlurmdPID         int
-	SlurmdVersion     string
-	SlurmdStartTime   time.Time
-	MaintenanceMode   bool
-	MaintenanceReason string
-	PowerState        string
-	PowerConsumption  float64
-	Temperature       float64
-	NodeWeight        int
-	NodeOwner         string
-	NodeComment       string
-	NodeLocation      string
-	NodeAddress       string
-	NodeHostname      string
-	NodePort          int
-	NodeProtocol      string
-	JobList           []string
-	StepList          []string
-	ReservationList   []string
-	EnergyConsumed    float64
-	PowerLimit        float64
-	ThermalState      string
-	NetworkInterfaces []string
-	StorageInfo       map[string]interface{}
-	HardwareInfo      map[string]interface{}
-	EventMetadata     map[string]interface{}
-	StreamingSource   string
-	ProcessingTime    time.Duration
-	EventSequence     int64
-	CorrelationID     string
-	CausationID       string
-	ClusterID         string
-	TriggerType       string
-	AutomaticRecovery bool
+	EventID            string
+	NodeID             string
+	NodeName           string
+	PreviousState      string
+	CurrentState       string
+	StateChangeTime    time.Time
+	StateChangeReason  string
+	EventType          string
+	Priority           int
+	PartitionName      string
+	TotalCPUs          int
+	AllocatedCPUs      int
+	FreeCPUs           int
+	TotalMemory        int64
+	AllocatedMemory    int64
+	FreeMemory         int64
+	TotalGPUs          int
+	AllocatedGPUs      int
+	FreeGPUs           int
+	Features           []string
+	ActiveFeatures     []string
+	Architecture       string
+	OS                 string
+	KernelVersion      string
+	LoadAverage        []float64
+	BootTime           time.Time
+	LastResponseTime   time.Time
+	SlurmdPID          int
+	SlurmdVersion      string
+	SlurmdStartTime    time.Time
+	MaintenanceMode    bool
+	MaintenanceReason  string
+	PowerState         string
+	PowerConsumption   float64
+	Temperature        float64
+	NodeWeight         int
+	NodeOwner          string
+	NodeComment        string
+	NodeLocation       string
+	NodeAddress        string
+	NodeHostname       string
+	NodePort           int
+	NodeProtocol       string
+	JobList            []string
+	StepList           []string
+	ReservationList    []string
+	EnergyConsumed     float64
+	PowerLimit         float64
+	ThermalState       string
+	NetworkInterfaces  []string
+	StorageInfo        map[string]interface{}
+	HardwareInfo       map[string]interface{}
+	EventMetadata      map[string]interface{}
+	StreamingSource    string
+	ProcessingTime     time.Duration
+	EventSequence      int64
+	CorrelationID      string
+	CausationID        string
+	ClusterID          string
+	TriggerType        string
+	AutomaticRecovery  bool
 	ManualIntervention bool
-	ImpactAssessment  string
-	RecoveryPlan      string
-	EstimatedDowntime time.Duration
-	ActualDowntime    time.Duration
-	DiagnosticInfo    map[string]interface{}
-	HealthStatus      string
+	ImpactAssessment   string
+	RecoveryPlan       string
+	EstimatedDowntime  time.Duration
+	ActualDowntime     time.Duration
+	DiagnosticInfo     map[string]interface{}
+	HealthStatus       string
 	PerformanceMetrics map[string]float64
 	ConfigurationDrift bool
-	ComplianceStatus  string
-	SecurityEvents    []string
+	ComplianceStatus   string
+	SecurityEvents     []string
 }
 
 type NodeStreamingConfiguration struct {
-	StreamingEnabled        bool
-	EventBufferSize         int
-	EventBatchSize          int
-	EventFlushInterval      time.Duration
-	FilterCriteria          []string
-	IncludedNodeStates      []string
-	ExcludedNodeStates      []string
-	IncludedPartitions      []string
-	ExcludedPartitions      []string
-	IncludedNodes           []string
-	ExcludedNodes           []string
-	EventRetentionPeriod    time.Duration
-	MaxConcurrentStreams    int
-	StreamingProtocol       string
-	CompressionEnabled      bool
-	EncryptionEnabled       bool
-	AuthenticationRequired  bool
-	RateLimitPerSecond      int
-	BackpressureThreshold   int
-	FailoverEnabled         bool
-	DeduplicationEnabled    bool
-	EventValidationEnabled  bool
+	StreamingEnabled         bool
+	EventBufferSize          int
+	EventBatchSize           int
+	EventFlushInterval       time.Duration
+	FilterCriteria           []string
+	IncludedNodeStates       []string
+	ExcludedNodeStates       []string
+	IncludedPartitions       []string
+	ExcludedPartitions       []string
+	IncludedNodes            []string
+	ExcludedNodes            []string
+	EventRetentionPeriod     time.Duration
+	MaxConcurrentStreams     int
+	StreamingProtocol        string
+	CompressionEnabled       bool
+	EncryptionEnabled        bool
+	AuthenticationRequired   bool
+	RateLimitPerSecond       int
+	BackpressureThreshold    int
+	FailoverEnabled          bool
+	DeduplicationEnabled     bool
+	EventValidationEnabled   bool
 	MetricsCollectionEnabled bool
-	DebugLoggingEnabled     bool
-	PriorityBasedStreaming  bool
-	EventEnrichmentEnabled  bool
-	CustomEventHandlers     []string
-	StreamingEndpoints      []string
-	HealthCheckInterval     time.Duration
-	ReconnectionAttempts    int
-	ReconnectionDelay       time.Duration
-	StateChangeDetection    bool
-	PerformanceMonitoring   bool
-	ResourceThresholds      map[string]float64
-	AlertIntegration        bool
-	NotificationChannels    []string
-	EventCorrelation        bool
-	AnomalyDetection        bool
-	PredictiveAnalytics     bool
-	MaintenanceMode         bool
-	EmergencyProtocols      bool
-	DataRetention           string
-	ArchivalPolicy          string
-	PrivacySettings         map[string]bool
-	AuditLogging            bool
-	ComplianceReporting     bool
+	DebugLoggingEnabled      bool
+	PriorityBasedStreaming   bool
+	EventEnrichmentEnabled   bool
+	CustomEventHandlers      []string
+	StreamingEndpoints       []string
+	HealthCheckInterval      time.Duration
+	ReconnectionAttempts     int
+	ReconnectionDelay        time.Duration
+	StateChangeDetection     bool
+	PerformanceMonitoring    bool
+	ResourceThresholds       map[string]float64
+	AlertIntegration         bool
+	NotificationChannels     []string
+	EventCorrelation         bool
+	AnomalyDetection         bool
+	PredictiveAnalytics      bool
+	MaintenanceMode          bool
+	EmergencyProtocols       bool
+	DataRetention            string
+	ArchivalPolicy           string
+	PrivacySettings          map[string]bool
+	AuditLogging             bool
+	ComplianceReporting      bool
 }
 
 type ActiveNodeStream struct {
@@ -191,83 +191,83 @@ type ActiveNodeStream struct {
 }
 
 type NodeEvent struct {
-	EventID         string
-	NodeID          string
-	EventType       string
-	EventTime       time.Time
-	EventData       map[string]interface{}
-	EventSource     string
-	EventPriority   int
-	ProcessingDelay time.Duration
-	EventSize       int64
-	EventVersion    string
-	CorrelationID   string
-	CausationID     string
-	Metadata        map[string]interface{}
-	Tags            []string
-	Fingerprint     string
-	ProcessedBy     string
-	ProcessedTime   time.Time
+	EventID          string
+	NodeID           string
+	EventType        string
+	EventTime        time.Time
+	EventData        map[string]interface{}
+	EventSource      string
+	EventPriority    int
+	ProcessingDelay  time.Duration
+	EventSize        int64
+	EventVersion     string
+	CorrelationID    string
+	CausationID      string
+	Metadata         map[string]interface{}
+	Tags             []string
+	Fingerprint      string
+	ProcessedBy      string
+	ProcessedTime    time.Time
 	ValidationStatus string
-	EnrichmentData  map[string]interface{}
+	EnrichmentData   map[string]interface{}
 	DeliveryAttempts int
-	DeliveryStatus  string
-	AcknowledgedAt  *time.Time
-	ExpiresAt       *time.Time
-	RetryPolicy     string
-	ErrorDetails    string
-	ImpactLevel     string
-	ResolutionTime  *time.Time
-	ResolutionBy    string
-	ResolutionNotes string
-	EscalationLevel int
-	RootCause       string
-	RelatedEvents   []string
-	Dependencies    []string
-	Notifications   []string
-	Workflows       []string
-	ComplianceData  map[string]interface{}
-	SecurityContext map[string]interface{}
+	DeliveryStatus   string
+	AcknowledgedAt   *time.Time
+	ExpiresAt        *time.Time
+	RetryPolicy      string
+	ErrorDetails     string
+	ImpactLevel      string
+	ResolutionTime   *time.Time
+	ResolutionBy     string
+	ResolutionNotes  string
+	EscalationLevel  int
+	RootCause        string
+	RelatedEvents    []string
+	Dependencies     []string
+	Notifications    []string
+	Workflows        []string
+	ComplianceData   map[string]interface{}
+	SecurityContext  map[string]interface{}
 }
 
 type NodeStreamingMetrics struct {
-	TotalStreams           int64
-	ActiveStreams          int64
-	PausedStreams          int64
-	FailedStreams          int64
-	EventsPerSecond        float64
-	AverageEventLatency    time.Duration
-	MaxEventLatency        time.Duration
-	MinEventLatency        time.Duration
-	TotalEventsProcessed   int64
-	TotalEventsDropped     int64
-	TotalEventsFailed      int64
-	AverageStreamDuration  time.Duration
-	MaxStreamDuration      time.Duration
-	TotalBandwidthUsed     float64
-	CompressionEfficiency  float64
-	DeduplicationRate      float64
-	ErrorRate              float64
-	SuccessRate            float64
+	TotalStreams            int64
+	ActiveStreams           int64
+	PausedStreams           int64
+	FailedStreams           int64
+	EventsPerSecond         float64
+	AverageEventLatency     time.Duration
+	MaxEventLatency         time.Duration
+	MinEventLatency         time.Duration
+	TotalEventsProcessed    int64
+	TotalEventsDropped      int64
+	TotalEventsFailed       int64
+	AverageStreamDuration   time.Duration
+	MaxStreamDuration       time.Duration
+	TotalBandwidthUsed      float64
+	CompressionEfficiency   float64
+	DeduplicationRate       float64
+	ErrorRate               float64
+	SuccessRate             float64
 	BackpressureOccurrences int64
-	FailoverOccurrences    int64
-	ReconnectionAttempts   int64
-	MemoryUsage            int64
-	CPUUsage               float64
-	NetworkUsage           float64
-	DiskUsage              int64
-	CacheHitRate           float64
-	QueueDepth             int64
-	ProcessingEfficiency   float64
-	StreamingHealth        float64
-	NodeCoverage           float64
-	StateChangeAccuracy    float64
-	PredictionAccuracy     float64
-	AlertResponseTime      time.Duration
-	MaintenanceCompliance  float64
-	SecurityIncidents      int64
-	ComplianceViolations   int64
-	PerformanceDegradation float64
+	FailoverOccurrences     int64
+	ReconnectionAttempts    int64
+	MemoryUsage             int64
+	CPUUsage                float64
+	NetworkUsage            float64
+	DiskUsage               int64
+	CacheHitRate            float64
+	QueueDepth              int64
+	ProcessingEfficiency    float64
+	StreamingHealth         float64
+	NodeCoverage            float64
+	StateChangeAccuracy     float64
+	PredictionAccuracy      float64
+	AlertResponseTime       time.Duration
+	MaintenanceCompliance   float64
+	SecurityIncidents       int64
+	ComplianceViolations    int64
+	PerformanceDegradation  float64
 }
 
 type NodeEventFilter struct {
@@ -311,130 +311,130 @@ type NodeEventFilter struct {
 }
 
 type NodeStreamingHealthStatus struct {
-	OverallHealth         string
-	ComponentHealth       map[string]string
-	LastHealthCheck       time.Time
-	HealthCheckDuration   time.Duration
-	HealthScore           float64
-	CriticalIssues        []string
-	WarningIssues         []string
-	InfoMessages          []string
-	StreamingUptime       time.Duration
-	ServiceAvailability   float64
-	ResourceUtilization   map[string]float64
-	PerformanceMetrics    map[string]float64
-	ErrorSummary          map[string]int64
-	HealthTrends          map[string]float64
-	PredictedIssues       []string
-	RecommendedActions    []string
-	SystemCapacity        map[string]float64
-	AlertThresholds       map[string]float64
-	SLACompliance         map[string]float64
-	DependencyStatus      map[string]string
-	ConfigurationValid    bool
-	SecurityStatus        string
-	BackupStatus          string
-	MonitoringEnabled     bool
-	LoggingEnabled        bool
-	MaintenanceSchedule   []string
-	CapacityForecasts     map[string]float64
-	RiskIndicators        map[string]float64
-	ComplianceMetrics     map[string]float64
-	PerformanceBaselines  map[string]float64
-	AnomalyDetectors      map[string]bool
-	AutomationStatus      map[string]bool
-	IntegrationHealth     map[string]string
+	OverallHealth        string
+	ComponentHealth      map[string]string
+	LastHealthCheck      time.Time
+	HealthCheckDuration  time.Duration
+	HealthScore          float64
+	CriticalIssues       []string
+	WarningIssues        []string
+	InfoMessages         []string
+	StreamingUptime      time.Duration
+	ServiceAvailability  float64
+	ResourceUtilization  map[string]float64
+	PerformanceMetrics   map[string]float64
+	ErrorSummary         map[string]int64
+	HealthTrends         map[string]float64
+	PredictedIssues      []string
+	RecommendedActions   []string
+	SystemCapacity       map[string]float64
+	AlertThresholds      map[string]float64
+	SLACompliance        map[string]float64
+	DependencyStatus     map[string]string
+	ConfigurationValid   bool
+	SecurityStatus       string
+	BackupStatus         string
+	MonitoringEnabled    bool
+	LoggingEnabled       bool
+	MaintenanceSchedule  []string
+	CapacityForecasts    map[string]float64
+	RiskIndicators       map[string]float64
+	ComplianceMetrics    map[string]float64
+	PerformanceBaselines map[string]float64
+	AnomalyDetectors     map[string]bool
+	AutomationStatus     map[string]bool
+	IntegrationHealth    map[string]string
 }
 
 type NodeEventSubscription struct {
-	SubscriptionID       string
-	SubscriberName       string
-	SubscriberEndpoint   string
-	SubscriptionType     string
-	EventTypes           []string
-	FilterCriteria       string
-	DeliveryMethod       string
-	DeliveryFormat       string
-	SubscriptionStatus   string
-	CreatedTime          time.Time
-	LastDeliveryTime     time.Time
-	DeliveryCount        int64
-	FailedDeliveries     int64
-	RetryPolicy          string
-	MaxRetries           int
-	RetryDelay           time.Duration
-	ExpirationTime       *time.Time
-	Priority             int
-	BatchDelivery        bool
-	BatchSize            int
-	BatchTimeout         time.Duration
-	CompressionEnabled   bool
-	EncryptionEnabled    bool
-	AuthenticationToken  string
-	CallbackURL          string
-	ErrorHandling        string
-	DeliveryGuarantee    string
-	Metadata             map[string]interface{}
-	Tags                 []string
-	SubscriberContact    string
-	BusinessContext      string
-	UsageQuota           int64
-	UsedQuota            int64
-	BandwidthLimit       float64
-	CostCenter           string
-	ServiceLevel         string
-	MaintenanceWindow    string
-	EmergencyContacts    []string
-	EscalationProcedure  string
+	SubscriptionID         string
+	SubscriberName         string
+	SubscriberEndpoint     string
+	SubscriptionType       string
+	EventTypes             []string
+	FilterCriteria         string
+	DeliveryMethod         string
+	DeliveryFormat         string
+	SubscriptionStatus     string
+	CreatedTime            time.Time
+	LastDeliveryTime       time.Time
+	DeliveryCount          int64
+	FailedDeliveries       int64
+	RetryPolicy            string
+	MaxRetries             int
+	RetryDelay             time.Duration
+	ExpirationTime         *time.Time
+	Priority               int
+	BatchDelivery          bool
+	BatchSize              int
+	BatchTimeout           time.Duration
+	CompressionEnabled     bool
+	EncryptionEnabled      bool
+	AuthenticationToken    string
+	CallbackURL            string
+	ErrorHandling          string
+	DeliveryGuarantee      string
+	Metadata               map[string]interface{}
+	Tags                   []string
+	SubscriberContact      string
+	BusinessContext        string
+	UsageQuota             int64
+	UsedQuota              int64
+	BandwidthLimit         float64
+	CostCenter             string
+	ServiceLevel           string
+	MaintenanceWindow      string
+	EmergencyContacts      []string
+	EscalationProcedure    string
 	ComplianceRequirements []string
-	AuditSettings        map[string]bool
-	DataRetention        string
-	PrivacySettings      map[string]bool
+	AuditSettings          map[string]bool
+	DataRetention          string
+	PrivacySettings        map[string]bool
 }
 
 type NodeEventProcessingStats struct {
-	ProcessingStartTime     time.Time
-	TotalEventsReceived     int64
-	TotalEventsProcessed    int64
-	TotalEventsFiltered     int64
-	TotalEventsDropped      int64
-	TotalProcessingTime     time.Duration
-	AverageProcessingTime   time.Duration
-	MaxProcessingTime       time.Duration
-	MinProcessingTime       time.Duration
-	ProcessingThroughput    float64
-	ErrorRate               float64
-	SuccessRate             float64
-	FilterEfficiency        float64
-	ValidationErrors        int64
-	EnrichmentErrors        int64
-	DeliveryErrors          int64
-	TransformationErrors    int64
-	SerializationErrors     int64
-	NetworkErrors           int64
-	AuthenticationErrors    int64
-	AuthorizationErrors     int64
-	RateLimitExceeded       int64
-	BackpressureEvents      int64
-	CircuitBreakerTrips     int64
-	RetryAttempts           int64
-	DeadLetterEvents        int64
-	DuplicateEvents         int64
-	OutOfOrderEvents        int64
-	LateArrivingEvents      int64
-	ProcessingQueues        map[string]int64
-	WorkerStatistics        map[string]interface{}
-	ResourceUtilization     map[string]float64
-	PerformanceCounters     map[string]int64
-	StateChangeAccuracy     float64
-	EventCorrelationRate    float64
-	AnomalyDetectionRate    float64
-	MaintenancePredictions  int64
-	AlertGenerationRate     float64
-	ComplianceChecks        int64
-	SecurityScans           int64
-	DataQualityScore        float64
-	SystemLoadImpact        float64
+	ProcessingStartTime    time.Time
+	TotalEventsReceived    int64
+	TotalEventsProcessed   int64
+	TotalEventsFiltered    int64
+	TotalEventsDropped     int64
+	TotalProcessingTime    time.Duration
+	AverageProcessingTime  time.Duration
+	MaxProcessingTime      time.Duration
+	MinProcessingTime      time.Duration
+	ProcessingThroughput   float64
+	ErrorRate              float64
+	SuccessRate            float64
+	FilterEfficiency       float64
+	ValidationErrors       int64
+	EnrichmentErrors       int64
+	DeliveryErrors         int64
+	TransformationErrors   int64
+	SerializationErrors    int64
+	NetworkErrors          int64
+	AuthenticationErrors   int64
+	AuthorizationErrors    int64
+	RateLimitExceeded      int64
+	BackpressureEvents     int64
+	CircuitBreakerTrips    int64
+	RetryAttempts          int64
+	DeadLetterEvents       int64
+	DuplicateEvents        int64
+	OutOfOrderEvents       int64
+	LateArrivingEvents     int64
+	ProcessingQueues       map[string]int64
+	WorkerStatistics       map[string]interface{}
+	ResourceUtilization    map[string]float64
+	PerformanceCounters    map[string]int64
+	StateChangeAccuracy    float64
+	EventCorrelationRate   float64
+	AnomalyDetectionRate   float64
+	MaintenancePredictions int64
+	AlertGenerationRate    float64
+	ComplianceChecks       int64
+	SecurityScans          int64
+	DataQualityScore       float64
+	SystemLoadImpact       float64
 }
 
 type NodeStreamingPerformanceMetrics struct {
@@ -491,91 +491,91 @@ type NodeStateStreamingCollector struct {
 	mutex  sync.RWMutex
 
 	// Node state event metrics
-	nodeEventsTotal           *prometheus.CounterVec
-	nodeEventRate             *prometheus.GaugeVec
-	nodeEventLatency          *prometheus.HistogramVec
-	nodeEventSize             *prometheus.HistogramVec
-	nodeEventsDropped         *prometheus.CounterVec
-	nodeEventsFailed          *prometheus.CounterVec
-	nodeEventsProcessed       *prometheus.CounterVec
+	nodeEventsTotal     *prometheus.CounterVec
+	nodeEventRate       *prometheus.GaugeVec
+	nodeEventLatency    *prometheus.HistogramVec
+	nodeEventSize       *prometheus.HistogramVec
+	nodeEventsDropped   *prometheus.CounterVec
+	nodeEventsFailed    *prometheus.CounterVec
+	nodeEventsProcessed *prometheus.CounterVec
 
 	// Node state change metrics
-	nodeStateChanges          *prometheus.CounterVec
-	nodeStateDuration         *prometheus.HistogramVec
-	nodeStateTransitions      *prometheus.CounterVec
-	nodeDowntime              *prometheus.HistogramVec
-	nodeRecoveryTime          *prometheus.HistogramVec
-	nodeMaintenanceEvents     *prometheus.CounterVec
+	nodeStateChanges      *prometheus.CounterVec
+	nodeStateDuration     *prometheus.HistogramVec
+	nodeStateTransitions  *prometheus.CounterVec
+	nodeDowntime          *prometheus.HistogramVec
+	nodeRecoveryTime      *prometheus.HistogramVec
+	nodeMaintenanceEvents *prometheus.CounterVec
 
 	// Stream metrics
-	activeNodeStreams         *prometheus.GaugeVec
-	nodeStreamDuration        *prometheus.HistogramVec
-	nodeStreamBandwidth       *prometheus.GaugeVec
-	nodeStreamLatency         *prometheus.GaugeVec
-	nodeStreamHealth          *prometheus.GaugeVec
-	nodeStreamBackpressure    *prometheus.CounterVec
-	nodeStreamFailover        *prometheus.CounterVec
-	nodeStreamReconnections   *prometheus.CounterVec
+	activeNodeStreams       *prometheus.GaugeVec
+	nodeStreamDuration      *prometheus.HistogramVec
+	nodeStreamBandwidth     *prometheus.GaugeVec
+	nodeStreamLatency       *prometheus.GaugeVec
+	nodeStreamHealth        *prometheus.GaugeVec
+	nodeStreamBackpressure  *prometheus.CounterVec
+	nodeStreamFailover      *prometheus.CounterVec
+	nodeStreamReconnections *prometheus.CounterVec
 
 	// Configuration metrics
-	streamingEnabled          *prometheus.GaugeVec
-	maxConcurrentStreams      *prometheus.GaugeVec
-	eventBufferSize           *prometheus.GaugeVec
-	eventBatchSize            *prometheus.GaugeVec
-	rateLimitPerSecond        *prometheus.GaugeVec
-	backpressureThreshold     *prometheus.GaugeVec
+	streamingEnabled      *prometheus.GaugeVec
+	maxConcurrentStreams  *prometheus.GaugeVec
+	eventBufferSize       *prometheus.GaugeVec
+	eventBatchSize        *prometheus.GaugeVec
+	rateLimitPerSecond    *prometheus.GaugeVec
+	backpressureThreshold *prometheus.GaugeVec
 
 	// Performance metrics
-	streamingThroughput       *prometheus.GaugeVec
-	streamingCPUUsage         *prometheus.GaugeVec
-	streamingMemoryUsage      *prometheus.GaugeVec
-	streamingNetworkUsage     *prometheus.GaugeVec
-	streamingDiskUsage        *prometheus.GaugeVec
-	compressionEfficiency     *prometheus.GaugeVec
-	deduplicationRate         *prometheus.GaugeVec
-	cacheHitRate              *prometheus.GaugeVec
-	queueDepth                *prometheus.GaugeVec
-	processingEfficiency      *prometheus.GaugeVec
+	streamingThroughput   *prometheus.GaugeVec
+	streamingCPUUsage     *prometheus.GaugeVec
+	streamingMemoryUsage  *prometheus.GaugeVec
+	streamingNetworkUsage *prometheus.GaugeVec
+	streamingDiskUsage    *prometheus.GaugeVec
+	compressionEfficiency *prometheus.GaugeVec
+	deduplicationRate     *prometheus.GaugeVec
+	cacheHitRate          *prometheus.GaugeVec
+	queueDepth            *prometheus.GaugeVec
+	processingEfficiency  *prometheus.GaugeVec
 
 	// Health metrics
-	streamingHealthScore      *prometheus.GaugeVec
-	serviceAvailability       *prometheus.GaugeVec
-	streamingUptime           *prometheus.CounterVec
-	criticalIssues            *prometheus.GaugeVec
-	warningIssues             *prometheus.GaugeVec
-	healthCheckDuration       *prometheus.HistogramVec
-	slaCompliance             *prometheus.GaugeVec
+	streamingHealthScore *prometheus.GaugeVec
+	serviceAvailability  *prometheus.GaugeVec
+	streamingUptime      *prometheus.CounterVec
+	criticalIssues       *prometheus.GaugeVec
+	warningIssues        *prometheus.GaugeVec
+	healthCheckDuration  *prometheus.HistogramVec
+	slaCompliance        *prometheus.GaugeVec
 
 	// Subscription metrics
-	eventSubscriptionsTotal   *prometheus.CounterVec
-	subscriptionDeliveries    *prometheus.CounterVec
-	subscriptionFailures      *prometheus.CounterVec
-	subscriptionRetries       *prometheus.CounterVec
-	subscriptionLatency       *prometheus.HistogramVec
+	eventSubscriptionsTotal *prometheus.CounterVec
+	subscriptionDeliveries  *prometheus.CounterVec
+	subscriptionFailures    *prometheus.CounterVec
+	subscriptionRetries     *prometheus.CounterVec
+	subscriptionLatency     *prometheus.HistogramVec
 
 	// Filter metrics
-	eventFiltersActive        *prometheus.GaugeVec
-	filterMatchCount          *prometheus.CounterVec
-	filterProcessingTime      *prometheus.HistogramVec
-	filterEfficiency          *prometheus.GaugeVec
+	eventFiltersActive   *prometheus.GaugeVec
+	filterMatchCount     *prometheus.CounterVec
+	filterProcessingTime *prometheus.HistogramVec
+	filterEfficiency     *prometheus.GaugeVec
 
 	// Error metrics
-	streamingErrors           *prometheus.CounterVec
-	validationErrors          *prometheus.CounterVec
-	enrichmentErrors          *prometheus.CounterVec
-	deliveryErrors            *prometheus.CounterVec
-	transformationErrors      *prometheus.CounterVec
-	networkErrors             *prometheus.CounterVec
-	authenticationErrors      *prometheus.CounterVec
+	streamingErrors      *prometheus.CounterVec
+	validationErrors     *prometheus.CounterVec
+	enrichmentErrors     *prometheus.CounterVec
+	deliveryErrors       *prometheus.CounterVec
+	transformationErrors *prometheus.CounterVec
+	networkErrors        *prometheus.CounterVec
+	authenticationErrors *prometheus.CounterVec
 
 	// Node-specific metrics
-	nodeCoverage              *prometheus.GaugeVec
-	stateChangeAccuracy       *prometheus.GaugeVec
-	predictiveAccuracy        *prometheus.GaugeVec
-	maintenanceCompliance     *prometheus.GaugeVec
-	securityIncidents         *prometheus.CounterVec
-	complianceViolations      *prometheus.CounterVec
-	performanceDegradation    *prometheus.GaugeVec
+	nodeCoverage           *prometheus.GaugeVec
+	stateChangeAccuracy    *prometheus.GaugeVec
+	predictiveAccuracy     *prometheus.GaugeVec
+	maintenanceCompliance  *prometheus.GaugeVec
+	securityIncidents      *prometheus.CounterVec
+	complianceViolations   *prometheus.CounterVec
+	performanceDegradation *prometheus.GaugeVec
 }
 
 func NewNodeStateStreamingCollector(client NodeStateStreamingSLURMClient) *NodeStateStreamingCollector {
@@ -599,16 +599,16 @@ func NewNodeStateStreamingCollector(client NodeStateStreamingSLURMClient) *NodeS
 		),
 		nodeEventLatency: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_node_event_latency_seconds",
-				Help: "Latency of node event processing",
+				Name:    "slurm_node_event_latency_seconds",
+				Help:    "Latency of node event processing",
 				Buckets: []float64{0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10},
 			},
 			[]string{"event_type", "processing_stage"},
 		),
 		nodeEventSize: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_node_event_size_bytes",
-				Help: "Size of node events in bytes",
+				Name:    "slurm_node_event_size_bytes",
+				Help:    "Size of node events in bytes",
 				Buckets: []float64{100, 500, 1000, 5000, 10000, 50000, 100000},
 			},
 			[]string{"event_type"},
@@ -645,8 +645,8 @@ func NewNodeStateStreamingCollector(client NodeStateStreamingSLURMClient) *NodeS
 		),
 		nodeStateDuration: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_node_state_duration_seconds",
-				Help: "Duration of time nodes spend in each state",
+				Name:    "slurm_node_state_duration_seconds",
+				Help:    "Duration of time nodes spend in each state",
 				Buckets: []float64{60, 300, 900, 1800, 3600, 7200, 14400, 86400},
 			},
 			[]string{"node_state", "partition"},
@@ -660,16 +660,16 @@ func NewNodeStateStreamingCollector(client NodeStateStreamingSLURMClient) *NodeS
 		),
 		nodeDowntime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_node_downtime_seconds",
-				Help: "Duration of node downtime events",
+				Name:    "slurm_node_downtime_seconds",
+				Help:    "Duration of node downtime events",
 				Buckets: []float64{60, 300, 900, 1800, 3600, 7200, 14400, 86400},
 			},
 			[]string{"node_name", "downtime_reason", "partition"},
 		),
 		nodeRecoveryTime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_node_recovery_time_seconds",
-				Help: "Time taken for nodes to recover from failures",
+				Name:    "slurm_node_recovery_time_seconds",
+				Help:    "Time taken for nodes to recover from failures",
 				Buckets: []float64{60, 300, 900, 1800, 3600, 7200, 14400, 86400},
 			},
 			[]string{"node_name", "recovery_type", "partition"},
@@ -692,8 +692,8 @@ func NewNodeStateStreamingCollector(client NodeStateStreamingSLURMClient) *NodeS
 		),
 		nodeStreamDuration: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_node_stream_duration_seconds",
-				Help: "Duration of node streams",
+				Name:    "slurm_node_stream_duration_seconds",
+				Help:    "Duration of node streams",
 				Buckets: []float64{60, 300, 900, 1800, 3600, 7200, 14400, 86400},
 			},
 			[]string{"stream_type"},
@@ -895,8 +895,8 @@ func NewNodeStateStreamingCollector(client NodeStateStreamingSLURMClient) *NodeS
 		),
 		healthCheckDuration: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_node_streaming_health_check_duration_seconds",
-				Help: "Duration of health checks for node streaming system",
+				Name:    "slurm_node_streaming_health_check_duration_seconds",
+				Help:    "Duration of health checks for node streaming system",
 				Buckets: []float64{0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5},
 			},
 			[]string{"component"},
@@ -940,8 +940,8 @@ func NewNodeStateStreamingCollector(client NodeStateStreamingSLURMClient) *NodeS
 		),
 		subscriptionLatency: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_node_subscription_latency_seconds",
-				Help: "Latency of subscription deliveries",
+				Name:    "slurm_node_subscription_latency_seconds",
+				Help:    "Latency of subscription deliveries",
 				Buckets: []float64{0.01, 0.05, 0.1, 0.5, 1, 5, 10, 30},
 			},
 			[]string{"subscription_id", "delivery_method"},
@@ -964,8 +964,8 @@ func NewNodeStateStreamingCollector(client NodeStateStreamingSLURMClient) *NodeS
 		),
 		filterProcessingTime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_node_filter_processing_time_seconds",
-				Help: "Processing time for node event filters",
+				Name:    "slurm_node_filter_processing_time_seconds",
+				Help:    "Processing time for node event filters",
 				Buckets: []float64{0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1},
 			},
 			[]string{"filter_id", "filter_type"},

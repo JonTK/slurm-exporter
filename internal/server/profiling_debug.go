@@ -52,7 +52,7 @@ func (h *ProfilingDebugHandler) handleProfilingStatus(w http.ResponseWriter, r *
 	acceptJSON := r.Header.Get("Accept") == "application/json"
 
 	stats := h.manager.GetStats()
-	
+
 	if acceptJSON {
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(stats); err != nil {
@@ -359,15 +359,15 @@ func (h *ProfilingDebugHandler) handleGetProfile(w http.ResponseWriter, r *http.
 	}
 
 	data := map[string]interface{}{
-		"ID":      id,
-		"profile": profile,
-		"metadata": fmt.Sprintf("%+v", profile.Metadata),
-		"cpuSize": 0,
-		"heapSize": 0,
+		"ID":            id,
+		"profile":       profile,
+		"metadata":      fmt.Sprintf("%+v", profile.Metadata),
+		"cpuSize":       0,
+		"heapSize":      0,
 		"goroutineSize": 0,
-		"blockSize": 0,
-		"mutexSize": 0,
-		"traceSize": 0,
+		"blockSize":     0,
+		"mutexSize":     0,
+		"traceSize":     0,
 	}
 
 	// Calculate sizes
@@ -442,7 +442,7 @@ func (h *ProfilingDebugHandler) handleDownloadProfile(w http.ResponseWriter, r *
 	// Add metadata
 	metadata := fmt.Sprintf("Profile ID: %s\nCollector: %s\nStart: %s\nEnd: %s\nDuration: %s\n\nMetadata:\n%+v",
 		id, profile.CollectorName, profile.StartTime, profile.EndTime, profile.Duration, profile.Metadata)
-	
+
 	metaFile, _ := zipWriter.Create("metadata.txt")
 	_, _ = metaFile.Write([]byte(metadata))
 

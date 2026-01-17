@@ -33,9 +33,9 @@ type NodesSimpleCollector struct {
 	nodeState *prometheus.Desc
 
 	// Node resource metrics
-	nodeCPUsTotal     *prometheus.Desc
-	nodeCPUsAllocated *prometheus.Desc
-	nodeMemoryTotal   *prometheus.Desc
+	nodeCPUsTotal       *prometheus.Desc
+	nodeCPUsAllocated   *prometheus.Desc
+	nodeMemoryTotal     *prometheus.Desc
 	nodeMemoryAllocated *prometheus.Desc
 
 	// Node info
@@ -222,7 +222,7 @@ func (c *NodesSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 			memoryTotalBytes = float64(node.Memory * 1024 * 1024)
 		} else if node.Memory >= 1000000 {
 			c.logger.WithFields(map[string]interface{}{
-				"node": node.Name,
+				"node":      node.Name,
 				"memory_mb": node.Memory,
 			}).Warn("Unusually high memory value detected, using 0")
 		}
@@ -254,7 +254,7 @@ func (c *NodesSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 		}
 
 		arch := "x86_64" // default
-		os := "linux"     // default
+		os := "linux"    // default
 
 		ch <- prometheus.MustNewConstMetric(
 			c.nodeInfo,

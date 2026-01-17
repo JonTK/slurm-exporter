@@ -20,13 +20,13 @@ type SharesCollector struct {
 	timeout time.Duration
 
 	// Metrics
-	fairshareRawShares       *prometheus.Desc
+	fairshareRawShares        *prometheus.Desc
 	fairshareNormalizedShares *prometheus.Desc
-	fairshareRawUsage        *prometheus.Desc
-	fairshareEffectiveUsage  *prometheus.Desc
-	fairshareUsageFactor     *prometheus.Desc
-	fairshareLevel           *prometheus.Desc
-	fairshareTreeDepth       *prometheus.Desc
+	fairshareRawUsage         *prometheus.Desc
+	fairshareEffectiveUsage   *prometheus.Desc
+	fairshareUsageFactor      *prometheus.Desc
+	fairshareLevel            *prometheus.Desc
+	fairshareTreeDepth        *prometheus.Desc
 }
 
 // NewSharesCollector creates a new shares (fairshare) collector
@@ -124,18 +124,18 @@ func (c *SharesCollector) Collect(ctx context.Context, ch chan<- prometheus.Metr
 	if shares != nil && shares.Shares != nil {
 		// Track tree depth per partition
 		depthMap := make(map[string]uint32)
-		
+
 		for _, share := range shares.Shares {
 			user := share.User
 			if user == "" {
 				user = "root"
 			}
-			
+
 			account := share.Account
 			if account == "" {
 				account = "root"
 			}
-			
+
 			partition := share.Partition
 			if partition == "" {
 				partition = "all"

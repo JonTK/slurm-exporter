@@ -10,8 +10,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 
 	"github.com/jontk/slurm-exporter/internal/collector"
 	"github.com/jontk/slurm-exporter/internal/config"
@@ -162,7 +162,7 @@ func TestCollectorFiltering(t *testing.T) {
 			Timeout: 30 * time.Second,
 			Filters: config.FilterConfig{
 				Metrics: config.MetricFilterConfig{
-					EnableAll:       false,
+					EnableAll:      false,
 					IncludeMetrics: []string{"slurm_job_state"},
 					ExcludeMetrics: []string{},
 				},
@@ -271,7 +271,7 @@ func TestCollectorTimeout(t *testing.T) {
 	// Try to collect metrics - should handle timeout gracefully
 	metricFamilies, err := promRegistry.Gather()
 	_ = metricFamilies // Use to avoid unused variable error
-	_ = err // Allow timeout errors
+	_ = err            // Allow timeout errors
 
 	// Timeout errors should be handled gracefully
 	// The exact behavior depends on implementation
@@ -426,11 +426,11 @@ func getTestNodeList() interface{} {
 	return map[string]interface{}{
 		"nodes": []map[string]interface{}{
 			{
-				"name":            "node01",
-				"state":           "idle",
-				"cpus":            64,
-				"allocated_cpus":  0,
-				"memory":          131072,
+				"name":             "node01",
+				"state":            "idle",
+				"cpus":             64,
+				"allocated_cpus":   0,
+				"memory":           131072,
 				"allocated_memory": 0,
 			},
 		},

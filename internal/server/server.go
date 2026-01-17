@@ -239,10 +239,10 @@ func (s *Server) createTLSConfig() (*tls.Config, error) {
 	}
 
 	s.logger.WithFields(logrus.Fields{
-		"min_version":    cfg.MinVersion,
-		"cipher_suites":  len(cfg.CipherSuites),
-		"cert_file":      cfg.CertFile,
-		"key_file":       cfg.KeyFile,
+		"min_version":   cfg.MinVersion,
+		"cipher_suites": len(cfg.CipherSuites),
+		"cert_file":     cfg.CertFile,
+		"key_file":      cfg.KeyFile,
 	}).Info("TLS configuration created")
 
 	return tlsConfig, nil
@@ -688,7 +688,7 @@ func (s *Server) handleDebugCollectors(w http.ResponseWriter, r *http.Request) {
 	debugInfo := map[string]interface{}{
 		"collectors": stats,
 		"summary": map[string]interface{}{
-			"total_collectors":   len(stats),
+			"total_collectors": len(stats),
 			"enabled_collectors": func() int {
 				enabled := 0
 				for _, stat := range stats {
@@ -791,7 +791,7 @@ func (s *Server) handleDebugPerformance(w http.ResponseWriter, r *http.Request) 
 			"error_count":        stats.ErrorCount,
 			"success_rate":       fmt.Sprintf("%.2f%%", successRate),
 			"consecutive_errors": stats.ConsecutiveErrors,
-			"last_error":         func() interface{} {
+			"last_error": func() interface{} {
 				if stats.LastError != nil {
 					return map[string]interface{}{
 						"message": stats.LastError.Error(),
@@ -807,10 +807,10 @@ func (s *Server) handleDebugPerformance(w http.ResponseWriter, r *http.Request) 
 				"max_duration":  stats.MaxDuration.String(),
 			},
 			"metrics": map[string]interface{}{
-				"total_metrics":    stats.TotalMetrics,
-				"last_count":       stats.LastMetricCount,
-				"avg_count":        avgMetrics,
-				"max_count":        stats.MaxMetricCount,
+				"total_metrics": stats.TotalMetrics,
+				"last_count":    stats.LastMetricCount,
+				"avg_count":     avgMetrics,
+				"max_count":     stats.MaxMetricCount,
 			},
 			"resources": map[string]interface{}{
 				"last_memory_bytes": stats.LastMemoryUsage,

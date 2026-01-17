@@ -43,7 +43,7 @@ func (m *MockSlurmClient) Accounts() slurm.AccountManager {
 	return args.Get(0).(slurm.AccountManager)
 }
 
-// QoS returns a mock QoSManager  
+// QoS returns a mock QoSManager
 func (m *MockSlurmClient) QoS() slurm.QoSManager {
 	args := m.Called()
 	return args.Get(0).(slurm.QoSManager)
@@ -60,8 +60,6 @@ func (m *MockSlurmClient) Associations() interface{} {
 	args := m.Called()
 	return args.Get(0)
 }
-
-
 
 // Close closes the client
 func (m *MockSlurmClient) Close() error {

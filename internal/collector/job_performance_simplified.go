@@ -14,37 +14,37 @@ import (
 
 // SimplifiedJobPerformanceCollector provides basic job performance metrics using existing SLURM client types
 type SimplifiedJobPerformanceCollector struct {
-	slurmClient        slurm.SlurmClient
-	logger             *slog.Logger
-	config             *JobPerformanceConfig
-	metrics            *SimplifiedJobMetrics
-	efficiencyCalc     *EfficiencyCalculator
-	lastCollection     time.Time
-	mu                 sync.RWMutex
+	slurmClient    slurm.SlurmClient
+	logger         *slog.Logger
+	config         *JobPerformanceConfig
+	metrics        *SimplifiedJobMetrics
+	efficiencyCalc *EfficiencyCalculator
+	lastCollection time.Time
+	mu             sync.RWMutex
 
 	// Cache for recent job data
-	jobCache           map[string]*slurm.Job
-	efficiencyCache    map[string]*EfficiencyMetrics
-	cacheTTL           time.Duration
+	jobCache        map[string]*slurm.Job
+	efficiencyCache map[string]*EfficiencyMetrics
+	cacheTTL        time.Duration
 }
 
 // SimplifiedJobMetrics holds basic Prometheus metrics for job performance
 type SimplifiedJobMetrics struct {
 	// Basic job metrics from existing data
-	JobDuration           *prometheus.GaugeVec
-	JobCPUAllocated       *prometheus.GaugeVec
-	JobMemoryAllocated    *prometheus.GaugeVec
-	JobNodesAllocated     *prometheus.GaugeVec
-	JobGPUAllocated       *prometheus.GaugeVec
-	JobQueueTime          *prometheus.GaugeVec
-	JobStartDelay         *prometheus.GaugeVec
+	JobDuration        *prometheus.GaugeVec
+	JobCPUAllocated    *prometheus.GaugeVec
+	JobMemoryAllocated *prometheus.GaugeVec
+	JobNodesAllocated  *prometheus.GaugeVec
+	JobGPUAllocated    *prometheus.GaugeVec
+	JobQueueTime       *prometheus.GaugeVec
+	JobStartDelay      *prometheus.GaugeVec
 
 	// Job state tracking
-	JobStateTransitions   *prometheus.CounterVec
-	JobsByState           *prometheus.GaugeVec
-	JobsByUser            *prometheus.GaugeVec
-	JobsByAccount         *prometheus.GaugeVec
-	JobsByPartition       *prometheus.GaugeVec
+	JobStateTransitions *prometheus.CounterVec
+	JobsByState         *prometheus.GaugeVec
+	JobsByUser          *prometheus.GaugeVec
+	JobsByAccount       *prometheus.GaugeVec
+	JobsByPartition     *prometheus.GaugeVec
 
 	// Performance indicators (estimated)
 	JobResourceRatio      *prometheus.GaugeVec
@@ -58,10 +58,10 @@ type SimplifiedJobMetrics struct {
 	JobWasteRatio             *prometheus.GaugeVec
 
 	// Collection performance metrics
-	CollectionDuration    prometheus.Histogram
-	CollectionErrors      *prometheus.CounterVec
-	JobsProcessed         prometheus.Counter
-	CacheHitRatio         prometheus.Gauge
+	CollectionDuration prometheus.Histogram
+	CollectionErrors   *prometheus.CounterVec
+	JobsProcessed      prometheus.Counter
+	CacheHitRatio      prometheus.Gauge
 }
 
 // NewSimplifiedJobPerformanceCollector creates a new simplified job performance collector
@@ -349,9 +349,9 @@ func (c *SimplifiedJobPerformanceCollector) collectJobMetrics(ctx context.Contex
 	totalJobs := len(jobs.Jobs)
 
 	// Track state counts for aggregation
-	stateCounts := make(map[string]map[string]int) // partition -> state -> count
+	stateCounts := make(map[string]map[string]int)     // partition -> state -> count
 	userStateCounts := make(map[string]map[string]int) // user -> state -> count
-	accountStateCounts := make(map[string]int) // account -> count
+	accountStateCounts := make(map[string]int)         // account -> count
 
 	// TODO: Job field names (JobID, etc.) are not available in the current slurm-client version
 	// Skipping job processing for now

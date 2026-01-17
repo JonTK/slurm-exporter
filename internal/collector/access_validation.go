@@ -27,22 +27,22 @@ type AccessValidationSLURMClient interface {
 
 // UserAccessValidation represents the result of user access validation
 type UserAccessValidation struct {
-	UserName           string
-	AccountName        string
-	AccessGranted      bool
-	ValidationTime     time.Time
-	ValidationMethod   string
+	UserName            string
+	AccountName         string
+	AccessGranted       bool
+	ValidationTime      time.Time
+	ValidationMethod    string
 	AuthenticationLevel string
-	PermissionLevel    string
-	Restrictions       []string
-	ValidationReasons  []string
-	TTL                time.Duration
-	SessionID          string
-	SourceIP           string
-	UserAgent          string
-	RiskScore          float64
-	ComplianceStatus   string
-	RequiredActions    []string
+	PermissionLevel     string
+	Restrictions        []string
+	ValidationReasons   []string
+	TTL                 time.Duration
+	SessionID           string
+	SourceIP            string
+	UserAgent           string
+	RiskScore           float64
+	ComplianceStatus    string
+	RequiredActions     []string
 }
 
 // UserAccessRights represents comprehensive user access rights
@@ -64,71 +64,71 @@ type UserAccessRights struct {
 
 // AccountAccessPolicies represents access policies for an account
 type AccountAccessPolicies struct {
-	AccountName         string
-	PolicyVersion       string
-	RequiredAuth        []string
-	MinAuthLevel        int
-	AllowedUsers        []string
-	DeniedUsers         []string
-	AllowedGroups       []string
-	DeniedGroups        []string
-	TimeRestrictions    []TimeRestriction
-	LocationRestrictions []LocationRestriction
-	ResourceLimits      map[string]int
-	MFARequired         bool
-	SessionTimeout      time.Duration
+	AccountName           string
+	PolicyVersion         string
+	RequiredAuth          []string
+	MinAuthLevel          int
+	AllowedUsers          []string
+	DeniedUsers           []string
+	AllowedGroups         []string
+	DeniedGroups          []string
+	TimeRestrictions      []TimeRestriction
+	LocationRestrictions  []LocationRestriction
+	ResourceLimits        map[string]int
+	MFARequired           bool
+	SessionTimeout        time.Duration
 	MaxConcurrentSessions int
-	PolicyEnforcement   string
-	AuditLevel          string
-	LastModified        time.Time
-	ModifiedBy          string
+	PolicyEnforcement     string
+	AuditLevel            string
+	LastModified          time.Time
+	ModifiedBy            string
 }
 
 // TimeRestriction represents time-based access restrictions
 type TimeRestriction struct {
-	StartTime    string
-	EndTime      string
-	DaysOfWeek   []string
-	Timezone     string
-	Description  string
+	StartTime   string
+	EndTime     string
+	DaysOfWeek  []string
+	Timezone    string
+	Description string
 }
 
 // LocationRestriction represents location-based access restrictions
 type LocationRestriction struct {
-	AllowedIPs      []string
-	DeniedIPs       []string
+	AllowedIPs       []string
+	DeniedIPs        []string
 	AllowedCountries []string
 	DeniedCountries  []string
-	GeoFencing      bool
+	GeoFencing       bool
 }
 
 // AccessAuditLog represents access audit trail
 type AccessAuditLog struct {
-	Period          string
-	TotalEvents     int
+	Period           string
+	TotalEvents      int
 	SuccessfulLogins int
-	FailedLogins    int
-	AccessChanges   int
+	FailedLogins     int
+	AccessChanges    int
 	PolicyViolations int
-	SecurityEvents  int
-	Events          []AuditEvent
-	Summary         AuditSummary
+	SecurityEvents   int
+	Events           []AuditEvent
+	Summary          AuditSummary
 }
 
 // AuditEvent represents a single audit event
 type AuditEvent struct {
-	EventID       string
-	Timestamp     time.Time
-	UserName      string
-	AccountName   string
-	EventType     string
-	Action        string
-	Result        string
-	SourceIP      string
-	UserAgent     string
-	Details       map[string]interface{}
-	RiskScore     float64
-	Flagged       bool
+	EventID     string
+	Timestamp   time.Time
+	UserName    string
+	AccountName string
+	EventType   string
+	Action      string
+	Result      string
+	SourceIP    string
+	UserAgent   string
+	Details     map[string]interface{}
+	RiskScore   float64
+	Flagged     bool
 }
 
 // AuditSummary represents audit log summary
@@ -175,66 +175,66 @@ type AccessViolation struct {
 
 // AccessPatterns represents user access patterns
 type AccessPatterns struct {
-	UserName              string
-	LoginTimes            []time.Time
-	AccessFrequency       map[string]int
-	PreferredAccounts     []string
-	CommonOperations      []string
-	AverageSessionLength  time.Duration
-	PeakUsageHours        []int
-	AccessLocations       []string
-	DeviceFingerprints    []string
-	BehaviorScore         float64
-	AnomalyDetected       bool
-	RiskProfile           string
+	UserName                string
+	LoginTimes              []time.Time
+	AccessFrequency         map[string]int
+	PreferredAccounts       []string
+	CommonOperations        []string
+	AverageSessionLength    time.Duration
+	PeakUsageHours          []int
+	AccessLocations         []string
+	DeviceFingerprints      []string
+	BehaviorScore           float64
+	AnomalyDetected         bool
+	RiskProfile             string
 	RecommendedRestrictions []string
 }
 
 // SessionValidation represents session validation results
 type SessionValidation struct {
-	SessionID        string
-	UserName         string
-	AccountName      string
-	Valid            bool
-	CreatedAt        time.Time
-	LastActivity     time.Time
-	ExpiresAt        time.Time
-	SourceIP         string
-	UserAgent        string
-	AuthMethod       string
-	MFACompleted     bool
+	SessionID         string
+	UserName          string
+	AccountName       string
+	Valid             bool
+	CreatedAt         time.Time
+	LastActivity      time.Time
+	ExpiresAt         time.Time
+	SourceIP          string
+	UserAgent         string
+	AuthMethod        string
+	MFACompleted      bool
 	PermissionsCached []string
 	ActivityCount     int
-	RiskScore        float64
-	Flags            []string
+	RiskScore         float64
+	Flags             []string
 }
 
 // ComplianceStatus represents compliance monitoring
 type ComplianceStatus struct {
-	Scope              string
-	ComplianceScore    float64
-	PolicyAdherence    float64
-	SecurityPosture    float64
-	AuditReadiness     float64
-	ControlsInPlace    int
-	ControlsFailing    int
-	RequiredActions    []ComplianceAction
-	Certifications     []Certification
-	LastAudit          time.Time
-	NextAudit          time.Time
-	ComplianceOfficer  string
-	RiskLevel          string
+	Scope             string
+	ComplianceScore   float64
+	PolicyAdherence   float64
+	SecurityPosture   float64
+	AuditReadiness    float64
+	ControlsInPlace   int
+	ControlsFailing   int
+	RequiredActions   []ComplianceAction
+	Certifications    []Certification
+	LastAudit         time.Time
+	NextAudit         time.Time
+	ComplianceOfficer string
+	RiskLevel         string
 }
 
 // ComplianceAction represents required compliance action
 type ComplianceAction struct {
-	ActionID     string
-	Description  string
-	Priority     string
-	Deadline     time.Time
-	AssignedTo   string
-	Status       string
-	Impact       string
+	ActionID    string
+	Description string
+	Priority    string
+	Deadline    time.Time
+	AssignedTo  string
+	Status      string
+	Impact      string
 }
 
 // Certification represents compliance certification
@@ -248,34 +248,34 @@ type Certification struct {
 
 // SecurityAlerts represents security alerts
 type SecurityAlerts struct {
-	Period             string
-	TotalAlerts        int
-	CriticalAlerts     int
-	ActiveAlerts       int
-	ResolvedAlerts     int
-	MeanTimeToResolve  time.Duration
-	Alerts             []SecurityAlert
-	AlertsByType       map[string]int
-	AlertsByUser       map[string]int
-	FalsePositiveRate  float64
+	Period            string
+	TotalAlerts       int
+	CriticalAlerts    int
+	ActiveAlerts      int
+	ResolvedAlerts    int
+	MeanTimeToResolve time.Duration
+	Alerts            []SecurityAlert
+	AlertsByType      map[string]int
+	AlertsByUser      map[string]int
+	FalsePositiveRate float64
 }
 
 // SecurityAlert represents a single security alert
 type SecurityAlert struct {
-	AlertID          string
-	Timestamp        time.Time
-	AlertType        string
-	Severity         string
-	UserName         string
-	AccountName      string
-	Description      string
-	Indicators       []string
+	AlertID           string
+	Timestamp         time.Time
+	AlertType         string
+	Severity          string
+	UserName          string
+	AccountName       string
+	Description       string
+	Indicators        []string
 	RecommendedAction string
-	AutoResponse     string
-	Status           string
-	AssignedTo       string
-	ResolutionTime   time.Time
-	FalsePositive    bool
+	AutoResponse      string
+	Status            string
+	AssignedTo        string
+	ResolutionTime    time.Time
+	FalsePositive     bool
 }
 
 // AccessRecommendations represents access optimization recommendations
@@ -294,18 +294,18 @@ type AccessRecommendations struct {
 
 // RiskAssessment represents risk assessment results
 type RiskAssessment struct {
-	EntityType       string
-	EntityID         string
-	OverallRisk      float64
-	RiskFactors      map[string]float64
-	Vulnerabilities  []Vulnerability
-	Threats          []Threat
-	Mitigations      []Mitigation
-	TrendDirection   string
-	PreviousScore    float64
-	AssessmentDate   time.Time
-	NextAssessment   time.Time
-	Recommendations  []string
+	EntityType      string
+	EntityID        string
+	OverallRisk     float64
+	RiskFactors     map[string]float64
+	Vulnerabilities []Vulnerability
+	Threats         []Threat
+	Mitigations     []Mitigation
+	TrendDirection  string
+	PreviousScore   float64
+	AssessmentDate  time.Time
+	NextAssessment  time.Time
+	Recommendations []string
 }
 
 // Vulnerability represents a security vulnerability
@@ -343,18 +343,18 @@ type Mitigation struct {
 
 // AccessTrends represents access trend analysis
 type AccessTrends struct {
-	Period                  string
-	LoginTrends             []float64
-	FailureTrends           []float64
-	ViolationTrends         []float64
-	RiskTrends              []float64
-	NewUserTrends           []float64
-	InactiveUserTrends      []float64
-	PermissionChangeTrends  []float64
-	SessionLengthTrends     []float64
-	GeographicTrends        map[string][]float64
-	DeviceTrends            map[string][]float64
-	Predictions             map[string]float64
+	Period                 string
+	LoginTrends            []float64
+	FailureTrends          []float64
+	ViolationTrends        []float64
+	RiskTrends             []float64
+	NewUserTrends          []float64
+	InactiveUserTrends     []float64
+	PermissionChangeTrends []float64
+	SessionLengthTrends    []float64
+	GeographicTrends       map[string][]float64
+	DeviceTrends           map[string][]float64
+	Predictions            map[string]float64
 }
 
 // AccessValidationCollector collects access validation metrics from SLURM
@@ -363,89 +363,89 @@ type AccessValidationCollector struct {
 	mutex  sync.RWMutex
 
 	// Access validation metrics
-	userAccessValidation      *prometheus.GaugeVec
-	accessValidationTime      *prometheus.HistogramVec
-	accessGranted             *prometheus.GaugeVec
-	accessDenied              *prometheus.CounterVec
-	authenticationLevel       *prometheus.GaugeVec
-	permissionLevel           *prometheus.GaugeVec
-	riskScore                 *prometheus.GaugeVec
+	userAccessValidation *prometheus.GaugeVec
+	accessValidationTime *prometheus.HistogramVec
+	accessGranted        *prometheus.GaugeVec
+	accessDenied         *prometheus.CounterVec
+	authenticationLevel  *prometheus.GaugeVec
+	permissionLevel      *prometheus.GaugeVec
+	riskScore            *prometheus.GaugeVec
 
 	// Access rights metrics
-	userAccessRights          *prometheus.GaugeVec
-	effectivePermissions      *prometheus.GaugeVec
-	accountPermissions        *prometheus.GaugeVec
-	permissionExpiry          *prometheus.GaugeVec
-	complianceFlags           *prometheus.GaugeVec
+	userAccessRights     *prometheus.GaugeVec
+	effectivePermissions *prometheus.GaugeVec
+	accountPermissions   *prometheus.GaugeVec
+	permissionExpiry     *prometheus.GaugeVec
+	complianceFlags      *prometheus.GaugeVec
 
 	// Policy metrics
-	policyVersion             *prometheus.GaugeVec
-	minAuthLevel              *prometheus.GaugeVec
-	mfaRequired               *prometheus.GaugeVec
-	sessionTimeout            *prometheus.GaugeVec
-	maxConcurrentSessions     *prometheus.GaugeVec
-	policyViolations          *prometheus.CounterVec
+	policyVersion         *prometheus.GaugeVec
+	minAuthLevel          *prometheus.GaugeVec
+	mfaRequired           *prometheus.GaugeVec
+	sessionTimeout        *prometheus.GaugeVec
+	maxConcurrentSessions *prometheus.GaugeVec
+	policyViolations      *prometheus.CounterVec
 
 	// Audit metrics
-	auditEvents               *prometheus.CounterVec
-	successfulLogins          *prometheus.CounterVec
-	failedLogins              *prometheus.CounterVec
-	securityEvents            *prometheus.CounterVec
-	auditComplianceScore      *prometheus.GaugeVec
+	auditEvents          *prometheus.CounterVec
+	successfulLogins     *prometheus.CounterVec
+	failedLogins         *prometheus.CounterVec
+	securityEvents       *prometheus.CounterVec
+	auditComplianceScore *prometheus.GaugeVec
 
 	// Violation metrics
-	accessViolations          *prometheus.CounterVec
-	violationSeverity         *prometheus.GaugeVec
-	unresolvedViolations      *prometheus.GaugeVec
-	autoBlockedAttempts       *prometheus.CounterVec
-	violationRiskScore        *prometheus.GaugeVec
+	accessViolations     *prometheus.CounterVec
+	violationSeverity    *prometheus.GaugeVec
+	unresolvedViolations *prometheus.GaugeVec
+	autoBlockedAttempts  *prometheus.CounterVec
+	violationRiskScore   *prometheus.GaugeVec
 
 	// Pattern metrics
-	accessFrequency           *prometheus.GaugeVec
-	sessionLength             *prometheus.HistogramVec
-	behaviorScore             *prometheus.GaugeVec
-	anomalyDetected           *prometheus.GaugeVec
-	peakUsageHours            *prometheus.GaugeVec
+	accessFrequency *prometheus.GaugeVec
+	sessionLength   *prometheus.HistogramVec
+	behaviorScore   *prometheus.GaugeVec
+	anomalyDetected *prometheus.GaugeVec
+	peakUsageHours  *prometheus.GaugeVec
 
 	// Session metrics
-	activeSessions            *prometheus.GaugeVec
-	sessionValidity           *prometheus.GaugeVec
-	sessionActivity           *prometheus.GaugeVec
-	sessionRiskScore          *prometheus.GaugeVec
-	mfaCompletionRate         *prometheus.GaugeVec
+	activeSessions    *prometheus.GaugeVec
+	sessionValidity   *prometheus.GaugeVec
+	sessionActivity   *prometheus.GaugeVec
+	sessionRiskScore  *prometheus.GaugeVec
+	mfaCompletionRate *prometheus.GaugeVec
 
 	// Compliance metrics
-	complianceScore           *prometheus.GaugeVec
-	policyAdherence           *prometheus.GaugeVec
-	securityPosture           *prometheus.GaugeVec
-	controlsInPlace           *prometheus.GaugeVec
-	controlsFailing           *prometheus.GaugeVec
-	requiredActions           *prometheus.GaugeVec
+	complianceScore *prometheus.GaugeVec
+	policyAdherence *prometheus.GaugeVec
+	securityPosture *prometheus.GaugeVec
+	controlsInPlace *prometheus.GaugeVec
+	controlsFailing *prometheus.GaugeVec
+	requiredActions *prometheus.GaugeVec
 
 	// Security alert metrics
-	securityAlerts            *prometheus.CounterVec
-	alertSeverity             *prometheus.GaugeVec
-	activeAlerts              *prometheus.GaugeVec
-	meanTimeToResolve         *prometheus.HistogramVec
-	falsePositiveRate         *prometheus.GaugeVec
+	securityAlerts    *prometheus.CounterVec
+	alertSeverity     *prometheus.GaugeVec
+	activeAlerts      *prometheus.GaugeVec
+	meanTimeToResolve *prometheus.HistogramVec
+	falsePositiveRate *prometheus.GaugeVec
 
 	// Risk assessment metrics
-	overallRisk               *prometheus.GaugeVec
-	riskFactors               *prometheus.GaugeVec
-	vulnerabilities           *prometheus.GaugeVec
-	threats                   *prometheus.GaugeVec
-	mitigations               *prometheus.GaugeVec
+	overallRisk     *prometheus.GaugeVec
+	riskFactors     *prometheus.GaugeVec
+	vulnerabilities *prometheus.GaugeVec
+	threats         *prometheus.GaugeVec
+	mitigations     *prometheus.GaugeVec
 
 	// Trend metrics
-	loginTrend                *prometheus.GaugeVec
-	failureTrend              *prometheus.GaugeVec
-	violationTrend            *prometheus.GaugeVec
-	riskTrend                 *prometheus.GaugeVec
+	loginTrend     *prometheus.GaugeVec
+	failureTrend   *prometheus.GaugeVec
+	violationTrend *prometheus.GaugeVec
+	riskTrend      *prometheus.GaugeVec
 
 	// Collection metrics
-	collectionDuration        *prometheus.HistogramVec
-	collectionErrors          *prometheus.CounterVec
-	lastCollectionTime        *prometheus.GaugeVec
+	collectionDuration *prometheus.HistogramVec
+	collectionErrors   *prometheus.CounterVec
+	lastCollectionTime *prometheus.GaugeVec
 }
 
 // NewAccessValidationCollector creates a new access validation collector
@@ -1649,12 +1649,12 @@ func getAuthLevelNumeric(level string) float64 {
 
 func getPermissionLevelNumeric(level string) float64 {
 	levels := map[string]float64{
-		"none":     0,
-		"view":     1,
-		"submit":   2,
-		"operate":  3,
-		"admin":    4,
-		"owner":    5,
+		"none":    0,
+		"view":    1,
+		"submit":  2,
+		"operate": 3,
+		"admin":   4,
+		"owner":   5,
 	}
 	if val, ok := levels[level]; ok {
 		return val

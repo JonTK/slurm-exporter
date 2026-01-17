@@ -97,11 +97,11 @@ func NewBatchedCollector(
 	}
 
 	metricConfig := performance.MetricBatcherConfig{
-		BatchConfig:      batchConfig,
-		EnableSampling:   true,
+		BatchConfig:       batchConfig,
+		EnableSampling:    true,
 		EnableAggregation: true,
 		AggregationWindow: 30 * time.Second,
-		MaxMetricAge:     5 * time.Minute,
+		MaxMetricAge:      5 * time.Minute,
 	}
 
 	batcher, err := performance.NewMetricBatcher(metricConfig, nil, logger)
@@ -194,7 +194,7 @@ func (bc *BatchedCollector) processJobBatch(ctx context.Context, jobs []*slurm.J
 		labels := prometheus.Labels{
 			"state": state,
 		}
-		
+
 		if err := bc.batcher.BatchMetric(
 			"slurm_jobs_total",
 			labels,
@@ -319,7 +319,7 @@ func (bc *BatchedCollector) Describe(ch chan<- *prometheus.Desc) {
 func (bc *BatchedCollector) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Flush any pending batches
 	bc.processor.FlushAll()
-	
+
 	// Collect batched metrics
 	metrics, err := bc.batcher.CollectBatchedMetrics()
 	if err != nil {

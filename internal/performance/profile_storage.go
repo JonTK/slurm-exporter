@@ -88,7 +88,7 @@ func (fs *FileProfileStorage) Save(profile *CollectorProfile) error {
 
 	// Generate profile ID with nanosecond precision to avoid collisions
 	id := fmt.Sprintf("%s_%d", profile.CollectorName, profile.StartTime.UnixNano())
-	
+
 	// Create profile directory
 	profileDir := filepath.Join(fs.config.Path, id)
 	if err := os.MkdirAll(profileDir, 0755); err != nil {
@@ -322,7 +322,7 @@ func (fs *FileProfileStorage) Cleanup() error {
 	}
 
 	cutoff := time.Now().Add(-fs.config.Retention)
-	
+
 	entries, err := os.ReadDir(fs.config.Path)
 	if err != nil {
 		return fmt.Errorf("reading profile directory: %w", err)
@@ -457,7 +457,7 @@ func (ms *MemoryProfileStorage) Save(profile *CollectorProfile) error {
 
 	// Generate profile ID with nanosecond precision to avoid collisions
 	id := fmt.Sprintf("%s_%d", profile.CollectorName, profile.StartTime.UnixNano())
-	
+
 	// Calculate size
 	var size int64
 	if profile.CPUProfile != nil {
@@ -549,7 +549,7 @@ func (ms *MemoryProfileStorage) Cleanup() error {
 	}
 
 	cutoff := time.Now().Add(-ms.config.Retention)
-	
+
 	for id, metadata := range ms.metadata {
 		if metadata.StartTime.Before(cutoff) {
 			delete(ms.profiles, id)

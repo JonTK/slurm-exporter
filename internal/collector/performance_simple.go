@@ -31,20 +31,20 @@ type PerformanceSimpleCollector struct {
 	customLabels map[string]string
 
 	// Job performance metrics
-	jobEfficiency       *prometheus.Desc
+	jobEfficiency        *prometheus.Desc
 	jobWaitTimeHistogram *prometheus.HistogramVec
 	jobRunTimeHistogram  *prometheus.HistogramVec
 
 	// Cluster performance metrics
-	clusterThroughput    *prometheus.Desc
-	clusterUtilization   *prometheus.Desc
-	queueBacklog         *prometheus.Desc
-	avgWaitTime          *prometheus.Desc
+	clusterThroughput  *prometheus.Desc
+	clusterUtilization *prometheus.Desc
+	queueBacklog       *prometheus.Desc
+	avgWaitTime        *prometheus.Desc
 
 	// Resource efficiency metrics
-	cpuEfficiency        *prometheus.Desc
-	memoryEfficiency     *prometheus.Desc
-	nodeEfficiency       *prometheus.Desc
+	cpuEfficiency    *prometheus.Desc
+	memoryEfficiency *prometheus.Desc
+	nodeEfficiency   *prometheus.Desc
 }
 
 // NewPerformanceSimpleCollector creates a new Performance collector
@@ -239,8 +239,8 @@ func (c *PerformanceSimpleCollector) collect(ch chan<- prometheus.Metric) error 
 	}
 
 	c.logger.WithFields(map[string]interface{}{
-		"jobs": len(jobList.Jobs),
-		"nodes": len(nodeList.Nodes),
+		"jobs":       len(jobList.Jobs),
+		"nodes":      len(nodeList.Nodes),
 		"partitions": len(partitionList.Partitions),
 	}).Info("Collected performance data")
 

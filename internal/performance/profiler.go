@@ -27,24 +27,24 @@ type Profiler struct {
 
 // ProfilerConfig holds profiler configuration
 type ProfilerConfig struct {
-	Enabled              bool                   `yaml:"enabled"`
-	CPUProfileRate       int                    `yaml:"cpu_profile_rate"`       // Hz
-	MemProfileRate       int                    `yaml:"memory_profile_rate"`    // bytes
-	BlockProfileRate     int                    `yaml:"block_profile_rate"`     // nanoseconds
-	MutexProfileFraction int                    `yaml:"mutex_profile_fraction"` // 1/n
-	AutoProfile          AutoProfileConfig      `yaml:"auto_profile"`
-	Storage              ProfileStorageConfig   `yaml:"storage"`
+	Enabled              bool                    `yaml:"enabled"`
+	CPUProfileRate       int                     `yaml:"cpu_profile_rate"`       // Hz
+	MemProfileRate       int                     `yaml:"memory_profile_rate"`    // bytes
+	BlockProfileRate     int                     `yaml:"block_profile_rate"`     // nanoseconds
+	MutexProfileFraction int                     `yaml:"mutex_profile_fraction"` // 1/n
+	AutoProfile          AutoProfileConfig       `yaml:"auto_profile"`
+	Storage              ProfileStorageConfig    `yaml:"storage"`
 	ContinuousProfiling  ContinuousProfileConfig `yaml:"continuous_profiling"`
 }
 
 // AutoProfileConfig holds automatic profiling triggers
 type AutoProfileConfig struct {
-	Enabled               bool          `yaml:"enabled"`
-	DurationThreshold     time.Duration `yaml:"duration_threshold"`
-	MemoryThreshold       int64         `yaml:"memory_threshold"`       // bytes
-	ErrorRateThreshold    float64       `yaml:"error_rate_threshold"`   // percentage
-	CPUUsageThreshold     float64       `yaml:"cpu_usage_threshold"`    // percentage
-	ProfileOnSlowCollection bool        `yaml:"profile_on_slow_collection"`
+	Enabled                 bool          `yaml:"enabled"`
+	DurationThreshold       time.Duration `yaml:"duration_threshold"`
+	MemoryThreshold         int64         `yaml:"memory_threshold"`     // bytes
+	ErrorRateThreshold      float64       `yaml:"error_rate_threshold"` // percentage
+	CPUUsageThreshold       float64       `yaml:"cpu_usage_threshold"`  // percentage
+	ProfileOnSlowCollection bool          `yaml:"profile_on_slow_collection"`
 }
 
 // ProfileStorageConfig holds profile storage configuration
@@ -57,37 +57,37 @@ type ProfileStorageConfig struct {
 
 // ContinuousProfileConfig holds continuous profiling configuration
 type ContinuousProfileConfig struct {
-	Enabled         bool          `yaml:"enabled"`
-	Interval        time.Duration `yaml:"interval"`
-	CPUDuration     time.Duration `yaml:"cpu_duration"`
-	IncludeHeap     bool          `yaml:"include_heap"`
-	IncludeGoroutine bool         `yaml:"include_goroutine"`
+	Enabled          bool          `yaml:"enabled"`
+	Interval         time.Duration `yaml:"interval"`
+	CPUDuration      time.Duration `yaml:"cpu_duration"`
+	IncludeHeap      bool          `yaml:"include_heap"`
+	IncludeGoroutine bool          `yaml:"include_goroutine"`
 }
 
 // CollectorProfile represents a profile for a specific collector
 type CollectorProfile struct {
-	CollectorName string
-	StartTime     time.Time
-	EndTime       time.Time
-	Duration      time.Duration
-	CPUProfile    *bytes.Buffer
-	HeapProfile   *bytes.Buffer
+	CollectorName    string
+	StartTime        time.Time
+	EndTime          time.Time
+	Duration         time.Duration
+	CPUProfile       *bytes.Buffer
+	HeapProfile      *bytes.Buffer
 	GoroutineProfile *bytes.Buffer
-	BlockProfile  *bytes.Buffer
-	MutexProfile  *bytes.Buffer
-	TraceData     *bytes.Buffer
-	Phases        map[string]*ProfilePhase
-	Metadata      map[string]interface{}
+	BlockProfile     *bytes.Buffer
+	MutexProfile     *bytes.Buffer
+	TraceData        *bytes.Buffer
+	Phases           map[string]*ProfilePhase
+	Metadata         map[string]interface{}
 }
 
 // ProfilePhase represents a phase within a collection
 type ProfilePhase struct {
-	Name      string
-	StartTime time.Time
-	EndTime   time.Time
-	Duration  time.Duration
+	Name        string
+	StartTime   time.Time
+	EndTime     time.Time
+	Duration    time.Duration
 	Allocations int64
-	CPUNanos   int64
+	CPUNanos    int64
 }
 
 // OperationProfile tracks a single operation
@@ -100,19 +100,19 @@ type OperationProfile struct {
 	startTime     time.Time
 	// TODO: Unused field - preserved for future CPU profiling
 	// cpuProfile    *pprof.Profile
-	traceCtx      context.Context
-	traceTask     *trace.Task
+	traceCtx  context.Context
+	traceTask *trace.Task
 }
 
 // profilerMetrics holds profiler metrics
 type profilerMetrics struct {
-	profilesCreated    *prometheus.CounterVec
-	profilesSaved      *prometheus.CounterVec
-	profileSize        *prometheus.HistogramVec
-	profileDuration    *prometheus.HistogramVec
+	profilesCreated     *prometheus.CounterVec
+	profilesSaved       *prometheus.CounterVec
+	profileSize         *prometheus.HistogramVec
+	profileDuration     *prometheus.HistogramVec
 	autoProfileTriggers *prometheus.CounterVec
-	storageUsage       prometheus.Gauge
-	activeProfiles     prometheus.Gauge
+	storageUsage        prometheus.Gauge
+	activeProfiles      prometheus.Gauge
 }
 
 // NewProfiler creates a new profiler
@@ -183,7 +183,7 @@ func (p *Profiler) StartOperation(collectorName string) *OperationProfile {
 	var traceBuf bytes.Buffer
 	ctx, task := trace.NewTask(context.Background(), collectorName)
 	profile.TraceData = &traceBuf
-	
+
 	op := &OperationProfile{
 		profiler:      p,
 		collectorName: collectorName,
@@ -239,7 +239,7 @@ func (op *OperationProfile) PhaseEnd(name string) {
 	if phase, exists := op.profile.Phases[name]; exists {
 		phase.EndTime = time.Now()
 		phase.Duration = phase.EndTime.Sub(phase.StartTime)
-		
+
 		// Calculate resource usage for this phase
 		var memStats runtime.MemStats
 		runtime.ReadMemStats(&memStats)
@@ -367,7 +367,7 @@ func (op *OperationProfile) Save() error {
 	}
 
 	op.profiler.metrics.profilesSaved.WithLabelValues(op.collectorName).Inc()
-	
+
 	// Calculate total size
 	totalSize := 0
 	if op.profile.CPUProfile != nil {
@@ -379,7 +379,7 @@ func (op *OperationProfile) Save() error {
 	if op.profile.GoroutineProfile != nil {
 		totalSize += op.profile.GoroutineProfile.Len()
 	}
-	
+
 	op.profiler.metrics.profileSize.WithLabelValues(op.collectorName).Observe(float64(totalSize))
 
 	return nil
@@ -422,10 +422,10 @@ func (op *OperationProfile) GenerateReport() string {
 	report := fmt.Sprintf("Profile Report for %s\n", op.collectorName)
 	report += fmt.Sprintf("Duration: %v\n", op.profile.Duration)
 	report += fmt.Sprintf("Start: %v, End: %v\n", op.profile.StartTime, op.profile.EndTime)
-	
+
 	report += "\nPhases:\n"
 	for name, phase := range op.profile.Phases {
-		report += fmt.Sprintf("  %s: %v (Allocations: %d bytes)\n", 
+		report += fmt.Sprintf("  %s: %v (Allocations: %d bytes)\n",
 			name, phase.Duration, phase.Allocations)
 	}
 
@@ -512,10 +512,10 @@ func (p *Profiler) GetStats() map[string]interface{} {
 	storageStats := p.storage.GetStats()
 
 	return map[string]interface{}{
-		"enabled":        p.enabled,
+		"enabled":         p.enabled,
 		"active_profiles": activeCount,
-		"config":         p.config,
-		"storage":        storageStats,
+		"config":          p.config,
+		"storage":         storageStats,
 	}
 }
 
