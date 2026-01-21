@@ -57,12 +57,10 @@ builds:
 
 archives:
   - id: linux-archives
-    builds:
+    ids:
       - linux
-    format: tar.gz
-    format_overrides:
-      - goos: windows
-        format: zip
+    formats:
+      - tar.gz
     name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
     files:
       - LICENSE
@@ -71,9 +69,10 @@ archives:
       - RELEASE.md
 
   - id: darwin-archives
-    builds:
+    ids:
       - darwin
-    format: tar.gz
+    formats:
+      - tar.gz
     name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
     files:
       - LICENSE
@@ -82,9 +81,10 @@ archives:
       - RELEASE.md
 
   - id: windows-archives
-    builds:
+    ids:
       - windows
-    format: zip
+    formats:
+      - zip
     name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
     files:
       - LICENSE
@@ -97,7 +97,7 @@ checksum:
   algorithm: sha256
 
 snapshot:
-  name_template: "{{ .Version }}-snapshot"
+  version_template: "{{ .Version }}-snapshot"
 
 changelog:
   use: github-native
