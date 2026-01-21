@@ -237,6 +237,7 @@ type CollectionOrchestrator struct {
 	ctx       context.Context
 	cancel    context.CancelFunc
 	logger    *logrus.Entry
+	stopped   bool // Protected by mu - prevents new collections after Stop()
 }
 
 // NewCollectionOrchestrator creates a new collection orchestrator
@@ -272,6 +273,11 @@ func (co *CollectionOrchestrator) SetCollectorInterval(name string, interval tim
 func (co *CollectionOrchestrator) Start() {
 	co.logger.Info("Starting collection orchestrator")
 
+	// Reset stopped flag to allow collections
+	co.mu.Lock()
+	co.stopped = false
+	co.mu.Unlock()
+
 	// Start individual collector timers
 	for _, name := range co.registry.List() {
 		co.startCollectorTimer(name)
@@ -306,6 +312,16 @@ func (co *CollectionOrchestrator) startCollectorTimer(name string) {
 		for {
 			select {
 			case <-timer.C:
+				// Check if stopped before collecting
+				co.mu.RLock()
+				isStopped := co.stopped
+				co.mu.RUnlock()
+
+				if isStopped {
+					timer.Stop()
+					return
+				}
+
 				// Perform collection
 				ctx, cancel := context.WithTimeout(co.ctx, 30*time.Second)
 
@@ -330,7 +346,17 @@ func (co *CollectionOrchestrator) startCollectorTimer(name string) {
 
 				cancel()
 
-				// Reset timer
+				// Check if stopped before resetting timer
+				co.mu.RLock()
+				isStopped = co.stopped
+				co.mu.RUnlock()
+
+				if isStopped {
+					timer.Stop()
+					return
+				}
+
+				// Reset timer only if not stopped
 				timer.Reset(interval)
 
 			case <-co.ctx.Done():
@@ -344,6 +370,12 @@ func (co *CollectionOrchestrator) startCollectorTimer(name string) {
 // Stop stops the collection orchestrator
 func (co *CollectionOrchestrator) Stop() {
 	co.logger.Info("Stopping collection orchestrator")
+
+	// Set stopped flag to prevent new collections
+	co.mu.Lock()
+	co.stopped = true
+	co.mu.Unlock()
+
 	co.cancel()
 
 	// Stop all timers

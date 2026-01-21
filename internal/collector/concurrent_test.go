@@ -372,20 +372,28 @@ func TestCollectionOrchestrator(t *testing.T) {
 		// Wait for multiple collections
 		time.Sleep(200 * time.Millisecond)
 
-		// Stop orchestrator
-		orchestrator.Stop()
-
-		// Verify collections happened
+		// Verify collections happened before stopping
 		count := atomic.LoadInt32(&collectCount)
 		if count < 2 {
 			t.Errorf("Expected at least 2 collections, got %d", count)
 		}
 
-		// Verify no more collections after stop
-		countAfterStop := atomic.LoadInt32(&collectCount)
+		// Stop orchestrator
+		orchestrator.Stop()
+
+		// Wait for any in-flight collection to complete (interval is 50ms, so wait 100ms)
 		time.Sleep(100 * time.Millisecond)
-		if atomic.LoadInt32(&collectCount) != countAfterStop {
-			t.Error("Collections should stop after Stop()")
+
+		// Record count after in-flight collections complete
+		countAfterStop := atomic.LoadInt32(&collectCount)
+
+		// Wait longer than the interval to verify no new collections start
+		time.Sleep(150 * time.Millisecond)
+
+		// Verify no NEW collections started after stop
+		finalCount := atomic.LoadInt32(&collectCount)
+		if finalCount != countAfterStop {
+			t.Errorf("New collections started after Stop() (had %d after stop wait, now have %d)", countAfterStop, finalCount)
 		}
 	})
 }

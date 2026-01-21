@@ -23,6 +23,7 @@ type Scheduler struct {
 	logger        *logrus.Entry
 	ctx           context.Context
 	cancel        context.CancelFunc
+	stopped       bool // Protected by mu
 }
 
 // Schedule represents a collection schedule for a collector
@@ -188,6 +189,11 @@ func (s *Scheduler) InitializeSchedules() error {
 func (s *Scheduler) Start() error {
 	s.logger.Info("Starting collection scheduler")
 
+	// Reset stopped flag
+	s.mu.Lock()
+	s.stopped = false
+	s.mu.Unlock()
+
 	// Start orchestrator
 	s.orchestrator.Start()
 
@@ -210,6 +216,11 @@ func (s *Scheduler) Start() error {
 func (s *Scheduler) Stop() {
 	s.logger.Info("Stopping collection scheduler")
 
+	// Set stopped flag to prevent new timers from being scheduled
+	s.mu.Lock()
+	s.stopped = true
+	s.mu.Unlock()
+
 	// Cancel context
 	s.cancel()
 
@@ -219,9 +230,11 @@ func (s *Scheduler) Stop() {
 	// Stop all schedules
 	s.mu.Lock()
 	for _, schedule := range s.schedules {
+		schedule.mu.Lock()
 		if schedule.timer != nil {
 			schedule.timer.Stop()
 		}
+		schedule.mu.Unlock()
 	}
 	s.mu.Unlock()
 }
@@ -287,11 +300,17 @@ func (s *Scheduler) runScheduledCollection(name string, schedule *Schedule) {
 		s.globalMetrics.ScheduledRuns.WithLabelValues(name, "success").Inc()
 	}
 
-	// Schedule next run
-	schedule.NextRun = actualTime.Add(schedule.Interval)
-	schedule.timer = time.AfterFunc(schedule.Interval, func() {
-		s.runScheduledCollection(name, schedule)
-	})
+	// Schedule next run only if not stopped
+	s.mu.RLock()
+	stopped := s.stopped
+	s.mu.RUnlock()
+
+	if !stopped {
+		schedule.NextRun = actualTime.Add(schedule.Interval)
+		schedule.timer = time.AfterFunc(schedule.Interval, func() {
+			s.runScheduledCollection(name, schedule)
+		})
+	}
 	schedule.mu.Unlock()
 
 	// Log result
