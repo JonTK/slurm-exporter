@@ -54,8 +54,7 @@ jobs:
 
     - name: Run tests (Windows)
       if: matrix.os == 'windows-latest'
-      run: |
-        go test -v -covermode=atomic -coverprofile coverage.out ./...
+      run: go test -v -covermode=atomic "-coverprofile=coverage.out" ./...
 
     - name: Upload coverage to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.go-version == env.GO_VERSION_STABLE

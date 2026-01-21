@@ -42,14 +42,14 @@ func TestUsersSimpleCollector_Collect_Success(t *testing.T) {
 	userList := &slurm.UserList{
 		Users: []slurm.User{
 			{
-				Name:          "user1",
+				Name:           "user1",
 				DefaultAccount: "account1",
-				AdminLevel:    "None",
+				AdminLevel:     "None",
 			},
 			{
-				Name:          "user2",
+				Name:           "user2",
 				DefaultAccount: "account2",
-				AdminLevel:    "Operator",
+				AdminLevel:     "Operator",
 			},
 		},
 	}

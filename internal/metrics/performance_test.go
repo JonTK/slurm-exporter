@@ -33,6 +33,8 @@ func TestPerformanceMetrics(t *testing.T) {
 	apiTimer := metrics.NewAPITimer("test_endpoint", "GET")
 	assert.NotNil(t, apiTimer)
 
+	// Sleep longer to ensure measurable duration on Windows (15.6ms timer resolution)
+	time.Sleep(50 * time.Millisecond)
 	duration = apiTimer.StopWithStatus("success")
 	assert.Greater(t, duration, time.Duration(0))
 

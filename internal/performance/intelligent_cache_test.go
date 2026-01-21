@@ -266,13 +266,17 @@ func TestIntelligentCache_LRUEviction(t *testing.T) {
 	cache := NewIntelligentCache(cfg, logger)
 	defer cache.Close()
 
-	// Fill cache to capacity
+	// Fill cache to capacity (add small delays for Windows timer resolution)
 	cache.Set("key1", "value1")
+	time.Sleep(10 * time.Millisecond)
 	cache.Set("key2", "value2")
+	time.Sleep(10 * time.Millisecond)
 	cache.Set("key3", "value3")
+	time.Sleep(10 * time.Millisecond)
 
 	// Access key1 to make it more recently used
 	cache.Get("key1")
+	time.Sleep(10 * time.Millisecond)
 
 	// Add one more entry, should evict least recently used (key2 or key3)
 	cache.Set("key4", "value4")
@@ -285,11 +289,11 @@ func TestIntelligentCache_LRUEviction(t *testing.T) {
 	_, found = cache.Get("key4")
 	assert.True(t, found)
 
-	// Should have exactly max entries
-	assert.LessOrEqual(t, len(cache.entries), cfg.MaxEntries)
+	// Should have exactly max entries (use GetMetrics for thread-safe access)
+	metrics := cache.GetMetrics()
+	assert.LessOrEqual(t, metrics.EntryCount, cfg.MaxEntries)
 
 	// Verify eviction counter
-	metrics := cache.GetMetrics()
 	assert.Greater(t, metrics.Evictions, int64(0))
 }
 

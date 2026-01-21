@@ -135,4 +135,3 @@ func TestPerformanceSimpleCollector_Collect_Disabled(t *testing.T) {
 
 	assert.Equal(t, 0, count, "should not collect metrics when disabled")
 }
-

@@ -78,7 +78,7 @@ func TestDiagnosticsCollector_Collect_Success(t *testing.T) {
 		BfWhenLastCycle:      now.Unix(),
 		BfActive:             true,
 		RPCsByMessageType: map[string]int{
-			"REQUEST_JOB_INFO": 100,
+			"REQUEST_JOB_INFO":  100,
 			"REQUEST_NODE_INFO": 50,
 		},
 	}

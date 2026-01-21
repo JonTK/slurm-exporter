@@ -321,7 +321,7 @@ func TestSchedulerErrorHandling(t *testing.T) {
 
 	// Register failing collector
 	var errorCount int32
-	registry.Register("cluster", &mockCollector{
+	_ = registry.Register("cluster", &mockCollector{
 		name:    "cluster",
 		enabled: true,
 		collectFunc: func(ctx context.Context, ch chan<- prometheus.Metric) error {
@@ -390,7 +390,7 @@ func TestScheduleHealthCheck(t *testing.T) {
 	}
 
 	// Register slow collector that will cause schedule to fall behind
-	registry.Register("cluster", &mockCollector{
+	_ = registry.Register("cluster", &mockCollector{
 		name:    "cluster",
 		enabled: true,
 		collectFunc: func(ctx context.Context, ch chan<- prometheus.Metric) error {

@@ -111,7 +111,6 @@ func TestNodesSimpleCollector_Collect_Error(t *testing.T) {
 	mockNodeManager.AssertExpectations(t)
 }
 
-
 func TestNodesSimpleCollector_CustomLabels(t *testing.T) {
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
@@ -238,4 +237,3 @@ func TestNodesSimpleCollector_ResourceMetrics(t *testing.T) {
 	mockClient.AssertExpectations(t)
 	mockNodeManager.AssertExpectations(t)
 }
-

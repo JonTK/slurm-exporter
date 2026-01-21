@@ -45,7 +45,7 @@ func (m *profiledMockCollector) SetEnabled(enabled bool) {
 
 func TestProfiledCollector(t *testing.T) {
 	logger := logrus.NewEntry(logrus.New())
-	
+
 	profilerConfig := performance.ProfilerConfig{
 		Enabled: true,
 		Storage: performance.ProfileStorageConfig{
@@ -172,7 +172,7 @@ func TestProfiledCollector(t *testing.T) {
 
 func TestProfiledCollectorManager(t *testing.T) {
 	logger := logrus.NewEntry(logrus.New())
-	
+
 	profilerConfig := performance.ProfilerConfig{
 		Enabled: true,
 		Storage: performance.ProfileStorageConfig{

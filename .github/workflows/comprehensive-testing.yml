@@ -62,8 +62,8 @@ jobs:
     - name: Run unit tests (Windows)
       if: matrix.platform == 'windows-latest'
       run: |
-        go test -v -coverprofile=coverage.out -covermode=atomic ./...
-        go tool cover -html=coverage.out -o coverage.html
+        go test -v "-coverprofile=coverage.out" -covermode=atomic ./...
+        go tool cover "-html=coverage.out" -o coverage.html
         
     - name: Check test coverage
       continue-on-error: true

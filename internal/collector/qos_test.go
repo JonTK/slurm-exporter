@@ -13,7 +13,6 @@ import (
 	"github.com/jontk/slurm-exporter/internal/testutil/mocks"
 )
 
-
 func TestQoSCollector_Describe(t *testing.T) {
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
