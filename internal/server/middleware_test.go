@@ -32,7 +32,7 @@ func createTestServer() *Server {
 	// Create HTTP metrics for middleware testing
 	httpMetrics := NewHTTPMetrics()
 	promRegistry := prometheus.NewRegistry()
-	httpMetrics.Register(promRegistry)
+	_ = httpMetrics.Register(promRegistry)
 
 	return &Server{
 		config:       cfg,
@@ -53,7 +53,7 @@ func TestLoggingMiddleware(t *testing.T) {
 	// Create a test handler
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("test response"))
+		_, _ = w.Write([]byte("test response"))
 	})
 
 	// Wrap with logging middleware
@@ -112,7 +112,7 @@ func TestHeadersMiddleware(t *testing.T) {
 	// Create a test handler
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("test response"))
+		_, _ = w.Write([]byte("test response"))
 	})
 
 	// Wrap with headers middleware
@@ -206,7 +206,7 @@ func TestCombinedMiddleware(t *testing.T) {
 	// Create a test handler
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("test response"))
+		_, _ = w.Write([]byte("test response"))
 	})
 
 	// Apply combined middleware
@@ -244,7 +244,7 @@ func TestMetricsMiddleware(t *testing.T) {
 	// Create a test handler
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("test response"))
+		_, _ = w.Write([]byte("test response"))
 	})
 
 	// Wrap with metrics middleware
@@ -308,7 +308,7 @@ func TestBasicAuthMiddleware(t *testing.T) {
 
 		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("success"))
+			_, _ = w.Write([]byte("success"))
 		})
 
 		handler := server.BasicAuthMiddleware(testHandler)
@@ -341,7 +341,7 @@ func TestBasicAuthMiddleware(t *testing.T) {
 
 		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("success"))
+			_, _ = w.Write([]byte("success"))
 		})
 
 		handler := server.BasicAuthMiddleware(testHandler)
@@ -375,7 +375,7 @@ func TestBasicAuthMiddleware(t *testing.T) {
 
 		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("success"))
+			_, _ = w.Write([]byte("success"))
 		})
 
 		handler := server.BasicAuthMiddleware(testHandler)
@@ -412,7 +412,7 @@ func TestBasicAuthMiddleware(t *testing.T) {
 
 		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("success"))
+			_, _ = w.Write([]byte("success"))
 		})
 
 		handler := server.BasicAuthMiddleware(testHandler)
@@ -446,7 +446,7 @@ func TestBasicAuthMiddleware(t *testing.T) {
 
 		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("success"))
+			_, _ = w.Write([]byte("success"))
 		})
 
 		handler := server.BasicAuthMiddleware(testHandler)
@@ -474,7 +474,7 @@ func TestTimeoutMiddleware(t *testing.T) {
 		// Create a test handler that completes quickly
 		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("success"))
+			_, _ = w.Write([]byte("success"))
 		})
 
 		// Wrap with timeout middleware
@@ -500,7 +500,7 @@ func TestTimeoutMiddleware(t *testing.T) {
 			// Sleep longer than health endpoint timeout (5s)
 			time.Sleep(6 * time.Second)
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("should not reach here"))
+			_, _ = w.Write([]byte("should not reach here"))
 		})
 
 		// Wrap with timeout middleware
@@ -533,7 +533,7 @@ func TestTimeoutMiddleware(t *testing.T) {
 			// Sleep for a time that would exceed health timeout but not metrics timeout
 			time.Sleep(8 * time.Second)
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("metrics response"))
+			_, _ = w.Write([]byte("metrics response"))
 		})
 
 		handler := server.TimeoutMiddleware(testHandler)
@@ -559,7 +559,7 @@ func TestTimeoutMiddleware(t *testing.T) {
 		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Handler should not be reached due to cancelled context
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("should not reach here"))
+			_, _ = w.Write([]byte("should not reach here"))
 		})
 
 		handler := server.TimeoutMiddleware(testHandler)
@@ -584,7 +584,7 @@ func TestResponseWriter(t *testing.T) {
 	rw := &responseWriter{ResponseWriter: w}
 
 	// Test default status code
-	rw.Write([]byte("test"))
+	_, _ = rw.Write([]byte("test"))
 	if rw.statusCode != http.StatusOK {
 		t.Errorf("Expected default status code 200, got %d", rw.statusCode)
 	}

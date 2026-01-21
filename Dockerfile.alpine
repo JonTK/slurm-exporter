@@ -1,6 +1,6 @@
 # Alpine-based Dockerfile for SLURM Prometheus Exporter
 # Smaller footprint with shell access for debugging
-FROM golang:1.21-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 # Build arguments for version info
 ARG VERSION=dev
@@ -41,8 +41,8 @@ RUN apk add --no-cache \
     ca-certificates \
     tzdata \
     curl \
-    && addgroup -g 65534 -S slurm-exporter \
-    && adduser -u 65534 -D -S -G slurm-exporter slurm-exporter
+    && addgroup -g 1000 -S slurm-exporter \
+    && adduser -u 1000 -D -S -G slurm-exporter slurm-exporter
 
 # Copy the binary from builder stage
 COPY --from=builder /build/slurm-exporter /usr/local/bin/slurm-exporter

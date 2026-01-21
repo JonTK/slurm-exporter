@@ -16,7 +16,7 @@ on:
         default: '1.0.0'
 
 env:
-  GO_VERSION: '1.21'
+  GO_VERSION: '1.24'
 
 jobs:
   build-rpm:
@@ -24,7 +24,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [centos-7, centos-8, centos-9, rocky-8, rocky-9, almalinux-8, almalinux-9, fedora-38, fedora-39]
+        # Note: Removed centos-7 (EOL June 2024) and centos-8 (EOL Dec 2021)
+        # Use Rocky Linux or AlmaLinux for RHEL 7/8 compatibility
+        os: [centos-9, rocky-8, rocky-9, almalinux-8, almalinux-9, fedora-38, fedora-39]
         arch: [x86_64, aarch64]
     
     steps:
@@ -43,21 +45,49 @@ jobs:
         run: |
           if [[ $GITHUB_REF == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
+            RPM_VERSION="$VERSION"
+            RPM_RELEASE="1"
           elif [[ -n "${{ github.event.inputs.version }}" ]]; then
             VERSION="${{ github.event.inputs.version }}"
+            RPM_VERSION="$VERSION"
+            RPM_RELEASE="1"
           else
-            VERSION="0.0.0-dev.$(git rev-parse --short HEAD)"
+            GIT_SHA=$(git rev-parse --short HEAD)
+            VERSION="0.0.0.dev.${GIT_SHA}"
+            RPM_VERSION="0.0.0"
+            RPM_RELEASE="0.dev.git${GIT_SHA}"
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Building version: $VERSION"
+          echo "rpm_version=$RPM_VERSION" >> $GITHUB_OUTPUT
+          echo "rpm_release=$RPM_RELEASE" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION (RPM: $RPM_VERSION-$RPM_RELEASE)"
+
+      - name: Set Docker image
+        id: docker_image
+        run: |
+          # Convert matrix OS name to proper Docker image name
+          os="${{ matrix.os }}"
+          case "$os" in
+            centos-9) image="quay.io/centos/centos:stream9" ;;
+            rocky-8) image="rockylinux:8" ;;
+            rocky-9) image="rockylinux:9" ;;
+            almalinux-8) image="almalinux:8" ;;
+            almalinux-9) image="almalinux:9" ;;
+            fedora-38) image="fedora:38" ;;
+            fedora-39) image="fedora:39" ;;
+            *) image="$os" ;;
+          esac
+          echo "image=$image" >> $GITHUB_OUTPUT
+          echo "Using Docker image: $image"
 
       - name: Build RPM package
         run: |
           # Create build directory
           mkdir -p build/rpm
-          
-          # Create spec file with proper version
-          sed "s/%{version}/${{ steps.version.outputs.version }}/g" \
+
+          # Create spec file with proper version and release
+          sed -e "s/%{version}/${{ steps.version.outputs.rpm_version }}/g" \
+              -e "s/^Release:.*/Release:        ${{ steps.version.outputs.rpm_release }}%{?dist}/" \
             packaging/rpm/slurm-exporter.spec > build/rpm/slurm-exporter.spec
           
           # Build using Docker container for target OS
@@ -65,34 +95,37 @@ jobs:
             --platform linux/${{ matrix.arch == 'x86_64' && 'amd64' || 'arm64' }} \
             -v $(pwd):/workspace \
             -w /workspace \
-            ${{ matrix.os == 'centos-7' && 'centos:7' || '' }}${{ matrix.os == 'centos-8' && 'centos:8' || '' }}${{ matrix.os == 'centos-9' && 'quay.io/centos/centos:stream9' || '' }}${{ matrix.os == 'rocky-8' && 'rockylinux:8' || '' }}${{ matrix.os == 'rocky-9' && 'rockylinux:9' || '' }}${{ matrix.os == 'almalinux-8' && 'almalinux:8' || '' }}${{ matrix.os == 'almalinux-9' && 'almalinux:9' || '' }}${{ matrix.os == 'fedora-38' && 'fedora:38' || '' }}${{ matrix.os == 'fedora-39' && 'fedora:39' || '' }} \
+            ${{ steps.docker_image.outputs.image }} \
             bash -c "
               # Install build dependencies
               if command -v dnf > /dev/null; then
-                dnf install -y rpm-build rpmdevtools golang git make
+                dnf install -y rpm-build rpmdevtools golang git make tar
               else
-                yum install -y rpm-build rpmdevtools golang git make
+                yum install -y rpm-build rpmdevtools golang git make tar
               fi
-              
+
               # Set up RPM build environment
               rpmdev-setuptree
-              
+
               # Copy spec file
               cp build/rpm/slurm-exporter.spec ~/rpmbuild/SPECS/
-              
-              # Download source
-              spectool -g -R ~/rpmbuild/SPECS/slurm-exporter.spec || true
-              
-              # Build source RPM
-              rpmbuild -bs ~/rpmbuild/SPECS/slurm-exporter.spec
-              
-              # Build binary RPM
+
+              # Create source tarball from current directory
+              tar czf ~/rpmbuild/SOURCES/slurm-exporter-${{ steps.version.outputs.rpm_version }}.tar.gz \
+                --transform='s,^\.,slurm-exporter-${{ steps.version.outputs.rpm_version }},' \
+                --exclude='.git' \
+                --exclude='build' \
+                --exclude='*.rpm' \
+                --exclude='*.deb' \
+                .
+
+              # Build binary RPM (skip source RPM for development builds)
               rpmbuild -bb ~/rpmbuild/SPECS/slurm-exporter.spec
-              
+
               # Copy results
               mkdir -p build/rpm/${{ matrix.os }}-${{ matrix.arch }}
-              cp ~/rpmbuild/RPMS/*/*.rpm build/rpm/${{ matrix.os }}-${{ matrix.arch }}/
-              cp ~/rpmbuild/SRPMS/*.rpm build/rpm/${{ matrix.os }}-${{ matrix.arch }}/
+              cp ~/rpmbuild/RPMS/*/*.rpm build/rpm/${{ matrix.os }}-${{ matrix.arch }}/ || true
+              cp ~/rpmbuild/SRPMS/*.rpm build/rpm/${{ matrix.os }}-${{ matrix.arch }}/ || true
             "
 
       - name: Upload RPM artifacts
@@ -126,13 +159,38 @@ jobs:
         run: |
           if [[ $GITHUB_REF == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
+            RPM_VERSION="$VERSION"
+            RPM_RELEASE="1"
           elif [[ -n "${{ github.event.inputs.version }}" ]]; then
             VERSION="${{ github.event.inputs.version }}"
+            RPM_VERSION="$VERSION"
+            RPM_RELEASE="1"
           else
-            VERSION="0.0.0-dev.$(git rev-parse --short HEAD)"
+            GIT_SHA=$(git rev-parse --short HEAD)
+            VERSION="0.0.0.dev.${GIT_SHA}"
+            RPM_VERSION="0.0.0"
+            RPM_RELEASE="0.dev.git${GIT_SHA}"
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Building version: $VERSION"
+          echo "rpm_version=$RPM_VERSION" >> $GITHUB_OUTPUT
+          echo "rpm_release=$RPM_RELEASE" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION (RPM: $RPM_VERSION-$RPM_RELEASE)"
+
+      - name: Set Docker image
+        id: docker_image
+        run: |
+          # Convert matrix OS name to proper Docker image name
+          os="${{ matrix.os }}"
+          case "$os" in
+            ubuntu-20.04) image="ubuntu:20.04" ;;
+            ubuntu-22.04) image="ubuntu:22.04" ;;
+            ubuntu-24.04) image="ubuntu:24.04" ;;
+            debian-11) image="debian:11" ;;
+            debian-12) image="debian:12" ;;
+            *) image="$os" ;;
+          esac
+          echo "image=$image" >> $GITHUB_OUTPUT
+          echo "Using Docker image: $image"
 
       - name: Build DEB package
         run: |
@@ -148,38 +206,39 @@ jobs:
             --platform linux/${{ matrix.arch }} \
             -v $(pwd):/workspace \
             -w /workspace \
-            ${{ matrix.os }} \
+            ${{ steps.docker_image.outputs.image }} \
             bash -c "
               # Update package list
               apt-get update
-              
+
               # Install build dependencies
+              # Note: dh-systemd merged into debhelper in Ubuntu 20.04+
               apt-get install -y \
                 build-essential \
                 debhelper \
                 devscripts \
-                dh-systemd \
-                golang-1.21 \
+                dpkg-dev \
+                golang \
                 git \
                 make
-              
-              # Set Go path
-              export PATH=/usr/lib/go-1.21/bin:\$PATH
-              
+
+              # Verify Go installation
+              go version
+
               # Copy Debian packaging files
               cp -r packaging/deb/debian .
-              
+
               # Build source package
               dpkg-buildpackage -S -us -uc
-              
+
               # Build binary package
               dpkg-buildpackage -b -us -uc
-              
+
               # Copy results
               mkdir -p build/deb/${{ matrix.os }}-${{ matrix.arch }}
-              cp ../*.deb build/deb/${{ matrix.os }}-${{ matrix.arch }}/
-              cp ../*.dsc build/deb/${{ matrix.os }}-${{ matrix.arch }}/
-              cp ../*.tar.* build/deb/${{ matrix.os }}-${{ matrix.arch }}/
+              cp ../*.deb build/deb/${{ matrix.os }}-${{ matrix.arch }}/ || true
+              cp ../*.dsc build/deb/${{ matrix.os }}-${{ matrix.arch }}/ || true
+              cp ../*.tar.* build/deb/${{ matrix.os }}-${{ matrix.arch }}/ || true
             "
 
       - name: Upload DEB artifacts
@@ -222,14 +281,11 @@ jobs:
           sudo apt-get install -y createrepo-c rpm
           
           # Create repository structure
-          mkdir -p repo/rpm/centos/{7,8,9}/x86_64
-          mkdir -p repo/rpm/centos/{7,8,9}/aarch64
-          mkdir -p repo/rpm/rocky/{8,9}/x86_64
-          mkdir -p repo/rpm/rocky/{8,9}/aarch64
-          mkdir -p repo/rpm/almalinux/{8,9}/x86_64
-          mkdir -p repo/rpm/almalinux/{8,9}/aarch64
-          mkdir -p repo/rpm/fedora/{38,39}/x86_64
-          mkdir -p repo/rpm/fedora/{38,39}/aarch64
+          # Note: CentOS 7 and 8 are EOL - use Rocky/AlmaLinux instead
+          mkdir -p repo/rpm/centos/9/{x86_64,aarch64}
+          mkdir -p repo/rpm/rocky/{8,9}/{x86_64,aarch64}
+          mkdir -p repo/rpm/almalinux/{8,9}/{x86_64,aarch64}
+          mkdir -p repo/rpm/fedora/{38,39}/{x86_64,aarch64}
           
           # Copy RPM packages to repository
           find artifacts -name "*.rpm" -type f | while read rpm; do
@@ -388,7 +444,7 @@ jobs:
               slurm-exporter --version
             "
           fi
-          
+
           # Test DEB installation
           if [[ "${{ matrix.os }}" =~ ubuntu|debian ]]; then
             docker run --rm -v $(pwd)/artifacts:/artifacts ${{ matrix.os }} bash -c "

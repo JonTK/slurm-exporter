@@ -6,50 +6,51 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
-	"github.com/jontk/slurm-client"
 )
 
 // ConnectionPool manages a pool of SLURM client connections for better performance
 type ConnectionPool struct {
-	logger          *logrus.Entry
-	baseURL         string
-	authProvider    interface{} // auth.Provider
+	logger       *logrus.Entry
+	baseURL      string
+	authProvider interface{} // auth.Provider
 
 	// Pool configuration
-	minConnections  int
-	maxConnections  int
-	maxIdleTime     time.Duration
-	connectionTTL   time.Duration
+	minConnections int
+	maxConnections int
+	maxIdleTime    time.Duration
+	connectionTTL  time.Duration
 
 	// Pool state
-	mu              sync.RWMutex
-	connections     []*PooledConnection
-	availableConns  chan *PooledConnection
-	totalConns      int
+	mu sync.RWMutex
+	// TODO: Unused field - preserved for future connection tracking
+	// connections     []*PooledConnection
+	availableConns chan *PooledConnection
+	totalConns     int
 
 	// Metrics
-	activeConns     prometheus.Gauge
-	idleConns       prometheus.Gauge
-	connCreated     prometheus.Counter
-	connClosed      prometheus.Counter
-	connErrors      prometheus.Counter
-	acquireTime     prometheus.Histogram
+	activeConns prometheus.Gauge
+	idleConns   prometheus.Gauge
+	connCreated prometheus.Counter
+	connClosed  prometheus.Counter
+	connErrors  prometheus.Counter
+	acquireTime prometheus.Histogram
 
 	// Background management
-	cleanupTicker   *time.Ticker
-	stopChan        chan struct{}
+	cleanupTicker *time.Ticker
+	stopChan      chan struct{}
 }
 
 // PooledConnection wraps a SLURM client with pool metadata
 type PooledConnection struct {
-	client      slurm.SlurmClient
-	createdAt   time.Time
-	lastUsedAt  time.Time
-	inUse       bool
-	usageCount  int64
-	mu          sync.Mutex
+	client     slurm.SlurmClient
+	createdAt  time.Time
+	lastUsedAt time.Time
+	inUse      bool
+	usageCount int64
+	mu         sync.Mutex
 }
 
 // NewConnectionPool creates a new connection pool
@@ -103,8 +104,8 @@ func (cp *ConnectionPool) initMetrics() {
 	})
 
 	cp.acquireTime = prometheus.NewHistogram(prometheus.HistogramOpts{
-		Name: "slurm_exporter_connection_acquire_duration_seconds",
-		Help: "Time spent acquiring a connection from the pool",
+		Name:    "slurm_exporter_connection_acquire_duration_seconds",
+		Help:    "Time spent acquiring a connection from the pool",
 		Buckets: []float64{0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0},
 	})
 }
@@ -329,7 +330,7 @@ func (cp *ConnectionPool) closeConnection(conn *PooledConnection) {
 
 	conn.mu.Lock()
 	if conn.client != nil {
-		conn.client.Close()
+		_ = conn.client.Close()
 	}
 	conn.mu.Unlock()
 

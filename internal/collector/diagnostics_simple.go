@@ -20,27 +20,27 @@ type DiagnosticsCollector struct {
 	timeout time.Duration
 
 	// Metrics
-	serverThreadCount   *prometheus.Desc
-	agentCount          *prometheus.Desc
-	agentThreadCount    *prometheus.Desc
-	agentQueueSize      *prometheus.Desc
-	dbdAgentCount       *prometheus.Desc
-	jobsSubmitted       *prometheus.Desc
-	jobsStarted         *prometheus.Desc
-	jobsCompleted       *prometheus.Desc
-	jobsCanceled        *prometheus.Desc
-	jobsFailed          *prometheus.Desc
-	scheduleCycleMax    *prometheus.Desc
-	scheduleCycleLast   *prometheus.Desc
-	scheduleCycleMean   *prometheus.Desc
+	serverThreadCount    *prometheus.Desc
+	agentCount           *prometheus.Desc
+	agentThreadCount     *prometheus.Desc
+	agentQueueSize       *prometheus.Desc
+	dbdAgentCount        *prometheus.Desc
+	jobsSubmitted        *prometheus.Desc
+	jobsStarted          *prometheus.Desc
+	jobsCompleted        *prometheus.Desc
+	jobsCanceled         *prometheus.Desc
+	jobsFailed           *prometheus.Desc
+	scheduleCycleMax     *prometheus.Desc
+	scheduleCycleLast    *prometheus.Desc
+	scheduleCycleMean    *prometheus.Desc
 	scheduleCycleCounter *prometheus.Desc
-	backfillCycleMax    *prometheus.Desc
-	backfillCycleLast   *prometheus.Desc
-	backfillCycleMean   *prometheus.Desc
+	backfillCycleMax     *prometheus.Desc
+	backfillCycleLast    *prometheus.Desc
+	backfillCycleMean    *prometheus.Desc
 	backfillCycleCounter *prometheus.Desc
-	gittosCount         *prometheus.Desc
-	gittosTime          *prometheus.Desc
-	scheduleQueueLen    *prometheus.Desc
+	gittosCount          *prometheus.Desc
+	gittosTime           *prometheus.Desc
+	scheduleQueueLen     *prometheus.Desc
 }
 
 // NewDiagnosticsCollector creates a new diagnostics collector

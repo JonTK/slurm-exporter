@@ -33,9 +33,9 @@ type NodesSimpleCollector struct {
 	nodeState *prometheus.Desc
 
 	// Node resource metrics
-	nodeCPUsTotal     *prometheus.Desc
-	nodeCPUsAllocated *prometheus.Desc
-	nodeMemoryTotal   *prometheus.Desc
+	nodeCPUsTotal       *prometheus.Desc
+	nodeCPUsAllocated   *prometheus.Desc
+	nodeMemoryTotal     *prometheus.Desc
 	nodeMemoryAllocated *prometheus.Desc
 
 	// Node info
@@ -200,10 +200,11 @@ func (c *NodesSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 		// Calculate allocated CPUs from node state
 		// If node is in use, assume some CPUs are allocated based on state
 		allocCPUs := 0
-		if node.State == "ALLOCATED" || node.State == "MIXED" {
+		switch node.State {
+		case "ALLOCATED", "MIXED":
 			// For allocated/mixed nodes, assume 50% utilization as reasonable estimate
 			allocCPUs = node.CPUs / 2
-		} else if node.State == "COMPLETING" {
+		case "COMPLETING":
 			// Node is completing jobs, assume high utilization
 			allocCPUs = node.CPUs * 3 / 4
 		}
@@ -221,7 +222,7 @@ func (c *NodesSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 			memoryTotalBytes = float64(node.Memory * 1024 * 1024)
 		} else if node.Memory >= 1000000 {
 			c.logger.WithFields(map[string]interface{}{
-				"node": node.Name,
+				"node":      node.Name,
 				"memory_mb": node.Memory,
 			}).Warn("Unusually high memory value detected, using 0")
 		}
@@ -253,7 +254,7 @@ func (c *NodesSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 		}
 
 		arch := "x86_64" // default
-		os := "linux"     // default
+		os := "linux"    // default
 
 		ch <- prometheus.MustNewConstMetric(
 			c.nodeInfo,

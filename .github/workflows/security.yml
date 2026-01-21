@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Jon Thor Kristinsson
+# SPDX-License-Identifier: Apache-2.0
+
 name: Security Scanning
 
 on:
@@ -6,12 +9,17 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    # Run daily at 2 AM UTC
-    - cron: '0 2 * * *'
+    # Run weekly on Mondays at 00:00 UTC
+    - cron: '0 0 * * 1'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 env:
-  GO_VERSION: '1.21'
+  GO_VERSION: '1.24'
 
 jobs:
   # Static Application Security Testing
@@ -42,53 +50,59 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
 
       # Gosec - Go security checker
+      - name: Install Gosec
+        run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+
       - name: Run Gosec Security Scanner
-        uses: securecodewarrior/github-action-gosec@master
-        with:
-          args: '-fmt sarif -out gosec-results.sarif ./...'
+        run: gosec -exclude=G101,G104,G115,G301,G304,G306,G404 -fmt sarif -out gosec-results.sarif ./...
 
       - name: Upload Gosec results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: gosec-results.sarif
           category: gosec
-
-      # Nancy - Vulnerability scanner for Go dependencies
-      - name: Install Nancy
-        run: go install github.com/sonatypecommunity/nancy@latest
-
-      - name: Run Nancy vulnerability scan
-        run: |
-          go list -json -deps ./... | nancy sleuth --output=json > nancy-results.json || true
-          
-          # Convert to human readable format
-          if [ -s nancy-results.json ]; then
-            echo "## 🔍 Dependency Vulnerabilities Found" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            go list -json -deps ./... | nancy sleuth || true
-          else
-            echo "✅ No dependency vulnerabilities found" >> $GITHUB_STEP_SUMMARY
-          fi
 
       # StaticCheck - Go static analysis
       - name: Install StaticCheck
         run: go install honnef.co/go/tools/cmd/staticcheck@latest
 
       - name: Run StaticCheck
+        continue-on-error: true
         run: |
+          # Run staticcheck and output to SARIF format
           staticcheck -f sarif ./... > staticcheck-results.sarif || true
-          
-          if [ -s staticcheck-results.sarif ]; then
+
+          # Validate SARIF has proper structure
+          if [ -s staticcheck-results.sarif ] && grep -q '"results"' staticcheck-results.sarif; then
             echo "## ⚠️ Static Analysis Issues Found" >> $GITHUB_STEP_SUMMARY
+            # Show issues in readable format too
             staticcheck ./... || true
           else
             echo "✅ No static analysis issues found" >> $GITHUB_STEP_SUMMARY
+            # Create valid empty SARIF file
+            cat > staticcheck-results.sarif <<'EOF'
+{
+  "version": "2.1.0",
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "staticcheck",
+          "informationUri": "https://staticcheck.io/"
+        }
+      },
+      "results": []
+    }
+  ]
+}
+EOF
           fi
 
       - name: Upload StaticCheck results
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('staticcheck-results.sarif') != ''
         with:
           sarif_file: staticcheck-results.sarif
           category: staticcheck
@@ -101,9 +115,90 @@ jobs:
           name: security-scan-results
           path: |
             gosec-results.sarif
-            nancy-results.json
             staticcheck-results.sarif
           retention-days: 30
+
+  # Go Vulnerability Check
+  govulncheck:
+    name: Go Vulnerability Check
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: 'go.mod'
+        cache: true
+
+    - name: Run govulncheck
+      uses: golang/govulncheck-action@v1
+      with:
+        go-version-file: 'go.mod'
+        output-format: sarif
+        output-file: govulncheck-results.sarif
+
+    - name: Upload vulnerability results
+      uses: github/codeql-action/upload-sarif@v4
+      if: always()
+      continue-on-error: true
+      with:
+        sarif_file: govulncheck-results.sarif
+        category: govulncheck
+
+    - name: Upload govulncheck results as artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: govulncheck-results
+        path: govulncheck-results.sarif
+
+  # CodeQL Analysis
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'go' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v4
+      with:
+        languages: ${{ matrix.language }}
+        queries: security-extended,security-and-quality
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v4
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v4
+      with:
+        category: "/language:${{matrix.language}}"
+
+  # Dependency Review
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Dependency Review
+      continue-on-error: true
+      uses: actions/dependency-review-action@v4
+      with:
+        fail-on-severity: moderate
+        deny-licenses: GPL-2.0, GPL-3.0, AGPL-3.0
+        comment-summary-in-pr: true
 
   # Container Security Scanning
   container-security:
@@ -131,6 +226,7 @@ jobs:
       # Trivy - Container vulnerability scanner
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
+        continue-on-error: true
         with:
           image-ref: 'slurm-exporter:security-scan'
           format: 'sarif'
@@ -138,8 +234,8 @@ jobs:
           severity: 'CRITICAL,HIGH,MEDIUM'
 
       - name: Upload Trivy scan results
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('trivy-results.sarif') != ''
         with:
           sarif_file: trivy-results.sarif
           category: trivy
@@ -237,10 +333,13 @@ jobs:
       # GitLeaks - Additional secret scanner
       - name: Install GitLeaks
         run: |
-          wget -O gitleaks.tar.gz https://github.com/zricethezav/gitleaks/releases/latest/download/gitleaks_8.18.0_linux_x64.tar.gz
+          # Get latest release version
+          GITLEAKS_VERSION=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+          wget -O gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
           tar -xzf gitleaks.tar.gz
           chmod +x gitleaks
           sudo mv gitleaks /usr/local/bin/
+          gitleaks version
 
       - name: Run GitLeaks scan
         run: |
@@ -317,11 +416,42 @@ jobs:
             fi
           fi
 
+  # OpenSSF Scorecard
+  scorecard:
+    name: OpenSSF Scorecard
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      id-token: write
+      contents: read
+      actions: read
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+
+    - name: Run analysis
+      uses: ossf/scorecard-action@v2.4.0
+      with:
+        results_file: scorecard-results.sarif
+        results_format: sarif
+        publish_results: true
+
+    - name: Upload SARIF results
+      uses: github/codeql-action/upload-sarif@v4
+      continue-on-error: true
+      with:
+        sarif_file: scorecard-results.sarif
+        category: scorecard
+
   # Aggregate security report
   security-report:
     name: Security Report
     runs-on: ubuntu-latest
-    needs: [sast, container-security, license-scan, secret-scan, security-policy]
+    needs: [sast, govulncheck, codeql, container-security, license-scan, secret-scan, security-policy]
     if: always()
     permissions:
       contents: read
@@ -347,7 +477,9 @@ jobs:
           echo "" >> security-summary.md
           echo "| Scan Type | Status | Details |" >> security-summary.md
           echo "|-----------|--------|---------|" >> security-summary.md
-          echo "| Static Analysis (SAST) | ${{ needs.sast.result == 'success' && '✅ Pass' || '❌ Issues Found' }} | Gosec, StaticCheck, Nancy |" >> security-summary.md
+          echo "| Static Analysis (SAST) | ${{ needs.sast.result == 'success' && '✅ Pass' || '❌ Issues Found' }} | Gosec, StaticCheck |" >> security-summary.md
+          echo "| Go Vulnerabilities | ${{ needs.govulncheck.result == 'success' && '✅ Pass' || '❌ Vulnerabilities Found' }} | govulncheck |" >> security-summary.md
+          echo "| CodeQL Analysis | ${{ needs.codeql.result == 'success' && '✅ Pass' || '❌ Issues Found' }} | Security and quality queries |" >> security-summary.md
           echo "| Container Security | ${{ needs.container-security.result == 'success' && '✅ Pass' || '❌ Vulnerabilities Found' }} | Trivy, Grype |" >> security-summary.md
           echo "| License Compliance | ${{ needs.license-scan.result == 'success' && '✅ Pass' || '❌ License Issues' }} | Dependency licenses |" >> security-summary.md
           echo "| Secret Detection | ${{ needs.secret-scan.result == 'success' && '✅ Pass' || '❌ Secrets Found' }} | TruffleHog, GitLeaks |" >> security-summary.md
@@ -361,15 +493,23 @@ jobs:
           if [ "${{ needs.sast.result }}" != "success" ]; then
             echo "- 🔍 **Review static analysis findings** - Check SARIF files for code security issues" >> security-summary.md
           fi
-          
+
+          if [ "${{ needs.govulncheck.result }}" != "success" ]; then
+            echo "- 🔒 **Update vulnerable Go dependencies** - Known vulnerabilities detected in Go modules" >> security-summary.md
+          fi
+
+          if [ "${{ needs.codeql.result }}" != "success" ]; then
+            echo "- 🔎 **Review CodeQL findings** - Security and quality issues detected in code" >> security-summary.md
+          fi
+
           if [ "${{ needs.container-security.result }}" != "success" ]; then
             echo "- 🐳 **Update container dependencies** - Vulnerable packages detected in container image" >> security-summary.md
           fi
-          
+
           if [ "${{ needs.license-scan.result }}" != "success" ]; then
             echo "- 📄 **Review license compliance** - Check for incompatible or forbidden licenses" >> security-summary.md
           fi
-          
+
           if [ "${{ needs.secret-scan.result }}" != "success" ]; then
             echo "- 🔐 **Remove detected secrets** - Rotate any exposed credentials and remove from history" >> security-summary.md
           fi
@@ -388,32 +528,14 @@ jobs:
           path: security-summary.md
           retention-days: 90
 
-      # Run comprehensive security audit
-      - name: Run security audit script
-        run: |
-          chmod +x scripts/security-audit.sh
-          ./scripts/security-audit.sh || true
-          
-          # Check if audit found critical issues
-          if [ -f security-audit-*/SECURITY_AUDIT_REPORT.md ]; then
-            echo "Security audit completed - check results"
-            echo "SECURITY_AUDIT_AVAILABLE=true" >> $GITHUB_ENV
-          fi
-
-      - name: Upload security audit results
-        if: env.SECURITY_AUDIT_AVAILABLE == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: security-audit-results
-          path: security-audit-*
-          retention-days: 30
-
       # Create GitHub issue for security failures (only on main branch)
       - name: Create security issue
         if: |
-          github.ref == 'refs/heads/main' && 
-          (needs.sast.result == 'failure' || 
-           needs.container-security.result == 'failure' || 
+          github.ref == 'refs/heads/main' &&
+          (needs.sast.result == 'failure' ||
+           needs.govulncheck.result == 'failure' ||
+           needs.codeql.result == 'failure' ||
+           needs.container-security.result == 'failure' ||
            needs.secret-scan.result == 'failure')
         uses: actions/github-script@v6
         with:

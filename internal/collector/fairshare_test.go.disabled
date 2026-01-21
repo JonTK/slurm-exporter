@@ -1,0 +1,226 @@
+package collector
+
+import (
+	"context"
+	"testing"
+	"time"
+
+	"github.com/jontk/slurm-client"
+	"github.com/jontk/slurm-client/internal/interfaces"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+)
+
+// MockFairShareSlurmClient for testing - implements minimal interface
+type MockFairShareSlurmClient struct {
+	mock.Mock
+}
+
+func (m *MockFairShareSlurmClient) Version() string {
+	return "v0.0.43"
+}
+
+func (m *MockFairShareSlurmClient) Jobs() slurm.JobManager {
+	return nil
+}
+
+func (m *MockFairShareSlurmClient) Nodes() slurm.NodeManager {
+	return nil
+}
+
+func (m *MockFairShareSlurmClient) Partitions() slurm.PartitionManager {
+	return nil
+}
+
+func (m *MockFairShareSlurmClient) Info() slurm.InfoManager {
+	return nil
+}
+
+func (m *MockFairShareSlurmClient) Reservations() slurm.ReservationManager {
+	return nil
+}
+
+func (m *MockFairShareSlurmClient) QoS() slurm.QoSManager {
+	return nil
+}
+
+func (m *MockFairShareSlurmClient) Accounts() slurm.AccountManager {
+	return nil
+}
+
+func (m *MockFairShareSlurmClient) Users() slurm.UserManager {
+	return nil
+}
+
+func (m *MockFairShareSlurmClient) Clusters() interfaces.ClusterManager {
+	return nil
+}
+
+func (m *MockFairShareSlurmClient) Associations() interfaces.AssociationManager {
+	return nil
+}
+
+func (m *MockFairShareSlurmClient) WCKeys() interfaces.WCKeyManager {
+	return nil
+}
+
+func (m *MockFairShareSlurmClient) GetLicenses(ctx context.Context) (interface{}, error) {
+	return nil, nil
+}
+
+func (m *MockFairShareSlurmClient) GetShares(ctx context.Context, opts interface{}) (interface{}, error) {
+	return nil, nil
+}
+
+func (m *MockFairShareSlurmClient) GetConfig(ctx context.Context) (interface{}, error) {
+	return nil, nil
+}
+
+func (m *MockFairShareSlurmClient) GetDiagnostics(ctx context.Context) (interface{}, error) {
+	return nil, nil
+}
+
+func TestNewFairShareCollector(t *testing.T) {
+	mockClient := &MockFairShareSlurmClient{}
+	config := &FairShareConfig{
+		CollectionInterval:       30 * time.Second,
+		EnableUserFairShare:      true,
+		EnableAccountHierarchy:   true,
+		EnablePriorityAnalysis:   true,
+		EnableViolationDetection: true,
+		EnableTrendAnalysis:      true,
+	}
+
+	collector, err := NewFairShareCollector(mockClient, nil, config)
+
+	require.NoError(t, err)
+	assert.NotNil(t, collector)
+	assert.NotNil(t, collector.config)
+	assert.NotNil(t, collector.metrics)
+}
+
+func TestNewFairShareCollector_DefaultConfig(t *testing.T) {
+	mockClient := &MockFairShareSlurmClient{}
+
+	collector, err := NewFairShareCollector(mockClient, nil, nil)
+
+	require.NoError(t, err)
+	assert.NotNil(t, collector)
+	assert.NotNil(t, collector.config)
+	assert.Equal(t, 30*time.Second, collector.config.CollectionInterval)
+	assert.Equal(t, 24*time.Hour, collector.config.FairShareRetention)
+	assert.Equal(t, 6*time.Hour, collector.config.PriorityRetention)
+	assert.True(t, collector.config.EnableUserFairShare)
+	assert.True(t, collector.config.EnableAccountHierarchy)
+	assert.True(t, collector.config.EnablePriorityAnalysis)
+	assert.True(t, collector.config.EnableViolationDetection)
+	assert.True(t, collector.config.EnableTrendAnalysis)
+	assert.Equal(t, 0.2, collector.config.ViolationThreshold)
+	assert.Equal(t, 24*time.Hour, collector.config.DecayPeriod)
+	assert.Equal(t, 7*24*time.Hour, collector.config.ResetCycle)
+}
+
+func TestFairShareCollector_PriorityWeights(t *testing.T) {
+	mockClient := &MockFairShareSlurmClient{}
+
+	collector, err := NewFairShareCollector(mockClient, nil, nil)
+	require.NoError(t, err)
+
+	weights := collector.config.PriorityWeights
+	assert.Equal(t, 0.2, weights.AgeWeight)
+	assert.Equal(t, 0.5, weights.FairShareWeight)
+	assert.Equal(t, 0.2, weights.QoSWeight)
+	assert.Equal(t, 0.05, weights.PartitionWeight)
+	assert.Equal(t, 0.03, weights.AssocWeight)
+	assert.Equal(t, 0.02, weights.JobSizeWeight)
+
+	// Test that weights sum to approximately 1.0
+	total := weights.AgeWeight + weights.FairShareWeight + weights.QoSWeight +
+		weights.PartitionWeight + weights.AssocWeight + weights.JobSizeWeight
+	assert.InDelta(t, 1.0, total, 0.01)
+}
+
+func TestFairShareCollector_Describe(t *testing.T) {
+	mockClient := &MockFairShareSlurmClient{}
+	config := &FairShareConfig{
+		CollectionInterval: 30 * time.Second,
+	}
+
+	collector, err := NewFairShareCollector(mockClient, nil, config)
+	require.NoError(t, err)
+
+	ch := make(chan *prometheus.Desc, 100)
+	collector.Describe(ch)
+	close(ch)
+
+	// Should have fairshare metrics
+	count := 0
+	for range ch {
+		count++
+	}
+
+	assert.Greater(t, count, 0, "Should have at least one metric description")
+}
+
+func TestFairShareCollector_BasicFunctionality(t *testing.T) {
+	mockClient := &MockFairShareSlurmClient{}
+
+	collector, err := NewFairShareCollector(mockClient, nil, nil)
+	require.NoError(t, err)
+
+	// Test that collector has expected components
+	assert.NotNil(t, collector.config)
+	assert.NotNil(t, collector.metrics)
+	assert.NotNil(t, collector.violationDetector)
+	assert.NotNil(t, collector.policyAnalyzer)
+	assert.NotNil(t, collector.trendAnalyzer)
+	assert.NotNil(t, collector.queueAnalyzer)
+	assert.NotNil(t, collector.behaviorAnalyzer)
+}
+
+func TestFairShareCollector_Config(t *testing.T) {
+	mockClient := &MockFairShareSlurmClient{}
+
+	testCases := []struct {
+		name   string
+		config *FairShareConfig
+	}{
+		{
+			name: "with custom config",
+			config: &FairShareConfig{
+				CollectionInterval:       60 * time.Second,
+				FairShareRetention:       48 * time.Hour,
+				PriorityRetention:        12 * time.Hour,
+				EnableUserFairShare:      false,
+				EnableAccountHierarchy:   false,
+				EnablePriorityAnalysis:   false,
+				EnableViolationDetection: false,
+				EnableTrendAnalysis:      false,
+				ViolationThreshold:       0.3,
+				DecayPeriod:              48 * time.Hour,
+				ResetCycle:               14 * 24 * time.Hour,
+			},
+		},
+		{
+			name:   "with nil config (default)",
+			config: nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			collector, err := NewFairShareCollector(mockClient, nil, tc.config)
+			require.NoError(t, err)
+			assert.NotNil(t, collector)
+			assert.NotNil(t, collector.config)
+
+			if tc.config != nil {
+				assert.Equal(t, tc.config.CollectionInterval, collector.config.CollectionInterval)
+				assert.Equal(t, tc.config.FairShareRetention, collector.config.FairShareRetention)
+				assert.Equal(t, tc.config.ViolationThreshold, collector.config.ViolationThreshold)
+			}
+		})
+	}
+}

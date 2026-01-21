@@ -27,9 +27,9 @@ type PerformanceMonitor struct {
 	slaConfig SLAConfig
 
 	// Tracking state
-	mu              sync.RWMutex
-	collectorStats  map[string]*CollectorPerformanceStats
-	logger          *logrus.Entry
+	mu             sync.RWMutex
+	collectorStats map[string]*CollectorPerformanceStats
+	logger         *logrus.Entry
 }
 
 // SLAConfig defines performance SLAs for collectors
@@ -53,11 +53,11 @@ type SLAConfig struct {
 // CollectorPerformanceStats tracks performance statistics for a collector
 type CollectorPerformanceStats struct {
 	// Timing statistics
-	LastDuration      time.Duration
-	TotalDuration     time.Duration
-	CollectionCount   int64
-	MinDuration       time.Duration
-	MaxDuration       time.Duration
+	LastDuration    time.Duration
+	TotalDuration   time.Duration
+	CollectionCount int64
+	MinDuration     time.Duration
+	MaxDuration     time.Duration
 
 	// Error tracking
 	ErrorCount        int64
@@ -66,22 +66,22 @@ type CollectorPerformanceStats struct {
 	ConsecutiveErrors int
 
 	// Success tracking
-	SuccessCount      int64
-	LastSuccessTime   time.Time
+	SuccessCount    int64
+	LastSuccessTime time.Time
 
 	// Metrics tracking
-	TotalMetrics      int64
-	LastMetricCount   int
-	MaxMetricCount    int
+	TotalMetrics    int64
+	LastMetricCount int
+	MaxMetricCount  int
 
 	// Resource usage
-	LastMemoryUsage   int64
-	MaxMemoryUsage    int64
-	GoroutineCount    int
+	LastMemoryUsage int64
+	MaxMemoryUsage  int64
+	GoroutineCount  int
 
 	// SLA tracking
-	SLAViolations     int64
-	LastSLAViolation  time.Time
+	SLAViolations    int64
+	LastSLAViolation time.Time
 }
 
 // NewPerformanceMonitor creates a new performance monitor
@@ -264,9 +264,9 @@ func (pm *PerformanceMonitor) recordError(collector string, stats *CollectorPerf
 	pm.collectionErrors.WithLabelValues(collector, errorType).Inc()
 
 	pm.logger.WithFields(logrus.Fields{
-		"collector":  collector,
-		"error":      err.Error(),
-		"error_type": errorType,
+		"collector":   collector,
+		"error":       err.Error(),
+		"error_type":  errorType,
 		"consecutive": stats.ConsecutiveErrors,
 	}).Warn("Collection error recorded")
 }

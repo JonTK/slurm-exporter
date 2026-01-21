@@ -32,158 +32,158 @@ type AccountQuotaSLURMClient interface {
 
 // AccountQuotas represents comprehensive quota information for an account
 type AccountQuotas struct {
-	AccountName      string                 `json:"account_name"`
-	ParentAccount    string                 `json:"parent_account"`
-	Description      string                 `json:"description"`
-	Organization     string                 `json:"organization"`
+	AccountName   string `json:"account_name"`
+	ParentAccount string `json:"parent_account"`
+	Description   string `json:"description"`
+	Organization  string `json:"organization"`
 
 	// CPU Quotas
-	CPUMinutes       *ResourceQuota         `json:"cpu_minutes"`
-	CPUCores         *ResourceQuota         `json:"cpu_cores"`
-	CPUNodes         *ResourceQuota         `json:"cpu_nodes"`
+	CPUMinutes *ResourceQuota `json:"cpu_minutes"`
+	CPUCores   *ResourceQuota `json:"cpu_cores"`
+	CPUNodes   *ResourceQuota `json:"cpu_nodes"`
 
 	// Memory Quotas
-	MemoryGB         *ResourceQuota         `json:"memory_gb"`
-	MemoryNodeHours  *ResourceQuota         `json:"memory_node_hours"`
+	MemoryGB        *ResourceQuota `json:"memory_gb"`
+	MemoryNodeHours *ResourceQuota `json:"memory_node_hours"`
 
 	// GPU Quotas
-	GPUHours         *ResourceQuota         `json:"gpu_hours"`
-	GPUCards         *ResourceQuota         `json:"gpu_cards"`
+	GPUHours *ResourceQuota `json:"gpu_hours"`
+	GPUCards *ResourceQuota `json:"gpu_cards"`
 
 	// Storage Quotas
-	StorageGB        *ResourceQuota         `json:"storage_gb"`
-	ScratchGB        *ResourceQuota         `json:"scratch_gb"`
-	ArchiveGB        *ResourceQuota         `json:"archive_gb"`
+	StorageGB *ResourceQuota `json:"storage_gb"`
+	ScratchGB *ResourceQuota `json:"scratch_gb"`
+	ArchiveGB *ResourceQuota `json:"archive_gb"`
 
 	// Job Quotas
-	MaxJobs          *LimitQuota            `json:"max_jobs"`
-	MaxSubmitJobs    *LimitQuota            `json:"max_submit_jobs"`
-	MaxArraySize     *LimitQuota            `json:"max_array_size"`
-	MaxJobDuration   *DurationQuota         `json:"max_job_duration"`
+	MaxJobs        *LimitQuota    `json:"max_jobs"`
+	MaxSubmitJobs  *LimitQuota    `json:"max_submit_jobs"`
+	MaxArraySize   *LimitQuota    `json:"max_array_size"`
+	MaxJobDuration *DurationQuota `json:"max_job_duration"`
 
 	// QoS Quotas
-	QoSLimits        map[string]*QoSQuota   `json:"qos_limits"`
-	DefaultQoS       string                 `json:"default_qos"`
-	AllowedQoS       []string               `json:"allowed_qos"`
+	QoSLimits  map[string]*QoSQuota `json:"qos_limits"`
+	DefaultQoS string               `json:"default_qos"`
+	AllowedQoS []string             `json:"allowed_qos"`
 
 	// Partition Quotas
-	PartitionQuotas  map[string]*PartitionQuota `json:"partition_quotas"`
-	AllowedPartitions []string              `json:"allowed_partitions"`
+	PartitionQuotas   map[string]*PartitionQuota `json:"partition_quotas"`
+	AllowedPartitions []string                   `json:"allowed_partitions"`
 
 	// Time-based Quotas
-	QuotaPeriod      string                 `json:"quota_period"`
-	QuotaResetDate   time.Time              `json:"quota_reset_date"`
-	GracePeriod      time.Duration          `json:"grace_period"`
+	QuotaPeriod    string        `json:"quota_period"`
+	QuotaResetDate time.Time     `json:"quota_reset_date"`
+	GracePeriod    time.Duration `json:"grace_period"`
 
 	// Metadata
-	CreatedAt        time.Time              `json:"created_at"`
-	ModifiedAt       time.Time              `json:"modified_at"`
-	ModifiedBy       string                 `json:"modified_by"`
-	QuotaVersion     int                    `json:"quota_version"`
-	EnforcementLevel string                 `json:"enforcement_level"`
-	Active           bool                   `json:"active"`
+	CreatedAt        time.Time `json:"created_at"`
+	ModifiedAt       time.Time `json:"modified_at"`
+	ModifiedBy       string    `json:"modified_by"`
+	QuotaVersion     int       `json:"quota_version"`
+	EnforcementLevel string    `json:"enforcement_level"`
+	Active           bool      `json:"active"`
 }
 
 // ResourceQuota represents a quota for a specific resource type
 type ResourceQuota struct {
-	Limit            float64                `json:"limit"`
-	Used             float64                `json:"used"`
-	Reserved         float64                `json:"reserved"`
-	Available        float64                `json:"available"`
-	UtilizationRate  float64                `json:"utilization_rate"`
-	ProjectedUsage   float64                `json:"projected_usage"`
-	ThresholdPercent float64                `json:"threshold_percent"`
-	IsUnlimited      bool                   `json:"is_unlimited"`
-	IsSoft           bool                   `json:"is_soft"`
-	ExpiresAt        *time.Time             `json:"expires_at"`
+	Limit            float64    `json:"limit"`
+	Used             float64    `json:"used"`
+	Reserved         float64    `json:"reserved"`
+	Available        float64    `json:"available"`
+	UtilizationRate  float64    `json:"utilization_rate"`
+	ProjectedUsage   float64    `json:"projected_usage"`
+	ThresholdPercent float64    `json:"threshold_percent"`
+	IsUnlimited      bool       `json:"is_unlimited"`
+	IsSoft           bool       `json:"is_soft"`
+	ExpiresAt        *time.Time `json:"expires_at"`
 }
 
 // LimitQuota represents a numeric limit quota
 type LimitQuota struct {
-	Limit            int                    `json:"limit"`
-	Current          int                    `json:"current"`
-	Peak             int                    `json:"peak"`
-	Violations       int                    `json:"violations"`
-	IsUnlimited      bool                   `json:"is_unlimited"`
+	Limit       int  `json:"limit"`
+	Current     int  `json:"current"`
+	Peak        int  `json:"peak"`
+	Violations  int  `json:"violations"`
+	IsUnlimited bool `json:"is_unlimited"`
 }
 
 // DurationQuota represents a time duration quota
 type DurationQuota struct {
-	Limit            time.Duration          `json:"limit"`
-	Average          time.Duration          `json:"average"`
-	Maximum          time.Duration          `json:"maximum"`
-	Violations       int                    `json:"violations"`
-	IsUnlimited      bool                   `json:"is_unlimited"`
+	Limit       time.Duration `json:"limit"`
+	Average     time.Duration `json:"average"`
+	Maximum     time.Duration `json:"maximum"`
+	Violations  int           `json:"violations"`
+	IsUnlimited bool          `json:"is_unlimited"`
 }
 
 // QoSQuota represents QoS-specific quotas
 type QoSQuota struct {
-	QoSName          string                 `json:"qos_name"`
-	Priority         int                    `json:"priority"`
-	CPULimit         *ResourceQuota         `json:"cpu_limit"`
-	MemoryLimit      *ResourceQuota         `json:"memory_limit"`
-	JobLimit         *LimitQuota            `json:"job_limit"`
-	WallTimeLimit    *DurationQuota         `json:"walltime_limit"`
-	PreemptMode      string                 `json:"preempt_mode"`
+	QoSName       string         `json:"qos_name"`
+	Priority      int            `json:"priority"`
+	CPULimit      *ResourceQuota `json:"cpu_limit"`
+	MemoryLimit   *ResourceQuota `json:"memory_limit"`
+	JobLimit      *LimitQuota    `json:"job_limit"`
+	WallTimeLimit *DurationQuota `json:"walltime_limit"`
+	PreemptMode   string         `json:"preempt_mode"`
 }
 
 // PartitionQuota represents partition-specific quotas
 type PartitionQuota struct {
-	PartitionName    string                 `json:"partition_name"`
-	CPUQuota         *ResourceQuota         `json:"cpu_quota"`
-	MemoryQuota      *ResourceQuota         `json:"memory_quota"`
-	NodeQuota        *ResourceQuota         `json:"node_quota"`
-	MaxJobsPerUser   int                    `json:"max_jobs_per_user"`
-	MaxTimeLimit     time.Duration          `json:"max_time_limit"`
-	Priority         int                    `json:"priority"`
+	PartitionName  string         `json:"partition_name"`
+	CPUQuota       *ResourceQuota `json:"cpu_quota"`
+	MemoryQuota    *ResourceQuota `json:"memory_quota"`
+	NodeQuota      *ResourceQuota `json:"node_quota"`
+	MaxJobsPerUser int            `json:"max_jobs_per_user"`
+	MaxTimeLimit   time.Duration  `json:"max_time_limit"`
+	Priority       int            `json:"priority"`
 }
 
 // AccountQuotaUsage represents current quota usage statistics
 type AccountQuotaUsage struct {
-	AccountName      string                 `json:"account_name"`
-	Period           string                 `json:"period"`
+	AccountName string `json:"account_name"`
+	Period      string `json:"period"`
 
 	// Resource Usage
-	CPUUsage         ResourceUsageStats     `json:"cpu_usage"`
-	MemoryUsage      ResourceUsageStats     `json:"memory_usage"`
-	GPUUsage         ResourceUsageStats     `json:"gpu_usage"`
-	StorageUsage     ResourceUsageStats     `json:"storage_usage"`
+	CPUUsage     ResourceUsageStats `json:"cpu_usage"`
+	MemoryUsage  ResourceUsageStats `json:"memory_usage"`
+	GPUUsage     ResourceUsageStats `json:"gpu_usage"`
+	StorageUsage ResourceUsageStats `json:"storage_usage"`
 
 	// Job Statistics
-	JobsSubmitted    int                    `json:"jobs_submitted"`
-	JobsRunning      int                    `json:"jobs_running"`
-	JobsPending      int                    `json:"jobs_pending"`
-	JobsCompleted    int                    `json:"jobs_completed"`
-	JobsFailed       int                    `json:"jobs_failed"`
+	JobsSubmitted int `json:"jobs_submitted"`
+	JobsRunning   int `json:"jobs_running"`
+	JobsPending   int `json:"jobs_pending"`
+	JobsCompleted int `json:"jobs_completed"`
+	JobsFailed    int `json:"jobs_failed"`
 
 	// User Activity
-	ActiveUsers      int                    `json:"active_users"`
-	TotalUsers       int                    `json:"total_users"`
-	UserQuotaShares  map[string]float64     `json:"user_quota_shares"`
+	ActiveUsers     int                `json:"active_users"`
+	TotalUsers      int                `json:"total_users"`
+	UserQuotaShares map[string]float64 `json:"user_quota_shares"`
 
 	// Efficiency Metrics
-	ResourceEfficiency float64              `json:"resource_efficiency"`
-	QuotaEfficiency    float64              `json:"quota_efficiency"`
-	WastePercentage    float64              `json:"waste_percentage"`
+	ResourceEfficiency float64 `json:"resource_efficiency"`
+	QuotaEfficiency    float64 `json:"quota_efficiency"`
+	WastePercentage    float64 `json:"waste_percentage"`
 
 	// Trend Indicators
-	UsageTrend       string                 `json:"usage_trend"`
-	GrowthRate       float64                `json:"growth_rate"`
-	ProjectedDepletion *time.Time           `json:"projected_depletion"`
+	UsageTrend         string     `json:"usage_trend"`
+	GrowthRate         float64    `json:"growth_rate"`
+	ProjectedDepletion *time.Time `json:"projected_depletion"`
 
-	LastUpdated      time.Time              `json:"last_updated"`
+	LastUpdated time.Time `json:"last_updated"`
 }
 
 // ResourceUsageStats represents detailed usage statistics for a resource
 type ResourceUsageStats struct {
-	Total            float64                `json:"total"`
-	Used             float64                `json:"used"`
-	Reserved         float64                `json:"reserved"`
-	Available        float64                `json:"available"`
-	UtilizationRate  float64                `json:"utilization_rate"`
-	PeakUsage        float64                `json:"peak_usage"`
-	AverageUsage     float64                `json:"average_usage"`
-	StandardDev      float64                `json:"standard_deviation"`
+	Total           float64 `json:"total"`
+	Used            float64 `json:"used"`
+	Reserved        float64 `json:"reserved"`
+	Available       float64 `json:"available"`
+	UtilizationRate float64 `json:"utilization_rate"`
+	PeakUsage       float64 `json:"peak_usage"`
+	AverageUsage    float64 `json:"average_usage"`
+	StandardDev     float64 `json:"standard_deviation"`
 }
 
 // AccountQuotaCollector collects account quota metrics
@@ -192,66 +192,66 @@ type AccountQuotaCollector struct {
 	mutex  sync.RWMutex
 
 	// Quota Limit Metrics
-	accountQuotaLimit           *prometheus.GaugeVec
-	accountQuotaUsed            *prometheus.GaugeVec
-	accountQuotaReserved        *prometheus.GaugeVec
-	accountQuotaAvailable       *prometheus.GaugeVec
-	accountQuotaUtilization     *prometheus.GaugeVec
-	accountQuotaThreshold       *prometheus.GaugeVec
+	accountQuotaLimit       *prometheus.GaugeVec
+	accountQuotaUsed        *prometheus.GaugeVec
+	accountQuotaReserved    *prometheus.GaugeVec
+	accountQuotaAvailable   *prometheus.GaugeVec
+	accountQuotaUtilization *prometheus.GaugeVec
+	accountQuotaThreshold   *prometheus.GaugeVec
 
 	// Resource-specific Quota Metrics
-	accountCPUQuotaMinutes      *prometheus.GaugeVec
-	accountMemoryQuotaGB        *prometheus.GaugeVec
-	accountGPUQuotaHours        *prometheus.GaugeVec
-	accountStorageQuotaGB       *prometheus.GaugeVec
-	accountJobQuotaLimit        *prometheus.GaugeVec
-	accountJobQuotaCurrent      *prometheus.GaugeVec
+	accountCPUQuotaMinutes *prometheus.GaugeVec
+	accountMemoryQuotaGB   *prometheus.GaugeVec
+	accountGPUQuotaHours   *prometheus.GaugeVec
+	accountStorageQuotaGB  *prometheus.GaugeVec
+	accountJobQuotaLimit   *prometheus.GaugeVec
+	accountJobQuotaCurrent *prometheus.GaugeVec
 
 	// QoS Quota Metrics
-	accountQoSQuotaLimit        *prometheus.GaugeVec
-	accountQoSQuotaUsed         *prometheus.GaugeVec
-	accountQoSPriority          *prometheus.GaugeVec
-	accountQoSJobLimit          *prometheus.GaugeVec
+	accountQoSQuotaLimit *prometheus.GaugeVec
+	accountQoSQuotaUsed  *prometheus.GaugeVec
+	accountQoSPriority   *prometheus.GaugeVec
+	accountQoSJobLimit   *prometheus.GaugeVec
 
 	// Partition Quota Metrics
-	accountPartitionQuotaLimit  *prometheus.GaugeVec
-	accountPartitionQuotaUsed   *prometheus.GaugeVec
-	accountPartitionPriority    *prometheus.GaugeVec
-	accountPartitionMaxJobs     *prometheus.GaugeVec
+	accountPartitionQuotaLimit *prometheus.GaugeVec
+	accountPartitionQuotaUsed  *prometheus.GaugeVec
+	accountPartitionPriority   *prometheus.GaugeVec
+	accountPartitionMaxJobs    *prometheus.GaugeVec
 
 	// Usage Statistics Metrics
-	accountResourceUsageTotal   *prometheus.GaugeVec
-	accountResourceUsageRate    *prometheus.GaugeVec
-	accountResourceEfficiency   *prometheus.GaugeVec
-	accountResourceWaste        *prometheus.GaugeVec
-	accountJobsSubmitted        *prometheus.CounterVec
-	accountJobsCompleted        *prometheus.CounterVec
-	accountJobsFailed           *prometheus.CounterVec
-	accountActiveUsers          *prometheus.GaugeVec
+	accountResourceUsageTotal *prometheus.GaugeVec
+	accountResourceUsageRate  *prometheus.GaugeVec
+	accountResourceEfficiency *prometheus.GaugeVec
+	accountResourceWaste      *prometheus.GaugeVec
+	accountJobsSubmitted      *prometheus.CounterVec
+	accountJobsCompleted      *prometheus.CounterVec
+	accountJobsFailed         *prometheus.CounterVec
+	accountActiveUsers        *prometheus.GaugeVec
 
 	// Quota Violation Metrics
-	accountQuotaViolations      *prometheus.CounterVec
+	accountQuotaViolations        *prometheus.CounterVec
 	accountQuotaViolationSeverity *prometheus.GaugeVec
 	accountQuotaEnforcementStatus *prometheus.GaugeVec
-	accountQuotaGracePeriod     *prometheus.GaugeVec
+	accountQuotaGracePeriod       *prometheus.GaugeVec
 
 	// Trend and Projection Metrics
-	accountQuotaGrowthRate      *prometheus.GaugeVec
-	accountQuotaTrendDirection  *prometheus.GaugeVec
-	accountQuotaProjectedUsage  *prometheus.GaugeVec
-	accountQuotaDepletionDays   *prometheus.GaugeVec
+	accountQuotaGrowthRate     *prometheus.GaugeVec
+	accountQuotaTrendDirection *prometheus.GaugeVec
+	accountQuotaProjectedUsage *prometheus.GaugeVec
+	accountQuotaDepletionDays  *prometheus.GaugeVec
 
 	// Alert and Recommendation Metrics
-	accountQuotaAlertLevel      *prometheus.GaugeVec
-	accountQuotaAlertCount      *prometheus.GaugeVec
-	accountQuotaRecommendationScore *prometheus.GaugeVec
+	accountQuotaAlertLevel            *prometheus.GaugeVec
+	accountQuotaAlertCount            *prometheus.GaugeVec
+	accountQuotaRecommendationScore   *prometheus.GaugeVec
 	accountQuotaOptimizationPotential *prometheus.GaugeVec
 
 	// Metadata Metrics
-	accountQuotaLastModified    *prometheus.GaugeVec
-	accountQuotaVersion         *prometheus.GaugeVec
-	accountQuotaActive          *prometheus.GaugeVec
-	accountQuotaResetDays       *prometheus.GaugeVec
+	accountQuotaLastModified *prometheus.GaugeVec
+	accountQuotaVersion      *prometheus.GaugeVec
+	accountQuotaActive       *prometheus.GaugeVec
+	accountQuotaResetDays    *prometheus.GaugeVec
 }
 
 // NewAccountQuotaCollector creates a new account quota collector
@@ -924,96 +924,96 @@ func boolToFloat64(b bool) float64 {
 
 // AccountQuotaHistory represents historical quota data
 type AccountQuotaHistory struct {
-	AccountName  string                    `json:"account_name"`
-	Period       string                    `json:"period"`
-	DataPoints   []AccountQuotaDataPoint   `json:"data_points"`
+	AccountName string                  `json:"account_name"`
+	Period      string                  `json:"period"`
+	DataPoints  []AccountQuotaDataPoint `json:"data_points"`
 }
 
 // AccountQuotaDataPoint represents a single historical data point
 type AccountQuotaDataPoint struct {
-	Timestamp    time.Time                 `json:"timestamp"`
-	Quotas       map[string]float64        `json:"quotas"`
-	Usage        map[string]float64        `json:"usage"`
-	Utilization  map[string]float64        `json:"utilization"`
+	Timestamp   time.Time          `json:"timestamp"`
+	Quotas      map[string]float64 `json:"quotas"`
+	Usage       map[string]float64 `json:"usage"`
+	Utilization map[string]float64 `json:"utilization"`
 }
 
 // AccountResourceLimits represents resource limits for an account
 type AccountResourceLimits struct {
-	AccountName  string                    `json:"account_name"`
-	CPULimits    ResourceLimitSet          `json:"cpu_limits"`
-	MemoryLimits ResourceLimitSet          `json:"memory_limits"`
-	GPULimits    ResourceLimitSet          `json:"gpu_limits"`
-	StorageLimits ResourceLimitSet         `json:"storage_limits"`
+	AccountName   string           `json:"account_name"`
+	CPULimits     ResourceLimitSet `json:"cpu_limits"`
+	MemoryLimits  ResourceLimitSet `json:"memory_limits"`
+	GPULimits     ResourceLimitSet `json:"gpu_limits"`
+	StorageLimits ResourceLimitSet `json:"storage_limits"`
 }
 
 // ResourceLimitSet represents a set of resource limits
 type ResourceLimitSet struct {
-	HardLimit    float64                   `json:"hard_limit"`
-	SoftLimit    float64                   `json:"soft_limit"`
-	BurstLimit   float64                   `json:"burst_limit"`
-	CurrentUsage float64                   `json:"current_usage"`
+	HardLimit    float64 `json:"hard_limit"`
+	SoftLimit    float64 `json:"soft_limit"`
+	BurstLimit   float64 `json:"burst_limit"`
+	CurrentUsage float64 `json:"current_usage"`
 }
 
 // EffectiveResourceLimits represents effective limits for a user in an account
 type EffectiveResourceLimits struct {
-	AccountName  string                    `json:"account_name"`
-	UserName     string                    `json:"user_name"`
-	CPULimit     float64                   `json:"cpu_limit"`
-	MemoryLimit  float64                   `json:"memory_limit"`
-	JobLimit     int                       `json:"job_limit"`
-	Sources      []string                  `json:"sources"`
+	AccountName string   `json:"account_name"`
+	UserName    string   `json:"user_name"`
+	CPULimit    float64  `json:"cpu_limit"`
+	MemoryLimit float64  `json:"memory_limit"`
+	JobLimit    int      `json:"job_limit"`
+	Sources     []string `json:"sources"`
 }
 
 // Note: QuotaViolation type is defined in common_types.go
 
 // QuotaEnforcementStatus represents enforcement status
 type QuotaEnforcementStatus struct {
-	AccountName   string                   `json:"account_name"`
-	EnforcementMode string                 `json:"enforcement_mode"`
-	GracePeriodActive bool                 `json:"grace_period_active"`
-	GracePeriodEnd *time.Time              `json:"grace_period_end"`
-	BlockedOperations []string              `json:"blocked_operations"`
+	AccountName       string     `json:"account_name"`
+	EnforcementMode   string     `json:"enforcement_mode"`
+	GracePeriodActive bool       `json:"grace_period_active"`
+	GracePeriodEnd    *time.Time `json:"grace_period_end"`
+	BlockedOperations []string   `json:"blocked_operations"`
 }
 
 // QuotaUtilization represents detailed utilization information
 type QuotaUtilization struct {
-	AccountName   string                   `json:"account_name"`
-	ResourceType  string                   `json:"resource_type"`
-	CurrentUsage  float64                  `json:"current_usage"`
-	QuotaLimit    float64                  `json:"quota_limit"`
-	Utilization   float64                  `json:"utilization"`
-	TrendDirection string                  `json:"trend_direction"`
-	ProjectedFull *time.Time               `json:"projected_full"`
+	AccountName    string     `json:"account_name"`
+	ResourceType   string     `json:"resource_type"`
+	CurrentUsage   float64    `json:"current_usage"`
+	QuotaLimit     float64    `json:"quota_limit"`
+	Utilization    float64    `json:"utilization"`
+	TrendDirection string     `json:"trend_direction"`
+	ProjectedFull  *time.Time `json:"projected_full"`
 }
 
 // QuotaTrends represents quota usage trends
 type QuotaTrends struct {
-	AccountName   string                   `json:"account_name"`
-	Period        string                   `json:"period"`
-	TrendData     map[string][]float64     `json:"trend_data"`
-	Predictions   map[string]float64       `json:"predictions"`
-	Seasonality   map[string]bool          `json:"seasonality"`
+	AccountName string               `json:"account_name"`
+	Period      string               `json:"period"`
+	TrendData   map[string][]float64 `json:"trend_data"`
+	Predictions map[string]float64   `json:"predictions"`
+	Seasonality map[string]bool      `json:"seasonality"`
 }
 
 // QuotaAlert represents a quota-related alert
 type QuotaAlert struct {
-	AlertID       string                   `json:"alert_id"`
-	AccountName   string                   `json:"account_name"`
-	Type          string                   `json:"type"`
-	Level         int                      `json:"level"`
-	Message       string                   `json:"message"`
-	ResourceType  string                   `json:"resource_type"`
-	CurrentUsage  float64                  `json:"current_usage"`
-	Threshold     float64                  `json:"threshold"`
-	Timestamp     time.Time                `json:"timestamp"`
+	AlertID      string    `json:"alert_id"`
+	AccountName  string    `json:"account_name"`
+	Type         string    `json:"type"`
+	Level        int       `json:"level"`
+	Message      string    `json:"message"`
+	ResourceType string    `json:"resource_type"`
+	CurrentUsage float64   `json:"current_usage"`
+	Threshold    float64   `json:"threshold"`
+	Timestamp    time.Time `json:"timestamp"`
 }
 
 // QuotaRecommendations represents optimization recommendations
 type QuotaRecommendations struct {
-	AccountName   string                   `json:"account_name"`
-	Recommendations []QuotaRecommendation  `json:"recommendations"`
+	AccountName       string                `json:"account_name"`
+	Recommendations   []QuotaRecommendation `json:"recommendations"`
 	OptimizationScore float64               `json:"optimization_score"`
-	PotentialSavings float64                `json:"potential_savings"`
+	PotentialSavings  float64               `json:"potential_savings"`
 }
 
 // Note: QuotaRecommendation type is defined in common_types.go

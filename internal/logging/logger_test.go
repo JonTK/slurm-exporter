@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -37,7 +36,7 @@ func TestNewLogger(t *testing.T) {
 			t.Errorf("Expected log level Info, got %v", logger.GetLevel())
 		}
 
-		if _, ok := logger.Logger.Formatter.(*logrus.JSONFormatter); !ok {
+		if _, ok := logger.Formatter.(*logrus.JSONFormatter); !ok {
 			t.Error("Expected JSON formatter")
 		}
 	})
@@ -82,7 +81,7 @@ func TestNewLogger(t *testing.T) {
 			t.Fatalf("Expected no error, got %v", err)
 		}
 
-		if _, ok := logger.Logger.Formatter.(*logrus.TextFormatter); !ok {
+		if _, ok := logger.Formatter.(*logrus.TextFormatter); !ok {
 			t.Error("Expected text formatter")
 		}
 
@@ -109,7 +108,7 @@ func TestNewLogger(t *testing.T) {
 
 		// Test by capturing log output
 		var buf bytes.Buffer
-		logger.Logger.SetOutput(&buf)
+		logger.SetOutput(&buf)
 
 		logger.Info("test message")
 
@@ -130,11 +129,11 @@ func TestNewLogger(t *testing.T) {
 
 func TestLoggerFileOutput(t *testing.T) {
 	// Create temporary directory for test files
-	tmpDir, err := ioutil.TempDir("", "logger_test")
+	tmpDir, err := os.MkdirTemp("", "logger_test")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	t.Run("WithValidFile", func(t *testing.T) {
 		logFile := filepath.Join(tmpDir, "test.log")
@@ -162,7 +161,7 @@ func TestLoggerFileOutput(t *testing.T) {
 		}
 
 		// Read file contents
-		content, err := ioutil.ReadFile(logFile)
+		content, err := os.ReadFile(logFile)
 		if err != nil {
 			t.Fatalf("Failed to read log file: %v", err)
 		}
@@ -227,7 +226,7 @@ func TestLoggerMethods(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create logger: %v", err)
 	}
-	logger.Logger.SetOutput(&buf)
+	logger.SetOutput(&buf)
 
 	t.Run("WithComponent", func(t *testing.T) {
 		buf.Reset()
@@ -404,11 +403,11 @@ func TestLogFormats(t *testing.T) {
 
 			switch tc.expectedType.(type) {
 			case *logrus.JSONFormatter:
-				if _, ok := logger.Logger.Formatter.(*logrus.JSONFormatter); !ok {
+				if _, ok := logger.Formatter.(*logrus.JSONFormatter); !ok {
 					t.Errorf("Expected JSON formatter for format '%s'", tc.format)
 				}
 			case *logrus.TextFormatter:
-				if _, ok := logger.Logger.Formatter.(*logrus.TextFormatter); !ok {
+				if _, ok := logger.Formatter.(*logrus.TextFormatter); !ok {
 					t.Errorf("Expected text formatter for format '%s'", tc.format)
 				}
 			}
@@ -418,11 +417,11 @@ func TestLogFormats(t *testing.T) {
 
 func TestClose(t *testing.T) {
 	t.Run("FileOutput", func(t *testing.T) {
-		tmpDir, err := ioutil.TempDir("", "logger_close_test")
+		tmpDir, err := os.MkdirTemp("", "logger_close_test")
 		if err != nil {
 			t.Fatalf("Failed to create temp dir: %v", err)
 		}
-		defer os.RemoveAll(tmpDir)
+		defer func() { _ = os.RemoveAll(tmpDir) }()
 
 		logFile := filepath.Join(tmpDir, "test.log")
 		cfg := &config.LoggingConfig{

@@ -43,32 +43,32 @@ type AccountCostMetrics struct {
 }
 
 type AccountBudgetInfo struct {
-	AccountName        string
-	TotalBudget        float64
-	RemainingBudget    float64
-	BudgetPeriod       string
-	BudgetStartDate    time.Time
-	BudgetEndDate      time.Time
-	BudgetUtilization  float64
-	DaysRemaining      int
-	BurnRate           float64
-	ProjectedOverrun   float64
-	BudgetStatus       string
-	LastBudgetReset    time.Time
-	BudgetAlertLevel   string
+	AccountName       string
+	TotalBudget       float64
+	RemainingBudget   float64
+	BudgetPeriod      string
+	BudgetStartDate   time.Time
+	BudgetEndDate     time.Time
+	BudgetUtilization float64
+	DaysRemaining     int
+	BurnRate          float64
+	ProjectedOverrun  float64
+	BudgetStatus      string
+	LastBudgetReset   time.Time
+	BudgetAlertLevel  string
 }
 
 type AccountCostHistoryEntry struct {
-	Date              time.Time
-	DailyCost         float64
-	CumulativeCost    float64
-	JobCount          int
-	CPUHours          float64
-	GPUHours          float64
-	MemoryGBHours     float64
-	StorageGBHours    float64
-	CostBreakdown     map[string]float64
-	EfficiencyScore   float64
+	Date            time.Time
+	DailyCost       float64
+	CumulativeCost  float64
+	JobCount        int
+	CPUHours        float64
+	GPUHours        float64
+	MemoryGBHours   float64
+	StorageGBHours  float64
+	CostBreakdown   map[string]float64
+	EfficiencyScore float64
 }
 
 type AccountCostBreakdown struct {
@@ -90,67 +90,67 @@ type AccountCostBreakdown struct {
 }
 
 type AccountCostForecasts struct {
-	AccountName             string
-	WeeklyForecast          float64
-	MonthlyForecast         float64
-	QuarterlyForecast       float64
-	AnnualForecast          float64
-	TrendDirection          string
-	ConfidenceLevel         float64
-	SeasonalFactors         map[string]float64
-	GrowthRate              float64
-	ProjectedBudgetOverrun  float64
-	OptimisticForecast      float64
-	PessimisticForecast     float64
-	ForecastAccuracy        float64
-	LastForecastUpdate      time.Time
+	AccountName            string
+	WeeklyForecast         float64
+	MonthlyForecast        float64
+	QuarterlyForecast      float64
+	AnnualForecast         float64
+	TrendDirection         string
+	ConfidenceLevel        float64
+	SeasonalFactors        map[string]float64
+	GrowthRate             float64
+	ProjectedBudgetOverrun float64
+	OptimisticForecast     float64
+	PessimisticForecast    float64
+	ForecastAccuracy       float64
+	LastForecastUpdate     time.Time
 }
 
 type AccountCostAlert struct {
-	AlertID           string
-	AccountName       string
-	AlertType         string
-	Severity          string
-	Message           string
-	CurrentValue      float64
-	ThresholdValue    float64
-	AlertTime         time.Time
-	Status            string
-	AcknowledgedBy    string
-	AcknowledgedTime  time.Time
-	ResolvedTime      time.Time
-	EscalationLevel   int
-	AutoResolution    bool
+	AlertID          string
+	AccountName      string
+	AlertType        string
+	Severity         string
+	Message          string
+	CurrentValue     float64
+	ThresholdValue   float64
+	AlertTime        time.Time
+	Status           string
+	AcknowledgedBy   string
+	AcknowledgedTime time.Time
+	ResolvedTime     time.Time
+	EscalationLevel  int
+	AutoResolution   bool
 }
 
 type AccountCostOptimization struct {
-	OptimizationID   string
-	AccountName      string
-	OptimizationType string
-	Description      string
-	EstimatedSavings float64
+	OptimizationID       string
+	AccountName          string
+	OptimizationType     string
+	Description          string
+	EstimatedSavings     float64
 	ImplementationEffort string
-	Priority         string
-	Status           string
-	CreatedTime      time.Time
-	ImplementedTime  time.Time
-	ActualSavings    float64
-	ROI              float64
-	Recommendation   string
+	Priority             string
+	Status               string
+	CreatedTime          time.Time
+	ImplementedTime      time.Time
+	ActualSavings        float64
+	ROI                  float64
+	Recommendation       string
 }
 
 type AccountCostComparisons struct {
-	AccountName           string
-	PeerAccountsAvgCost   float64
+	AccountName             string
+	PeerAccountsAvgCost     float64
 	SimilarWorkloadsAvgCost float64
-	IndustryBenchmark     float64
-	CostRanking           int
-	TotalAccounts         int
-	CostPercentile        float64
-	EfficiencyRanking     int
-	CostVariance          float64
-	ComparisonPeriod      string
-	LastComparison        time.Time
+	IndustryBenchmark       float64
+	CostRanking             int
+	TotalAccounts           int
+	CostPercentile          float64
+	EfficiencyRanking       int
+	CostVariance            float64
+	ComparisonPeriod        string
+	LastComparison          time.Time
 }
 
 type AccountBudgetUtilization struct {
@@ -169,34 +169,34 @@ type AccountBudgetUtilization struct {
 }
 
 type AccountCostTrends struct {
-	AccountName         string
-	ShortTermTrend      string
-	LongTermTrend       string
-	SeasonalPattern     string
-	CostVolatility      float64
-	TrendStrength       float64
-	CyclicalPatterns    []string
-	AnomalyCount        int
-	TrendChangePoints   []time.Time
-	PredictiveAccuracy  float64
-	TrendConfidence     float64
-	LastTrendAnalysis   time.Time
+	AccountName        string
+	ShortTermTrend     string
+	LongTermTrend      string
+	SeasonalPattern    string
+	CostVolatility     float64
+	TrendStrength      float64
+	CyclicalPatterns   []string
+	AnomalyCount       int
+	TrendChangePoints  []time.Time
+	PredictiveAccuracy float64
+	TrendConfidence    float64
+	LastTrendAnalysis  time.Time
 }
 
 type AccountCostAnalytics struct {
-	AccountName              string
-	CostElasticity           float64
-	UsageCorrelation         float64
-	SeasonalityIndex         float64
-	CostPredictability       float64
+	AccountName               string
+	CostElasticity            float64
+	UsageCorrelation          float64
+	SeasonalityIndex          float64
+	CostPredictability        float64
 	ResourceUtilizationImpact float64
-	UserBehaviorImpact       float64
-	WorkloadPatternImpact    float64
-	ExternalFactorImpact     float64
-	CostDrivers              []string
-	CostInhibitors           []string
-	AnalyticsScore           float64
-	LastAnalyticsUpdate      time.Time
+	UserBehaviorImpact        float64
+	WorkloadPatternImpact     float64
+	ExternalFactorImpact      float64
+	CostDrivers               []string
+	CostInhibitors            []string
+	AnalyticsScore            float64
+	LastAnalyticsUpdate       time.Time
 }
 
 type AccountCostReport struct {
@@ -250,14 +250,14 @@ type AccountCostTrackingCollector struct {
 	costPerUser          *prometheus.GaugeVec
 
 	// Budget metrics
-	totalBudget        *prometheus.GaugeVec
-	remainingBudget    *prometheus.GaugeVec
-	budgetUtilization  *prometheus.GaugeVec
-	burnRate           *prometheus.GaugeVec
-	projectedOverrun   *prometheus.GaugeVec
-	daysRemaining      *prometheus.GaugeVec
-	budgetStatus       *prometheus.GaugeVec
-	budgetAlertLevel   *prometheus.GaugeVec
+	totalBudget       *prometheus.GaugeVec
+	remainingBudget   *prometheus.GaugeVec
+	budgetUtilization *prometheus.GaugeVec
+	burnRate          *prometheus.GaugeVec
+	projectedOverrun  *prometheus.GaugeVec
+	daysRemaining     *prometheus.GaugeVec
+	budgetStatus      *prometheus.GaugeVec
+	budgetAlertLevel  *prometheus.GaugeVec
 
 	// Cost breakdown metrics
 	computeCost       *prometheus.GaugeVec
@@ -274,66 +274,66 @@ type AccountCostTrackingCollector struct {
 	backupCost        *prometheus.GaugeVec
 
 	// Forecast metrics
-	weeklyForecast      *prometheus.GaugeVec
-	monthlyForecast     *prometheus.GaugeVec
-	quarterlyForecast   *prometheus.GaugeVec
-	annualForecast      *prometheus.GaugeVec
-	forecastConfidence  *prometheus.GaugeVec
-	growthRate          *prometheus.GaugeVec
-	forecastAccuracy    *prometheus.GaugeVec
-	trendDirection      *prometheus.GaugeVec
+	weeklyForecast     *prometheus.GaugeVec
+	monthlyForecast    *prometheus.GaugeVec
+	quarterlyForecast  *prometheus.GaugeVec
+	annualForecast     *prometheus.GaugeVec
+	forecastConfidence *prometheus.GaugeVec
+	growthRate         *prometheus.GaugeVec
+	forecastAccuracy   *prometheus.GaugeVec
+	trendDirection     *prometheus.GaugeVec
 
 	// Alert metrics
-	costAlertsTotal       *prometheus.CounterVec
-	costAlertsActive      *prometheus.GaugeVec
-	costAlertsSeverity    *prometheus.GaugeVec
-	costAlertsResolved    *prometheus.CounterVec
-	costAlertsEscalated   *prometheus.CounterVec
+	costAlertsTotal     *prometheus.CounterVec
+	costAlertsActive    *prometheus.GaugeVec
+	costAlertsSeverity  *prometheus.GaugeVec
+	costAlertsResolved  *prometheus.CounterVec
+	costAlertsEscalated *prometheus.CounterVec
 
 	// Optimization metrics
-	optimizationsTotal        *prometheus.CounterVec
-	optimizationsActive       *prometheus.GaugeVec
-	estimatedSavings          *prometheus.GaugeVec
-	actualSavings             *prometheus.GaugeVec
-	optimizationROI           *prometheus.GaugeVec
-	optimizationsPriority     *prometheus.GaugeVec
+	optimizationsTotal    *prometheus.CounterVec
+	optimizationsActive   *prometheus.GaugeVec
+	estimatedSavings      *prometheus.GaugeVec
+	actualSavings         *prometheus.GaugeVec
+	optimizationROI       *prometheus.GaugeVec
+	optimizationsPriority *prometheus.GaugeVec
 
 	// Comparison metrics
-	peerAccountsAvgCost      *prometheus.GaugeVec
-	industryBenchmark        *prometheus.GaugeVec
-	costRanking              *prometheus.GaugeVec
-	costPercentile           *prometheus.GaugeVec
-	efficiencyRanking        *prometheus.GaugeVec
+	peerAccountsAvgCost *prometheus.GaugeVec
+	industryBenchmark   *prometheus.GaugeVec
+	costRanking         *prometheus.GaugeVec
+	costPercentile      *prometheus.GaugeVec
+	efficiencyRanking   *prometheus.GaugeVec
 
 	// Utilization metrics
-	currentUtilization       *prometheus.GaugeVec
-	projectedUtilization     *prometheus.GaugeVec
-	dailyBurnRate            *prometheus.GaugeVec
-	optimalBurnRate          *prometheus.GaugeVec
-	burnRateVariance         *prometheus.GaugeVec
-	timeToDepletion          *prometheus.GaugeVec
+	currentUtilization   *prometheus.GaugeVec
+	projectedUtilization *prometheus.GaugeVec
+	dailyBurnRate        *prometheus.GaugeVec
+	optimalBurnRate      *prometheus.GaugeVec
+	burnRateVariance     *prometheus.GaugeVec
+	timeToDepletion      *prometheus.GaugeVec
 
 	// Trend metrics
-	costVolatility         *prometheus.GaugeVec
-	trendStrength          *prometheus.GaugeVec
-	predictiveAccuracy     *prometheus.GaugeVec
-	trendConfidence        *prometheus.GaugeVec
+	costVolatility     *prometheus.GaugeVec
+	trendStrength      *prometheus.GaugeVec
+	predictiveAccuracy *prometheus.GaugeVec
+	trendConfidence    *prometheus.GaugeVec
 
 	// Analytics metrics
-	costElasticity              *prometheus.GaugeVec
-	usageCorrelation            *prometheus.GaugeVec
-	seasonalityIndex            *prometheus.GaugeVec
-	costPredictability          *prometheus.GaugeVec
-	resourceUtilizationImpact   *prometheus.GaugeVec
-	userBehaviorImpact          *prometheus.GaugeVec
-	workloadPatternImpact       *prometheus.GaugeVec
-	analyticsScore              *prometheus.GaugeVec
+	costElasticity            *prometheus.GaugeVec
+	usageCorrelation          *prometheus.GaugeVec
+	seasonalityIndex          *prometheus.GaugeVec
+	costPredictability        *prometheus.GaugeVec
+	resourceUtilizationImpact *prometheus.GaugeVec
+	userBehaviorImpact        *prometheus.GaugeVec
+	workloadPatternImpact     *prometheus.GaugeVec
+	analyticsScore            *prometheus.GaugeVec
 
 	// Policy metrics
-	costPoliciesTotal       *prometheus.CounterVec
-	costPoliciesActive      *prometheus.GaugeVec
-	costPolicyViolations    *prometheus.CounterVec
-	costPolicyLimit         *prometheus.GaugeVec
+	costPoliciesTotal    *prometheus.CounterVec
+	costPoliciesActive   *prometheus.GaugeVec
+	costPolicyViolations *prometheus.CounterVec
+	costPolicyLimit      *prometheus.GaugeVec
 }
 
 func NewAccountCostTrackingCollector(client AccountCostTrackingSLURMClient) *AccountCostTrackingCollector {

@@ -16,7 +16,8 @@ type DegradedCollector struct {
 	collector          Collector
 	degradationManager *DegradationManager
 	logger             *logrus.Entry
-	mu                 sync.RWMutex
+	// TODO: Unused field - preserved for future thread safety
+	// mu                 sync.RWMutex
 }
 
 // NewDegradedCollector creates a new collector with degradation support
@@ -232,7 +233,7 @@ func (drc *degradedRegistryCollector) Collect(ch chan<- prometheus.Metric) {
 			subCh := make(chan prometheus.Metric, 1000)
 			go func() {
 				defer close(subCh)
-				collector.Collect(ctx, subCh)
+				_ = collector.Collect(ctx, subCh)
 			}()
 
 			// Forward metrics

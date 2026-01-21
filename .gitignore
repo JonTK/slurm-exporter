@@ -6,6 +6,8 @@
 *.dylib
 bin/
 dist/
+slurm-exporter
+validate-config
 
 # Test binary, built with `go test -c`
 *.test
@@ -41,6 +43,7 @@ Thumbs.db
 *.tmp
 *.temp
 *.log
+design_files_removal_report.json
 
 # Config files that might contain secrets
 config.local.yaml
@@ -98,4 +101,7 @@ debug
 
 # Air live reloading tool
 tmp/
+
+# Ignore generated docs, but not website/docs (MkDocs source)
 docs/
+!website/docs/

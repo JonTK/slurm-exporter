@@ -1,7 +1,6 @@
 package config
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 	"time"
@@ -39,8 +38,8 @@ func TestLoadDefaults(t *testing.T) {
 		t.Errorf("Expected SLURM base URL to be 'http://localhost:6820', got: %s", cfg.SLURM.BaseURL)
 	}
 
-	if cfg.SLURM.APIVersion != "v0.0.42" {
-		t.Errorf("Expected SLURM API version to be 'v0.0.42', got: %s", cfg.SLURM.APIVersion)
+	if cfg.SLURM.APIVersion != "v0.0.43" {
+		t.Errorf("Expected SLURM API version to be 'v0.0.43', got: %s", cfg.SLURM.APIVersion)
 	}
 
 	if cfg.SLURM.Auth.Type != "none" {
@@ -91,8 +90,8 @@ func TestServerConfig(t *testing.T) {
 		t.Errorf("Expected server timeout to be 30s, got: %v", cfg.Server.Timeout)
 	}
 
-	if cfg.Server.ReadTimeout != 10*time.Second {
-		t.Errorf("Expected read timeout to be 10s, got: %v", cfg.Server.ReadTimeout)
+	if cfg.Server.ReadTimeout != 15*time.Second {
+		t.Errorf("Expected read timeout to be 15s, got: %v", cfg.Server.ReadTimeout)
 	}
 
 	if cfg.Server.WriteTimeout != 10*time.Second {
@@ -311,16 +310,16 @@ metrics:
   namespace: "custom_slurm"
 `
 
-	tmpFile, err := ioutil.TempFile("", "test-config-*.yaml")
+	tmpFile, err := os.CreateTemp("", "test-config-*.yaml")
 	if err != nil {
 		t.Fatalf("Failed to create temp file: %v", err)
 	}
-	defer os.Remove(tmpFile.Name())
+	defer func() { _ = os.Remove(tmpFile.Name()) }()
 
 	if _, err := tmpFile.WriteString(yamlContent); err != nil {
 		t.Fatalf("Failed to write to temp file: %v", err)
 	}
-	tmpFile.Close()
+	_ = tmpFile.Close()
 
 	cfg, err := Load(tmpFile.Name())
 	if err != nil {
@@ -387,16 +386,16 @@ server:
   invalid_yaml: [unclosed
 `
 
-	tmpFile, err := ioutil.TempFile("", "invalid-config-*.yaml")
+	tmpFile, err := os.CreateTemp("", "invalid-config-*.yaml")
 	if err != nil {
 		t.Fatalf("Failed to create temp file: %v", err)
 	}
-	defer os.Remove(tmpFile.Name())
+	defer func() { _ = os.Remove(tmpFile.Name()) }()
 
 	if _, err := tmpFile.WriteString(invalidYAML); err != nil {
 		t.Fatalf("Failed to write to temp file: %v", err)
 	}
-	tmpFile.Close()
+	_ = tmpFile.Close()
 
 	_, err = Load(tmpFile.Name())
 	if err == nil {
@@ -682,8 +681,8 @@ func TestDefault(t *testing.T) {
 		t.Errorf("Expected default server address to be ':8080', got: %s", cfg.Server.Address)
 	}
 
-	if cfg.SLURM.APIVersion != "v0.0.42" {
-		t.Errorf("Expected default API version to be 'v0.0.42', got: %s", cfg.SLURM.APIVersion)
+	if cfg.SLURM.APIVersion != "v0.0.43" {
+		t.Errorf("Expected default API version to be 'v0.0.43', got: %s", cfg.SLURM.APIVersion)
 	}
 
 	if cfg.Logging.Level != "info" {
@@ -708,12 +707,12 @@ func TestEnvOverrides(t *testing.T) {
 
 	// Set environment variables
 	for key, value := range envVars {
-		os.Setenv(key, value)
+		_ = os.Setenv(key, value)
 	}
 	defer func() {
 		// Clean up environment variables
 		for key := range envVars {
-			os.Unsetenv(key)
+			_ = os.Unsetenv(key)
 		}
 	}()
 
@@ -781,16 +780,16 @@ logging:
   level: "warn"
 `
 
-	tmpFile, err := ioutil.TempFile("", "precedence-config-*.yaml")
+	tmpFile, err := os.CreateTemp("", "precedence-config-*.yaml")
 	if err != nil {
 		t.Fatalf("Failed to create temp file: %v", err)
 	}
-	defer os.Remove(tmpFile.Name())
+	defer func() { _ = os.Remove(tmpFile.Name()) }()
 
 	if _, err := tmpFile.WriteString(yamlContent); err != nil {
 		t.Fatalf("Failed to write to temp file: %v", err)
 	}
-	tmpFile.Close()
+	_ = tmpFile.Close()
 
 	// Set environment variables that should override YAML
 	envVars := map[string]string{
@@ -801,11 +800,11 @@ logging:
 	}
 
 	for key, value := range envVars {
-		os.Setenv(key, value)
+		_ = os.Setenv(key, value)
 	}
 	defer func() {
 		for key := range envVars {
-			os.Unsetenv(key)
+			_ = os.Unsetenv(key)
 		}
 	}()
 
@@ -875,8 +874,8 @@ func TestInvalidEnvOverrides(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			os.Setenv(tt.envVar, tt.value)
-			defer os.Unsetenv(tt.envVar)
+			_ = os.Setenv(tt.envVar, tt.value)
+			defer func() { _ = os.Unsetenv(tt.envVar) }()
 
 			_, err := Load("")
 			if err == nil {
@@ -895,8 +894,8 @@ func TestApplyEnvOverrides(t *testing.T) {
 	}
 
 	// Test with specific environment variable
-	os.Setenv("SLURM_EXPORTER_SERVER_ADDRESS", ":5555")
-	defer os.Unsetenv("SLURM_EXPORTER_SERVER_ADDRESS")
+	_ = os.Setenv("SLURM_EXPORTER_SERVER_ADDRESS", ":5555")
+	defer func() { _ = os.Unsetenv("SLURM_EXPORTER_SERVER_ADDRESS") }()
 
 	if err := cfg.ApplyEnvOverrides(); err != nil {
 		t.Errorf("Expected no error applying env overrides, got: %v", err)

@@ -58,8 +58,8 @@ func NewRegistry(cfg *config.CollectorsConfig, promRegistry *prometheus.Registry
 	// Create performance monitor with default SLAs
 	slaConfig := SLAConfig{
 		MaxCollectionDuration:   30 * time.Second,
-		MaxErrorRate:            0.1, // 0.1 errors per minute
-		MinSuccessRate:          95.0, // 95% success rate
+		MaxErrorRate:            0.1,               // 0.1 errors per minute
+		MinSuccessRate:          95.0,              // 95% success rate
 		MaxMemoryUsage:          100 * 1024 * 1024, // 100MB per collector
 		MaxMetricsPerCollection: 10000,
 	}
@@ -329,7 +329,7 @@ func (ca *collectorAdapter) Collect(ch chan<- prometheus.Metric) {
 	// Collect metrics
 	err := ca.collector.Collect(ctx, metricsChan)
 	close(metricsChan)
-	
+
 	// Wait for the forwarding goroutine to finish
 	<-done
 
@@ -676,7 +676,7 @@ func (r *Registry) CreateCollectorsFromConfig(cfg *config.CollectorsConfig, clie
 
 	// Register new standalone operation collectors if enabled
 	// Note: These collectors may need to be added to the config structure
-	
+
 	// Licenses collector
 	if cfg.Licenses.Enabled {
 		collector := NewLicensesCollector(slurmClient, logger, cfg.CollectionTimeout)

@@ -27,60 +27,60 @@ type JobSchedulingStreamingSLURMClient interface {
 // JobSchedulingEvent represents a comprehensive job scheduling event
 type JobSchedulingEvent struct {
 	// Event identification
-	EventID          string
-	JobID            string
-	JobName          string
-	EventType        string
-	EventTimestamp   time.Time
-	SequenceNumber   int64
-	CorrelationID    string
-	ProcessingID     string
+	EventID        string
+	JobID          string
+	JobName        string
+	EventType      string
+	EventTimestamp time.Time
+	SequenceNumber int64
+	CorrelationID  string
+	ProcessingID   string
 
 	// Scheduling decision data
-	SchedulingDecision    string
-	SchedulingReason      string
-	SchedulingAlgorithm   string
-	SchedulingPriority    int
-	SchedulingScore       float64
-	DecisionTimestamp     time.Time
-	DecisionLatency       time.Duration
+	SchedulingDecision  string
+	SchedulingReason    string
+	SchedulingAlgorithm string
+	SchedulingPriority  int
+	SchedulingScore     float64
+	DecisionTimestamp   time.Time
+	DecisionLatency     time.Duration
 
 	// Resource allocation
-	AllocatedNodes        []string
-	AllocatedCPUs         int
-	AllocatedMemory       int64
-	AllocatedGPUs         int
-	AllocatedStorage      int64
-	ResourceEfficiency    float64
-	AllocationScore       float64
+	AllocatedNodes     []string
+	AllocatedCPUs      int
+	AllocatedMemory    int64
+	AllocatedGPUs      int
+	AllocatedStorage   int64
+	ResourceEfficiency float64
+	AllocationScore    float64
 
 	// Queue information
-	SourceQueue           string
-	TargetQueue           string
-	QueuePosition         int
-	QueueLength           int
-	EstimatedWaitTime     time.Duration
-	ActualWaitTime        time.Duration
-	QueueEfficiency       float64
+	SourceQueue       string
+	TargetQueue       string
+	QueuePosition     int
+	QueueLength       int
+	EstimatedWaitTime time.Duration
+	ActualWaitTime    time.Duration
+	QueueEfficiency   float64
 
 	// Priority factors
-	UserPriority          int
-	GroupPriority         int
-	AccountPriority       int
-	QoSPriority           int
-	PartitionPriority     int
-	FairShareFactor       float64
-	AgeFactor             float64
-	SizeFactor            float64
+	UserPriority      int
+	GroupPriority     int
+	AccountPriority   int
+	QoSPriority       int
+	PartitionPriority int
+	FairShareFactor   float64
+	AgeFactor         float64
+	SizeFactor        float64
 
 	// Constraints and requirements
-	Constraints           map[string]string
-	Features              []string
-	Licenses              []string
-	Dependencies          []string
-	Reservations          []string
-	ExclusiveAccess       bool
-	PreemptionEligible    bool
+	Constraints        map[string]string
+	Features           []string
+	Licenses           []string
+	Dependencies       []string
+	Reservations       []string
+	ExclusiveAccess    bool
+	PreemptionEligible bool
 
 	// Backfill information
 	BackfillEligible      bool
@@ -91,20 +91,20 @@ type JobSchedulingEvent struct {
 	BackfillSuccess       bool
 
 	// Preemption data
-	PreemptionRequired    bool
-	PreemptedJobs         []string
-	PreemptionCost        float64
-	PreemptionBenefit     float64
-	PreemptionScore       float64
-	PreemptionJustified   bool
+	PreemptionRequired  bool
+	PreemptedJobs       []string
+	PreemptionCost      float64
+	PreemptionBenefit   float64
+	PreemptionScore     float64
+	PreemptionJustified bool
 
 	// Performance metrics
-	SchedulingOverhead    time.Duration
-	OptimizationCycles    int
-	CandidatesEvaluated   int
-	ConstraintChecks      int
-	ScoringsPerformed     int
-	DecisionConfidence    float64
+	SchedulingOverhead  time.Duration
+	OptimizationCycles  int
+	CandidatesEvaluated int
+	ConstraintChecks    int
+	ScoringsPerformed   int
+	DecisionConfidence  float64
 
 	// Impact assessment
 	ClusterImpact         float64
@@ -115,111 +115,111 @@ type JobSchedulingEvent struct {
 	SchedulingEfficiency  float64
 
 	// Business metrics
-	EstimatedCost         float64
-	BusinessPriority      int
-	SLACompliance         bool
-	DeadlineRisk          float64
-	ValueScore            float64
-	ROIEstimate           float64
+	EstimatedCost    float64
+	BusinessPriority int
+	SLACompliance    bool
+	DeadlineRisk     float64
+	ValueScore       float64
+	ROIEstimate      float64
 
 	// Optimization data
-	OptimizationAttempts  int
-	OptimizationSuccess   bool
-	OptimizationGain      float64
-	AlternativeOptions    int
-	BestAlternativeScore  float64
-	OptimizationTime      time.Duration
+	OptimizationAttempts int
+	OptimizationSuccess  bool
+	OptimizationGain     float64
+	AlternativeOptions   int
+	BestAlternativeScore float64
+	OptimizationTime     time.Duration
 
 	// Prediction data
-	PredictedRuntime      time.Duration
-	PredictedSuccess      float64
-	PredictedEfficiency   float64
-	PredictedCost         float64
-	PredictionConfidence  float64
-	PredictionAccuracy    float64
+	PredictedRuntime     time.Duration
+	PredictedSuccess     float64
+	PredictedEfficiency  float64
+	PredictedCost        float64
+	PredictionConfidence float64
+	PredictionAccuracy   float64
 
 	// Anomaly detection
-	AnomalyDetected       bool
-	AnomalyType           string
-	AnomalySeverity       float64
-	AnomalyDescription    string
-	AnomalyMitigation     string
-	AnomalyImpact         float64
+	AnomalyDetected    bool
+	AnomalyType        string
+	AnomalySeverity    float64
+	AnomalyDescription string
+	AnomalyMitigation  string
+	AnomalyImpact      float64
 
 	// Compliance and audit
-	PolicyCompliant       bool
-	PolicyViolations      []string
-	AuditRequired         bool
-	ComplianceScore       float64
-	RegulatoryFlags       []string
-	SecurityClearance     string
+	PolicyCompliant   bool
+	PolicyViolations  []string
+	AuditRequired     bool
+	ComplianceScore   float64
+	RegulatoryFlags   []string
+	SecurityClearance string
 
 	// Stream metadata
-	StreamID              string
-	ConsumerID            string
-	DeliveryAttempts      int
-	ProcessingTime        time.Duration
-	AcknowledgedAt        *time.Time
-	RetryCount            int
+	StreamID         string
+	ConsumerID       string
+	DeliveryAttempts int
+	ProcessingTime   time.Duration
+	AcknowledgedAt   *time.Time
+	RetryCount       int
 
 	// Error handling
-	ErrorOccurred         bool
-	ErrorMessage          string
-	ErrorCode             string
-	RecoveryAttempted     bool
-	RecoverySuccess       bool
-	FallbackUsed          bool
+	ErrorOccurred     bool
+	ErrorMessage      string
+	ErrorCode         string
+	RecoveryAttempted bool
+	RecoverySuccess   bool
+	FallbackUsed      bool
 
 	// Event enrichment
-	EnrichmentApplied     bool
-	EnrichmentSources     []string
-	EnrichmentLatency     time.Duration
-	AdditionalContext     map[string]interface{}
-	RelatedEvents         []string
-	EventChain            []string
+	EnrichmentApplied bool
+	EnrichmentSources []string
+	EnrichmentLatency time.Duration
+	AdditionalContext map[string]interface{}
+	RelatedEvents     []string
+	EventChain        []string
 }
 
 // SchedulingStreamingConfiguration represents streaming configuration
 type SchedulingStreamingConfiguration struct {
 	// Basic settings
-	StreamingEnabled        bool
-	EventBufferSize         int
-	EventBatchSize          int
-	EventBatchTimeout       time.Duration
-	MaxConcurrentStreams    int
-	StreamTimeout           time.Duration
+	StreamingEnabled     bool
+	EventBufferSize      int
+	EventBatchSize       int
+	EventBatchTimeout    time.Duration
+	MaxConcurrentStreams int
+	StreamTimeout        time.Duration
 
 	// Performance settings
-	CompressionEnabled      bool
-	CompressionLevel        int
-	EncryptionEnabled       bool
-	EncryptionAlgorithm     string
-	BatchProcessing         bool
-	ParallelProcessing      bool
+	CompressionEnabled  bool
+	CompressionLevel    int
+	EncryptionEnabled   bool
+	EncryptionAlgorithm string
+	BatchProcessing     bool
+	ParallelProcessing  bool
 
 	// Filtering and routing
-	EventFiltering          bool
-	FilterRules             []string
-	EventRouting            bool
-	RoutingRules            map[string]string
-	PriorityQueuing         bool
-	DeadLetterQueue         bool
+	EventFiltering  bool
+	FilterRules     []string
+	EventRouting    bool
+	RoutingRules    map[string]string
+	PriorityQueuing bool
+	DeadLetterQueue bool
 
 	// Reliability settings
-	GuaranteedDelivery      bool
-	OrderingGuaranteed      bool
-	DuplicateDetection      bool
-	RetryPolicy             string
-	MaxRetries              int
-	BackoffMultiplier       float64
+	GuaranteedDelivery bool
+	OrderingGuaranteed bool
+	DuplicateDetection bool
+	RetryPolicy        string
+	MaxRetries         int
+	BackoffMultiplier  float64
 
 	// Monitoring settings
-	MetricsEnabled          bool
-	TracingEnabled          bool
-	ProfilingEnabled        bool
-	DebugMode               bool
-	LogLevel                string
-	SamplingRate            float64
+	MetricsEnabled   bool
+	TracingEnabled   bool
+	ProfilingEnabled bool
+	DebugMode        bool
+	LogLevel         string
+	SamplingRate     float64
 
 	// Resource limits
 	MaxMemoryUsage          int64
@@ -230,103 +230,103 @@ type SchedulingStreamingConfiguration struct {
 	CircuitBreakerThreshold float64
 
 	// Security settings
-	AuthenticationRequired  bool
-	AuthorizationRequired   bool
-	AuditLoggingEnabled     bool
-	DataMaskingEnabled      bool
-	PIIRedactionEnabled     bool
-	ComplianceMode          string
+	AuthenticationRequired bool
+	AuthorizationRequired  bool
+	AuditLoggingEnabled    bool
+	DataMaskingEnabled     bool
+	PIIRedactionEnabled    bool
+	ComplianceMode         string
 
 	// Advanced features
-	EventEnrichment         bool
-	CorrelationEnabled      bool
-	AggregationEnabled      bool
-	WindowingEnabled        bool
-	StatefulProcessing      bool
-	CheckpointingEnabled    bool
+	EventEnrichment      bool
+	CorrelationEnabled   bool
+	AggregationEnabled   bool
+	WindowingEnabled     bool
+	StatefulProcessing   bool
+	CheckpointingEnabled bool
 
 	// Integration settings
-	WebhookEnabled          bool
-	WebhookEndpoints        []string
-	KafkaEnabled            bool
-	KafkaTopics             []string
-	SQSEnabled              bool
-	SQSQueues               []string
+	WebhookEnabled   bool
+	WebhookEndpoints []string
+	KafkaEnabled     bool
+	KafkaTopics      []string
+	SQSEnabled       bool
+	SQSQueues        []string
 
 	// Optimization settings
-	AdaptiveStreaming       bool
-	LoadBalancing           bool
-	AutoScaling             bool
-	ResourceOptimization    bool
-	CostOptimization        bool
-	PerformanceTuning       bool
+	AdaptiveStreaming    bool
+	LoadBalancing        bool
+	AutoScaling          bool
+	ResourceOptimization bool
+	CostOptimization     bool
+	PerformanceTuning    bool
 
 	// Business logic
-	SLAEnforcement          bool
-	BusinessRules           []string
-	CostTracking            bool
-	ValueTracking           bool
-	ROICalculation          bool
-	ImpactAssessment        bool
+	SLAEnforcement   bool
+	BusinessRules    []string
+	CostTracking     bool
+	ValueTracking    bool
+	ROICalculation   bool
+	ImpactAssessment bool
 
 	// Machine learning
-	MLPrediction            bool
-	AnomalyDetection        bool
-	PatternRecognition      bool
-	TrendAnalysis           bool
-	ForecastingEnabled      bool
-	RecommendationEngine    bool
+	MLPrediction         bool
+	AnomalyDetection     bool
+	PatternRecognition   bool
+	TrendAnalysis        bool
+	ForecastingEnabled   bool
+	RecommendationEngine bool
 
 	// Compliance settings
-	DataRetention           time.Duration
-	DataArchiving           bool
-	LegalHold               bool
-	RegulatoryCompliance    []string
-	PrivacyCompliance       []string
-	IndustryStandards       []string
+	DataRetention        time.Duration
+	DataArchiving        bool
+	LegalHold            bool
+	RegulatoryCompliance []string
+	PrivacyCompliance    []string
+	IndustryStandards    []string
 }
 
 // ActiveSchedulingStream represents an active scheduling event stream
 type ActiveSchedulingStream struct {
 	// Stream identification
-	StreamID             string
-	StreamName           string
-	StreamType           string
-	CreatedAt            time.Time
-	LastActivityAt       time.Time
-	Status               string
+	StreamID       string
+	StreamName     string
+	StreamType     string
+	CreatedAt      time.Time
+	LastActivityAt time.Time
+	Status         string
 
 	// Consumer information
-	ConsumerID           string
-	ConsumerName         string
-	ConsumerType         string
-	ConsumerEndpoint     string
-	ConsumerHealth       string
-	LastHeartbeat        time.Time
+	ConsumerID       string
+	ConsumerName     string
+	ConsumerType     string
+	ConsumerEndpoint string
+	ConsumerHealth   string
+	LastHeartbeat    time.Time
 
 	// Stream statistics
-	EventsDelivered      int64
-	EventsPending        int64
-	EventsFailed         int64
-	EventsFiltered       int64
-	BytesTransferred     int64
-	AverageLatency       time.Duration
+	EventsDelivered  int64
+	EventsPending    int64
+	EventsFailed     int64
+	EventsFiltered   int64
+	BytesTransferred int64
+	AverageLatency   time.Duration
 
 	// Performance metrics
-	Throughput           float64
-	ErrorRate            float64
-	SuccessRate          float64
-	ProcessingRate       float64
-	BackpressureActive   bool
-	ResourceUtilization  float64
+	Throughput          float64
+	ErrorRate           float64
+	SuccessRate         float64
+	ProcessingRate      float64
+	BackpressureActive  bool
+	ResourceUtilization float64
 
 	// Quality metrics
-	DeliveryGuarantee    string
-	OrderingGuarantee    string
-	DuplicateRate        float64
-	DataQuality          float64
-	EnrichmentQuality    float64
-	CorrelationAccuracy  float64
+	DeliveryGuarantee   string
+	OrderingGuarantee   string
+	DuplicateRate       float64
+	DataQuality         float64
+	EnrichmentQuality   float64
+	CorrelationAccuracy float64
 
 	// Business metrics
 	BusinessValue        float64
@@ -337,71 +337,71 @@ type ActiveSchedulingStream struct {
 	ImpactScore          float64
 
 	// Optimization metrics
-	OptimizationEnabled  bool
-	OptimizationGains    float64
-	ResourceSavings      float64
-	CostSavings          float64
-	EfficiencyGains      float64
-	PerformanceGains     float64
+	OptimizationEnabled bool
+	OptimizationGains   float64
+	ResourceSavings     float64
+	CostSavings         float64
+	EfficiencyGains     float64
+	PerformanceGains    float64
 }
 
 // SchedulingEvent represents an individual scheduling event
 type SchedulingEvent struct {
-	Event               JobSchedulingEvent
-	ProcessingMetadata  map[string]interface{}
-	DeliveryStatus      string
-	RetryInformation    map[string]interface{}
+	Event              JobSchedulingEvent
+	ProcessingMetadata map[string]interface{}
+	DeliveryStatus     string
+	RetryInformation   map[string]interface{}
 }
 
 // SchedulingStreamingMetrics represents overall streaming metrics
 type SchedulingStreamingMetrics struct {
 	// Stream metrics
-	TotalStreams              int
-	ActiveStreams             int
-	HealthyStreams            int
-	DegradedStreams           int
-	FailedStreams             int
-	StreamCreationRate        float64
+	TotalStreams       int
+	ActiveStreams      int
+	HealthyStreams     int
+	DegradedStreams    int
+	FailedStreams      int
+	StreamCreationRate float64
 
 	// Event metrics
-	TotalEventsProcessed      int64
-	EventsPerSecond           float64
-	AverageEventSize          int64
-	PeakEventRate             float64
-	EventBacklog              int64
-	EventProcessingLatency    time.Duration
+	TotalEventsProcessed   int64
+	EventsPerSecond        float64
+	AverageEventSize       int64
+	PeakEventRate          float64
+	EventBacklog           int64
+	EventProcessingLatency time.Duration
 
 	// Performance metrics
-	CPUUtilization            float64
-	MemoryUtilization         float64
-	NetworkUtilization        float64
-	DiskUtilization           float64
-	SystemLoad                float64
-	ResourceEfficiency        float64
+	CPUUtilization     float64
+	MemoryUtilization  float64
+	NetworkUtilization float64
+	DiskUtilization    float64
+	SystemLoad         float64
+	ResourceEfficiency float64
 
 	// Reliability metrics
-	Uptime                    time.Duration
-	Availability              float64
-	MTBF                      time.Duration
-	MTTR                      time.Duration
-	ErrorRate                 float64
-	RecoveryRate              float64
+	Uptime       time.Duration
+	Availability float64
+	MTBF         time.Duration
+	MTTR         time.Duration
+	ErrorRate    float64
+	RecoveryRate float64
 
 	// Quality metrics
-	DataAccuracy              float64
-	DataCompleteness          float64
-	DataTimeliness            float64
-	EnrichmentSuccess         float64
-	CorrelationSuccess        float64
-	DeduplicationRate         float64
+	DataAccuracy       float64
+	DataCompleteness   float64
+	DataTimeliness     float64
+	EnrichmentSuccess  float64
+	CorrelationSuccess float64
+	DeduplicationRate  float64
 
 	// Business metrics
-	TotalBusinessValue        float64
-	AverageCostPerEvent       float64
-	ROI                       float64
-	CustomerSatisfaction      float64
-	SLACompliance             float64
-	BusinessImpact            float64
+	TotalBusinessValue   float64
+	AverageCostPerEvent  float64
+	ROI                  float64
+	CustomerSatisfaction float64
+	SLACompliance        float64
+	BusinessImpact       float64
 
 	// Optimization metrics
 	OptimizationOpportunities int
@@ -412,171 +412,171 @@ type SchedulingStreamingMetrics struct {
 	ValueScore                float64
 
 	// Capacity metrics
-	CapacityUtilization       float64
-	ScalingEvents             int
-	ResourceHeadroom          float64
-	ProjectedCapacityNeeds    float64
-	CapacityPlanningScore     float64
-	GrowthRate                float64
+	CapacityUtilization    float64
+	ScalingEvents          int
+	ResourceHeadroom       float64
+	ProjectedCapacityNeeds float64
+	CapacityPlanningScore  float64
+	GrowthRate             float64
 
 	// Cost metrics
-	TotalCost                 float64
-	InfrastructureCost        float64
-	OperationalCost           float64
-	DataTransferCost          float64
-	StorageCost               float64
-	CostTrend                 float64
+	TotalCost          float64
+	InfrastructureCost float64
+	OperationalCost    float64
+	DataTransferCost   float64
+	StorageCost        float64
+	CostTrend          float64
 
 	// Compliance metrics
-	ComplianceScore           float64
-	PolicyViolations          int
-	AuditEvents               int
-	SecurityIncidents         int
-	PrivacyIncidents          int
-	RegulatoryIssues          int
+	ComplianceScore   float64
+	PolicyViolations  int
+	AuditEvents       int
+	SecurityIncidents int
+	PrivacyIncidents  int
+	RegulatoryIssues  int
 }
 
 // SchedulingEventFilter represents event filtering configuration
 type SchedulingEventFilter struct {
-	FilterID          string
-	FilterName        string
-	FilterType        string
-	Priority          int
-	Enabled           bool
+	FilterID   string
+	FilterName string
+	FilterType string
+	Priority   int
+	Enabled    bool
 
 	// Filter criteria
-	JobPatterns       []string
-	UserPatterns      []string
-	QueuePatterns     []string
-	EventTypes        []string
-	MinPriority       int
-	MaxPriority       int
+	JobPatterns   []string
+	UserPatterns  []string
+	QueuePatterns []string
+	EventTypes    []string
+	MinPriority   int
+	MaxPriority   int
 
 	// Performance criteria
-	MinEfficiency     float64
-	MaxLatency        time.Duration
-	MinThroughput     float64
-	AnomalyOnly       bool
-	ViolationsOnly    bool
-	OptimizationOnly  bool
+	MinEfficiency    float64
+	MaxLatency       time.Duration
+	MinThroughput    float64
+	AnomalyOnly      bool
+	ViolationsOnly   bool
+	OptimizationOnly bool
 
 	// Business criteria
-	MinBusinessValue  float64
-	MaxCost           float64
-	SLAOnly           bool
-	CriticalOnly      bool
-	ComplianceOnly    bool
-	SecurityOnly      bool
+	MinBusinessValue float64
+	MaxCost          float64
+	SLAOnly          bool
+	CriticalOnly     bool
+	ComplianceOnly   bool
+	SecurityOnly     bool
 
 	// Statistics
-	MatchCount        int64
-	RejectCount       int64
-	ProcessingTime    time.Duration
-	Efficiency        float64
-	LastMatch         time.Time
-	ErrorCount        int
+	MatchCount     int64
+	RejectCount    int64
+	ProcessingTime time.Duration
+	Efficiency     float64
+	LastMatch      time.Time
+	ErrorCount     int
 }
 
 // SchedulingStreamingHealthStatus represents streaming health
 type SchedulingStreamingHealthStatus struct {
 	// Overall health
-	HealthScore           float64
-	HealthStatus          string
-	LastHealthCheck       time.Time
-	HealthTrend           string
-	NextHealthCheck       time.Time
-	HealthHistory         []float64
+	HealthScore     float64
+	HealthStatus    string
+	LastHealthCheck time.Time
+	HealthTrend     string
+	NextHealthCheck time.Time
+	HealthHistory   []float64
 
 	// Component health
-	StreamHealth          float64
-	ProcessingHealth      float64
-	StorageHealth         float64
-	NetworkHealth         float64
-	SecurityHealth        float64
-	ComplianceHealth      float64
+	StreamHealth     float64
+	ProcessingHealth float64
+	StorageHealth    float64
+	NetworkHealth    float64
+	SecurityHealth   float64
+	ComplianceHealth float64
 
 	// Performance health
-	LatencyHealth         float64
-	ThroughputHealth      float64
-	ErrorRateHealth       float64
-	ResourceHealth        float64
-	ScalabilityHealth     float64
-	EfficiencyHealth      float64
+	LatencyHealth     float64
+	ThroughputHealth  float64
+	ErrorRateHealth   float64
+	ResourceHealth    float64
+	ScalabilityHealth float64
+	EfficiencyHealth  float64
 
 	// Business health
-	SLAHealth             float64
-	CostHealth            float64
-	ValueHealth           float64
-	CustomerHealth        float64
-	ROIHealth             float64
-	ImpactHealth          float64
+	SLAHealth      float64
+	CostHealth     float64
+	ValueHealth    float64
+	CustomerHealth float64
+	ROIHealth      float64
+	ImpactHealth   float64
 
 	// Risk indicators
-	RiskScore             float64
-	SecurityRisk          float64
-	OperationalRisk       float64
-	ComplianceRisk        float64
-	FinancialRisk         float64
-	ReputationalRisk      float64
+	RiskScore        float64
+	SecurityRisk     float64
+	OperationalRisk  float64
+	ComplianceRisk   float64
+	FinancialRisk    float64
+	ReputationalRisk float64
 
 	// Recommendations
-	IssuesDetected        int
-	CriticalIssues        int
-	Recommendations       []string
-	AutomatedActions      []string
-	RequiredActions       []string
-	PreventiveActions     []string
+	IssuesDetected    int
+	CriticalIssues    int
+	Recommendations   []string
+	AutomatedActions  []string
+	RequiredActions   []string
+	PreventiveActions []string
 
 	// Predictive health
-	PredictedHealth       float64
-	HealthForecast        []float64
-	DegradationRisk       float64
-	FailureRisk           float64
-	MaintenanceNeeded     bool
-	OptimizationNeeded    bool
+	PredictedHealth    float64
+	HealthForecast     []float64
+	DegradationRisk    float64
+	FailureRisk        float64
+	MaintenanceNeeded  bool
+	OptimizationNeeded bool
 }
 
 // SchedulingEventSubscription represents an event subscription
 type SchedulingEventSubscription struct {
 	// Subscription details
-	SubscriptionID        string
-	SubscriberID          string
-	SubscriptionType      string
-	CreatedAt             time.Time
-	ExpiresAt             *time.Time
-	Status                string
+	SubscriptionID   string
+	SubscriberID     string
+	SubscriptionType string
+	CreatedAt        time.Time
+	ExpiresAt        *time.Time
+	Status           string
 
 	// Delivery configuration
-	DeliveryMethod        string
-	Endpoint              string
-	Protocol              string
-	Format                string
-	Compression           bool
-	Encryption            bool
+	DeliveryMethod string
+	Endpoint       string
+	Protocol       string
+	Format         string
+	Compression    bool
+	Encryption     bool
 
 	// Filter configuration
-	EventFilters          []string
-	QueueFilters          []string
-	UserFilters           []string
-	PriorityThreshold     int
-	EfficiencyThreshold   float64
-	BusinessValueMin      float64
+	EventFilters        []string
+	QueueFilters        []string
+	UserFilters         []string
+	PriorityThreshold   int
+	EfficiencyThreshold float64
+	BusinessValueMin    float64
 
 	// Quality of service
-	GuaranteedDelivery    bool
-	OrderingRequired      bool
-	MaxRetries            int
-	RetryBackoff          time.Duration
-	DeadLetterQueue       string
-	TimeoutDuration       time.Duration
+	GuaranteedDelivery bool
+	OrderingRequired   bool
+	MaxRetries         int
+	RetryBackoff       time.Duration
+	DeadLetterQueue    string
+	TimeoutDuration    time.Duration
 
 	// Rate limiting
-	RateLimitEnabled      bool
-	EventsPerSecond       int
-	BurstSize             int
-	QuotaLimit            int64
-	QuotaUsed             int64
-	QuotaResetTime        time.Time
+	RateLimitEnabled bool
+	EventsPerSecond  int
+	BurstSize        int
+	QuotaLimit       int64
+	QuotaUsed        int64
+	QuotaResetTime   time.Time
 
 	// Security
 	AuthRequired          bool
@@ -587,223 +587,223 @@ type SchedulingEventSubscription struct {
 	EncryptionKey         string
 
 	// Monitoring
-	MetricsEnabled        bool
-	TracingEnabled        bool
-	LoggingEnabled        bool
-	AlertingEnabled       bool
-	HealthCheckEnabled    bool
-	HealthCheckInterval   time.Duration
+	MetricsEnabled      bool
+	TracingEnabled      bool
+	LoggingEnabled      bool
+	AlertingEnabled     bool
+	HealthCheckEnabled  bool
+	HealthCheckInterval time.Duration
 
 	// Statistics
-	EventsDelivered       int64
-	EventsFailed          int64
-	LastDelivery          time.Time
-	AverageLatency        time.Duration
-	SuccessRate           float64
-	ErrorRate             float64
+	EventsDelivered int64
+	EventsFailed    int64
+	LastDelivery    time.Time
+	AverageLatency  time.Duration
+	SuccessRate     float64
+	ErrorRate       float64
 
 	// Cost and billing
-	BillingEnabled        bool
-	CostPerEvent          float64
-	TotalCost             float64
-	BillingCycle          string
-	PaymentMethod         string
-	CreditLimit           float64
+	BillingEnabled bool
+	CostPerEvent   float64
+	TotalCost      float64
+	BillingCycle   string
+	PaymentMethod  string
+	CreditLimit    float64
 
 	// Compliance
-	DataRetention         time.Duration
-	PIIHandling           string
-	AuditLogging          bool
-	ComplianceFlags       []string
-	LegalHold             bool
-	DataResidency         string
+	DataRetention   time.Duration
+	PIIHandling     string
+	AuditLogging    bool
+	ComplianceFlags []string
+	LegalHold       bool
+	DataResidency   string
 }
 
 // SchedulingEventProcessingStats represents processing statistics
 type SchedulingEventProcessingStats struct {
 	// Processing metrics
-	TotalEventsProcessed     int64
-	SuccessfulProcessing     int64
-	FailedProcessing         int64
-	PartialProcessing        int64
-	SkippedProcessing        int64
-	RetryProcessing          int64
+	TotalEventsProcessed int64
+	SuccessfulProcessing int64
+	FailedProcessing     int64
+	PartialProcessing    int64
+	SkippedProcessing    int64
+	RetryProcessing      int64
 
 	// Performance metrics
-	AverageProcessingTime    time.Duration
-	MinProcessingTime        time.Duration
-	MaxProcessingTime        time.Duration
-	P50ProcessingTime        time.Duration
-	P95ProcessingTime        time.Duration
-	P99ProcessingTime        time.Duration
+	AverageProcessingTime time.Duration
+	MinProcessingTime     time.Duration
+	MaxProcessingTime     time.Duration
+	P50ProcessingTime     time.Duration
+	P95ProcessingTime     time.Duration
+	P99ProcessingTime     time.Duration
 
 	// Throughput metrics
-	CurrentThroughput        float64
-	PeakThroughput           float64
-	AverageThroughput        float64
-	ThroughputTrend          float64
-	ThroughputVariance       float64
-	ThroughputEfficiency     float64
+	CurrentThroughput    float64
+	PeakThroughput       float64
+	AverageThroughput    float64
+	ThroughputTrend      float64
+	ThroughputVariance   float64
+	ThroughputEfficiency float64
 
 	// Resource metrics
-	CPUTimeConsumed          time.Duration
-	MemoryAllocated          int64
-	NetworkBandwidthUsed     int64
-	DiskIOOperations         int64
-	ResourceEfficiency       float64
-	ResourceCost             float64
+	CPUTimeConsumed      time.Duration
+	MemoryAllocated      int64
+	NetworkBandwidthUsed int64
+	DiskIOOperations     int64
+	ResourceEfficiency   float64
+	ResourceCost         float64
 
 	// Queue metrics
-	QueueDepth               int64
-	QueueLatency             time.Duration
-	QueueThroughput          float64
-	BackpressureEvents       int64
-	DroppedEvents            int64
-	QueueEfficiency          float64
+	QueueDepth         int64
+	QueueLatency       time.Duration
+	QueueThroughput    float64
+	BackpressureEvents int64
+	DroppedEvents      int64
+	QueueEfficiency    float64
 
 	// Error metrics
-	ErrorsByType             map[string]int64
-	ErrorRate                float64
-	ErrorTrend               float64
-	RecoveryRate             float64
-	MeanTimeBetweenErrors    time.Duration
-	MeanTimeToRecover        time.Duration
+	ErrorsByType          map[string]int64
+	ErrorRate             float64
+	ErrorTrend            float64
+	RecoveryRate          float64
+	MeanTimeBetweenErrors time.Duration
+	MeanTimeToRecover     time.Duration
 
 	// Business impact
-	BusinessEventsProcessed  int64
-	CriticalEventsProcessed  int64
-	ValueGenerated           float64
-	CostIncurred             float64
-	ROI                      float64
-	CustomerImpact           float64
+	BusinessEventsProcessed int64
+	CriticalEventsProcessed int64
+	ValueGenerated          float64
+	CostIncurred            float64
+	ROI                     float64
+	CustomerImpact          float64
 
 	// Optimization metrics
-	OptimizationApplied      int64
-	OptimizationGains        float64
-	EfficiencyImprovement    float64
-	CostReduction            float64
-	PerformanceImprovement   float64
-	QualityImprovement       float64
+	OptimizationApplied    int64
+	OptimizationGains      float64
+	EfficiencyImprovement  float64
+	CostReduction          float64
+	PerformanceImprovement float64
+	QualityImprovement     float64
 
 	// Compliance metrics
-	ComplianceChecks         int64
-	ComplianceViolations     int64
-	AuditEvents              int64
-	SecurityEvents           int64
-	PrivacyEvents            int64
-	ComplianceRate           float64
+	ComplianceChecks     int64
+	ComplianceViolations int64
+	AuditEvents          int64
+	SecurityEvents       int64
+	PrivacyEvents        int64
+	ComplianceRate       float64
 }
 
 // SchedulingStreamingPerformanceMetrics represents performance metrics
 type SchedulingStreamingPerformanceMetrics struct {
 	// Latency metrics
-	EndToEndLatency          time.Duration
-	ProcessingLatency        time.Duration
-	QueueingLatency          time.Duration
-	NetworkLatency           time.Duration
-	StorageLatency           time.Duration
-	TotalLatency             time.Duration
+	EndToEndLatency   time.Duration
+	ProcessingLatency time.Duration
+	QueueingLatency   time.Duration
+	NetworkLatency    time.Duration
+	StorageLatency    time.Duration
+	TotalLatency      time.Duration
 
 	// Latency percentiles
-	P50Latency               time.Duration
-	P90Latency               time.Duration
-	P95Latency               time.Duration
-	P99Latency               time.Duration
-	P999Latency              time.Duration
-	MaxLatency               time.Duration
+	P50Latency  time.Duration
+	P90Latency  time.Duration
+	P95Latency  time.Duration
+	P99Latency  time.Duration
+	P999Latency time.Duration
+	MaxLatency  time.Duration
 
 	// Throughput metrics
-	EventsPerSecond          float64
-	BytesPerSecond           float64
-	RecordsPerSecond         float64
-	TransactionsPerSecond    float64
-	OperationsPerSecond      float64
-	PeakThroughput           float64
+	EventsPerSecond       float64
+	BytesPerSecond        float64
+	RecordsPerSecond      float64
+	TransactionsPerSecond float64
+	OperationsPerSecond   float64
+	PeakThroughput        float64
 
 	// Efficiency metrics
-	ProcessingEfficiency     float64
-	ResourceEfficiency       float64
-	CostEfficiency           float64
-	EnergyEfficiency         float64
-	SpaceEfficiency          float64
-	TimeEfficiency           float64
+	ProcessingEfficiency float64
+	ResourceEfficiency   float64
+	CostEfficiency       float64
+	EnergyEfficiency     float64
+	SpaceEfficiency      float64
+	TimeEfficiency       float64
 
 	// Scalability metrics
-	ScalabilityIndex         float64
-	ElasticityScore          float64
-	LoadBalancingEfficiency  float64
-	PartitioningEfficiency   float64
-	ShardingEfficiency       float64
-	ReplicationEfficiency    float64
+	ScalabilityIndex        float64
+	ElasticityScore         float64
+	LoadBalancingEfficiency float64
+	PartitioningEfficiency  float64
+	ShardingEfficiency      float64
+	ReplicationEfficiency   float64
 
 	// Quality metrics
-	DataQualityScore         float64
-	ProcessingAccuracy       float64
-	DeliveryReliability      float64
-	ConsistencyScore         float64
-	CompletenessScore        float64
-	TimelinessScore          float64
+	DataQualityScore    float64
+	ProcessingAccuracy  float64
+	DeliveryReliability float64
+	ConsistencyScore    float64
+	CompletenessScore   float64
+	TimelinessScore     float64
 
 	// Optimization metrics
-	OptimizationScore        float64
-	AutomationLevel          float64
-	IntelligenceScore        float64
-	AdaptabilityScore        float64
-	LearningRate             float64
-	ImprovementRate          float64
+	OptimizationScore float64
+	AutomationLevel   float64
+	IntelligenceScore float64
+	AdaptabilityScore float64
+	LearningRate      float64
+	ImprovementRate   float64
 
 	// Business metrics
-	BusinessValueDelivered   float64
-	CustomerSatisfaction     float64
-	SLAAttainment            float64
-	CostPerformanceRatio     float64
-	ROIScore                 float64
-	CompetitiveAdvantage     float64
+	BusinessValueDelivered float64
+	CustomerSatisfaction   float64
+	SLAAttainment          float64
+	CostPerformanceRatio   float64
+	ROIScore               float64
+	CompetitiveAdvantage   float64
 
 	// Capacity metrics
-	CapacityUtilization      float64
-	HeadroomAvailable        float64
-	ScalingPotential         float64
-	GrowthCapability         float64
-	BurstCapacity            float64
-	SustainedCapacity        float64
+	CapacityUtilization float64
+	HeadroomAvailable   float64
+	ScalingPotential    float64
+	GrowthCapability    float64
+	BurstCapacity       float64
+	SustainedCapacity   float64
 
 	// Reliability metrics
-	Availability             float64
-	Reliability              float64
-	Durability               float64
-	FaultTolerance           float64
-	RecoverabilityScore      float64
-	ResilienceScore          float64
+	Availability        float64
+	Reliability         float64
+	Durability          float64
+	FaultTolerance      float64
+	RecoverabilityScore float64
+	ResilienceScore     float64
 }
 
 // JobSchedulingStreamingCollector collects job scheduling streaming metrics
 type JobSchedulingStreamingCollector struct {
-	client                      JobSchedulingStreamingSLURMClient
-	schedulingEvents            *prometheus.Desc
-	activeSchedulingStreams     *prometheus.Desc
-	streamingHealthScore        *prometheus.Desc
-	schedulingLatency           *prometheus.Desc
-	schedulingThroughput        *prometheus.Desc
-	schedulingEfficiency        *prometheus.Desc
-	decisionConfidence          *prometheus.Desc
-	resourceAllocationScore     *prometheus.Desc
-	queueOptimization           *prometheus.Desc
-	backfillEffectiveness       *prometheus.Desc
-	preemptionImpact            *prometheus.Desc
-	fairnessScore               *prometheus.Desc
-	businessValueDelivered      *prometheus.Desc
-	slaCompliance               *prometheus.Desc
-	costEfficiency              *prometheus.Desc
-	optimizationGains           *prometheus.Desc
-	anomalyDetectionRate        *prometheus.Desc
-	predictionAccuracy          *prometheus.Desc
-	systemUtilization           *prometheus.Desc
-	streamConfigMetrics         map[string]*prometheus.Desc
-	eventFilterMetrics          map[string]*prometheus.Desc
-	subscriptionMetrics         map[string]*prometheus.Desc
-	processingStatsMetrics      map[string]*prometheus.Desc
-	performanceMetrics          map[string]*prometheus.Desc
+	client                  JobSchedulingStreamingSLURMClient
+	schedulingEvents        *prometheus.Desc
+	activeSchedulingStreams *prometheus.Desc
+	streamingHealthScore    *prometheus.Desc
+	schedulingLatency       *prometheus.Desc
+	schedulingThroughput    *prometheus.Desc
+	schedulingEfficiency    *prometheus.Desc
+	decisionConfidence      *prometheus.Desc
+	resourceAllocationScore *prometheus.Desc
+	queueOptimization       *prometheus.Desc
+	backfillEffectiveness   *prometheus.Desc
+	preemptionImpact        *prometheus.Desc
+	fairnessScore           *prometheus.Desc
+	businessValueDelivered  *prometheus.Desc
+	slaCompliance           *prometheus.Desc
+	costEfficiency          *prometheus.Desc
+	optimizationGains       *prometheus.Desc
+	anomalyDetectionRate    *prometheus.Desc
+	predictionAccuracy      *prometheus.Desc
+	systemUtilization       *prometheus.Desc
+	streamConfigMetrics     map[string]*prometheus.Desc
+	eventFilterMetrics      map[string]*prometheus.Desc
+	subscriptionMetrics     map[string]*prometheus.Desc
+	processingStatsMetrics  map[string]*prometheus.Desc
+	performanceMetrics      map[string]*prometheus.Desc
 }
 
 // NewJobSchedulingStreamingCollector creates a new job scheduling streaming collector
@@ -924,11 +924,11 @@ func NewJobSchedulingStreamingCollector(client JobSchedulingStreamingSLURMClient
 			[]string{"resource_type"},
 			nil,
 		),
-		streamConfigMetrics: make(map[string]*prometheus.Desc),
-		eventFilterMetrics:  make(map[string]*prometheus.Desc),
-		subscriptionMetrics: make(map[string]*prometheus.Desc),
+		streamConfigMetrics:    make(map[string]*prometheus.Desc),
+		eventFilterMetrics:     make(map[string]*prometheus.Desc),
+		subscriptionMetrics:    make(map[string]*prometheus.Desc),
 		processingStatsMetrics: make(map[string]*prometheus.Desc),
-		performanceMetrics: make(map[string]*prometheus.Desc),
+		performanceMetrics:     make(map[string]*prometheus.Desc),
 	}
 }
 
@@ -1009,28 +1009,28 @@ func (c *JobSchedulingStreamingCollector) collectStreamingConfiguration(ctx cont
 
 	// Configuration enabled/disabled metrics
 	configurations := map[string]bool{
-		"streaming_enabled":        config.StreamingEnabled,
-		"compression_enabled":      config.CompressionEnabled,
-		"encryption_enabled":       config.EncryptionEnabled,
-		"batch_processing":         config.BatchProcessing,
-		"parallel_processing":      config.ParallelProcessing,
-		"event_filtering":          config.EventFiltering,
-		"event_routing":            config.EventRouting,
-		"priority_queuing":         config.PriorityQueuing,
-		"guaranteed_delivery":      config.GuaranteedDelivery,
-		"ordering_guaranteed":      config.OrderingGuaranteed,
-		"duplicate_detection":      config.DuplicateDetection,
-		"metrics_enabled":          config.MetricsEnabled,
-		"tracing_enabled":          config.TracingEnabled,
-		"profiling_enabled":        config.ProfilingEnabled,
-		"authentication_required":  config.AuthenticationRequired,
-		"authorization_required":   config.AuthorizationRequired,
-		"audit_logging_enabled":    config.AuditLoggingEnabled,
-		"event_enrichment":         config.EventEnrichment,
-		"correlation_enabled":      config.CorrelationEnabled,
-		"adaptive_streaming":       config.AdaptiveStreaming,
-		"ml_prediction":            config.MLPrediction,
-		"anomaly_detection":        config.AnomalyDetection,
+		"streaming_enabled":       config.StreamingEnabled,
+		"compression_enabled":     config.CompressionEnabled,
+		"encryption_enabled":      config.EncryptionEnabled,
+		"batch_processing":        config.BatchProcessing,
+		"parallel_processing":     config.ParallelProcessing,
+		"event_filtering":         config.EventFiltering,
+		"event_routing":           config.EventRouting,
+		"priority_queuing":        config.PriorityQueuing,
+		"guaranteed_delivery":     config.GuaranteedDelivery,
+		"ordering_guaranteed":     config.OrderingGuaranteed,
+		"duplicate_detection":     config.DuplicateDetection,
+		"metrics_enabled":         config.MetricsEnabled,
+		"tracing_enabled":         config.TracingEnabled,
+		"profiling_enabled":       config.ProfilingEnabled,
+		"authentication_required": config.AuthenticationRequired,
+		"authorization_required":  config.AuthorizationRequired,
+		"audit_logging_enabled":   config.AuditLoggingEnabled,
+		"event_enrichment":        config.EventEnrichment,
+		"correlation_enabled":     config.CorrelationEnabled,
+		"adaptive_streaming":      config.AdaptiveStreaming,
+		"ml_prediction":           config.MLPrediction,
+		"anomaly_detection":       config.AnomalyDetection,
 	}
 
 	for name, enabled := range configurations {
@@ -1057,18 +1057,18 @@ func (c *JobSchedulingStreamingCollector) collectStreamingConfiguration(ctx cont
 
 	// Numeric configuration metrics
 	numericConfigs := map[string]float64{
-		"event_buffer_size":      float64(config.EventBufferSize),
-		"event_batch_size":       float64(config.EventBatchSize),
-		"max_concurrent_streams": float64(config.MaxConcurrentStreams),
-		"compression_level":      float64(config.CompressionLevel),
-		"max_retries":            float64(config.MaxRetries),
-		"backoff_multiplier":     config.BackoffMultiplier,
-		"sampling_rate":          config.SamplingRate,
-		"max_memory_usage":       float64(config.MaxMemoryUsage),
-		"max_cpu_usage":          config.MaxCPUUsage,
-		"max_bandwidth":          float64(config.MaxBandwidth),
-		"max_events_per_second":  float64(config.MaxEventsPerSecond),
-		"backpressure_threshold": float64(config.BackpressureThreshold),
+		"event_buffer_size":         float64(config.EventBufferSize),
+		"event_batch_size":          float64(config.EventBatchSize),
+		"max_concurrent_streams":    float64(config.MaxConcurrentStreams),
+		"compression_level":         float64(config.CompressionLevel),
+		"max_retries":               float64(config.MaxRetries),
+		"backoff_multiplier":        config.BackoffMultiplier,
+		"sampling_rate":             config.SamplingRate,
+		"max_memory_usage":          float64(config.MaxMemoryUsage),
+		"max_cpu_usage":             config.MaxCPUUsage,
+		"max_bandwidth":             float64(config.MaxBandwidth),
+		"max_events_per_second":     float64(config.MaxEventsPerSecond),
+		"backpressure_threshold":    float64(config.BackpressureThreshold),
 		"circuit_breaker_threshold": config.CircuitBreakerThreshold,
 	}
 
@@ -1286,12 +1286,12 @@ func (c *JobSchedulingStreamingCollector) collectHealthStatus(ctx context.Contex
 
 	// Component health scores
 	componentHealth := map[string]float64{
-		"stream":      health.StreamHealth,
-		"processing":  health.ProcessingHealth,
-		"storage":     health.StorageHealth,
-		"network":     health.NetworkHealth,
-		"security":    health.SecurityHealth,
-		"compliance":  health.ComplianceHealth,
+		"stream":     health.StreamHealth,
+		"processing": health.ProcessingHealth,
+		"storage":    health.StorageHealth,
+		"network":    health.NetworkHealth,
+		"security":   health.SecurityHealth,
+		"compliance": health.ComplianceHealth,
 	}
 
 	for component, score := range componentHealth {
@@ -1343,19 +1343,19 @@ func (c *JobSchedulingStreamingCollector) collectHealthStatus(ctx context.Contex
 
 	// Risk indicators
 	riskMetrics := map[string]float64{
-		"overall":       health.RiskScore,
-		"security":      health.SecurityRisk,
-		"operational":   health.OperationalRisk,
-		"compliance":    health.ComplianceRisk,
-		"financial":     health.FinancialRisk,
-		"reputational":  health.ReputationalRisk,
+		"overall":      health.RiskScore,
+		"security":     health.SecurityRisk,
+		"operational":  health.OperationalRisk,
+		"compliance":   health.ComplianceRisk,
+		"financial":    health.FinancialRisk,
+		"reputational": health.ReputationalRisk,
 	}
 
 	for risk, score := range riskMetrics {
 		ch <- prometheus.MustNewConstMetric(
 			c.streamingHealthScore,
 			prometheus.GaugeValue,
-			1.0 - score, // Invert for health score
+			1.0-score, // Invert for health score
 			"risk_"+risk, "active",
 		)
 	}
@@ -1574,16 +1574,16 @@ func (c *JobSchedulingStreamingCollector) collectPerformanceMetrics(ctx context.
 
 	// Latency metrics
 	latencyMetrics := map[string]time.Duration{
-		"end_to_end":  perf.EndToEndLatency,
-		"processing":  perf.ProcessingLatency,
-		"queueing":    perf.QueueingLatency,
-		"network":     perf.NetworkLatency,
-		"storage":     perf.StorageLatency,
-		"p50":         perf.P50Latency,
-		"p90":         perf.P90Latency,
-		"p95":         perf.P95Latency,
-		"p99":         perf.P99Latency,
-		"p999":        perf.P999Latency,
+		"end_to_end": perf.EndToEndLatency,
+		"processing": perf.ProcessingLatency,
+		"queueing":   perf.QueueingLatency,
+		"network":    perf.NetworkLatency,
+		"storage":    perf.StorageLatency,
+		"p50":        perf.P50Latency,
+		"p90":        perf.P90Latency,
+		"p95":        perf.P95Latency,
+		"p99":        perf.P99Latency,
+		"p999":       perf.P999Latency,
 	}
 
 	for name, latency := range latencyMetrics {
@@ -1612,12 +1612,12 @@ func (c *JobSchedulingStreamingCollector) collectPerformanceMetrics(ctx context.
 
 	// Efficiency metrics
 	efficiencyMetrics := map[string]float64{
-		"processing":    perf.ProcessingEfficiency,
-		"resource":      perf.ResourceEfficiency,
-		"cost":          perf.CostEfficiency,
-		"energy":        perf.EnergyEfficiency,
-		"space":         perf.SpaceEfficiency,
-		"time":          perf.TimeEfficiency,
+		"processing": perf.ProcessingEfficiency,
+		"resource":   perf.ResourceEfficiency,
+		"cost":       perf.CostEfficiency,
+		"energy":     perf.EnergyEfficiency,
+		"space":      perf.SpaceEfficiency,
+		"time":       perf.TimeEfficiency,
 	}
 
 	for name, efficiency := range efficiencyMetrics {

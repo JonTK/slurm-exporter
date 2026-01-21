@@ -2,7 +2,6 @@ package auth
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -120,7 +119,7 @@ func readSecretFile(filename, secretType string) (string, error) {
 	}
 
 	// Read the file
-	content, err := ioutil.ReadFile(filename)
+	content, err := os.ReadFile(filename)
 	if err != nil {
 		return "", fmt.Errorf("failed to read %s from file %s: %w", secretType, filename, err)
 	}
@@ -169,9 +168,10 @@ func (s *ServiceAccountAuth) ToAuthProvider() (slurmauth.Provider, error) {
 
 // RefreshableAuth provides an authentication mechanism that can refresh tokens
 type RefreshableAuth struct {
-	provider     slurmauth.Provider
-	refreshFunc  func() (slurmauth.Provider, error)
-	lastRefresh  int64
+	provider    slurmauth.Provider
+	refreshFunc func() (slurmauth.Provider, error)
+	// TODO: Unused field - preserved for future refresh tracking
+	// lastRefresh  int64
 	refreshAfter int64 // seconds
 }
 

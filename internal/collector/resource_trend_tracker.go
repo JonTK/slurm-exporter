@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"math"
+	// Commented out as only used in commented-out trend analysis functions
+	// "math"
 	"sync"
 	"time"
 
@@ -14,58 +15,58 @@ import (
 
 // ResourceTrendTracker tracks and analyzes resource utilization trends for pattern identification
 type ResourceTrendTracker struct {
-	slurmClient      slurm.SlurmClient
-	logger           *slog.Logger
-	config           *TrendConfig
-	metrics          *TrendMetrics
-	mu               sync.RWMutex
+	slurmClient slurm.SlurmClient
+	logger      *slog.Logger
+	config      *TrendConfig
+	metrics     *TrendMetrics
+	mu          sync.RWMutex
 
 	// Trend data storage
-	trendData        map[string]*JobResourceTrends
-	historicalData   map[string][]*ResourceSnapshot
-	patternCache     map[string]*IdentifiedPattern
-	cacheTTL         time.Duration
-	lastCollection   time.Time
+	trendData      map[string]*JobResourceTrends
+	historicalData map[string][]*ResourceSnapshot
+	patternCache   map[string]*IdentifiedPattern
+	cacheTTL       time.Duration
+	lastCollection time.Time
 }
 
 // TrendConfig holds configuration for trend tracking
 type TrendConfig struct {
-	TrackingInterval       time.Duration `yaml:"tracking_interval"`
-	MaxJobsPerCollection   int           `yaml:"max_jobs_per_collection"`
-	HistoryRetentionPeriod time.Duration `yaml:"history_retention_period"`
-	MinDataPointsForTrend  int           `yaml:"min_data_points_for_trend"`
-	TrendSensitivity       float64       `yaml:"trend_sensitivity"`      // 0.0 to 1.0
-	PatternDetectionWindow time.Duration `yaml:"pattern_detection_window"`
-	EnablePredictiveAnalysis bool        `yaml:"enable_predictive_analysis"`
-	CacheTTL               time.Duration `yaml:"cache_ttl"`
+	TrackingInterval         time.Duration `yaml:"tracking_interval"`
+	MaxJobsPerCollection     int           `yaml:"max_jobs_per_collection"`
+	HistoryRetentionPeriod   time.Duration `yaml:"history_retention_period"`
+	MinDataPointsForTrend    int           `yaml:"min_data_points_for_trend"`
+	TrendSensitivity         float64       `yaml:"trend_sensitivity"` // 0.0 to 1.0
+	PatternDetectionWindow   time.Duration `yaml:"pattern_detection_window"`
+	EnablePredictiveAnalysis bool          `yaml:"enable_predictive_analysis"`
+	CacheTTL                 time.Duration `yaml:"cache_ttl"`
 
 	// Trend analysis parameters
-	ShortTermWindow        time.Duration `yaml:"short_term_window"`      // 5 minutes
-	MediumTermWindow       time.Duration `yaml:"medium_term_window"`     // 30 minutes
-	LongTermWindow         time.Duration `yaml:"long_term_window"`       // 2 hours
+	ShortTermWindow  time.Duration `yaml:"short_term_window"`  // 5 minutes
+	MediumTermWindow time.Duration `yaml:"medium_term_window"` // 30 minutes
+	LongTermWindow   time.Duration `yaml:"long_term_window"`   // 2 hours
 
 	// Pattern detection thresholds
-	PeriodicPatternThreshold    float64 `yaml:"periodic_pattern_threshold"`     // 0.7
-	SeasonalPatternThreshold    float64 `yaml:"seasonal_pattern_threshold"`     // 0.8
-	AnomalyDetectionThreshold   float64 `yaml:"anomaly_detection_threshold"`    // 0.9
-	TrendChangeThreshold        float64 `yaml:"trend_change_threshold"`         // 0.3
+	PeriodicPatternThreshold  float64 `yaml:"periodic_pattern_threshold"`  // 0.7
+	SeasonalPatternThreshold  float64 `yaml:"seasonal_pattern_threshold"`  // 0.8
+	AnomalyDetectionThreshold float64 `yaml:"anomaly_detection_threshold"` // 0.9
+	TrendChangeThreshold      float64 `yaml:"trend_change_threshold"`      // 0.3
 }
 
 // JobResourceTrends represents comprehensive resource trend analysis for a job
 type JobResourceTrends struct {
-	JobID             string    `json:"job_id"`
-	LastUpdated       time.Time `json:"last_updated"`
+	JobID       string    `json:"job_id"`
+	LastUpdated time.Time `json:"last_updated"`
 
 	// Resource trend analysis
-	CPUTrend          *ResourceTrend `json:"cpu_trend"`
-	MemoryTrend       *ResourceTrend `json:"memory_trend"`
-	IOTrend           *ResourceTrend `json:"io_trend"`
-	NetworkTrend      *ResourceTrend `json:"network_trend"`
+	CPUTrend     *ResourceTrend `json:"cpu_trend"`
+	MemoryTrend  *ResourceTrend `json:"memory_trend"`
+	IOTrend      *ResourceTrend `json:"io_trend"`
+	NetworkTrend *ResourceTrend `json:"network_trend"`
 
 	// Overall trend indicators
-	OverallTrend      string    `json:"overall_trend"`      // "increasing", "decreasing", "stable", "volatile"
-	TrendStrength     float64   `json:"trend_strength"`     // 0.0 to 1.0
-	TrendConfidence   float64   `json:"trend_confidence"`   // 0.0 to 1.0
+	OverallTrend    string  `json:"overall_trend"`    // "increasing", "decreasing", "stable", "volatile"
+	TrendStrength   float64 `json:"trend_strength"`   // 0.0 to 1.0
+	TrendConfidence float64 `json:"trend_confidence"` // 0.0 to 1.0
 
 	// Pattern identification
 	IdentifiedPatterns []IdentifiedPattern `json:"identified_patterns"`
@@ -80,115 +81,115 @@ type JobResourceTrends struct {
 
 // ResourceTrend represents trend analysis for a specific resource type
 type ResourceTrend struct {
-	ResourceType      string    `json:"resource_type"`      // "cpu", "memory", "io", "network"
-	Direction         string    `json:"direction"`          // "increasing", "decreasing", "stable"
-	Slope             float64   `json:"slope"`              // Rate of change
-	RSquared          float64   `json:"r_squared"`          // Trend fit quality (0.0 to 1.0)
-	ShortTermTrend    string    `json:"short_term_trend"`   // Last 5 minutes
-	MediumTermTrend   string    `json:"medium_term_trend"`  // Last 30 minutes
-	LongTermTrend     string    `json:"long_term_trend"`    // Last 2 hours
-	Volatility        float64   `json:"volatility"`         // Measure of variance
+	ResourceType          string    `json:"resource_type"`     // "cpu", "memory", "io", "network"
+	Direction             string    `json:"direction"`         // "increasing", "decreasing", "stable"
+	Slope                 float64   `json:"slope"`             // Rate of change
+	RSquared              float64   `json:"r_squared"`         // Trend fit quality (0.0 to 1.0)
+	ShortTermTrend        string    `json:"short_term_trend"`  // Last 5 minutes
+	MediumTermTrend       string    `json:"medium_term_trend"` // Last 30 minutes
+	LongTermTrend         string    `json:"long_term_trend"`   // Last 2 hours
+	Volatility            float64   `json:"volatility"`        // Measure of variance
 	LastSignificantChange time.Time `json:"last_significant_change"`
 }
 
 // ResourceSnapshot represents a point-in-time resource utilization measurement
 type ResourceSnapshot struct {
-	Timestamp         time.Time `json:"timestamp"`
-	CPUUtilization    float64   `json:"cpu_utilization"`
-	MemoryUtilization float64   `json:"memory_utilization"`
-	IOUtilization     float64   `json:"io_utilization"`
-	NetworkUtilization float64  `json:"network_utilization"`
-	CPUAllocated      float64   `json:"cpu_allocated"`
-	MemoryAllocated   int64     `json:"memory_allocated"`
+	Timestamp          time.Time `json:"timestamp"`
+	CPUUtilization     float64   `json:"cpu_utilization"`
+	MemoryUtilization  float64   `json:"memory_utilization"`
+	IOUtilization      float64   `json:"io_utilization"`
+	NetworkUtilization float64   `json:"network_utilization"`
+	CPUAllocated       float64   `json:"cpu_allocated"`
+	MemoryAllocated    int64     `json:"memory_allocated"`
 }
 
 // IdentifiedPattern represents a detected usage pattern
 type IdentifiedPattern struct {
-	Type              string    `json:"type"`               // "periodic", "seasonal", "burst", "gradual_increase"
-	Confidence        float64   `json:"confidence"`         // 0.0 to 1.0
+	Type              string        `json:"type"`             // "periodic", "seasonal", "burst", "gradual_increase"
+	Confidence        float64       `json:"confidence"`       // 0.0 to 1.0
 	Period            time.Duration `json:"period,omitempty"` // For periodic patterns
-	Amplitude         float64   `json:"amplitude"`          // Pattern strength
-	Phase             float64   `json:"phase,omitempty"`    // For periodic patterns
-	Description       string    `json:"description"`
-	FirstDetected     time.Time `json:"first_detected"`
-	LastSeen          time.Time `json:"last_seen"`
-	ResourcesAffected []string  `json:"resources_affected"` // Which resources show this pattern
+	Amplitude         float64       `json:"amplitude"`        // Pattern strength
+	Phase             float64       `json:"phase,omitempty"`  // For periodic patterns
+	Description       string        `json:"description"`
+	FirstDetected     time.Time     `json:"first_detected"`
+	LastSeen          time.Time     `json:"last_seen"`
+	ResourcesAffected []string      `json:"resources_affected"` // Which resources show this pattern
 }
 
 // PeakUsagePrediction represents predicted peak resource usage
 type PeakUsagePrediction struct {
-	PredictedTime     time.Time `json:"predicted_time"`
-	CPUPeakUsage      float64   `json:"cpu_peak_usage"`
-	MemoryPeakUsage   float64   `json:"memory_peak_usage"`
-	IOPeakUsage       float64   `json:"io_peak_usage"`
-	NetworkPeakUsage  float64   `json:"network_peak_usage"`
-	Confidence        float64   `json:"confidence"`
+	PredictedTime    time.Time `json:"predicted_time"`
+	CPUPeakUsage     float64   `json:"cpu_peak_usage"`
+	MemoryPeakUsage  float64   `json:"memory_peak_usage"`
+	IOPeakUsage      float64   `json:"io_peak_usage"`
+	NetworkPeakUsage float64   `json:"network_peak_usage"`
+	Confidence       float64   `json:"confidence"`
 }
 
 // ResourceAnomaly represents a detected anomaly in resource usage
 type ResourceAnomaly struct {
-	Type              string    `json:"type"`               // "spike", "drop", "plateau", "oscillation"
-	ResourceType      string    `json:"resource_type"`
-	Severity          string    `json:"severity"`           // "low", "medium", "high", "critical"
-	DetectedAt        time.Time `json:"detected_at"`
-	Duration          time.Duration `json:"duration"`
-	ExpectedValue     float64   `json:"expected_value"`
-	ActualValue       float64   `json:"actual_value"`
-	Deviation         float64   `json:"deviation"`          // How far from expected
-	Description       string    `json:"description"`
+	Type          string        `json:"type"` // "spike", "drop", "plateau", "oscillation"
+	ResourceType  string        `json:"resource_type"`
+	Severity      string        `json:"severity"` // "low", "medium", "high", "critical"
+	DetectedAt    time.Time     `json:"detected_at"`
+	Duration      time.Duration `json:"duration"`
+	ExpectedValue float64       `json:"expected_value"`
+	ActualValue   float64       `json:"actual_value"`
+	Deviation     float64       `json:"deviation"` // How far from expected
+	Description   string        `json:"description"`
 }
 
 // TrendMetrics holds Prometheus metrics for trend tracking
 type TrendMetrics struct {
 	// Trend direction metrics
-	ResourceTrendDirection     *prometheus.GaugeVec
-	TrendStrength             *prometheus.GaugeVec
-	TrendConfidence           *prometheus.GaugeVec
-	ResourceVolatility        *prometheus.GaugeVec
+	ResourceTrendDirection *prometheus.GaugeVec
+	TrendStrength          *prometheus.GaugeVec
+	TrendConfidence        *prometheus.GaugeVec
+	ResourceVolatility     *prometheus.GaugeVec
 
 	// Pattern detection metrics
-	PatternsDetected          *prometheus.GaugeVec
-	PatternConfidence         *prometheus.GaugeVec
+	PatternsDetected  *prometheus.GaugeVec
+	PatternConfidence *prometheus.GaugeVec
 
 	// Predictive metrics
-	PredictedPeakUsage        *prometheus.GaugeVec
-	ResourceExhaustionTime    *prometheus.GaugeVec
+	PredictedPeakUsage     *prometheus.GaugeVec
+	ResourceExhaustionTime *prometheus.GaugeVec
 
 	// Anomaly detection metrics
-	AnomaliesDetected         *prometheus.GaugeVec
-	AnomalySeverity          *prometheus.GaugeVec
+	AnomaliesDetected *prometheus.GaugeVec
+	AnomalySeverity   *prometheus.GaugeVec
 
 	// Trend analysis metrics
-	ShortTermTrendIndicator   *prometheus.GaugeVec
-	MediumTermTrendIndicator  *prometheus.GaugeVec
-	LongTermTrendIndicator    *prometheus.GaugeVec
+	ShortTermTrendIndicator  *prometheus.GaugeVec
+	MediumTermTrendIndicator *prometheus.GaugeVec
+	LongTermTrendIndicator   *prometheus.GaugeVec
 
 	// Collection performance metrics
-	TrendAnalysisDuration     prometheus.Histogram
-	TrendAnalysisErrors       *prometheus.CounterVec
-	JobsTrendTracked          prometheus.Counter
-	DataPointsCollected       prometheus.Counter
+	TrendAnalysisDuration prometheus.Histogram
+	TrendAnalysisErrors   *prometheus.CounterVec
+	JobsTrendTracked      prometheus.Counter
+	DataPointsCollected   prometheus.Counter
 }
 
 // NewResourceTrendTracker creates a new resource trend tracker
 func NewResourceTrendTracker(slurmClient slurm.SlurmClient, logger *slog.Logger, config *TrendConfig) (*ResourceTrendTracker, error) {
 	if config == nil {
 		config = &TrendConfig{
-			TrackingInterval:         30 * time.Second,
-			MaxJobsPerCollection:     100,
-			HistoryRetentionPeriod:   24 * time.Hour,
-			MinDataPointsForTrend:    5,
-			TrendSensitivity:         0.1,
-			PatternDetectionWindow:   2 * time.Hour,
-			EnablePredictiveAnalysis: true,
-			CacheTTL:                 5 * time.Minute,
-			ShortTermWindow:          5 * time.Minute,
-			MediumTermWindow:         30 * time.Minute,
-			LongTermWindow:           2 * time.Hour,
-			PeriodicPatternThreshold:   0.7,
-			SeasonalPatternThreshold:   0.8,
-			AnomalyDetectionThreshold:  0.9,
-			TrendChangeThreshold:       0.3,
+			TrackingInterval:          30 * time.Second,
+			MaxJobsPerCollection:      100,
+			HistoryRetentionPeriod:    24 * time.Hour,
+			MinDataPointsForTrend:     5,
+			TrendSensitivity:          0.1,
+			PatternDetectionWindow:    2 * time.Hour,
+			EnablePredictiveAnalysis:  true,
+			CacheTTL:                  5 * time.Minute,
+			ShortTermWindow:           5 * time.Minute,
+			MediumTermWindow:          30 * time.Minute,
+			LongTermWindow:            2 * time.Hour,
+			PeriodicPatternThreshold:  0.7,
+			SeasonalPatternThreshold:  0.8,
+			AnomalyDetectionThreshold: 0.9,
+			TrendChangeThreshold:      0.3,
 		}
 	}
 
@@ -409,25 +410,25 @@ func (t *ResourceTrendTracker) trackResourceTrends(ctx context.Context) error {
 	// Skipping job processing for now
 	_ = jobs // Suppress unused variable warning
 	/*
-	for _, job := range jobs.Jobs {
-		// Create current snapshot
-		snapshot := t.createResourceSnapshot(job)
+		for _, job := range jobs.Jobs {
+			// Create current snapshot
+			snapshot := t.createResourceSnapshot(job)
 
-		// Add to historical data
-		t.addHistoricalSnapshot(job.JobID, snapshot)
+			// Add to historical data
+			t.addHistoricalSnapshot(job.JobID, snapshot)
 
-		// Analyze trends if we have enough data
-		if len(t.historicalData[job.JobID]) >= t.config.MinDataPointsForTrend {
-			trends := t.analyzeJobResourceTrends(job)
-			t.trendData[job.JobID] = trends
+			// Analyze trends if we have enough data
+			if len(t.historicalData[job.JobID]) >= t.config.MinDataPointsForTrend {
+				trends := t.analyzeJobResourceTrends(job)
+				t.trendData[job.JobID] = trends
 
-			// Update metrics
-			t.updateTrendMetrics(job, trends)
+				// Update metrics
+				t.updateTrendMetrics(job, trends)
+			}
+
+			t.metrics.JobsTrendTracked.Inc()
+			t.metrics.DataPointsCollected.Inc()
 		}
-
-		t.metrics.JobsTrendTracked.Inc()
-		t.metrics.DataPointsCollected.Inc()
-	}
 	*/
 
 	// Clean old historical data
@@ -437,6 +438,8 @@ func (t *ResourceTrendTracker) trackResourceTrends(ctx context.Context) error {
 	return nil
 }
 
+// TODO: Following resource trend analysis methods are unused - preserved for future trend tracking implementation
+/*
 // createResourceSnapshot creates a resource snapshot from current job data
 func (t *ResourceTrendTracker) createResourceSnapshot(job *slurm.Job) *ResourceSnapshot {
 	snapshot := &ResourceSnapshot{
@@ -1213,6 +1216,7 @@ func (t *ResourceTrendTracker) severityToFloat(severity string) float64 {
 		return 0.0
 	}
 }
+*/
 
 // cleanOldHistoricalData removes old historical data beyond retention period
 func (t *ResourceTrendTracker) cleanOldHistoricalData() {

@@ -43,7 +43,7 @@ func NewSLURMAPIHealthCheck(client SLURMClient, timeout time.Duration) CheckFunc
 		defer cancel()
 
 		check := Check{
-			Status:   StatusUnknown,
+			Status: StatusUnknown,
 			Metadata: map[string]string{
 				"timeout": timeout.String(),
 			},
@@ -73,7 +73,7 @@ func NewSLURMAPIHealthCheck(client SLURMClient, timeout time.Duration) CheckFunc
 		check.Status = StatusHealthy
 		check.Message = "SLURM API is responding normally"
 		check.Metadata["info_successful"] = "true"
-		
+
 		// Add some info details if available
 		if info != nil {
 			check.Metadata["slurm_info_available"] = "true"
@@ -93,7 +93,7 @@ func NewCollectorsHealthCheck(registry CollectorRegistry, threshold time.Duratio
 		}
 
 		states := registry.GetStates()
-		
+
 		var unhealthy, degraded, healthy []string
 		var totalCollectors, enabledCollectors, errorCollectors int
 
@@ -221,12 +221,12 @@ func NewMemoryHealthCheck(cfg config.PerformanceMonitoringConfig) CheckFunc {
 		// Determine status based on heap usage and threshold
 		if cfg.MemoryThreshold > 0 && heapUsed > uint64(cfg.MemoryThreshold) {
 			check.Status = StatusUnhealthy
-			check.Message = fmt.Sprintf("Memory usage too high: %d MB (threshold: %d MB)", 
+			check.Message = fmt.Sprintf("Memory usage too high: %d MB (threshold: %d MB)",
 				heapUsed/1024/1024, cfg.MemoryThreshold/1024/1024)
 			check.Error = "Memory usage exceeds threshold"
 		} else if cfg.MemoryThreshold > 0 && heapUsed > uint64(float64(cfg.MemoryThreshold)*0.8) {
 			check.Status = StatusDegraded
-			check.Message = fmt.Sprintf("Memory usage elevated: %d MB (threshold: %d MB)", 
+			check.Message = fmt.Sprintf("Memory usage elevated: %d MB (threshold: %d MB)",
 				heapUsed/1024/1024, cfg.MemoryThreshold/1024/1024)
 		} else {
 			check.Status = StatusHealthy
@@ -243,7 +243,7 @@ func NewMemoryHealthCheck(cfg config.PerformanceMonitoringConfig) CheckFunc {
 func NewDiskHealthCheck(path string, threshold float64) CheckFunc {
 	return func(ctx context.Context) Check {
 		check := Check{
-			Status:   StatusHealthy,
+			Status: StatusHealthy,
 			Metadata: map[string]string{
 				"path":      path,
 				"threshold": fmt.Sprintf("%.1f", threshold),
@@ -333,7 +333,7 @@ func NewCircuitBreakerHealthCheck(getStatuses func() map[string]interface{}) Che
 		}
 
 		statuses := getStatuses()
-		
+
 		var unhealthy, degraded []string
 		healthyCount := 0
 
@@ -343,7 +343,7 @@ func NewCircuitBreakerHealthCheck(getStatuses func() map[string]interface{}) Che
 				if state, exists := statusMap["state"]; exists {
 					stateStr := fmt.Sprintf("%v", state)
 					check.Metadata[fmt.Sprintf("circuit_breaker_%s_state", name)] = stateStr
-					
+
 					switch stateStr {
 					case "open":
 						unhealthy = append(unhealthy, name)

@@ -175,7 +175,6 @@ func CreateMetricInfo(name string, metricType MetricType, desc string) MetricInf
 	return info
 }
 
-
 // DefaultMetricFilterConfig returns a default metric filter configuration
 func DefaultMetricFilterConfig() config.MetricFilterConfig {
 	return config.MetricFilterConfig{

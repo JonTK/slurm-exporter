@@ -19,12 +19,12 @@ import (
 // BaseTestSuite provides common testing utilities for all test suites
 type BaseTestSuite struct {
 	suite.Suite
-	ctrl       *gomock.Controller
-	metrics    *TestMetricsRegistry
-	clock      *TestClock
-	logger     *TestLogger
-	ctx        context.Context
-	cancel     context.CancelFunc
+	ctrl    *gomock.Controller
+	metrics *TestMetricsRegistry
+	clock   *TestClock
+	logger  *TestLogger
+	ctx     context.Context
+	cancel  context.CancelFunc
 }
 
 // SetupTest initializes common test resources
@@ -105,7 +105,7 @@ func (tmr *TestMetricsRegistry) Reset() {
 func (tmr *TestMetricsRegistry) RecordMetric(name string, value float64, labels map[string]string) {
 	tmr.mu.Lock()
 	defer tmr.mu.Unlock()
-	
+
 	tmr.metrics[name] = &TestMetric{
 		Name:   name,
 		Value:  value,
@@ -189,15 +189,15 @@ type TestLogEntry struct {
 func NewTestLogger() *TestLogger {
 	logger := logrus.New()
 	logger.SetLevel(logrus.DebugLevel)
-	
+
 	tl := &TestLogger{
 		entries: make([]TestLogEntry, 0),
 		logger:  logger,
 	}
-	
+
 	// Add hook to capture log entries
 	logger.AddHook(&testLogHook{logger: tl})
-	
+
 	return tl
 }
 
@@ -215,7 +215,7 @@ func (tl *TestLogger) GetEntry() *logrus.Entry {
 func (tl *TestLogger) GetEntries() []TestLogEntry {
 	tl.mu.RLock()
 	defer tl.mu.RUnlock()
-	
+
 	entries := make([]TestLogEntry, len(tl.entries))
 	copy(entries, tl.entries)
 	return entries
@@ -225,13 +225,13 @@ func (tl *TestLogger) GetEntries() []TestLogEntry {
 func (tl *TestLogger) GetEntriesWithLevel(level logrus.Level) []TestLogEntry {
 	entries := tl.GetEntries()
 	var filtered []TestLogEntry
-	
+
 	for _, entry := range entries {
 		if entry.Level == level {
 			filtered = append(filtered, entry)
 		}
 	}
-	
+
 	return filtered
 }
 
@@ -285,14 +285,14 @@ func (h *testLogHook) Fire(entry *logrus.Entry) error {
 	for k, v := range entry.Data {
 		fields[k] = v
 	}
-	
+
 	h.logger.addEntry(TestLogEntry{
 		Level:   entry.Level,
 		Message: entry.Message,
 		Fields:  fields,
 		Time:    entry.Time,
 	})
-	
+
 	return nil
 }
 
@@ -302,7 +302,7 @@ type TestHelpers struct{}
 // AssertMetricValue asserts that a metric has the expected value
 func (h TestHelpers) AssertMetricValue(t *testing.T, registry *TestMetricsRegistry, name string, expected float64) {
 	actual := registry.GetMetricValue(name)
-	assert.InDelta(t, expected, actual, 0.001, 
+	assert.InDelta(t, expected, actual, 0.001,
 		"Metric %s: expected %f, got %f", name, expected, actual)
 }
 
@@ -315,22 +315,22 @@ func (h TestHelpers) AssertMetricExists(t *testing.T, registry *TestMetricsRegis
 func (h TestHelpers) AssertMetricLabels(t *testing.T, registry *TestMetricsRegistry, name string, expectedLabels map[string]string) {
 	metric := registry.GetMetric(name)
 	require.NotNil(t, metric, "Metric %s should exist", name)
-	
+
 	for k, v := range expectedLabels {
-		assert.Equal(t, v, metric.Labels[k], 
+		assert.Equal(t, v, metric.Labels[k],
 			"Label %s mismatch for metric %s: expected %s, got %s", k, name, v, metric.Labels[k])
 	}
 }
 
 // AssertLogMessage asserts that a log message was recorded
 func (h TestHelpers) AssertLogMessage(t *testing.T, logger *TestLogger, message string) {
-	assert.True(t, logger.HasLogWithMessage(message), 
+	assert.True(t, logger.HasLogWithMessage(message),
 		"Expected log message not found: %s", message)
 }
 
 // AssertLogLevel asserts that a log entry with the specified level was recorded
 func (h TestHelpers) AssertLogLevel(t *testing.T, logger *TestLogger, level logrus.Level) {
-	assert.True(t, logger.HasLogWithLevel(level), 
+	assert.True(t, logger.HasLogWithLevel(level),
 		"Expected log level not found: %s", level)
 }
 
@@ -344,9 +344,9 @@ func (h TestHelpers) AssertNoErrors(t *testing.T, logger *TestLogger) {
 func (h TestHelpers) WaitForCondition(t *testing.T, condition func() bool, timeout time.Duration, message string) {
 	ticker := time.NewTicker(10 * time.Millisecond)
 	defer ticker.Stop()
-	
+
 	timeoutCh := time.After(timeout)
-	
+
 	for {
 		select {
 		case <-ticker.C:
@@ -362,29 +362,29 @@ func (h TestHelpers) WaitForCondition(t *testing.T, condition func() bool, timeo
 // Eventually polls a condition until it's true or timeout
 func (h TestHelpers) Eventually(t *testing.T, condition func() bool, timeout time.Duration, interval time.Duration) bool {
 	deadline := time.Now().Add(timeout)
-	
+
 	for time.Now().Before(deadline) {
 		if condition() {
 			return true
 		}
 		time.Sleep(interval)
 	}
-	
+
 	return false
 }
 
 // CreateTempConfig creates a temporary configuration for testing
 func (h TestHelpers) CreateTempConfig(t *testing.T, config string) string {
 	tempFile := fmt.Sprintf("/tmp/test-config-%d.yaml", time.Now().UnixNano())
-	
+
 	err := WriteFile(tempFile, []byte(config))
 	require.NoError(t, err)
-	
+
 	// Cleanup on test completion
 	t.Cleanup(func() {
-		RemoveFile(tempFile)
+		_ = RemoveFile(tempFile)
 	})
-	
+
 	return tempFile
 }
 

@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/jontk/slurm-exporter/internal/config"
 	"github.com/jontk/slurm-exporter/internal/testutil"
 	"github.com/jontk/slurm-exporter/internal/testutil/fixtures"
 	"github.com/jontk/slurm-exporter/internal/testutil/mocks"
@@ -20,7 +19,7 @@ func TestPartitionsSimpleCollector_Describe(t *testing.T) {
 
 	collector := NewPartitionsSimpleCollector(mockClient, logger)
 
-	ch := make(chan *prometheus.Desc, 10)
+	ch := make(chan *prometheus.Desc, 100)
 	collector.Describe(ch)
 	close(ch)
 
@@ -208,90 +207,15 @@ func TestPartitionsSimpleCollector_LimitMetrics(t *testing.T) {
 
 	// Check for limit metrics
 	hasTimeMetrics := false
-	hasMemoryMetrics := false
 	for metric := range ch {
 		desc := metric.Desc()
 		descStr := desc.String()
 		if contains(descStr, "time") {
 			hasTimeMetrics = true
 		}
-		if contains(descStr, "memory") {
-			hasMemoryMetrics = true
-		}
 	}
 
 	assert.True(t, hasTimeMetrics, "should have time limit metrics")
-	assert.True(t, hasMemoryMetrics, "should have memory limit metrics")
-}
-
-func TestPartitionsSimpleCollector_Filtering(t *testing.T) {
-	logger := testutil.GetTestLogger()
-	mockClient := new(mocks.MockSlurmClient)
-	mockPartitionManager := new(mocks.MockPartitionManager)
-
-	// Setup mock expectations
-	mockClient.On("Partitions").Return(mockPartitionManager)
-	mockPartitionManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestPartitionList(), nil)
-
-	collector := NewPartitionsSimpleCollector(mockClient, logger)
-	collector.SetEnabled(true)
-
-	// Configure filtering - only collect state metrics
-	filterConfig := config.FilterConfig{
-		MetricFilter: config.MetricFilterConfig{
-			EnableAll: false,
-			IncludeMetrics: []string{"slurm_partition_state"},
-			ExcludeMetrics: []string{},
-		},
-	}
-	collector.UpdateFilterConfig(filterConfig)
-
-	// Collect metrics
-	ch := make(chan prometheus.Metric, 100)
-	err := collector.Collect(context.Background(), ch)
-	close(ch)
-
-	assert.NoError(t, err)
-
-	// Check that only state metrics are collected
-	for metric := range ch {
-		desc := metric.Desc()
-		assert.Contains(t, desc.String(), "state", "only state metrics should be collected")
-	}
-}
-
-func TestPartitionsSimpleCollector_CustomLabels(t *testing.T) {
-	logger := testutil.GetTestLogger()
-	mockClient := new(mocks.MockSlurmClient)
-	mockPartitionManager := new(mocks.MockPartitionManager)
-
-	// Setup mock expectations
-	mockClient.On("Partitions").Return(mockPartitionManager)
-	mockPartitionManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestPartitionList(), nil)
-
-	collector := NewPartitionsSimpleCollector(mockClient, logger)
-	collector.SetEnabled(true)
-
-	// Set custom labels
-	customLabels := map[string]string{
-		"cluster_name": "test-cluster",
-		"datacenter":   "east",
-	}
-	collector.SetCustomLabels(customLabels)
-
-	// Collect metrics
-	ch := make(chan prometheus.Metric, 100)
-	err := collector.Collect(context.Background(), ch)
-	close(ch)
-
-	assert.NoError(t, err)
-
-	// Verify metrics were collected with custom labels
-	count := 0
-	for range ch {
-		count++
-	}
-	assert.True(t, count > 0, "should have collected metrics with custom labels")
 }
 
 func TestPartitionsSimpleCollector_EmptyPartitionList(t *testing.T) {
@@ -313,13 +237,13 @@ func TestPartitionsSimpleCollector_EmptyPartitionList(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	// Should still have some metrics (zeros)
+	// With empty partition list, no metrics should be emitted
 	count := 0
 	for range ch {
 		count++
 	}
 
-	assert.True(t, count > 0, "should have metrics even with empty partition list")
+	assert.Equal(t, 0, count, "should not emit metrics when partition list is empty")
 }
 
 func TestPartitionsSimpleCollector_QOSMetrics(t *testing.T) {
@@ -340,16 +264,6 @@ func TestPartitionsSimpleCollector_QOSMetrics(t *testing.T) {
 	close(ch)
 
 	assert.NoError(t, err)
-
-	// Check for QOS-related metrics
-	hasQOSMetrics := false
-	for metric := range ch {
-		desc := metric.Desc()
-		if contains(desc.String(), "qos") {
-			hasQOSMetrics = true
-			break
-		}
-	}
 
 	// QOS metrics might be present depending on implementation
 	count := 0

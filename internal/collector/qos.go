@@ -265,7 +265,7 @@ func (c *QoSCollector) collect(ch chan<- prometheus.Metric) error {
 		)
 
 		// QoS info
-		preemptMode := qos.PreemptMode  // PreemptMode is already a string
+		preemptMode := qos.PreemptMode // PreemptMode is already a string
 		flags := strings.Join(qos.Flags, ",")
 		ch <- prometheus.MustNewConstMetric(
 			c.qosInfo,

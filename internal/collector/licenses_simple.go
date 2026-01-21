@@ -83,13 +83,13 @@ func (c *LicensesCollector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect gathers metrics from SLURM
 func (c *LicensesCollector) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
-	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
+	timeoutCtx, cancel := context.WithTimeout(ctx, c.timeout)
 	defer cancel()
 
 	c.logger.Debug("Collecting license metrics")
 
 	// Get licenses information
-	licenses, err := c.client.GetLicenses(ctx)
+	licenses, err := c.client.GetLicenses(timeoutCtx)
 	if err != nil {
 		c.logger.WithError(err).Error("Failed to get licenses")
 		return err

@@ -13,19 +13,19 @@ import (
 
 // MemoryOptimizer manages memory usage and garbage collection optimization
 type MemoryOptimizer struct {
-	logger            *logrus.Entry
-	gcPercent         int
-	memLimit          uint64
-	lastGC            time.Time
-	gcInterval        time.Duration
-	mu                sync.RWMutex
+	logger     *logrus.Entry
+	gcPercent  int
+	memLimit   uint64
+	lastGC     time.Time
+	gcInterval time.Duration
+	mu         sync.RWMutex
 
 	// Metrics
-	memoryUsage       prometheus.Gauge
-	gcDuration        prometheus.Histogram
-	gcCount           prometheus.Counter
-	allocationRate    prometheus.Histogram
-	objectPools       map[string]*sync.Pool
+	memoryUsage    prometheus.Gauge
+	gcDuration     prometheus.Histogram
+	gcCount        prometheus.Counter
+	allocationRate prometheus.Histogram
+	objectPools    map[string]*sync.Pool
 }
 
 // NewMemoryOptimizer creates a new memory optimizer
@@ -53,8 +53,8 @@ func (mo *MemoryOptimizer) initMetrics() {
 	})
 
 	mo.gcDuration = prometheus.NewHistogram(prometheus.HistogramOpts{
-		Name: "slurm_exporter_gc_duration_seconds",
-		Help: "Time spent in garbage collection",
+		Name:    "slurm_exporter_gc_duration_seconds",
+		Help:    "Time spent in garbage collection",
 		Buckets: []float64{0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0},
 	})
 
@@ -64,8 +64,8 @@ func (mo *MemoryOptimizer) initMetrics() {
 	})
 
 	mo.allocationRate = prometheus.NewHistogram(prometheus.HistogramOpts{
-		Name: "slurm_exporter_allocation_rate_bytes_per_second",
-		Help: "Memory allocation rate in bytes per second",
+		Name:    "slurm_exporter_allocation_rate_bytes_per_second",
+		Help:    "Memory allocation rate in bytes per second",
 		Buckets: prometheus.ExponentialBuckets(1024, 2, 20),
 	})
 }
@@ -136,7 +136,7 @@ func (mo *MemoryOptimizer) GetMetricPool() []prometheus.Metric {
 // PutMetricPool returns a metric slice to the pool
 func (mo *MemoryOptimizer) PutMetricPool(metrics []prometheus.Metric) {
 	if cap(metrics) < 1000 { // Only pool reasonably sized slices
-		mo.objectPools["metrics"].Put(metrics)
+		mo.objectPools["metrics"].Put(&metrics)
 	}
 }
 
@@ -148,7 +148,7 @@ func (mo *MemoryOptimizer) GetLabelPool() []string {
 // PutLabelPool returns a label slice to the pool
 func (mo *MemoryOptimizer) PutLabelPool(labels []string) {
 	if cap(labels) < 100 {
-		mo.objectPools["labels"].Put(labels)
+		mo.objectPools["labels"].Put(&labels)
 	}
 }
 
@@ -212,16 +212,16 @@ func (mo *MemoryOptimizer) GetMemoryStats() MemoryStats {
 	runtime.ReadMemStats(&m)
 
 	return MemoryStats{
-		Alloc:        m.Alloc,
-		TotalAlloc:   m.TotalAlloc,
-		Sys:          m.Sys,
-		HeapAlloc:    m.HeapAlloc,
-		HeapSys:      m.HeapSys,
-		HeapInuse:    m.HeapInuse,
-		HeapReleased: m.HeapReleased,
+		Alloc:         m.Alloc,
+		TotalAlloc:    m.TotalAlloc,
+		Sys:           m.Sys,
+		HeapAlloc:     m.HeapAlloc,
+		HeapSys:       m.HeapSys,
+		HeapInuse:     m.HeapInuse,
+		HeapReleased:  m.HeapReleased,
 		GCCPUFraction: m.GCCPUFraction,
-		NumGC:        m.NumGC,
-		LastGC:       time.Unix(0, int64(m.LastGC)),
+		NumGC:         m.NumGC,
+		LastGC:        time.Unix(0, int64(m.LastGC)),
 	}
 }
 
@@ -256,7 +256,7 @@ func (mo *MemoryOptimizer) OptimizeForHighThroughput() {
 
 // OptimizeForLowLatency optimizes settings for low-latency scenarios
 func (mo *MemoryOptimizer) OptimizeForLowLatency() {
-	mo.SetGCPercent(50)  // More frequent GC
+	mo.SetGCPercent(50) // More frequent GC
 	mo.gcInterval = 10 * time.Second
 	mo.logger.Info("Optimized for low latency")
 }

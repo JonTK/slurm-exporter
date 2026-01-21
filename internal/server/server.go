@@ -239,10 +239,10 @@ func (s *Server) createTLSConfig() (*tls.Config, error) {
 	}
 
 	s.logger.WithFields(logrus.Fields{
-		"min_version":    cfg.MinVersion,
-		"cipher_suites":  len(cfg.CipherSuites),
-		"cert_file":      cfg.CertFile,
-		"key_file":       cfg.KeyFile,
+		"min_version":   cfg.MinVersion,
+		"cipher_suites": len(cfg.CipherSuites),
+		"cert_file":     cfg.CertFile,
+		"key_file":      cfg.KeyFile,
 	}).Info("TLS configuration created")
 
 	return tlsConfig, nil
@@ -346,7 +346,7 @@ func (s *Server) Start(ctx context.Context) error {
 	go func() {
 		<-ctx.Done()
 		s.logger.Info("Context cancelled, shutting down server")
-		s.server.Shutdown(context.Background())
+		_ = s.server.Shutdown(context.Background())
 	}()
 
 	var err error
@@ -395,7 +395,7 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	// Could be extended to check dependencies
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
+	_, _ = w.Write([]byte("OK"))
 }
 
 // handleReady handles the readiness check endpoint
@@ -416,7 +416,7 @@ func (s *Server) handleReady(w http.ResponseWriter, r *http.Request) {
 	if s.isShuttingDown {
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusServiceUnavailable)
-		w.Write([]byte("Server is shutting down"))
+		_, _ = w.Write([]byte("Server is shutting down"))
 		return
 	}
 
@@ -453,14 +453,14 @@ func (s *Server) handleReady(w http.ResponseWriter, r *http.Request) {
 		if !ready {
 			w.Header().Set("Content-Type", "text/plain")
 			w.WriteHeader(http.StatusServiceUnavailable)
-			w.Write([]byte("No collectors enabled"))
+			_, _ = w.Write([]byte("No collectors enabled"))
 			return
 		}
 	}
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Ready"))
+	_, _ = w.Write([]byte("Ready"))
 }
 
 // handleRoot handles the root endpoint
@@ -545,7 +545,7 @@ func (s *Server) handleRoot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	content := fmt.Sprintf(html, s.config.Server.MetricsPath, collectorStatus)
-	w.Write([]byte(content))
+	_, _ = w.Write([]byte(content))
 }
 
 // createMetricsHandler creates the Prometheus metrics handler
@@ -688,7 +688,7 @@ func (s *Server) handleDebugCollectors(w http.ResponseWriter, r *http.Request) {
 	debugInfo := map[string]interface{}{
 		"collectors": stats,
 		"summary": map[string]interface{}{
-			"total_collectors":   len(stats),
+			"total_collectors": len(stats),
 			"enabled_collectors": func() int {
 				enabled := 0
 				for _, stat := range stats {
@@ -791,7 +791,7 @@ func (s *Server) handleDebugPerformance(w http.ResponseWriter, r *http.Request) 
 			"error_count":        stats.ErrorCount,
 			"success_rate":       fmt.Sprintf("%.2f%%", successRate),
 			"consecutive_errors": stats.ConsecutiveErrors,
-			"last_error":         func() interface{} {
+			"last_error": func() interface{} {
 				if stats.LastError != nil {
 					return map[string]interface{}{
 						"message": stats.LastError.Error(),
@@ -807,10 +807,10 @@ func (s *Server) handleDebugPerformance(w http.ResponseWriter, r *http.Request) 
 				"max_duration":  stats.MaxDuration.String(),
 			},
 			"metrics": map[string]interface{}{
-				"total_metrics":    stats.TotalMetrics,
-				"last_count":       stats.LastMetricCount,
-				"avg_count":        avgMetrics,
-				"max_count":        stats.MaxMetricCount,
+				"total_metrics": stats.TotalMetrics,
+				"last_count":    stats.LastMetricCount,
+				"avg_count":     avgMetrics,
+				"max_count":     stats.MaxMetricCount,
 			},
 			"resources": map[string]interface{}{
 				"last_memory_bytes": stats.LastMemoryUsage,

@@ -19,10 +19,10 @@ func TestMainFlags(t *testing.T) {
 
 	// Re-define flags
 	showVersion := flag.Bool("version", false, "Show version information and exit")
-	configFile := flag.String("config", "configs/config.yaml", "Path to configuration file")
-	logLevel := flag.String("log-level", "info", "Log level (debug, info, warn, error)")
-	addr := flag.String("addr", ":8080", "Address to listen on")
-	metricsPath := flag.String("metrics-path", "/metrics", "Path for metrics endpoint")
+	flag.String("config", "configs/config.yaml", "Path to configuration file")
+	flag.String("log-level", "info", "Log level (debug, info, warn, error)")
+	flag.String("addr", ":8080", "Address to listen on")
+	flag.String("metrics-path", "/metrics", "Path for metrics endpoint")
 
 	flag.Parse()
 
@@ -80,7 +80,7 @@ func TestMainFlagsCustomValues(t *testing.T) {
 	// Reset flags for testing
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
-	// Re-define flags
+	// Re-define flags and capture returned pointers
 	showVersion := flag.Bool("version", false, "Show version information and exit")
 	configFile := flag.String("config", "configs/config.yaml", "Path to configuration file")
 	logLevel := flag.String("log-level", "info", "Log level (debug, info, warn, error)")

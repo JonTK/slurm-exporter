@@ -265,55 +265,6 @@ func TestJobCollectorUtilities(t *testing.T) {
 		}
 	})
 
-	t.Run("ParseTimeString", func(t *testing.T) {
-		testCases := []struct {
-			input       string
-			shouldError bool
-		}{
-			{"", false},
-			{"Unknown", false},
-			{"2023-02-15T10:30:25", false},
-			{"2023-02-15 10:30:25", false},
-			{"invalid-time", true},
-		}
-
-		for _, tc := range testCases {
-			result, err := collector.parseTimeString(tc.input)
-			if tc.shouldError && err == nil {
-				t.Errorf("parseTimeString(%s) should have returned error", tc.input)
-			}
-			if !tc.shouldError && err != nil {
-				t.Errorf("parseTimeString(%s) returned unexpected error: %v", tc.input, err)
-			}
-			if !tc.shouldError && tc.input != "" && tc.input != "Unknown" && result == 0 {
-				t.Errorf("parseTimeString(%s) returned 0 timestamp", tc.input)
-			}
-		}
-	})
-
-	t.Run("ParseMemorySize", func(t *testing.T) {
-		testCases := []struct {
-			input    string
-			expected int64
-		}{
-			{"", 0},
-			{"1024K", 1024 * 1024},
-			{"512M", 512 * 1024 * 1024},
-			{"2G", 2 * 1024 * 1024 * 1024},
-			{"1T", 1024 * 1024 * 1024 * 1024},
-			{"1024", 1024 * 1024 * 1024}, // Default MB
-		}
-
-		for _, tc := range testCases {
-			result, err := collector.parseMemorySize(tc.input)
-			if err != nil {
-				t.Errorf("parseMemorySize(%s) returned error: %v", tc.input, err)
-			}
-			if result != tc.expected {
-				t.Errorf("parseMemorySize(%s) = %d, expected %d", tc.input, result, tc.expected)
-			}
-		}
-	})
 }
 
 func TestJobCollectorIntegration(t *testing.T) {

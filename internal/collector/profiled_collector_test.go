@@ -13,33 +13,33 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// mockCollector implements the Collector interface for testing
-type mockCollector struct {
+// profiledMockCollector implements the Collector interface for testing
+type profiledMockCollector struct {
 	name        string
 	enabled     bool
 	collectFunc func(ctx context.Context, ch chan<- prometheus.Metric) error
 }
 
-func (m *mockCollector) Name() string {
+func (m *profiledMockCollector) Name() string {
 	return m.name
 }
 
-func (m *mockCollector) Describe(ch chan<- *prometheus.Desc) {
+func (m *profiledMockCollector) Describe(ch chan<- *prometheus.Desc) {
 	// Mock implementation
 }
 
-func (m *mockCollector) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
+func (m *profiledMockCollector) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	if m.collectFunc != nil {
 		return m.collectFunc(ctx, ch)
 	}
 	return nil
 }
 
-func (m *mockCollector) IsEnabled() bool {
+func (m *profiledMockCollector) IsEnabled() bool {
 	return m.enabled
 }
 
-func (m *mockCollector) SetEnabled(enabled bool) {
+func (m *profiledMockCollector) SetEnabled(enabled bool) {
 	m.enabled = enabled
 }
 
@@ -61,7 +61,7 @@ func TestProfiledCollector(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("NewProfiledCollector", func(t *testing.T) {
-		mock := &mockCollector{
+		mock := &profiledMockCollector{
 			name:    "test_collector",
 			enabled: true,
 		}
@@ -80,7 +80,7 @@ func TestProfiledCollector(t *testing.T) {
 
 	t.Run("Collect", func(t *testing.T) {
 		collectCalled := false
-		mock := &mockCollector{
+		mock := &profiledMockCollector{
 			name:    "test_collector",
 			enabled: true,
 			collectFunc: func(ctx context.Context, ch chan<- prometheus.Metric) error {
@@ -111,7 +111,7 @@ func TestProfiledCollector(t *testing.T) {
 
 	t.Run("CollectWithError", func(t *testing.T) {
 		testErr := fmt.Errorf("test error")
-		mock := &mockCollector{
+		mock := &profiledMockCollector{
 			name:    "error_collector",
 			enabled: true,
 			collectFunc: func(ctx context.Context, ch chan<- prometheus.Metric) error {
@@ -128,7 +128,7 @@ func TestProfiledCollector(t *testing.T) {
 	})
 
 	t.Run("SlowCollection", func(t *testing.T) {
-		mock := &mockCollector{
+		mock := &profiledMockCollector{
 			name:    "slow_collector",
 			enabled: true,
 			collectFunc: func(ctx context.Context, ch chan<- prometheus.Metric) error {
@@ -149,7 +149,7 @@ func TestProfiledCollector(t *testing.T) {
 	})
 
 	t.Run("ProfilingDisabled", func(t *testing.T) {
-		mock := &mockCollector{
+		mock := &profiledMockCollector{
 			name:    "test_collector",
 			enabled: true,
 		}
@@ -186,7 +186,7 @@ func TestProfiledCollectorManager(t *testing.T) {
 	pcm := NewProfiledCollectorManager(profiler, logger)
 
 	t.Run("WrapCollector", func(t *testing.T) {
-		mock := &mockCollector{
+		mock := &profiledMockCollector{
 			name:    "test_collector",
 			enabled: true,
 		}
@@ -203,7 +203,7 @@ func TestProfiledCollectorManager(t *testing.T) {
 	})
 
 	t.Run("SetProfilingEnabled", func(t *testing.T) {
-		mock := &mockCollector{
+		mock := &profiledMockCollector{
 			name:    "toggle_collector",
 			enabled: true,
 		}
@@ -223,7 +223,7 @@ func TestProfiledCollectorManager(t *testing.T) {
 	t.Run("SetProfilingEnabledAll", func(t *testing.T) {
 		// Wrap multiple collectors
 		for i := 0; i < 3; i++ {
-			mock := &mockCollector{
+			mock := &profiledMockCollector{
 				name:    fmt.Sprintf("collector_%d", i),
 				enabled: true,
 			}
@@ -239,7 +239,7 @@ func TestProfiledCollectorManager(t *testing.T) {
 	})
 
 	t.Run("GetCollectorProfiles", func(t *testing.T) {
-		mock := &mockCollector{
+		mock := &profiledMockCollector{
 			name:    "profile_test",
 			enabled: true,
 			collectFunc: func(ctx context.Context, ch chan<- prometheus.Metric) error {

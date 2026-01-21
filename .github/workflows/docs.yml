@@ -1,4 +1,7 @@
-name: Deploy Documentation
+# SPDX-FileCopyrightText: 2025 Jon Thor Kristinsson
+# SPDX-License-Identifier: Apache-2.0
+
+name: Documentation
 
 on:
   push:
@@ -7,6 +10,8 @@ on:
     paths:
       - 'website/**'
       - 'docs/**'
+      - '**.go'
+      - 'go.mod'
       - '.github/workflows/docs.yml'
   pull_request:
     branches:
@@ -14,6 +19,7 @@ on:
     paths:
       - 'website/**'
       - 'docs/**'
+      - '**.go'
   workflow_dispatch:
 
 permissions:
@@ -41,18 +47,16 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
+          cache-dependency-path: 'website/requirements.txt'
 
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install mkdocs-material
-          pip install mkdocs-git-revision-date-localized-plugin
-          pip install mkdocs-git-committers-plugin-2
-          pip install mkdocs-minify-plugin
-          pip install mkdocs-social
+          pip install -r website/requirements.txt
 
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v5
+        continue-on-error: true
 
       - name: Build documentation
         run: |
@@ -60,7 +64,7 @@ jobs:
           mkdocs build --strict
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: website/site
 
@@ -74,7 +78,7 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
 
   validate:
     runs-on: ubuntu-latest
@@ -86,15 +90,13 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'website/requirements.txt'
 
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install mkdocs-material
-          pip install mkdocs-git-revision-date-localized-plugin
-          pip install mkdocs-git-committers-plugin-2
-          pip install mkdocs-minify-plugin
-          pip install mkdocs-social
+          pip install -r website/requirements.txt
 
       - name: Validate documentation
         run: |
@@ -143,3 +145,41 @@ jobs:
           
           # Check spelling in markdown files
           find website/docs -name "*.md" -exec aspell --mode=markdown --personal=website/.aspell.en.pws --dont-backup check {} \;
+
+  validate-links:
+    name: Validate Documentation Links
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Link Checker
+      uses: lycheeverse/lychee-action@v1
+      with:
+        args: >
+          --verbose
+          --no-progress
+          --accept 200,204,206
+          --timeout 20
+          --max-retries 3
+          --exclude-loopback
+          --exclude-private
+          --include-mail
+          './**/*.md'
+        fail: false
+
+  spellcheck:
+    name: Spellcheck Documentation
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Spellcheck
+      uses: streetsidesoftware/cspell-action@v5
+      with:
+        config: '.cspell.json'
+        files: '**/*.md'
+        strict: false

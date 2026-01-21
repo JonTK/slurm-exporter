@@ -23,9 +23,9 @@ func TestProfiler(t *testing.T) {
 			MemProfileRate:   512 * 1024,
 			BlockProfileRate: 1,
 			AutoProfile: AutoProfileConfig{
-				Enabled:             true,
-				DurationThreshold:   100 * time.Millisecond,
-				MemoryThreshold:     1024 * 1024, // 1MB
+				Enabled:                 true,
+				DurationThreshold:       100 * time.Millisecond,
+				MemoryThreshold:         1024 * 1024, // 1MB
 				ProfileOnSlowCollection: true,
 			},
 			Storage: ProfileStorageConfig{
@@ -104,7 +104,7 @@ func TestProfiler(t *testing.T) {
 
 		// Check phases
 		assert.Len(t, op.profile.Phases, 3)
-		
+
 		initPhase := op.profile.Phases["initialization"]
 		assert.NotNil(t, initPhase)
 		assert.True(t, initPhase.Duration >= 10*time.Millisecond)
@@ -166,7 +166,7 @@ func TestProfiler(t *testing.T) {
 		require.NoError(t, err)
 
 		op := profiler.StartOperation("full_collector")
-		
+
 		// Do some work to generate profiles
 		ch := make(chan int)
 		go func() {
@@ -227,7 +227,7 @@ func TestProfiler(t *testing.T) {
 			op := profiler.StartOperation("list_test")
 			time.Sleep(5 * time.Millisecond)
 			op.Stop()
-			op.Save()
+			_ = op.Save()
 		}
 
 		profiles, err := profiler.ListProfiles()
@@ -335,7 +335,7 @@ func TestFileProfileStorage(t *testing.T) {
 
 		profiles, err := storage.List()
 		require.NoError(t, err)
-		
+
 		var deleteID string
 		for _, p := range profiles {
 			if p.CollectorName == "delete_test" {
@@ -372,7 +372,7 @@ func TestFileProfileStorage(t *testing.T) {
 		// Old profile should be deleted
 		profiles, err := storage.List()
 		require.NoError(t, err)
-		
+
 		for _, p := range profiles {
 			assert.NotEqual(t, "old_test", p.CollectorName)
 		}
@@ -421,7 +421,7 @@ func TestMemoryProfileStorage(t *testing.T) {
 		assert.True(t, len(profiles) >= 1)
 
 		// Load profile
-		id := fmt.Sprintf("%s_%d", profile.CollectorName, profile.StartTime.Unix())
+		id := fmt.Sprintf("%s_%d", profile.CollectorName, profile.StartTime.UnixNano())
 		loaded, err := storage.Load(id)
 		require.NoError(t, err)
 		assert.NotNil(t, loaded)
@@ -437,7 +437,7 @@ func TestMemoryProfileStorage(t *testing.T) {
 				EndTime:       time.Now().Add(time.Duration(-i) * time.Minute).Add(time.Second),
 				Duration:      time.Second,
 			}
-			storage.Save(profile)
+			_ = storage.Save(profile)
 		}
 
 		profiles, err := storage.List()
@@ -463,7 +463,7 @@ func TestMemoryProfileStorage(t *testing.T) {
 		// Old profile should be deleted
 		profiles, err := storage.List()
 		require.NoError(t, err)
-		
+
 		found := false
 		for _, p := range profiles {
 			if p.CollectorName == "old_memory_test" {

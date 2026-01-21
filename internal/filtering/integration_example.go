@@ -14,24 +14,24 @@ import (
 
 // FilteredCollectorManager demonstrates how to integrate smart filtering with collectors
 type FilteredCollectorManager struct {
-	filter      *SmartFilter
-	collectors  map[string]*FilteredCollector
-	logger      *logrus.Logger
-	ctx         context.Context
-	cancel      context.CancelFunc
-	wg          sync.WaitGroup
-	mu          sync.RWMutex
+	filter     *SmartFilter
+	collectors map[string]*FilteredCollector
+	logger     *logrus.Logger
+	ctx        context.Context
+	cancel     context.CancelFunc
+	wg         sync.WaitGroup
+	mu         sync.RWMutex
 }
 
 // FilteredCollector represents a collector that uses smart filtering
 type FilteredCollector struct {
-	name         string
-	collectFunc  func(ctx context.Context) ([]*dto.MetricFamily, error)
-	interval     time.Duration
-	lastRun      time.Time
-	nextRun      time.Time
-	isRunning    bool
-	mu           sync.RWMutex
+	name        string
+	collectFunc func(ctx context.Context) ([]*dto.MetricFamily, error)
+	interval    time.Duration
+	lastRun     time.Time
+	nextRun     time.Time
+	isRunning   bool
+	mu          sync.RWMutex
 }
 
 // NewFilteredCollectorManager creates a new collector manager with smart filtering
@@ -39,7 +39,7 @@ func NewFilteredCollectorManager(
 	filterCfg config.SmartFilteringConfig,
 	logger *logrus.Logger,
 ) (*FilteredCollectorManager, error) {
-	
+
 	// Create smart filter
 	filter, err := NewSmartFilter(filterCfg, logger)
 	if err != nil {
@@ -59,7 +59,7 @@ func NewFilteredCollectorManager(
 
 // RegisterCollector registers a new collector with the manager
 func (fcm *FilteredCollectorManager) RegisterCollector(
-	name string, 
+	name string,
 	interval time.Duration,
 	collectFunc func(ctx context.Context) ([]*dto.MetricFamily, error),
 ) {
@@ -101,11 +101,11 @@ func (fcm *FilteredCollectorManager) Start() error {
 func (fcm *FilteredCollectorManager) Stop() {
 	fcm.cancel()
 	fcm.wg.Wait()
-	
+
 	if fcm.filter != nil {
-		fcm.filter.Close()
+		_ = fcm.filter.Close()
 	}
-	
+
 	fcm.logger.Info("Stopped filtered collector manager")
 }
 
@@ -193,7 +193,7 @@ func (fcm *FilteredCollectorManager) runFilteredCollector(collector *FilteredCol
 	}
 
 	duration := time.Since(startTime)
-	
+
 	// Calculate filtering statistics
 	rawCount := fcm.countMetrics(rawMetrics)
 	filteredCount := fcm.countMetrics(filteredMetrics)
@@ -209,11 +209,11 @@ func (fcm *FilteredCollectorManager) runFilteredCollector(collector *FilteredCol
 
 	// Log collection result
 	fcm.logger.WithFields(logrus.Fields{
-		"collector":       collector.name,
-		"duration":        duration,
-		"raw_metrics":     rawCount,
+		"collector":        collector.name,
+		"duration":         duration,
+		"raw_metrics":      rawCount,
 		"filtered_metrics": filteredCount,
-		"filter_rate":     fmt.Sprintf("%.1f%%", filterRate),
+		"filter_rate":      fmt.Sprintf("%.1f%%", filterRate),
 	}).Info("Filtered collection completed")
 }
 
@@ -274,7 +274,7 @@ func MockCollectorFunction(name string, metricCount int, withNoise bool) func(ct
 		// Create metrics with varying noise patterns
 		for i := 0; i < metricCount; i++ {
 			metricName := fmt.Sprintf("%s_metric_%d", name, i)
-			
+
 			var value float64
 			if withNoise && i%3 == 0 {
 				// Add noisy metrics (high variance)
@@ -357,12 +357,12 @@ func ExampleUsage() {
 
 	// Create smart filtering configuration
 	filterCfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.7,  // Filter metrics with noise score > 0.7
-		CacheSize:       1000,
-		LearningWindow:  20,   // Learn from last 20 samples
-		VarianceLimit:   100.0,
-		CorrelationMin:  0.1,
+		Enabled:        true,
+		NoiseThreshold: 0.7, // Filter metrics with noise score > 0.7
+		CacheSize:      1000,
+		LearningWindow: 20, // Learn from last 20 samples
+		VarianceLimit:  100.0,
+		CorrelationMin: 0.1,
 	}
 
 	// Create filtered collector manager
@@ -372,7 +372,7 @@ func ExampleUsage() {
 	}
 
 	// Register some example collectors
-	manager.RegisterCollector("jobs", 30*time.Second, 
+	manager.RegisterCollector("jobs", 30*time.Second,
 		MockCollectorFunction("jobs", 20, true)) // With noise
 
 	manager.RegisterCollector("nodes", 45*time.Second,
@@ -425,19 +425,19 @@ func AdvancedFilteringExample() {
 
 	// Create aggressive filtering configuration
 	filterCfg := config.SmartFilteringConfig{
-		Enabled:         true,
-		NoiseThreshold:  0.5,  // More aggressive filtering
-		CacheSize:       500,
-		LearningWindow:  10,   // Faster learning
-		VarianceLimit:   50.0,
-		CorrelationMin:  0.2,
+		Enabled:        true,
+		NoiseThreshold: 0.5, // More aggressive filtering
+		CacheSize:      500,
+		LearningWindow: 10, // Faster learning
+		VarianceLimit:  50.0,
+		CorrelationMin: 0.2,
 	}
 
 	filter, err := NewSmartFilter(filterCfg, logger)
 	if err != nil {
 		logger.WithError(err).Fatal("Failed to create smart filter")
 	}
-	defer filter.Close()
+	defer func() { _ = filter.Close() }()
 
 	// Simulate collection cycles with different noise patterns
 	for cycle := 0; cycle < 20; cycle++ {

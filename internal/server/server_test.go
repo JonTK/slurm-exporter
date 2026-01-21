@@ -42,6 +42,18 @@ func (m *mockRegistry) CollectAll(ctx context.Context) error {
 	return nil
 }
 
+func (m *mockRegistry) GetPerformanceStats() map[string]*collector.CollectorPerformanceStats {
+	return map[string]*collector.CollectorPerformanceStats{
+		"test_collector": {
+			LastDuration:    100 * time.Millisecond,
+			TotalDuration:   100 * time.Millisecond,
+			CollectionCount: 1,
+			SuccessCount:    1,
+			ErrorCount:      0,
+		},
+	}
+}
+
 func createTestConfig() *config.Config {
 	return &config.Config{
 		Server: config.ServerConfig{
@@ -66,7 +78,7 @@ func TestNew(t *testing.T) {
 		logger := createTestLogger()
 		registry := &mockRegistry{}
 
-		server, err := New(cfg, logger, registry)
+		server, err := New(cfg, logger, registry, prometheus.NewRegistry())
 		if err != nil {
 			t.Fatalf("Expected no error, got %v", err)
 		}
@@ -100,7 +112,7 @@ func TestNew(t *testing.T) {
 		cfg := createTestConfig()
 		logger := createTestLogger()
 
-		server, err := New(cfg, logger, nil)
+		server, err := New(cfg, logger, nil, prometheus.NewRegistry())
 		if err != nil {
 			t.Fatalf("Expected no error, got %v", err)
 		}
@@ -116,7 +128,7 @@ func TestHealthEndpoint(t *testing.T) {
 	logger := createTestLogger()
 	registry := &mockRegistry{}
 
-	server, err := New(cfg, logger, registry)
+	server, err := New(cfg, logger, registry, prometheus.NewRegistry())
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -157,7 +169,7 @@ func TestReadyEndpoint(t *testing.T) {
 			},
 		}
 
-		server, err := New(cfg, logger, registry)
+		server, err := New(cfg, logger, registry, prometheus.NewRegistry())
 		if err != nil {
 			t.Fatalf("Failed to create server: %v", err)
 		}
@@ -192,7 +204,7 @@ func TestReadyEndpoint(t *testing.T) {
 			},
 		}
 
-		server, err := New(cfg, logger, registry)
+		server, err := New(cfg, logger, registry, prometheus.NewRegistry())
 		if err != nil {
 			t.Fatalf("Failed to create server: %v", err)
 		}
@@ -221,7 +233,7 @@ func TestReadyEndpoint(t *testing.T) {
 		cfg := createTestConfig()
 		logger := createTestLogger()
 
-		server, err := New(cfg, logger, nil)
+		server, err := New(cfg, logger, nil, prometheus.NewRegistry())
 		if err != nil {
 			t.Fatalf("Failed to create server: %v", err)
 		}
@@ -247,7 +259,7 @@ func TestRootEndpoint(t *testing.T) {
 		},
 	}
 
-	server, err := New(cfg, logger, registry)
+	server, err := New(cfg, logger, registry, prometheus.NewRegistry())
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -298,7 +310,7 @@ func TestMetricsEndpoint(t *testing.T) {
 		logger := createTestLogger()
 		registry := &mockRegistry{}
 
-		server, err := New(cfg, logger, registry)
+		server, err := New(cfg, logger, registry, prometheus.NewRegistry())
 		if err != nil {
 			t.Fatalf("Failed to create server: %v", err)
 		}
@@ -348,7 +360,7 @@ func TestMetricsEndpoint(t *testing.T) {
 		logger := createTestLogger()
 		registry := &mockRegistry{shouldFail: true}
 
-		server, err := New(cfg, logger, registry)
+		server, err := New(cfg, logger, registry, prometheus.NewRegistry())
 		if err != nil {
 			t.Fatalf("Failed to create server: %v", err)
 		}
@@ -370,7 +382,7 @@ func TestMetricsEndpoint(t *testing.T) {
 		cfg := createTestConfig()
 		logger := createTestLogger()
 
-		server, err := New(cfg, logger, nil)
+		server, err := New(cfg, logger, nil, prometheus.NewRegistry())
 		if err != nil {
 			t.Fatalf("Failed to create server: %v", err)
 		}
@@ -402,7 +414,7 @@ func TestServerLifecycle(t *testing.T) {
 		logger := createTestLogger()
 		registry := &mockRegistry{}
 
-		server, err := New(cfg, logger, registry)
+		server, err := New(cfg, logger, registry, prometheus.NewRegistry())
 		if err != nil {
 			t.Fatalf("Failed to create server: %v", err)
 		}
@@ -445,7 +457,7 @@ func TestServerConfiguration(t *testing.T) {
 		logger := createTestLogger()
 		registry := &mockRegistry{}
 
-		server, err := New(cfg, logger, registry)
+		server, err := New(cfg, logger, registry, prometheus.NewRegistry())
 		if err != nil {
 			t.Fatalf("Failed to create server: %v", err)
 		}
@@ -468,7 +480,7 @@ func TestServerConfiguration(t *testing.T) {
 		logger := createTestLogger()
 		registry := &mockRegistry{}
 
-		server, err := New(cfg, logger, registry)
+		server, err := New(cfg, logger, registry, prometheus.NewRegistry())
 		if err != nil {
 			t.Fatalf("Failed to create server: %v", err)
 		}
@@ -515,7 +527,7 @@ func TestTLSConfiguration(t *testing.T) {
 			},
 		}
 
-		server, err := New(cfg, logger, nil)
+		server, err := New(cfg, logger, nil, prometheus.NewRegistry())
 		if err != nil {
 			t.Fatalf("Failed to create server: %v", err)
 		}
@@ -542,7 +554,7 @@ func TestTLSConfiguration(t *testing.T) {
 			},
 		}
 
-		_, err := New(cfg, logger, nil)
+		_, err := New(cfg, logger, nil, prometheus.NewRegistry())
 		if err == nil {
 			t.Error("Expected error when cert_file is missing")
 		}
@@ -567,7 +579,7 @@ func TestTLSConfiguration(t *testing.T) {
 			},
 		}
 
-		_, err := New(cfg, logger, nil)
+		_, err := New(cfg, logger, nil, prometheus.NewRegistry())
 		if err == nil {
 			t.Error("Expected error when key_file is missing")
 		}
@@ -635,7 +647,7 @@ func TestSetupRoutes(t *testing.T) {
 	logger := createTestLogger()
 	registry := &mockRegistry{}
 
-	server, err := New(cfg, logger, registry)
+	server, err := New(cfg, logger, registry, prometheus.NewRegistry())
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}

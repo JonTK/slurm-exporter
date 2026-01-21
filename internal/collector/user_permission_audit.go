@@ -27,55 +27,55 @@ type UserPermissionAuditSLURMClient interface {
 }
 
 type UserPermissions struct {
-	UserName                string
-	ActivePermissions       []string
-	InheritedPermissions    []string
-	ExplicitPermissions     []string
-	DeniedPermissions       []string
-	TemporaryPermissions    []string
-	ConditionalPermissions  []string
-	PermissionLevel         string
-	EffectivePermissions    map[string]bool
-	PermissionScope         string
-	ExpirationTime          *time.Time
-	GrantedBy               string
-	GrantedTime             time.Time
-	LastValidated           time.Time
-	ValidationStatus        string
-	PermissionSource        string
-	ComplianceStatus        string
-	RiskLevel               string
-	LastModified            time.Time
-	ModifiedBy              string
-	AuditTrail              []string
+	UserName               string
+	ActivePermissions      []string
+	InheritedPermissions   []string
+	ExplicitPermissions    []string
+	DeniedPermissions      []string
+	TemporaryPermissions   []string
+	ConditionalPermissions []string
+	PermissionLevel        string
+	EffectivePermissions   map[string]bool
+	PermissionScope        string
+	ExpirationTime         *time.Time
+	GrantedBy              string
+	GrantedTime            time.Time
+	LastValidated          time.Time
+	ValidationStatus       string
+	PermissionSource       string
+	ComplianceStatus       string
+	RiskLevel              string
+	LastModified           time.Time
+	ModifiedBy             string
+	AuditTrail             []string
 }
 
 type UserAccessAuditEntry struct {
-	EntryID             string
-	UserName            string
-	AccessType          string
-	ResourceAccessed    string
-	Action              string
-	Result              string
-	Timestamp           time.Time
-	SourceIP            string
-	UserAgent           string
-	SessionID           string
-	RequestMethod       string
-	ResponseCode        int
-	ResponseSize        int64
-	ProcessingTime      time.Duration
-	ErrorMessage        string
-	SecurityContext     string
+	EntryID              string
+	UserName             string
+	AccessType           string
+	ResourceAccessed     string
+	Action               string
+	Result               string
+	Timestamp            time.Time
+	SourceIP             string
+	UserAgent            string
+	SessionID            string
+	RequestMethod        string
+	ResponseCode         int
+	ResponseSize         int64
+	ProcessingTime       time.Duration
+	ErrorMessage         string
+	SecurityContext      string
 	AuthenticationMethod string
-	AuthorizationResult string
-	DataSensitivity     string
-	ComplianceFlags     []string
-	RiskScore           float64
-	AnomalyScore        float64
-	GeoLocation         string
-	DeviceInfo          string
-	NetworkInfo         string
+	AuthorizationResult  string
+	DataSensitivity      string
+	ComplianceFlags      []string
+	RiskScore            float64
+	AnomalyScore         float64
+	GeoLocation          string
+	DeviceInfo           string
+	NetworkInfo          string
 }
 
 type UserAccessPatterns struct {
@@ -127,58 +127,58 @@ type UserPermissionHistoryEntry struct {
 }
 
 type UserAccessViolation struct {
-	ViolationID          string
-	UserName             string
-	ViolationType        string
-	Severity             string
-	Description          string
-	DetectedTime         time.Time
-	ResourceInvolved     string
-	PolicyViolated       string
-	AccessAttempted      string
-	ActualPermissions    []string
-	RequiredPermissions  []string
-	ViolationSource      string
-	DetectionMethod      string
-	InvestigationStatus  string
-	ResolutionStatus     string
-	ResolutionTime       *time.Time
-	ResolutionAction     string
-	ResponsibleParty     string
-	ImpactAssessment     string
-	RemediationSteps     []string
-	PreventionMeasures   []string
-	ComplianceImpact     string
-	RiskScore            float64
-	RecurrenceCount      int
-	RelatedViolations    []string
-	EvidenceCollected    []string
-	AuditTrail           []string
+	ViolationID         string
+	UserName            string
+	ViolationType       string
+	Severity            string
+	Description         string
+	DetectedTime        time.Time
+	ResourceInvolved    string
+	PolicyViolated      string
+	AccessAttempted     string
+	ActualPermissions   []string
+	RequiredPermissions []string
+	ViolationSource     string
+	DetectionMethod     string
+	InvestigationStatus string
+	ResolutionStatus    string
+	ResolutionTime      *time.Time
+	ResolutionAction    string
+	ResponsibleParty    string
+	ImpactAssessment    string
+	RemediationSteps    []string
+	PreventionMeasures  []string
+	ComplianceImpact    string
+	RiskScore           float64
+	RecurrenceCount     int
+	RelatedViolations   []string
+	EvidenceCollected   []string
+	AuditTrail          []string
 }
 
 type UserSessionAudit struct {
-	UserName            string
-	ActiveSessions      int
-	TotalSessions       int
-	AverageSessionTime  time.Duration
-	LongestSession      time.Duration
-	ShortestSession     time.Duration
-	SessionLocations    []string
-	SessionDevices      []string
-	ConcurrentSessions  int
+	UserName              string
+	ActiveSessions        int
+	TotalSessions         int
+	AverageSessionTime    time.Duration
+	LongestSession        time.Duration
+	ShortestSession       time.Duration
+	SessionLocations      []string
+	SessionDevices        []string
+	ConcurrentSessions    int
 	MaxConcurrentSessions int
-	SessionAnomalies    int
-	SuspiciousSessions  int
-	SecurityViolations  int
-	ComplianceIssues    int
-	LastSessionStart    time.Time
-	LastSessionEnd      time.Time
-	SessionEfficiency   float64
-	ResourceUsage       map[string]float64
-	NetworkActivity     map[string]float64
-	DataTransfer        map[string]int64
-	SessionRiskScore    float64
-	SessionPatterns     map[string]float64
+	SessionAnomalies      int
+	SuspiciousSessions    int
+	SecurityViolations    int
+	ComplianceIssues      int
+	LastSessionStart      time.Time
+	LastSessionEnd        time.Time
+	SessionEfficiency     float64
+	ResourceUsage         map[string]float64
+	NetworkActivity       map[string]float64
+	DataTransfer          map[string]int64
+	SessionRiskScore      float64
+	SessionPatterns       map[string]float64
 }
 
 type UserComplianceStatus struct {
@@ -236,185 +236,185 @@ type UserSecurityEvent struct {
 }
 
 type UserRoleAssignment struct {
-	AssignmentID     string
-	UserName         string
-	RoleName         string
-	RoleType         string
-	AssignmentType   string
-	AssignedBy       string
-	AssignedTime     time.Time
-	EffectiveTime    time.Time
-	ExpirationTime   *time.Time
-	AssignmentStatus string
-	ApprovalWorkflow string
-	ApprovedBy       string
-	ApprovalTime     time.Time
-	RolePermissions  []string
-	RoleScope        string
-	RoleLevel        string
-	InheritedRoles   []string
-	ConflictingRoles []string
-	RoleDependencies []string
+	AssignmentID          string
+	UserName              string
+	RoleName              string
+	RoleType              string
+	AssignmentType        string
+	AssignedBy            string
+	AssignedTime          time.Time
+	EffectiveTime         time.Time
+	ExpirationTime        *time.Time
+	AssignmentStatus      string
+	ApprovalWorkflow      string
+	ApprovedBy            string
+	ApprovalTime          time.Time
+	RolePermissions       []string
+	RoleScope             string
+	RoleLevel             string
+	InheritedRoles        []string
+	ConflictingRoles      []string
+	RoleDependencies      []string
 	BusinessJustification string
-	RiskAssessment   string
-	ComplianceImpact string
-	ReviewFrequency  string
-	LastReviewed     time.Time
-	NextReview       time.Time
-	ReviewStatus     string
-	UsageMetrics     map[string]float64
+	RiskAssessment        string
+	ComplianceImpact      string
+	ReviewFrequency       string
+	LastReviewed          time.Time
+	NextReview            time.Time
+	ReviewStatus          string
+	UsageMetrics          map[string]float64
 }
 
 type UserPrivilegeEscalation struct {
-	EscalationID       string
-	UserName           string
-	EscalationType     string
-	RequestTime        time.Time
-	RequestedBy        string
-	OriginalPrivileges []string
+	EscalationID        string
+	UserName            string
+	EscalationType      string
+	RequestTime         time.Time
+	RequestedBy         string
+	OriginalPrivileges  []string
 	RequestedPrivileges []string
-	GrantedPrivileges  []string
-	Justification      string
-	BusinessNeed       string
-	ApprovalRequired   bool
-	ApprovedBy         string
-	ApprovalTime       time.Time
-	EffectiveTime      time.Time
-	ExpirationTime     *time.Time
-	DurationRequested  time.Duration
-	ActualDuration     time.Duration
-	AutoRevocation     bool
-	RevocationTime     *time.Time
-	RevocationReason   string
-	RiskAssessment     string
-	ImpactAnalysis     string
-	MonitoringLevel    string
-	UsageTracking      bool
-	ComplianceReview   bool
-	AuditRequirement   string
-	EscalationPattern  string
-	AbuseIndicators    []string
-	SecurityValidation string
+	GrantedPrivileges   []string
+	Justification       string
+	BusinessNeed        string
+	ApprovalRequired    bool
+	ApprovedBy          string
+	ApprovalTime        time.Time
+	EffectiveTime       time.Time
+	ExpirationTime      *time.Time
+	DurationRequested   time.Duration
+	ActualDuration      time.Duration
+	AutoRevocation      bool
+	RevocationTime      *time.Time
+	RevocationReason    string
+	RiskAssessment      string
+	ImpactAnalysis      string
+	MonitoringLevel     string
+	UsageTracking       bool
+	ComplianceReview    bool
+	AuditRequirement    string
+	EscalationPattern   string
+	AbuseIndicators     []string
+	SecurityValidation  string
 }
 
 type UserDataAccess struct {
-	UserName              string
-	DataClassifications   []string
-	AccessibleDataSets    []string
-	RestrictedDataSets    []string
-	DataAccessLevel       string
-	SensitiveDataAccess   bool
-	PIIAccess             bool
-	PHIAccess             bool
-	FinancialDataAccess   bool
+	UserName                   string
+	DataClassifications        []string
+	AccessibleDataSets         []string
+	RestrictedDataSets         []string
+	DataAccessLevel            string
+	SensitiveDataAccess        bool
+	PIIAccess                  bool
+	PHIAccess                  bool
+	FinancialDataAccess        bool
 	IntellectualPropertyAccess bool
-	ClassifiedDataAccess  bool
-	DataDownloadCount     int64
-	DataUploadCount       int64
-	DataViewCount         int64
-	DataModificationCount int64
-	DataDeletionCount     int64
-	DataSharingCount      int64
-	DataExportCount       int64
-	LastDataAccess        time.Time
-	DataAccessPatterns    map[string]float64
-	DataRetentionCompliance bool
+	ClassifiedDataAccess       bool
+	DataDownloadCount          int64
+	DataUploadCount            int64
+	DataViewCount              int64
+	DataModificationCount      int64
+	DataDeletionCount          int64
+	DataSharingCount           int64
+	DataExportCount            int64
+	LastDataAccess             time.Time
+	DataAccessPatterns         map[string]float64
+	DataRetentionCompliance    bool
 	DataMinimizationCompliance bool
-	ConsentManagement     map[string]bool
-	DataBreachInvolvement []string
-	DataGovernanceScore   float64
-	DataComplianceStatus  string
+	ConsentManagement          map[string]bool
+	DataBreachInvolvement      []string
+	DataGovernanceScore        float64
+	DataComplianceStatus       string
 }
 
 type UserPermissionAccountAssociation struct {
-	AssociationID        string
-	UserName             string
-	AccountName          string
-	AssociationType      string
-	RelationshipType     string
-	PrimaryAccount       bool
-	DefaultAccount       bool
-	AssociationStatus    string
-	AssociatedBy         string
-	AssociationTime      time.Time
-	EffectiveTime        time.Time
-	ExpirationTime       *time.Time
-	AccountPermissions   []string
-	InheritedPermissions []string
-	PermissionSource     string
-	AccessLevel          string
-	AccountRole          string
-	BillingResponsibility bool
-	ResourceQuotas       map[string]float64
-	UsageMetrics         map[string]float64
+	AssociationID           string
+	UserName                string
+	AccountName             string
+	AssociationType         string
+	RelationshipType        string
+	PrimaryAccount          bool
+	DefaultAccount          bool
+	AssociationStatus       string
+	AssociatedBy            string
+	AssociationTime         time.Time
+	EffectiveTime           time.Time
+	ExpirationTime          *time.Time
+	AccountPermissions      []string
+	InheritedPermissions    []string
+	PermissionSource        string
+	AccessLevel             string
+	AccountRole             string
+	BillingResponsibility   bool
+	ResourceQuotas          map[string]float64
+	UsageMetrics            map[string]float64
 	AccountComplianceStatus string
-	LastActivity         time.Time
-	ActivityMetrics      map[string]float64
-	PerformanceMetrics   map[string]float64
-	CostMetrics          map[string]float64
-	RiskMetrics          map[string]float64
-	AssociationHistory   []string
+	LastActivity            time.Time
+	ActivityMetrics         map[string]float64
+	PerformanceMetrics      map[string]float64
+	CostMetrics             map[string]float64
+	RiskMetrics             map[string]float64
+	AssociationHistory      []string
 }
 
 type UserAuthenticationEvent struct {
-	EventID              string
-	UserName             string
-	AuthenticationType   string
-	AuthenticationMethod string
-	EventTime            time.Time
-	SourceIP             string
-	SourceLocation       string
-	DeviceInfo           string
-	UserAgent            string
-	AuthenticationResult string
-	FailureReason        string
-	AttemptCount         int
-	SessionID            string
-	TokenUsed            string
-	CertificateUsed      string
-	BiometricUsed        bool
-	MultiFactorUsed      bool
-	RiskScore            float64
-	TrustScore           float64
-	AnomalyScore         float64
-	GeoLocationRisk      float64
-	DeviceRisk           float64
-	BehaviorRisk         float64
-	TimeRisk             float64
-	NetworkRisk          float64
-	ThreatIntelligence   []string
-	SecurityFlags        []string
-	ComplianceFlags      []string
-	BusinessContext      string
+	EventID                string
+	UserName               string
+	AuthenticationType     string
+	AuthenticationMethod   string
+	EventTime              time.Time
+	SourceIP               string
+	SourceLocation         string
+	DeviceInfo             string
+	UserAgent              string
+	AuthenticationResult   string
+	FailureReason          string
+	AttemptCount           int
+	SessionID              string
+	TokenUsed              string
+	CertificateUsed        string
+	BiometricUsed          bool
+	MultiFactorUsed        bool
+	RiskScore              float64
+	TrustScore             float64
+	AnomalyScore           float64
+	GeoLocationRisk        float64
+	DeviceRisk             float64
+	BehaviorRisk           float64
+	TimeRisk               float64
+	NetworkRisk            float64
+	ThreatIntelligence     []string
+	SecurityFlags          []string
+	ComplianceFlags        []string
+	BusinessContext        string
 	AuthenticationDuration time.Duration
-	TokenLifetime        time.Duration
-	SessionDuration      time.Duration
+	TokenLifetime          time.Duration
+	SessionDuration        time.Duration
 }
 
 type UserResourceAccess struct {
-	UserName               string
-	AccessibleResources    []string
-	RestrictedResources    []string
-	ResourcePermissions    map[string][]string
-	ResourceUsage          map[string]float64
-	ResourceQuotas         map[string]float64
-	QuotaUtilization       map[string]float64
-	ResourceEfficiency     map[string]float64
-	ResourceWaste          map[string]float64
-	ResourceCosts          map[string]float64
-	PeakResourceUsage      map[string]float64
+	UserName                string
+	AccessibleResources     []string
+	RestrictedResources     []string
+	ResourcePermissions     map[string][]string
+	ResourceUsage           map[string]float64
+	ResourceQuotas          map[string]float64
+	QuotaUtilization        map[string]float64
+	ResourceEfficiency      map[string]float64
+	ResourceWaste           map[string]float64
+	ResourceCosts           map[string]float64
+	PeakResourceUsage       map[string]float64
 	ResourceAccessFrequency map[string]int64
-	LastResourceAccess     map[string]time.Time
-	ResourceAccessPatterns map[string]float64
-	ResourceViolations     map[string]int
-	ResourceCompliance     map[string]float64
-	ResourceSecurity       map[string]float64
-	ResourceAvailability   map[string]float64
-	ResourcePerformance    map[string]float64
-	ResourceOptimization   map[string]float64
+	LastResourceAccess      map[string]time.Time
+	ResourceAccessPatterns  map[string]float64
+	ResourceViolations      map[string]int
+	ResourceCompliance      map[string]float64
+	ResourceSecurity        map[string]float64
+	ResourceAvailability    map[string]float64
+	ResourcePerformance     map[string]float64
+	ResourceOptimization    map[string]float64
 	ResourceRecommendations map[string][]string
-	ResourceRiskAssessment map[string]float64
-	ResourceTrends         map[string]float64
+	ResourceRiskAssessment  map[string]float64
+	ResourceTrends          map[string]float64
 }
 
 type UserPermissionAuditCollector struct {
@@ -434,72 +434,72 @@ type UserPermissionAuditCollector struct {
 	permissionCompliance   *prometheus.GaugeVec
 
 	// Audit metrics
-	auditEntriesTotal         *prometheus.CounterVec
-	auditEntryResponseCode    *prometheus.HistogramVec
-	auditEntryProcessingTime  *prometheus.HistogramVec
-	auditEntryRiskScore       *prometheus.GaugeVec
-	auditEntryAnomalyScore    *prometheus.GaugeVec
-	dataAccessTotal           *prometheus.CounterVec
-	securityViolationsTotal   *prometheus.CounterVec
+	auditEntriesTotal        *prometheus.CounterVec
+	auditEntryResponseCode   *prometheus.HistogramVec
+	auditEntryProcessingTime *prometheus.HistogramVec
+	auditEntryRiskScore      *prometheus.GaugeVec
+	auditEntryAnomalyScore   *prometheus.GaugeVec
+	dataAccessTotal          *prometheus.CounterVec
+	securityViolationsTotal  *prometheus.CounterVec
 
 	// Access pattern metrics
-	loginFrequency            *prometheus.GaugeVec
-	averageSessionDuration    *prometheus.GaugeVec
-	accessAnomalies           *prometheus.GaugeVec
-	patternStability          *prometheus.GaugeVec
-	usageVariability          *prometheus.GaugeVec
-	behaviorRiskIndicators    *prometheus.GaugeVec
-	accessEfficiency          *prometheus.GaugeVec
+	loginFrequency         *prometheus.GaugeVec
+	averageSessionDuration *prometheus.GaugeVec
+	accessAnomalies        *prometheus.GaugeVec
+	patternStability       *prometheus.GaugeVec
+	usageVariability       *prometheus.GaugeVec
+	behaviorRiskIndicators *prometheus.GaugeVec
+	accessEfficiency       *prometheus.GaugeVec
 
 	// Permission history metrics
-	permissionChangesTotal    *prometheus.CounterVec
-	permissionApprovalsTotal  *prometheus.CounterVec
-	permissionRollbacksTotal  *prometheus.CounterVec
-	permissionChangeRisk      *prometheus.GaugeVec
-	permissionChangeImpact    *prometheus.GaugeVec
+	permissionChangesTotal   *prometheus.CounterVec
+	permissionApprovalsTotal *prometheus.CounterVec
+	permissionRollbacksTotal *prometheus.CounterVec
+	permissionChangeRisk     *prometheus.GaugeVec
+	permissionChangeImpact   *prometheus.GaugeVec
 
 	// Violation metrics
-	accessViolationsTotal     *prometheus.CounterVec
-	violationSeverity         *prometheus.GaugeVec
-	violationRiskScore        *prometheus.GaugeVec
-	violationRecurrence       *prometheus.GaugeVec
-	violationResolutionTime   *prometheus.HistogramVec
-	violationImpactScore      *prometheus.GaugeVec
+	accessViolationsTotal   *prometheus.CounterVec
+	violationSeverity       *prometheus.GaugeVec
+	violationRiskScore      *prometheus.GaugeVec
+	violationRecurrence     *prometheus.GaugeVec
+	violationResolutionTime *prometheus.HistogramVec
+	violationImpactScore    *prometheus.GaugeVec
 
 	// Session metrics
-	activeSessions            *prometheus.GaugeVec
-	totalSessions             *prometheus.GaugeVec
-	maxConcurrentSessions     *prometheus.GaugeVec
-	sessionAnomalies          *prometheus.GaugeVec
-	suspiciousSessions        *prometheus.GaugeVec
-	sessionEfficiency         *prometheus.GaugeVec
-	sessionRiskScore          *prometheus.GaugeVec
+	activeSessions        *prometheus.GaugeVec
+	totalSessions         *prometheus.GaugeVec
+	maxConcurrentSessions *prometheus.GaugeVec
+	sessionAnomalies      *prometheus.GaugeVec
+	suspiciousSessions    *prometheus.GaugeVec
+	sessionEfficiency     *prometheus.GaugeVec
+	sessionRiskScore      *prometheus.GaugeVec
 
 	// Compliance metrics
-	complianceScore           *prometheus.GaugeVec
-	certificationCompliance   *prometheus.GaugeVec
-	trainingCompliance        *prometheus.GaugeVec
-	policyCompliance          *prometheus.GaugeVec
-	complianceViolations      *prometheus.GaugeVec
-	complianceRiskLevel       *prometheus.GaugeVec
-	remediationActionsTotal   *prometheus.CounterVec
+	complianceScore         *prometheus.GaugeVec
+	certificationCompliance *prometheus.GaugeVec
+	trainingCompliance      *prometheus.GaugeVec
+	policyCompliance        *prometheus.GaugeVec
+	complianceViolations    *prometheus.GaugeVec
+	complianceRiskLevel     *prometheus.GaugeVec
+	remediationActionsTotal *prometheus.CounterVec
 
 	// Security event metrics
-	securityEventsTotal       *prometheus.CounterVec
-	securityEventSeverity     *prometheus.GaugeVec
-	threatLevel               *prometheus.GaugeVec
-	attackVectorCount         *prometheus.CounterVec
-	responseTime              *prometheus.HistogramVec
-	resolutionTime            *prometheus.HistogramVec
-	businessImpactScore       *prometheus.GaugeVec
+	securityEventsTotal   *prometheus.CounterVec
+	securityEventSeverity *prometheus.GaugeVec
+	threatLevel           *prometheus.GaugeVec
+	attackVectorCount     *prometheus.CounterVec
+	responseTime          *prometheus.HistogramVec
+	resolutionTime        *prometheus.HistogramVec
+	businessImpactScore   *prometheus.GaugeVec
 
 	// Role assignment metrics
-	roleAssignmentsTotal      *prometheus.CounterVec
-	activeRoles               *prometheus.GaugeVec
-	roleConflicts             *prometheus.GaugeVec
-	roleUsageMetrics          *prometheus.GaugeVec
-	roleRiskAssessment        *prometheus.GaugeVec
-	roleComplianceScore       *prometheus.GaugeVec
+	roleAssignmentsTotal *prometheus.CounterVec
+	activeRoles          *prometheus.GaugeVec
+	roleConflicts        *prometheus.GaugeVec
+	roleUsageMetrics     *prometheus.GaugeVec
+	roleRiskAssessment   *prometheus.GaugeVec
+	roleComplianceScore  *prometheus.GaugeVec
 
 	// Privilege escalation metrics
 	privilegeEscalationsTotal *prometheus.CounterVec
@@ -510,12 +510,12 @@ type UserPermissionAuditCollector struct {
 	escalationPatterns        *prometheus.GaugeVec
 
 	// Data access metrics
-	dataClassificationAccess  *prometheus.GaugeVec
-	sensitiveDataAccess       *prometheus.GaugeVec
-	dataOperationsTotal       *prometheus.CounterVec
-	dataGovernanceScore       *prometheus.GaugeVec
-	dataComplianceStatus      *prometheus.GaugeVec
-	dataBreachInvolvement     *prometheus.GaugeVec
+	dataClassificationAccess *prometheus.GaugeVec
+	sensitiveDataAccess      *prometheus.GaugeVec
+	dataOperationsTotal      *prometheus.CounterVec
+	dataGovernanceScore      *prometheus.GaugeVec
+	dataComplianceStatus     *prometheus.GaugeVec
+	dataBreachInvolvement    *prometheus.GaugeVec
 
 	// Account association metrics
 	accountAssociationsTotal  *prometheus.CounterVec
@@ -535,16 +535,16 @@ type UserPermissionAuditCollector struct {
 	tokenLifetime             *prometheus.HistogramVec
 
 	// Resource access metrics
-	resourceAccessTotal       *prometheus.CounterVec
-	resourceQuotaUtilization  *prometheus.GaugeVec
-	resourceEfficiency        *prometheus.GaugeVec
-	resourceWaste             *prometheus.GaugeVec
-	resourceCosts             *prometheus.GaugeVec
-	resourceViolations        *prometheus.CounterVec
-	resourceCompliance        *prometheus.GaugeVec
-	resourceSecurity          *prometheus.GaugeVec
-	resourcePerformance       *prometheus.GaugeVec
-	resourceOptimization      *prometheus.GaugeVec
+	resourceAccessTotal      *prometheus.CounterVec
+	resourceQuotaUtilization *prometheus.GaugeVec
+	resourceEfficiency       *prometheus.GaugeVec
+	resourceWaste            *prometheus.GaugeVec
+	resourceCosts            *prometheus.GaugeVec
+	resourceViolations       *prometheus.CounterVec
+	resourceCompliance       *prometheus.GaugeVec
+	resourceSecurity         *prometheus.GaugeVec
+	resourcePerformance      *prometheus.GaugeVec
+	resourceOptimization     *prometheus.GaugeVec
 }
 
 func NewUserPermissionAuditCollector(client UserPermissionAuditSLURMClient) *UserPermissionAuditCollector {
@@ -633,16 +633,16 @@ func NewUserPermissionAuditCollector(client UserPermissionAuditSLURMClient) *Use
 		),
 		auditEntryResponseCode: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_user_audit_response_code",
-				Help: "Distribution of response codes in audit entries",
+				Name:    "slurm_user_audit_response_code",
+				Help:    "Distribution of response codes in audit entries",
 				Buckets: []float64{200, 300, 400, 401, 403, 404, 500},
 			},
 			[]string{"user"},
 		),
 		auditEntryProcessingTime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_user_audit_processing_time_seconds",
-				Help: "Processing time for audit entries",
+				Name:    "slurm_user_audit_processing_time_seconds",
+				Help:    "Processing time for audit entries",
 				Buckets: prometheus.DefBuckets,
 			},
 			[]string{"user", "access_type"},
@@ -795,8 +795,8 @@ func NewUserPermissionAuditCollector(client UserPermissionAuditSLURMClient) *Use
 		),
 		violationResolutionTime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_user_violation_resolution_time_seconds",
-				Help: "Time to resolve violations",
+				Name:    "slurm_user_violation_resolution_time_seconds",
+				Help:    "Time to resolve violations",
 				Buckets: []float64{3600, 7200, 14400, 28800, 86400, 172800, 604800},
 			},
 			[]string{"user", "violation_type"},
@@ -942,16 +942,16 @@ func NewUserPermissionAuditCollector(client UserPermissionAuditSLURMClient) *Use
 		),
 		responseTime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_user_security_response_time_seconds",
-				Help: "Security incident response time",
+				Name:    "slurm_user_security_response_time_seconds",
+				Help:    "Security incident response time",
 				Buckets: []float64{60, 300, 900, 1800, 3600, 7200, 14400},
 			},
 			[]string{"user", "event_type"},
 		),
 		resolutionTime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_user_security_resolution_time_seconds",
-				Help: "Security incident resolution time",
+				Name:    "slurm_user_security_resolution_time_seconds",
+				Help:    "Security incident resolution time",
 				Buckets: []float64{3600, 7200, 14400, 28800, 86400, 172800, 604800},
 			},
 			[]string{"user", "event_type"},
@@ -1025,8 +1025,8 @@ func NewUserPermissionAuditCollector(client UserPermissionAuditSLURMClient) *Use
 		),
 		escalationDuration: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_user_escalation_duration_seconds",
-				Help: "Duration of privilege escalations",
+				Name:    "slurm_user_escalation_duration_seconds",
+				Help:    "Duration of privilege escalations",
 				Buckets: []float64{3600, 7200, 14400, 28800, 86400, 172800, 604800},
 			},
 			[]string{"user", "escalation_type"},
@@ -1179,16 +1179,16 @@ func NewUserPermissionAuditCollector(client UserPermissionAuditSLURMClient) *Use
 		),
 		authenticationDuration: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_user_authentication_duration_seconds",
-				Help: "Authentication duration for user",
+				Name:    "slurm_user_authentication_duration_seconds",
+				Help:    "Authentication duration for user",
 				Buckets: []float64{0.1, 0.5, 1, 2, 5, 10, 30},
 			},
 			[]string{"user", "auth_type"},
 		),
 		tokenLifetime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name: "slurm_user_token_lifetime_seconds",
-				Help: "Token lifetime for user",
+				Name:    "slurm_user_token_lifetime_seconds",
+				Help:    "Token lifetime for user",
 				Buckets: []float64{300, 900, 1800, 3600, 7200, 14400, 86400},
 			},
 			[]string{"user"},
@@ -2129,7 +2129,7 @@ func (c *UserPermissionAuditCollector) collectAccountAssociationMetrics(ctx cont
 		associationCounts[association.AccessLevel]++
 
 		// Check if this is the primary account
-		if association.PrimaryAccount == association.PrimaryAccount {
+		if association.PrimaryAccount != "" {
 			primaryCount++
 		}
 

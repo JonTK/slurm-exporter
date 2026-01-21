@@ -19,10 +19,10 @@ const (
 
 // Compile-time interface compliance checks
 var (
-	_ Collector                   = (*JobsSimpleCollector)(nil)
-	_ FilterableCollector         = (*JobsSimpleCollector)(nil)
-	_ CardinalityAwareCollector   = (*JobsSimpleCollector)(nil)
-	_ CustomLabelsCollector       = (*JobsSimpleCollector)(nil)
+	_ Collector                 = (*JobsSimpleCollector)(nil)
+	_ FilterableCollector       = (*JobsSimpleCollector)(nil)
+	_ CardinalityAwareCollector = (*JobsSimpleCollector)(nil)
+	_ CustomLabelsCollector     = (*JobsSimpleCollector)(nil)
 )
 
 // JobsSimpleCollector collects job-related metrics
@@ -295,7 +295,7 @@ func (c *JobsSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 		}
 
 		if c.shouldCollectMetric("slurm_job_state", MetricTypeGauge, false, false) &&
-		   c.shouldCollectWithCardinality("slurm_job_state", stateLabels) {
+			c.shouldCollectWithCardinality("slurm_job_state", stateLabels) {
 			ch <- prometheus.MustNewConstMetric(
 				c.jobStates,
 				prometheus.GaugeValue,
@@ -316,7 +316,7 @@ func (c *JobsSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 					"partition": partition,
 				}
 				if c.shouldCollectMetric("slurm_job_queue_time_seconds", MetricTypeGauge, true, false) &&
-				   c.shouldCollectWithCardinality("slurm_job_queue_time_seconds", timeLabels) {
+					c.shouldCollectWithCardinality("slurm_job_queue_time_seconds", timeLabels) {
 					ch <- prometheus.MustNewConstMetric(
 						c.jobQueueTime,
 						prometheus.GaugeValue,
@@ -339,7 +339,7 @@ func (c *JobsSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 					"partition": partition,
 				}
 				if c.shouldCollectMetric("slurm_job_run_time_seconds", MetricTypeGauge, true, false) &&
-				   c.shouldCollectWithCardinality("slurm_job_run_time_seconds", runLabels) {
+					c.shouldCollectWithCardinality("slurm_job_run_time_seconds", runLabels) {
 					ch <- prometheus.MustNewConstMetric(
 						c.jobRunTime,
 						prometheus.GaugeValue,
@@ -357,7 +357,7 @@ func (c *JobsSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 		} else if job.CPUs >= 10000 {
 			c.logger.WithFields(map[string]interface{}{
 				"job_id": jobID,
-				"cpus": job.CPUs,
+				"cpus":   job.CPUs,
 			}).Warn("Unusually high CPU count detected, using 0")
 		}
 		resourceLabels := map[string]string{
@@ -367,7 +367,7 @@ func (c *JobsSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 			"partition": partition,
 		}
 		if c.shouldCollectMetric("slurm_job_cpus", MetricTypeGauge, false, true) &&
-		   c.shouldCollectWithCardinality("slurm_job_cpus", resourceLabels) {
+			c.shouldCollectWithCardinality("slurm_job_cpus", resourceLabels) {
 			ch <- prometheus.MustNewConstMetric(
 				c.jobCPUs,
 				prometheus.GaugeValue,
@@ -382,7 +382,7 @@ func (c *JobsSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 			memoryBytes = float64(job.Memory * 1024 * 1024) // Convert MB to bytes
 		}
 		if c.shouldCollectMetric("slurm_job_memory_bytes", MetricTypeGauge, false, true) &&
-		   c.shouldCollectWithCardinality("slurm_job_memory_bytes", resourceLabels) {
+			c.shouldCollectWithCardinality("slurm_job_memory_bytes", resourceLabels) {
 			ch <- prometheus.MustNewConstMetric(
 				c.jobMemory,
 				prometheus.GaugeValue,
@@ -397,7 +397,7 @@ func (c *JobsSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 			nodes = float64(len(job.Nodes))
 		}
 		if c.shouldCollectMetric("slurm_job_nodes", MetricTypeGauge, false, true) &&
-		   c.shouldCollectWithCardinality("slurm_job_nodes", resourceLabels) {
+			c.shouldCollectWithCardinality("slurm_job_nodes", resourceLabels) {
 			ch <- prometheus.MustNewConstMetric(
 				c.jobNodes,
 				prometheus.GaugeValue,
@@ -421,7 +421,7 @@ func (c *JobsSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 			"state":     jobState,
 		}
 		if c.shouldCollectMetric("slurm_job_info", MetricTypeInfo, false, false) &&
-		   c.shouldCollectWithCardinality("slurm_job_info", infoLabels) {
+			c.shouldCollectWithCardinality("slurm_job_info", infoLabels) {
 			ch <- prometheus.MustNewConstMetric(
 				c.jobInfo,
 				prometheus.GaugeValue,

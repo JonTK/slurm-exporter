@@ -11,7 +11,6 @@ copyright: Copyright &copy; 2024 SLURM Exporter Contributors
 
 theme:
   name: material
-  custom_dir: overrides
   palette:
     # Palette toggle for light mode
     - scheme: default
@@ -51,8 +50,8 @@ theme:
     - search.highlight
     - search.suggest
     - toc.follow
-  logo: assets/logo.svg
-  favicon: assets/favicon.ico
+  # logo: assets/logo.svg
+  # favicon: assets/favicon.ico
 
 markdown_extensions:
   - abbr
@@ -70,8 +69,8 @@ markdown_extensions:
   - pymdownx.caret
   - pymdownx.details
   - pymdownx.emoji:
-      emoji_generator: !!python/name:materialx.emoji.to_svg
-      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_index: !!python/name:pymdownx.emoji.twemoji
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
@@ -85,9 +84,7 @@ markdown_extensions:
       repo: slurm-exporter
   - pymdownx.mark
   - pymdownx.smartsymbols
-  - pymdownx.snippets:
-      auto_append:
-        - includes/mkdocs.md
+  - pymdownx.snippets
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
@@ -134,13 +131,13 @@ extra:
       link: https://slurm-community.slack.com
   generator: false
 
-extra_css:
-  - stylesheets/extra.css
+# extra_css:
+#   - stylesheets/extra.css
 
-extra_javascript:
-  - javascripts/mathjax.js
-  - https://polyfill.io/v3/polyfill.min.js?features=es6
-  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+# extra_javascript:
+#   - javascripts/mathjax.js
+#   - https://polyfill.io/v3/polyfill.min.js?features=es6
+#   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 nav:
   - Home: index.md
@@ -148,53 +145,54 @@ nav:
     - getting-started/index.md
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quickstart.md
-    - Configuration: getting-started/configuration.md
-    - First Steps: getting-started/first-steps.md
+    # - Configuration: getting-started/configuration.md
+    # - First Steps: getting-started/first-steps.md
   - User Guide:
-    - user-guide/index.md
+    # - user-guide/index.md
     - Configuration Reference: user-guide/configuration.md
     - Metrics Catalog: user-guide/metrics.md
     - Job Analytics: user-guide/job-analytics.md
-    - Performance Monitoring: user-guide/performance.md
+    # - Performance Monitoring: user-guide/performance.md
     - Alerting Setup: user-guide/alerting.md
-    - Security Configuration: user-guide/security.md
+    # - Security Configuration: user-guide/security.md
     - Troubleshooting: user-guide/troubleshooting.md
-  - Deployment:
-    - deployment/index.md
-    - Kubernetes: deployment/kubernetes.md
-    - Docker: deployment/docker.md
-    - High Availability: deployment/ha.md
-    - Production Best Practices: deployment/production.md
-    - Performance Tuning: deployment/performance-tuning.md
+  # - Deployment:
+  #   - deployment/index.md
+  #   - Kubernetes: deployment/kubernetes.md
+  #   - Docker: deployment/docker.md
+  #   - High Availability: deployment/ha.md
+  #   - Production Best Practices: deployment/production.md
+  #   - Performance Tuning: deployment/performance-tuning.md
   - Integration:
-    - integration/index.md
+    # - integration/index.md
     - Prometheus: integration/prometheus.md
     - Grafana Dashboards: integration/grafana.md
-    - Alert Manager: integration/alertmanager.md
-    - Custom Integrations: integration/custom.md
+    # - Alert Manager: integration/alertmanager.md
+    # - Custom Integrations: integration/custom.md
   - Advanced Features:
-    - advanced/index.md
-    - Batch Processing: advanced/batch-processing.md
-    - Hot-Reload Configuration: advanced/hot-reload.md
-    - Custom Labels: advanced/custom-labels.md
-    - Metric Filtering: advanced/filtering.md
-    - Cardinality Management: advanced/cardinality.md
-    - Analytics Engine: advanced/analytics.md
+    # - advanced/index.md
+    # - Batch Processing: advanced/batch-processing.md
+    # - Hot-Reload Configuration: advanced/hot-reload.md
+    # - Custom Labels: advanced/custom-labels.md
+    # - Metric Filtering: advanced/filtering.md
+    # - Cardinality Management: advanced/cardinality.md
+    # - Analytics Engine: advanced/analytics.md
+    - Distributed Tracing: advanced/tracing.md
   - API Reference:
     - api/index.md
-    - Metrics API: api/metrics.md
-    - Configuration API: api/configuration.md
-    - Health Endpoints: api/health.md
-    - Debug Endpoints: api/debug.md
-  - Development:
-    - development/index.md
-    - Contributing: development/contributing.md
-    - Building from Source: development/building.md
-    - Testing: development/testing.md
-    - Architecture: development/architecture.md
-    - Extending: development/extending.md
-  - Release Notes:
-    - releases/index.md
-    - Changelog: releases/changelog.md
-    - Migration Guide: releases/migration.md
-    - Breaking Changes: releases/breaking-changes.md
+    # - Metrics API: api/metrics.md
+    # - Configuration API: api/configuration.md
+    # - Health Endpoints: api/health.md
+    # - Debug Endpoints: api/debug.md
+  # - Development:
+  #   - development/index.md
+  #   - Contributing: development/contributing.md
+  #   - Building from Source: development/building.md
+  #   - Testing: development/testing.md
+  #   - Architecture: development/architecture.md
+  #   - Extending: development/extending.md
+  # - Release Notes:
+  #   - releases/index.md
+  #   - Changelog: releases/changelog.md
+  #   - Migration Guide: releases/migration.md
+  #   - Breaking Changes: releases/breaking-changes.md

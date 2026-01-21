@@ -25,56 +25,56 @@ type QuotaComplianceSLURMClient interface {
 }
 
 type QuotaComplianceReport struct {
-	EntityType          string                 `json:"entity_type"`
-	EntityName          string                 `json:"entity_name"`
-	ComplianceScore     float64                `json:"compliance_score"`
-	ComplianceStatus    string                 `json:"compliance_status"`
-	LastAssessment      time.Time              `json:"last_assessment"`
-	ResourceCompliance  []*ResourceCompliance  `json:"resource_compliance"`
-	PolicyCompliance    []*PolicyCompliance    `json:"policy_compliance"`
-	ViolationSummary    *ViolationSummary      `json:"violation_summary"`
-	ComplianceHistory   []*ComplianceSnapshot  `json:"compliance_history"`
-	RiskLevel           string                 `json:"risk_level"`
-	RecommendedActions  []string               `json:"recommended_actions"`
-	NextReview          time.Time              `json:"next_review"`
+	EntityType         string                `json:"entity_type"`
+	EntityName         string                `json:"entity_name"`
+	ComplianceScore    float64               `json:"compliance_score"`
+	ComplianceStatus   string                `json:"compliance_status"`
+	LastAssessment     time.Time             `json:"last_assessment"`
+	ResourceCompliance []*ResourceCompliance `json:"resource_compliance"`
+	PolicyCompliance   []*PolicyCompliance   `json:"policy_compliance"`
+	ViolationSummary   *ViolationSummary     `json:"violation_summary"`
+	ComplianceHistory  []*ComplianceSnapshot `json:"compliance_history"`
+	RiskLevel          string                `json:"risk_level"`
+	RecommendedActions []string              `json:"recommended_actions"`
+	NextReview         time.Time             `json:"next_review"`
 }
 
 type ResourceCompliance struct {
-	ResourceType        string    `json:"resource_type"`
-	AllocatedQuota      float64   `json:"allocated_quota"`
-	UsedQuota           float64   `json:"used_quota"`
-	UtilizationRate     float64   `json:"utilization_rate"`
-	ComplianceStatus    string    `json:"compliance_status"`
-	ThresholdBreaches   int       `json:"threshold_breaches"`
+	ResourceType        string     `json:"resource_type"`
+	AllocatedQuota      float64    `json:"allocated_quota"`
+	UsedQuota           float64    `json:"used_quota"`
+	UtilizationRate     float64    `json:"utilization_rate"`
+	ComplianceStatus    string     `json:"compliance_status"`
+	ThresholdBreaches   int        `json:"threshold_breaches"`
 	LastBreach          *time.Time `json:"last_breach,omitempty"`
-	ComplianceScore     float64   `json:"compliance_score"`
-	TrendDirection      string    `json:"trend_direction"`
+	ComplianceScore     float64    `json:"compliance_score"`
+	TrendDirection      string     `json:"trend_direction"`
 	ProjectedExhaustion *time.Time `json:"projected_exhaustion,omitempty"`
 }
 
 type PolicyCompliance struct {
-	PolicyName          string    `json:"policy_name"`
-	PolicyType          string    `json:"policy_type"`
-	ComplianceStatus    string    `json:"compliance_status"`
-	ComplianceScore     float64   `json:"compliance_score"`
-	ViolationCount      int       `json:"violation_count"`
-	LastViolation       *time.Time `json:"last_violation,omitempty"`
-	PolicyDescription   string    `json:"policy_description"`
-	RequiredActions     []string  `json:"required_actions"`
-	GracePeriod         *time.Duration `json:"grace_period,omitempty"`
-	EnforcementLevel    string    `json:"enforcement_level"`
+	PolicyName        string         `json:"policy_name"`
+	PolicyType        string         `json:"policy_type"`
+	ComplianceStatus  string         `json:"compliance_status"`
+	ComplianceScore   float64        `json:"compliance_score"`
+	ViolationCount    int            `json:"violation_count"`
+	LastViolation     *time.Time     `json:"last_violation,omitempty"`
+	PolicyDescription string         `json:"policy_description"`
+	RequiredActions   []string       `json:"required_actions"`
+	GracePeriod       *time.Duration `json:"grace_period,omitempty"`
+	EnforcementLevel  string         `json:"enforcement_level"`
 }
 
 type ViolationSummary struct {
-	TotalViolations     int       `json:"total_violations"`
-	ActiveViolations    int       `json:"active_violations"`
-	ResolvedViolations  int       `json:"resolved_violations"`
-	CriticalViolations  int       `json:"critical_violations"`
-	WarningViolations   int       `json:"warning_violations"`
-	LastViolation       *time.Time `json:"last_violation,omitempty"`
-	ViolationRate       float64   `json:"violation_rate"`
-	AverageResolutionTime float64 `json:"average_resolution_time"`
-	RecurrentViolations int       `json:"recurrent_violations"`
+	TotalViolations       int        `json:"total_violations"`
+	ActiveViolations      int        `json:"active_violations"`
+	ResolvedViolations    int        `json:"resolved_violations"`
+	CriticalViolations    int        `json:"critical_violations"`
+	WarningViolations     int        `json:"warning_violations"`
+	LastViolation         *time.Time `json:"last_violation,omitempty"`
+	ViolationRate         float64    `json:"violation_rate"`
+	AverageResolutionTime float64    `json:"average_resolution_time"`
+	RecurrentViolations   int        `json:"recurrent_violations"`
 }
 
 type ComplianceSnapshot struct {
@@ -86,257 +86,257 @@ type ComplianceSnapshot struct {
 }
 
 type QuotaEntity struct {
-	EntityType          string    `json:"entity_type"`
-	EntityName          string    `json:"entity_name"`
-	EntityDescription   string    `json:"entity_description"`
-	CreatedAt           time.Time `json:"created_at"`
-	UpdatedAt           time.Time `json:"updated_at"`
-	Status              string    `json:"status"`
-	ParentEntity        string    `json:"parent_entity,omitempty"`
-	QuotaCount          int       `json:"quota_count"`
-	ComplianceStatus    string    `json:"compliance_status"`
+	EntityType        string    `json:"entity_type"`
+	EntityName        string    `json:"entity_name"`
+	EntityDescription string    `json:"entity_description"`
+	CreatedAt         time.Time `json:"created_at"`
+	UpdatedAt         time.Time `json:"updated_at"`
+	Status            string    `json:"status"`
+	ParentEntity      string    `json:"parent_entity,omitempty"`
+	QuotaCount        int       `json:"quota_count"`
+	ComplianceStatus  string    `json:"compliance_status"`
 }
 
 type QuotaComplianceViolation struct {
-	ViolationID         string    `json:"violation_id"`
-	EntityType          string    `json:"entity_type"`
-	EntityName          string    `json:"entity_name"`
-	ViolationType       string    `json:"violation_type"`
-	ResourceType        string    `json:"resource_type"`
-	Severity            string    `json:"severity"`
-	DetectedAt          time.Time `json:"detected_at"`
-	ResolvedAt          *time.Time `json:"resolved_at,omitempty"`
-	Description         string    `json:"description"`
-	CurrentUsage        float64   `json:"current_usage"`
-	QuotaLimit          float64   `json:"quota_limit"`
-	ExcessAmount        float64   `json:"excess_amount"`
-	ExcessPercentage    float64   `json:"excess_percentage"`
-	Impact              string    `json:"impact"`
-	RootCause           string    `json:"root_cause"`
-	ResolutionAction    string    `json:"resolution_action"`
-	PreventionMeasures  []string  `json:"prevention_measures"`
-	IsRecurrent         bool      `json:"is_recurrent"`
-	RecurrenceCount     int       `json:"recurrence_count"`
-	LastOccurrence      *time.Time `json:"last_occurrence,omitempty"`
-	Status              string    `json:"status"`
+	ViolationID        string     `json:"violation_id"`
+	EntityType         string     `json:"entity_type"`
+	EntityName         string     `json:"entity_name"`
+	ViolationType      string     `json:"violation_type"`
+	ResourceType       string     `json:"resource_type"`
+	Severity           string     `json:"severity"`
+	DetectedAt         time.Time  `json:"detected_at"`
+	ResolvedAt         *time.Time `json:"resolved_at,omitempty"`
+	Description        string     `json:"description"`
+	CurrentUsage       float64    `json:"current_usage"`
+	QuotaLimit         float64    `json:"quota_limit"`
+	ExcessAmount       float64    `json:"excess_amount"`
+	ExcessPercentage   float64    `json:"excess_percentage"`
+	Impact             string     `json:"impact"`
+	RootCause          string     `json:"root_cause"`
+	ResolutionAction   string     `json:"resolution_action"`
+	PreventionMeasures []string   `json:"prevention_measures"`
+	IsRecurrent        bool       `json:"is_recurrent"`
+	RecurrenceCount    int        `json:"recurrence_count"`
+	LastOccurrence     *time.Time `json:"last_occurrence,omitempty"`
+	Status             string     `json:"status"`
 }
 
 type QuotaComplianceAlert struct {
-	AlertID             string    `json:"alert_id"`
-	EntityType          string    `json:"entity_type"`
-	EntityName          string    `json:"entity_name"`
-	AlertType           string    `json:"alert_type"`
-	Priority            string    `json:"priority"`
-	Severity            string    `json:"severity"`
-	TriggeredAt         time.Time `json:"triggered_at"`
+	AlertID             string     `json:"alert_id"`
+	EntityType          string     `json:"entity_type"`
+	EntityName          string     `json:"entity_name"`
+	AlertType           string     `json:"alert_type"`
+	Priority            string     `json:"priority"`
+	Severity            string     `json:"severity"`
+	TriggeredAt         time.Time  `json:"triggered_at"`
 	AcknowledgedAt      *time.Time `json:"acknowledged_at,omitempty"`
 	ResolvedAt          *time.Time `json:"resolved_at,omitempty"`
-	Message             string    `json:"message"`
-	ResourceType        string    `json:"resource_type"`
-	CurrentValue        float64   `json:"current_value"`
-	ThresholdValue      float64   `json:"threshold_value"`
-	ThresholdType       string    `json:"threshold_type"`
-	TrendDirection      string    `json:"trend_direction"`
+	Message             string     `json:"message"`
+	ResourceType        string     `json:"resource_type"`
+	CurrentValue        float64    `json:"current_value"`
+	ThresholdValue      float64    `json:"threshold_value"`
+	ThresholdType       string     `json:"threshold_type"`
+	TrendDirection      string     `json:"trend_direction"`
 	PredictedExhaustion *time.Time `json:"predicted_exhaustion,omitempty"`
-	NotificationSent    bool      `json:"notification_sent"`
-	EscalationLevel     int       `json:"escalation_level"`
-	ActionRequired      string    `json:"action_required"`
-	RecommendedResponse []string  `json:"recommended_response"`
-	Status              string    `json:"status"`
+	NotificationSent    bool       `json:"notification_sent"`
+	EscalationLevel     int        `json:"escalation_level"`
+	ActionRequired      string     `json:"action_required"`
+	RecommendedResponse []string   `json:"recommended_response"`
+	Status              string     `json:"status"`
 }
 
 type QuotaThresholds struct {
-	EntityType          string              `json:"entity_type"`
-	EntityName          string              `json:"entity_name"`
-	ResourceThresholds  []*ResourceThreshold `json:"resource_thresholds"`
-	AlertThresholds     []*AlertThreshold   `json:"alert_thresholds"`
-	PolicyThresholds    []*PolicyThreshold  `json:"policy_thresholds"`
-	GlobalThresholds    []*GlobalThreshold  `json:"global_thresholds"`
-	CustomThresholds    []*CustomThreshold  `json:"custom_thresholds"`
-	LastUpdated         time.Time           `json:"last_updated"`
-	UpdatedBy           string              `json:"updated_by"`
+	EntityType         string               `json:"entity_type"`
+	EntityName         string               `json:"entity_name"`
+	ResourceThresholds []*ResourceThreshold `json:"resource_thresholds"`
+	AlertThresholds    []*AlertThreshold    `json:"alert_thresholds"`
+	PolicyThresholds   []*PolicyThreshold   `json:"policy_thresholds"`
+	GlobalThresholds   []*GlobalThreshold   `json:"global_thresholds"`
+	CustomThresholds   []*CustomThreshold   `json:"custom_thresholds"`
+	LastUpdated        time.Time            `json:"last_updated"`
+	UpdatedBy          string               `json:"updated_by"`
 }
 
 type ResourceThreshold struct {
-	ResourceType        string    `json:"resource_type"`
-	WarningThreshold    float64   `json:"warning_threshold"`
-	CriticalThreshold   float64   `json:"critical_threshold"`
-	MaxThreshold        float64   `json:"max_threshold"`
-	ThresholdUnit       string    `json:"threshold_unit"`
-	EvaluationPeriod    int       `json:"evaluation_period"`
-	CooldownPeriod      int       `json:"cooldown_period"`
-	IsEnabled           bool      `json:"is_enabled"`
-	LastTriggered       *time.Time `json:"last_triggered,omitempty"`
-	TriggerCount        int       `json:"trigger_count"`
+	ResourceType      string     `json:"resource_type"`
+	WarningThreshold  float64    `json:"warning_threshold"`
+	CriticalThreshold float64    `json:"critical_threshold"`
+	MaxThreshold      float64    `json:"max_threshold"`
+	ThresholdUnit     string     `json:"threshold_unit"`
+	EvaluationPeriod  int        `json:"evaluation_period"`
+	CooldownPeriod    int        `json:"cooldown_period"`
+	IsEnabled         bool       `json:"is_enabled"`
+	LastTriggered     *time.Time `json:"last_triggered,omitempty"`
+	TriggerCount      int        `json:"trigger_count"`
 }
 
 type AlertThreshold struct {
-	AlertType           string    `json:"alert_type"`
-	Threshold           float64   `json:"threshold"`
-	ComparisonOperator  string    `json:"comparison_operator"`
-	EvaluationWindow    int       `json:"evaluation_window"`
-	TriggerCondition    string    `json:"trigger_condition"`
-	NotificationDelay   int       `json:"notification_delay"`
-	EscalationRules     []string  `json:"escalation_rules"`
-	IsActive            bool      `json:"is_active"`
+	AlertType          string   `json:"alert_type"`
+	Threshold          float64  `json:"threshold"`
+	ComparisonOperator string   `json:"comparison_operator"`
+	EvaluationWindow   int      `json:"evaluation_window"`
+	TriggerCondition   string   `json:"trigger_condition"`
+	NotificationDelay  int      `json:"notification_delay"`
+	EscalationRules    []string `json:"escalation_rules"`
+	IsActive           bool     `json:"is_active"`
 }
 
 type PolicyThreshold struct {
-	PolicyName          string    `json:"policy_name"`
-	ViolationThreshold  int       `json:"violation_threshold"`
-	TimeWindow          int       `json:"time_window"`
-	ActionThreshold     string    `json:"action_threshold"`
-	EnforcementDelay    int       `json:"enforcement_delay"`
-	GracePeriod         int       `json:"grace_period"`
-	IsStrict            bool      `json:"is_strict"`
+	PolicyName         string `json:"policy_name"`
+	ViolationThreshold int    `json:"violation_threshold"`
+	TimeWindow         int    `json:"time_window"`
+	ActionThreshold    string `json:"action_threshold"`
+	EnforcementDelay   int    `json:"enforcement_delay"`
+	GracePeriod        int    `json:"grace_period"`
+	IsStrict           bool   `json:"is_strict"`
 }
 
 type GlobalThreshold struct {
-	ThresholdName       string    `json:"threshold_name"`
-	ThresholdValue      float64   `json:"threshold_value"`
-	ApplicableEntities  []string  `json:"applicable_entities"`
-	Priority            int       `json:"priority"`
-	OverrideAllowed     bool      `json:"override_allowed"`
-	InheritanceRules    []string  `json:"inheritance_rules"`
+	ThresholdName      string   `json:"threshold_name"`
+	ThresholdValue     float64  `json:"threshold_value"`
+	ApplicableEntities []string `json:"applicable_entities"`
+	Priority           int      `json:"priority"`
+	OverrideAllowed    bool     `json:"override_allowed"`
+	InheritanceRules   []string `json:"inheritance_rules"`
 }
 
 type CustomThreshold struct {
-	Name                string    `json:"name"`
-	Description         string    `json:"description"`
-	Condition           string    `json:"condition"`
-	ThresholdValue      float64   `json:"threshold_value"`
-	Metric              string    `json:"metric"`
-	EvaluationInterval  int       `json:"evaluation_interval"`
-	CreatedBy           string    `json:"created_by"`
-	CreatedAt           time.Time `json:"created_at"`
-	IsActive            bool      `json:"is_active"`
+	Name               string    `json:"name"`
+	Description        string    `json:"description"`
+	Condition          string    `json:"condition"`
+	ThresholdValue     float64   `json:"threshold_value"`
+	Metric             string    `json:"metric"`
+	EvaluationInterval int       `json:"evaluation_interval"`
+	CreatedBy          string    `json:"created_by"`
+	CreatedAt          time.Time `json:"created_at"`
+	IsActive           bool      `json:"is_active"`
 }
 
 type QuotaPolicy struct {
-	PolicyID            string              `json:"policy_id"`
-	PolicyName          string              `json:"policy_name"`
-	PolicyType          string              `json:"policy_type"`
-	Description         string              `json:"description"`
-	ApplicableEntities  []string            `json:"applicable_entities"`
-	ResourceRules       []*ResourceRule     `json:"resource_rules"`
-	EnforcementRules    []*EnforcementRule  `json:"enforcement_rules"`
-	ViolationHandling   *ViolationHandling  `json:"violation_handling"`
-	NotificationRules   []*NotificationRule `json:"notification_rules"`
-	ExceptionRules      []*ExceptionRule    `json:"exception_rules"`
-	ValidityPeriod      *ValidityPeriod     `json:"validity_period"`
-	Priority            int                 `json:"priority"`
-	IsActive            bool                `json:"is_active"`
-	CreatedBy           string              `json:"created_by"`
-	CreatedAt           time.Time           `json:"created_at"`
-	LastModified        time.Time           `json:"last_modified"`
-	VersionNumber       int                 `json:"version_number"`
+	PolicyID           string              `json:"policy_id"`
+	PolicyName         string              `json:"policy_name"`
+	PolicyType         string              `json:"policy_type"`
+	Description        string              `json:"description"`
+	ApplicableEntities []string            `json:"applicable_entities"`
+	ResourceRules      []*ResourceRule     `json:"resource_rules"`
+	EnforcementRules   []*EnforcementRule  `json:"enforcement_rules"`
+	ViolationHandling  *ViolationHandling  `json:"violation_handling"`
+	NotificationRules  []*NotificationRule `json:"notification_rules"`
+	ExceptionRules     []*ExceptionRule    `json:"exception_rules"`
+	ValidityPeriod     *ValidityPeriod     `json:"validity_period"`
+	Priority           int                 `json:"priority"`
+	IsActive           bool                `json:"is_active"`
+	CreatedBy          string              `json:"created_by"`
+	CreatedAt          time.Time           `json:"created_at"`
+	LastModified       time.Time           `json:"last_modified"`
+	VersionNumber      int                 `json:"version_number"`
 }
 
 type ResourceRule struct {
-	ResourceType        string    `json:"resource_type"`
-	MinQuota            float64   `json:"min_quota"`
-	MaxQuota            float64   `json:"max_quota"`
-	DefaultQuota        float64   `json:"default_quota"`
-	AllocationRules     []string  `json:"allocation_rules"`
-	SharingRules        []string  `json:"sharing_rules"`
-	InheritanceRules    []string  `json:"inheritance_rules"`
-	RenewlRules         []string  `json:"renewal_rules"`
+	ResourceType     string   `json:"resource_type"`
+	MinQuota         float64  `json:"min_quota"`
+	MaxQuota         float64  `json:"max_quota"`
+	DefaultQuota     float64  `json:"default_quota"`
+	AllocationRules  []string `json:"allocation_rules"`
+	SharingRules     []string `json:"sharing_rules"`
+	InheritanceRules []string `json:"inheritance_rules"`
+	RenewlRules      []string `json:"renewal_rules"`
 }
 
 type EnforcementRule struct {
-	RuleName            string    `json:"rule_name"`
-	EnforcementType     string    `json:"enforcement_type"`
-	TriggerCondition    string    `json:"trigger_condition"`
-	Action              string    `json:"action"`
-	GracePeriod         int       `json:"grace_period"`
-	EscalationSteps     []string  `json:"escalation_steps"`
-	AutoRemediation     bool      `json:"auto_remediation"`
-	ManualOverride      bool      `json:"manual_override"`
+	RuleName         string   `json:"rule_name"`
+	EnforcementType  string   `json:"enforcement_type"`
+	TriggerCondition string   `json:"trigger_condition"`
+	Action           string   `json:"action"`
+	GracePeriod      int      `json:"grace_period"`
+	EscalationSteps  []string `json:"escalation_steps"`
+	AutoRemediation  bool     `json:"auto_remediation"`
+	ManualOverride   bool     `json:"manual_override"`
 }
 
 type ViolationHandling struct {
-	ImmediateActions    []string  `json:"immediate_actions"`
-	EscalationActions   []string  `json:"escalation_actions"`
-	ResolutionActions   []string  `json:"resolution_actions"`
-	PreventionMeasures  []string  `json:"prevention_measures"`
+	ImmediateActions          []string `json:"immediate_actions"`
+	EscalationActions         []string `json:"escalation_actions"`
+	ResolutionActions         []string `json:"resolution_actions"`
+	PreventionMeasures        []string `json:"prevention_measures"`
 	DocumentationRequirements []string `json:"documentation_requirements"`
-	ApprovalRequirements []string `json:"approval_requirements"`
+	ApprovalRequirements      []string `json:"approval_requirements"`
 }
 
 type QuotaNotificationRule struct {
-	RuleName            string    `json:"rule_name"`
-	TriggerEvents       []string  `json:"trigger_events"`
-	Recipients          []string  `json:"recipients"`
-	NotificationMethods []string  `json:"notification_methods"`
-	MessageTemplate     string    `json:"message_template"`
-	Frequency           string    `json:"frequency"`
-	EscalationDelay     int       `json:"escalation_delay"`
-	IsActive            bool      `json:"is_active"`
+	RuleName            string   `json:"rule_name"`
+	TriggerEvents       []string `json:"trigger_events"`
+	Recipients          []string `json:"recipients"`
+	NotificationMethods []string `json:"notification_methods"`
+	MessageTemplate     string   `json:"message_template"`
+	Frequency           string   `json:"frequency"`
+	EscalationDelay     int      `json:"escalation_delay"`
+	IsActive            bool     `json:"is_active"`
 }
 
 type ExceptionRule struct {
-	RuleName            string    `json:"rule_name"`
-	Conditions          []string  `json:"conditions"`
-	ExceptionType       string    `json:"exception_type"`
-	Duration            int       `json:"duration"`
-	ApprovalRequired    bool      `json:"approval_required"`
-	JustificationRequired bool    `json:"justification_required"`
-	ReviewPeriod        int       `json:"review_period"`
-	IsTemporary         bool      `json:"is_temporary"`
+	RuleName              string   `json:"rule_name"`
+	Conditions            []string `json:"conditions"`
+	ExceptionType         string   `json:"exception_type"`
+	Duration              int      `json:"duration"`
+	ApprovalRequired      bool     `json:"approval_required"`
+	JustificationRequired bool     `json:"justification_required"`
+	ReviewPeriod          int      `json:"review_period"`
+	IsTemporary           bool     `json:"is_temporary"`
 }
 
 type ValidityPeriod struct {
-	StartDate           time.Time `json:"start_date"`
-	EndDate             *time.Time `json:"end_date,omitempty"`
-	Timezone            string    `json:"timezone"`
-	RecurrencePattern   string    `json:"recurrence_pattern"`
-	ExceptionDates      []time.Time `json:"exception_dates"`
+	StartDate         time.Time   `json:"start_date"`
+	EndDate           *time.Time  `json:"end_date,omitempty"`
+	Timezone          string      `json:"timezone"`
+	RecurrencePattern string      `json:"recurrence_pattern"`
+	ExceptionDates    []time.Time `json:"exception_dates"`
 }
 
 type QuotaEnforcement struct {
-	EntityType          string                `json:"entity_type"`
-	EntityName          string                `json:"entity_name"`
-	EnforcementStatus   string                `json:"enforcement_status"`
-	EnforcementMode     string                `json:"enforcement_mode"`
-	ActivePolicies      []string              `json:"active_policies"`
-	EnforcementActions  []*EnforcementAction  `json:"enforcement_actions"`
-	ViolationHistory    []*ViolationRecord    `json:"violation_history"`
-	ExceptionStatus     *ExceptionStatus      `json:"exception_status"`
-	OverrideStatus      *OverrideStatus       `json:"override_status"`
-	ComplianceMetrics   *ComplianceMetrics    `json:"compliance_metrics"`
-	LastEnforcement     time.Time             `json:"last_enforcement"`
-	NextEvaluation      time.Time             `json:"next_evaluation"`
+	EntityType         string               `json:"entity_type"`
+	EntityName         string               `json:"entity_name"`
+	EnforcementStatus  string               `json:"enforcement_status"`
+	EnforcementMode    string               `json:"enforcement_mode"`
+	ActivePolicies     []string             `json:"active_policies"`
+	EnforcementActions []*EnforcementAction `json:"enforcement_actions"`
+	ViolationHistory   []*ViolationRecord   `json:"violation_history"`
+	ExceptionStatus    *ExceptionStatus     `json:"exception_status"`
+	OverrideStatus     *OverrideStatus      `json:"override_status"`
+	ComplianceMetrics  *ComplianceMetrics   `json:"compliance_metrics"`
+	LastEnforcement    time.Time            `json:"last_enforcement"`
+	NextEvaluation     time.Time            `json:"next_evaluation"`
 }
 
 type EnforcementAction struct {
-	ActionID            string    `json:"action_id"`
-	ActionType          string    `json:"action_type"`
-	ExecutedAt          time.Time `json:"executed_at"`
-	ExecutedBy          string    `json:"executed_by"`
-	Description         string    `json:"description"`
-	AffectedResources   []string  `json:"affected_resources"`
-	Impact              string    `json:"impact"`
-	Duration            *int      `json:"duration,omitempty"`
-	Status              string    `json:"status"`
-	Result              string    `json:"result"`
-	RollbackAvailable   bool      `json:"rollback_available"`
+	ActionID          string    `json:"action_id"`
+	ActionType        string    `json:"action_type"`
+	ExecutedAt        time.Time `json:"executed_at"`
+	ExecutedBy        string    `json:"executed_by"`
+	Description       string    `json:"description"`
+	AffectedResources []string  `json:"affected_resources"`
+	Impact            string    `json:"impact"`
+	Duration          *int      `json:"duration,omitempty"`
+	Status            string    `json:"status"`
+	Result            string    `json:"result"`
+	RollbackAvailable bool      `json:"rollback_available"`
 }
 
 type ViolationRecord struct {
-	Timestamp           time.Time `json:"timestamp"`
-	ViolationType       string    `json:"violation_type"`
-	Severity            string    `json:"severity"`
-	ActionTaken         string    `json:"action_taken"`
-	ResolutionTime      int       `json:"resolution_time"`
-	WasRecurrent        bool      `json:"was_recurrent"`
+	Timestamp      time.Time `json:"timestamp"`
+	ViolationType  string    `json:"violation_type"`
+	Severity       string    `json:"severity"`
+	ActionTaken    string    `json:"action_taken"`
+	ResolutionTime int       `json:"resolution_time"`
+	WasRecurrent   bool      `json:"was_recurrent"`
 }
 
 type ExceptionStatus struct {
-	HasActiveExceptions bool                `json:"has_active_exceptions"`
-	ActiveExceptions    []*ActiveException  `json:"active_exceptions"`
-	ExceptionHistory    []*ExceptionRecord  `json:"exception_history"`
-	TotalExceptions     int                 `json:"total_exceptions"`
-	LastException       *time.Time          `json:"last_exception,omitempty"`
+	HasActiveExceptions bool               `json:"has_active_exceptions"`
+	ActiveExceptions    []*ActiveException `json:"active_exceptions"`
+	ExceptionHistory    []*ExceptionRecord `json:"exception_history"`
+	TotalExceptions     int                `json:"total_exceptions"`
+	LastException       *time.Time         `json:"last_exception,omitempty"`
 }
 
 type ActiveException struct {
@@ -351,143 +351,143 @@ type ActiveException struct {
 }
 
 type ExceptionRecord struct {
-	Timestamp           time.Time `json:"timestamp"`
-	ExceptionType       string    `json:"exception_type"`
-	Duration            int       `json:"duration"`
-	WasApproved         bool      `json:"was_approved"`
-	WasRevoked          bool      `json:"was_revoked"`
+	Timestamp     time.Time `json:"timestamp"`
+	ExceptionType string    `json:"exception_type"`
+	Duration      int       `json:"duration"`
+	WasApproved   bool      `json:"was_approved"`
+	WasRevoked    bool      `json:"was_revoked"`
 }
 
 type OverrideStatus struct {
-	HasActiveOverrides  bool              `json:"has_active_overrides"`
-	ActiveOverrides     []*ActiveOverride `json:"active_overrides"`
-	OverrideHistory     []*OverrideRecord `json:"override_history"`
-	TotalOverrides      int               `json:"total_overrides"`
-	LastOverride        *time.Time        `json:"last_override,omitempty"`
+	HasActiveOverrides bool              `json:"has_active_overrides"`
+	ActiveOverrides    []*ActiveOverride `json:"active_overrides"`
+	OverrideHistory    []*OverrideRecord `json:"override_history"`
+	TotalOverrides     int               `json:"total_overrides"`
+	LastOverride       *time.Time        `json:"last_override,omitempty"`
 }
 
 type ActiveOverride struct {
-	OverrideID          string    `json:"override_id"`
-	OverrideType        string    `json:"override_type"`
-	AppliedAt           time.Time `json:"applied_at"`
-	ExpiresAt           *time.Time `json:"expires_at,omitempty"`
-	AppliedBy           string    `json:"applied_by"`
-	Reason              string    `json:"reason"`
-	AffectedPolicies    []string  `json:"affected_policies"`
-	IsPermanent         bool      `json:"is_permanent"`
+	OverrideID       string     `json:"override_id"`
+	OverrideType     string     `json:"override_type"`
+	AppliedAt        time.Time  `json:"applied_at"`
+	ExpiresAt        *time.Time `json:"expires_at,omitempty"`
+	AppliedBy        string     `json:"applied_by"`
+	Reason           string     `json:"reason"`
+	AffectedPolicies []string   `json:"affected_policies"`
+	IsPermanent      bool       `json:"is_permanent"`
 }
 
 type OverrideRecord struct {
-	Timestamp           time.Time `json:"timestamp"`
-	OverrideType        string    `json:"override_type"`
-	Duration            *int      `json:"duration,omitempty"`
-	WasAuthorized       bool      `json:"was_authorized"`
-	WasReverted         bool      `json:"was_reverted"`
+	Timestamp     time.Time `json:"timestamp"`
+	OverrideType  string    `json:"override_type"`
+	Duration      *int      `json:"duration,omitempty"`
+	WasAuthorized bool      `json:"was_authorized"`
+	WasReverted   bool      `json:"was_reverted"`
 }
 
 type ComplianceMetrics struct {
-	ComplianceRate      float64   `json:"compliance_rate"`
-	ViolationFrequency  float64   `json:"violation_frequency"`
+	ComplianceRate        float64 `json:"compliance_rate"`
+	ViolationFrequency    float64 `json:"violation_frequency"`
 	AverageResolutionTime float64 `json:"average_resolution_time"`
-	RecurrenceRate      float64   `json:"recurrence_rate"`
-	PolicyAdherence     float64   `json:"policy_adherence"`
-	ExceptionRate       float64   `json:"exception_rate"`
-	OverrideRate        float64   `json:"override_rate"`
-	TrendDirection      string    `json:"trend_direction"`
+	RecurrenceRate        float64 `json:"recurrence_rate"`
+	PolicyAdherence       float64 `json:"policy_adherence"`
+	ExceptionRate         float64 `json:"exception_rate"`
+	OverrideRate          float64 `json:"override_rate"`
+	TrendDirection        string  `json:"trend_direction"`
 }
 
 type QuotaComplianceTrends struct {
-	EntityType          string              `json:"entity_type"`
-	EntityName          string              `json:"entity_name"`
-	AnalysisPeriod      string              `json:"analysis_period"`
-	UsageTrends         []*UsageTrend       `json:"usage_trends"`
-	ComplianceTrends    []*ComplianceTrend  `json:"compliance_trends"`
-	ViolationTrends     []*ViolationTrend   `json:"violation_trends"`
-	ThresholdTrends     []*ThresholdTrend   `json:"threshold_trends"`
-	PolicyTrends        []*PolicyTrend      `json:"policy_trends"`
-	SeasonalPatterns    []*SeasonalPattern  `json:"seasonal_patterns"`
-	AnomalyDetection    *AnomalyDetection   `json:"anomaly_detection"`
-	TrendPredictions    []*TrendPrediction  `json:"trend_predictions"`
-	InfluencingFactors  []string            `json:"influencing_factors"`
-	RecommendedActions  []string            `json:"recommended_actions"`
+	EntityType         string             `json:"entity_type"`
+	EntityName         string             `json:"entity_name"`
+	AnalysisPeriod     string             `json:"analysis_period"`
+	UsageTrends        []*UsageTrend      `json:"usage_trends"`
+	ComplianceTrends   []*ComplianceTrend `json:"compliance_trends"`
+	ViolationTrends    []*ViolationTrend  `json:"violation_trends"`
+	ThresholdTrends    []*ThresholdTrend  `json:"threshold_trends"`
+	PolicyTrends       []*PolicyTrend     `json:"policy_trends"`
+	SeasonalPatterns   []*SeasonalPattern `json:"seasonal_patterns"`
+	AnomalyDetection   *AnomalyDetection  `json:"anomaly_detection"`
+	TrendPredictions   []*TrendPrediction `json:"trend_predictions"`
+	InfluencingFactors []string           `json:"influencing_factors"`
+	RecommendedActions []string           `json:"recommended_actions"`
 }
 
 type UsageTrend struct {
-	ResourceType        string    `json:"resource_type"`
-	TrendDirection      string    `json:"trend_direction"`
-	GrowthRate          float64   `json:"growth_rate"`
-	Volatility          float64   `json:"volatility"`
-	Seasonality         bool      `json:"seasonality"`
-	PeakPeriods         []string  `json:"peak_periods"`
-	LowPeriods          []string  `json:"low_periods"`
-	AverageUsage        float64   `json:"average_usage"`
-	TrendConfidence     float64   `json:"trend_confidence"`
+	ResourceType    string   `json:"resource_type"`
+	TrendDirection  string   `json:"trend_direction"`
+	GrowthRate      float64  `json:"growth_rate"`
+	Volatility      float64  `json:"volatility"`
+	Seasonality     bool     `json:"seasonality"`
+	PeakPeriods     []string `json:"peak_periods"`
+	LowPeriods      []string `json:"low_periods"`
+	AverageUsage    float64  `json:"average_usage"`
+	TrendConfidence float64  `json:"trend_confidence"`
 }
 
 type ComplianceTrend struct {
-	TrendPeriod         string    `json:"trend_period"`
-	ComplianceScore     float64   `json:"compliance_score"`
-	ScoreChange         float64   `json:"score_change"`
-	TrendDirection      string    `json:"trend_direction"`
-	ImprovementRate     float64   `json:"improvement_rate"`
-	DeteriorationRate   float64   `json:"deterioration_rate"`
-	StabilityScore      float64   `json:"stability_score"`
+	TrendPeriod       string  `json:"trend_period"`
+	ComplianceScore   float64 `json:"compliance_score"`
+	ScoreChange       float64 `json:"score_change"`
+	TrendDirection    string  `json:"trend_direction"`
+	ImprovementRate   float64 `json:"improvement_rate"`
+	DeteriorationRate float64 `json:"deterioration_rate"`
+	StabilityScore    float64 `json:"stability_score"`
 }
 
 type ViolationTrend struct {
-	ViolationType       string    `json:"violation_type"`
-	Frequency           float64   `json:"frequency"`
-	FrequencyChange     float64   `json:"frequency_change"`
-	Severity            string    `json:"severity"`
-	ResolutionTime      float64   `json:"resolution_time"`
-	RecurrenceRate      float64   `json:"recurrence_rate"`
-	TrendDirection      string    `json:"trend_direction"`
+	ViolationType   string  `json:"violation_type"`
+	Frequency       float64 `json:"frequency"`
+	FrequencyChange float64 `json:"frequency_change"`
+	Severity        string  `json:"severity"`
+	ResolutionTime  float64 `json:"resolution_time"`
+	RecurrenceRate  float64 `json:"recurrence_rate"`
+	TrendDirection  string  `json:"trend_direction"`
 }
 
 type ThresholdTrend struct {
-	ThresholdType       string    `json:"threshold_type"`
-	BreachFrequency     float64   `json:"breach_frequency"`
-	AverageExcess       float64   `json:"average_excess"`
-	TimeToThreshold     float64   `json:"time_to_threshold"`
-	ThresholdEffectiveness float64 `json:"threshold_effectiveness"`
-	AdjustmentHistory   []string  `json:"adjustment_history"`
+	ThresholdType          string   `json:"threshold_type"`
+	BreachFrequency        float64  `json:"breach_frequency"`
+	AverageExcess          float64  `json:"average_excess"`
+	TimeToThreshold        float64  `json:"time_to_threshold"`
+	ThresholdEffectiveness float64  `json:"threshold_effectiveness"`
+	AdjustmentHistory      []string `json:"adjustment_history"`
 }
 
 type PolicyTrend struct {
-	PolicyName          string    `json:"policy_name"`
-	AdherenceRate       float64   `json:"adherence_rate"`
-	ViolationCount      int       `json:"violation_count"`
-	ExceptionCount      int       `json:"exception_count"`
-	EffectivenessScore  float64   `json:"effectiveness_score"`
-	TrendDirection      string    `json:"trend_direction"`
+	PolicyName         string  `json:"policy_name"`
+	AdherenceRate      float64 `json:"adherence_rate"`
+	ViolationCount     int     `json:"violation_count"`
+	ExceptionCount     int     `json:"exception_count"`
+	EffectivenessScore float64 `json:"effectiveness_score"`
+	TrendDirection     string  `json:"trend_direction"`
 }
 
 type QuotaSeasonalPattern struct {
-	PatternType         string    `json:"pattern_type"`
-	PatternStrength     float64   `json:"pattern_strength"`
-	PatternPeriod       string    `json:"pattern_period"`
-	PeakPhase           string    `json:"peak_phase"`
-	LowPhase            string    `json:"low_phase"`
-	Amplitude           float64   `json:"amplitude"`
-	Regularity          float64   `json:"regularity"`
+	PatternType     string  `json:"pattern_type"`
+	PatternStrength float64 `json:"pattern_strength"`
+	PatternPeriod   string  `json:"pattern_period"`
+	PeakPhase       string  `json:"peak_phase"`
+	LowPhase        string  `json:"low_phase"`
+	Amplitude       float64 `json:"amplitude"`
+	Regularity      float64 `json:"regularity"`
 }
 
 type AnomalyDetection struct {
-	AnomaliesDetected   int       `json:"anomalies_detected"`
-	AnomalyRate         float64   `json:"anomaly_rate"`
+	AnomaliesDetected   int        `json:"anomalies_detected"`
+	AnomalyRate         float64    `json:"anomaly_rate"`
 	LastAnomaly         *time.Time `json:"last_anomaly,omitempty"`
-	AnomalyTypes        []string  `json:"anomaly_types"`
-	DetectionConfidence float64   `json:"detection_confidence"`
-	AnomalyImpact       string    `json:"anomaly_impact"`
+	AnomalyTypes        []string   `json:"anomaly_types"`
+	DetectionConfidence float64    `json:"detection_confidence"`
+	AnomalyImpact       string     `json:"anomaly_impact"`
 }
 
 type TrendPrediction struct {
-	PredictionHorizon   string    `json:"prediction_horizon"`
-	PredictedValue      float64   `json:"predicted_value"`
-	ConfidenceInterval  float64   `json:"confidence_interval"`
-	PredictionAccuracy  float64   `json:"prediction_accuracy"`
-	RiskLevel           string    `json:"risk_level"`
-	RecommendedActions  []string  `json:"recommended_actions"`
+	PredictionHorizon  string   `json:"prediction_horizon"`
+	PredictedValue     float64  `json:"predicted_value"`
+	ConfidenceInterval float64  `json:"confidence_interval"`
+	PredictionAccuracy float64  `json:"prediction_accuracy"`
+	RiskLevel          string   `json:"risk_level"`
+	RecommendedActions []string `json:"recommended_actions"`
 }
 
 type QuotaForecast struct {
@@ -508,437 +508,437 @@ type QuotaForecast struct {
 }
 
 type ResourceForecast struct {
-	ResourceType        string    `json:"resource_type"`
-	CurrentUsage        float64   `json:"current_usage"`
-	PredictedUsage      float64   `json:"predicted_usage"`
-	PredictedGrowth     float64   `json:"predicted_growth"`
-	ConfidenceLevel     float64   `json:"confidence_level"`
+	ResourceType        string     `json:"resource_type"`
+	CurrentUsage        float64    `json:"current_usage"`
+	PredictedUsage      float64    `json:"predicted_usage"`
+	PredictedGrowth     float64    `json:"predicted_growth"`
+	ConfidenceLevel     float64    `json:"confidence_level"`
 	ProjectedExhaustion *time.Time `json:"projected_exhaustion,omitempty"`
-	RecommendedQuota    float64   `json:"recommended_quota"`
-	RiskLevel           string    `json:"risk_level"`
+	RecommendedQuota    float64    `json:"recommended_quota"`
+	RiskLevel           string     `json:"risk_level"`
 }
 
 type ComplianceForecast struct {
-	ForecastPeriod      string    `json:"forecast_period"`
-	PredictedScore      float64   `json:"predicted_score"`
-	ScoreChange         float64   `json:"score_change"`
-	RiskLevel           string    `json:"risk_level"`
-	ConfidenceLevel     float64   `json:"confidence_level"`
-	RequiredActions     []string  `json:"required_actions"`
+	ForecastPeriod  string   `json:"forecast_period"`
+	PredictedScore  float64  `json:"predicted_score"`
+	ScoreChange     float64  `json:"score_change"`
+	RiskLevel       string   `json:"risk_level"`
+	ConfidenceLevel float64  `json:"confidence_level"`
+	RequiredActions []string `json:"required_actions"`
 }
 
 type ViolationForecast struct {
-	ViolationType       string    `json:"violation_type"`
-	PredictedFrequency  float64   `json:"predicted_frequency"`
-	PredictedSeverity   string    `json:"predicted_severity"`
-	ProbabilityScore    float64   `json:"probability_score"`
-	TimeToViolation     *time.Time `json:"time_to_violation,omitempty"`
-	PreventionMeasures  []string  `json:"prevention_measures"`
+	ViolationType      string     `json:"violation_type"`
+	PredictedFrequency float64    `json:"predicted_frequency"`
+	PredictedSeverity  string     `json:"predicted_severity"`
+	ProbabilityScore   float64    `json:"probability_score"`
+	TimeToViolation    *time.Time `json:"time_to_violation,omitempty"`
+	PreventionMeasures []string   `json:"prevention_measures"`
 }
 
 type CapacityForecast struct {
-	ResourceType        string    `json:"resource_type"`
-	CurrentCapacity     float64   `json:"current_capacity"`
-	DemandForecast      float64   `json:"demand_forecast"`
-	CapacityGap         float64   `json:"capacity_gap"`
-	RecommendedIncrease float64   `json:"recommended_increase"`
+	ResourceType        string     `json:"resource_type"`
+	CurrentCapacity     float64    `json:"current_capacity"`
+	DemandForecast      float64    `json:"demand_forecast"`
+	CapacityGap         float64    `json:"capacity_gap"`
+	RecommendedIncrease float64    `json:"recommended_increase"`
 	TimeToCapacity      *time.Time `json:"time_to_capacity,omitempty"`
-	ExpansionCost       float64   `json:"expansion_cost"`
+	ExpansionCost       float64    `json:"expansion_cost"`
 }
 
 type CostForecast struct {
-	CostType            string    `json:"cost_type"`
-	CurrentCost         float64   `json:"current_cost"`
-	PredictedCost       float64   `json:"predicted_cost"`
-	CostChange          float64   `json:"cost_change"`
-	CostDrivers         []string  `json:"cost_drivers"`
-	OptimizationPotential float64 `json:"optimization_potential"`
+	CostType              string   `json:"cost_type"`
+	CurrentCost           float64  `json:"current_cost"`
+	PredictedCost         float64  `json:"predicted_cost"`
+	CostChange            float64  `json:"cost_change"`
+	CostDrivers           []string `json:"cost_drivers"`
+	OptimizationPotential float64  `json:"optimization_potential"`
 }
 
 type RiskForecast struct {
-	RiskType            string    `json:"risk_type"`
-	CurrentRiskLevel    string    `json:"current_risk_level"`
-	PredictedRiskLevel  string    `json:"predicted_risk_level"`
-	RiskProbability     float64   `json:"risk_probability"`
-	RiskImpact          string    `json:"risk_impact"`
-	MitigationActions   []string  `json:"mitigation_actions"`
+	RiskType           string   `json:"risk_type"`
+	CurrentRiskLevel   string   `json:"current_risk_level"`
+	PredictedRiskLevel string   `json:"predicted_risk_level"`
+	RiskProbability    float64  `json:"risk_probability"`
+	RiskImpact         string   `json:"risk_impact"`
+	MitigationActions  []string `json:"mitigation_actions"`
 }
 
 type ScenarioForecast struct {
-	ScenarioName        string    `json:"scenario_name"`
-	ScenarioDescription string    `json:"scenario_description"`
-	Probability         float64   `json:"probability"`
-	Impact              string    `json:"impact"`
-	PredictedOutcome    string    `json:"predicted_outcome"`
-	RequiredActions     []string  `json:"required_actions"`
+	ScenarioName        string   `json:"scenario_name"`
+	ScenarioDescription string   `json:"scenario_description"`
+	Probability         float64  `json:"probability"`
+	Impact              string   `json:"impact"`
+	PredictedOutcome    string   `json:"predicted_outcome"`
+	RequiredActions     []string `json:"required_actions"`
 }
 
 type ModelAccuracy struct {
-	OverallAccuracy     float64   `json:"overall_accuracy"`
-	PredictionError     float64   `json:"prediction_error"`
-	ConfidenceScore     float64   `json:"confidence_score"`
-	ModelType           string    `json:"model_type"`
-	LastValidation      time.Time `json:"last_validation"`
-	ValidationMetrics   map[string]float64 `json:"validation_metrics"`
+	OverallAccuracy   float64            `json:"overall_accuracy"`
+	PredictionError   float64            `json:"prediction_error"`
+	ConfidenceScore   float64            `json:"confidence_score"`
+	ModelType         string             `json:"model_type"`
+	LastValidation    time.Time          `json:"last_validation"`
+	ValidationMetrics map[string]float64 `json:"validation_metrics"`
 }
 
 type QuotaComplianceRecommendations struct {
-	EntityType          string                      `json:"entity_type"`
-	EntityName          string                      `json:"entity_name"`
-	OverallScore        float64                     `json:"overall_score"`
-	ImprovementPotential float64                    `json:"improvement_potential"`
-	QuotaOptimization   []*QuotaOptimization        `json:"quota_optimization"`
-	PolicyRecommendations []*PolicyRecommendation   `json:"policy_recommendations"`
-	ThresholdAdjustments []*ThresholdAdjustment     `json:"threshold_adjustments"`
-	ComplianceActions   []*ComplianceAction         `json:"compliance_actions"`
-	RiskMitigation      []*RiskMitigationAction     `json:"risk_mitigation"`
-	CostOptimization    []*CostOptimizationAction   `json:"cost_optimization"`
-	PerformanceActions  []*PerformanceAction        `json:"performance_actions"`
-	AutomationOpportunities []*AutomationOpportunity `json:"automation_opportunities"`
-	PriorityMatrix      *PriorityMatrix             `json:"priority_matrix"`
-	ImplementationPlan  *ImplementationPlan         `json:"implementation_plan"`
-	ExpectedOutcomes    *ExpectedOutcomes           `json:"expected_outcomes"`
-	LastGenerated       time.Time                   `json:"last_generated"`
+	EntityType              string                    `json:"entity_type"`
+	EntityName              string                    `json:"entity_name"`
+	OverallScore            float64                   `json:"overall_score"`
+	ImprovementPotential    float64                   `json:"improvement_potential"`
+	QuotaOptimization       []*QuotaOptimization      `json:"quota_optimization"`
+	PolicyRecommendations   []*PolicyRecommendation   `json:"policy_recommendations"`
+	ThresholdAdjustments    []*ThresholdAdjustment    `json:"threshold_adjustments"`
+	ComplianceActions       []*ComplianceAction       `json:"compliance_actions"`
+	RiskMitigation          []*RiskMitigationAction   `json:"risk_mitigation"`
+	CostOptimization        []*CostOptimizationAction `json:"cost_optimization"`
+	PerformanceActions      []*PerformanceAction      `json:"performance_actions"`
+	AutomationOpportunities []*AutomationOpportunity  `json:"automation_opportunities"`
+	PriorityMatrix          *PriorityMatrix           `json:"priority_matrix"`
+	ImplementationPlan      *ImplementationPlan       `json:"implementation_plan"`
+	ExpectedOutcomes        *ExpectedOutcomes         `json:"expected_outcomes"`
+	LastGenerated           time.Time                 `json:"last_generated"`
 }
 
 type QuotaOptimization struct {
-	ResourceType        string    `json:"resource_type"`
-	CurrentQuota        float64   `json:"current_quota"`
-	RecommendedQuota    float64   `json:"recommended_quota"`
-	QuotaChange         float64   `json:"quota_change"`
-	ChangeReason        string    `json:"change_reason"`
-	ExpectedBenefit     string    `json:"expected_benefit"`
-	ImplementationCost  float64   `json:"implementation_cost"`
-	ROI                 float64   `json:"roi"`
-	RiskLevel           string    `json:"risk_level"`
-	Priority            string    `json:"priority"`
+	ResourceType       string  `json:"resource_type"`
+	CurrentQuota       float64 `json:"current_quota"`
+	RecommendedQuota   float64 `json:"recommended_quota"`
+	QuotaChange        float64 `json:"quota_change"`
+	ChangeReason       string  `json:"change_reason"`
+	ExpectedBenefit    string  `json:"expected_benefit"`
+	ImplementationCost float64 `json:"implementation_cost"`
+	ROI                float64 `json:"roi"`
+	RiskLevel          string  `json:"risk_level"`
+	Priority           string  `json:"priority"`
 }
 
 type QuotaPolicyRecommendation struct {
-	PolicyName          string    `json:"policy_name"`
-	RecommendationType  string    `json:"recommendation_type"`
-	Description         string    `json:"description"`
-	CurrentState        string    `json:"current_state"`
-	RecommendedState    string    `json:"recommended_state"`
-	Justification       string    `json:"justification"`
-	ExpectedImpact      string    `json:"expected_impact"`
-	ImplementationEffort string   `json:"implementation_effort"`
-	Priority            string    `json:"priority"`
+	PolicyName           string `json:"policy_name"`
+	RecommendationType   string `json:"recommendation_type"`
+	Description          string `json:"description"`
+	CurrentState         string `json:"current_state"`
+	RecommendedState     string `json:"recommended_state"`
+	Justification        string `json:"justification"`
+	ExpectedImpact       string `json:"expected_impact"`
+	ImplementationEffort string `json:"implementation_effort"`
+	Priority             string `json:"priority"`
 }
 
 type ThresholdAdjustment struct {
-	ThresholdType       string    `json:"threshold_type"`
-	ResourceType        string    `json:"resource_type"`
-	CurrentThreshold    float64   `json:"current_threshold"`
-	RecommendedThreshold float64  `json:"recommended_threshold"`
-	AdjustmentReason    string    `json:"adjustment_reason"`
-	ExpectedImprovement string    `json:"expected_improvement"`
-	ValidationPeriod    int       `json:"validation_period"`
-	RollbackPlan        string    `json:"rollback_plan"`
+	ThresholdType        string  `json:"threshold_type"`
+	ResourceType         string  `json:"resource_type"`
+	CurrentThreshold     float64 `json:"current_threshold"`
+	RecommendedThreshold float64 `json:"recommended_threshold"`
+	AdjustmentReason     string  `json:"adjustment_reason"`
+	ExpectedImprovement  string  `json:"expected_improvement"`
+	ValidationPeriod     int     `json:"validation_period"`
+	RollbackPlan         string  `json:"rollback_plan"`
 }
 
 type QuotaComplianceAction struct {
-	ActionType          string    `json:"action_type"`
-	Description         string    `json:"description"`
-	TargetCompliance    float64   `json:"target_compliance"`
-	CurrentGap          float64   `json:"current_gap"`
-	RequiredResources   []string  `json:"required_resources"`
-	Timeline            string    `json:"timeline"`
-	SuccessMetrics      []string  `json:"success_metrics"`
-	DependsOn           []string  `json:"depends_on"`
+	ActionType        string   `json:"action_type"`
+	Description       string   `json:"description"`
+	TargetCompliance  float64  `json:"target_compliance"`
+	CurrentGap        float64  `json:"current_gap"`
+	RequiredResources []string `json:"required_resources"`
+	Timeline          string   `json:"timeline"`
+	SuccessMetrics    []string `json:"success_metrics"`
+	DependsOn         []string `json:"depends_on"`
 }
 
 type RiskMitigationAction struct {
-	RiskType            string    `json:"risk_type"`
-	RiskLevel           string    `json:"risk_level"`
-	MitigationStrategy  string    `json:"mitigation_strategy"`
-	Action              string    `json:"action"`
-	EffectivenessScore  float64   `json:"effectiveness_score"`
-	ImplementationCost  float64   `json:"implementation_cost"`
-	Timeline            string    `json:"timeline"`
-	ResponsibleParty    string    `json:"responsible_party"`
+	RiskType           string  `json:"risk_type"`
+	RiskLevel          string  `json:"risk_level"`
+	MitigationStrategy string  `json:"mitigation_strategy"`
+	Action             string  `json:"action"`
+	EffectivenessScore float64 `json:"effectiveness_score"`
+	ImplementationCost float64 `json:"implementation_cost"`
+	Timeline           string  `json:"timeline"`
+	ResponsibleParty   string  `json:"responsible_party"`
 }
 
 type CostOptimizationAction struct {
-	OptimizationType    string    `json:"optimization_type"`
-	CurrentCost         float64   `json:"current_cost"`
-	PotentialSavings    float64   `json:"potential_savings"`
-	SavingsPercentage   float64   `json:"savings_percentage"`
-	Action              string    `json:"action"`
-	ImplementationCost  float64   `json:"implementation_cost"`
-	PaybackPeriod       int       `json:"payback_period"`
-	RiskLevel           string    `json:"risk_level"`
+	OptimizationType   string  `json:"optimization_type"`
+	CurrentCost        float64 `json:"current_cost"`
+	PotentialSavings   float64 `json:"potential_savings"`
+	SavingsPercentage  float64 `json:"savings_percentage"`
+	Action             string  `json:"action"`
+	ImplementationCost float64 `json:"implementation_cost"`
+	PaybackPeriod      int     `json:"payback_period"`
+	RiskLevel          string  `json:"risk_level"`
 }
 
 type PerformanceAction struct {
-	PerformanceMetric   string    `json:"performance_metric"`
-	CurrentPerformance  float64   `json:"current_performance"`
-	TargetPerformance   float64   `json:"target_performance"`
-	ImprovementAction   string    `json:"improvement_action"`
-	ExpectedImprovement float64   `json:"expected_improvement"`
-	ImplementationTime  int       `json:"implementation_time"`
-	RequiredResources   []string  `json:"required_resources"`
+	PerformanceMetric   string   `json:"performance_metric"`
+	CurrentPerformance  float64  `json:"current_performance"`
+	TargetPerformance   float64  `json:"target_performance"`
+	ImprovementAction   string   `json:"improvement_action"`
+	ExpectedImprovement float64  `json:"expected_improvement"`
+	ImplementationTime  int      `json:"implementation_time"`
+	RequiredResources   []string `json:"required_resources"`
 }
 
 type AutomationOpportunity struct {
-	ProcessName         string    `json:"process_name"`
-	AutomationType      string    `json:"automation_type"`
-	CurrentEffort       int       `json:"current_effort"`
-	AutomatedEffort     int       `json:"automated_effort"`
-	EffortSavings       int       `json:"effort_savings"`
-	AccuracyImprovement float64   `json:"accuracy_improvement"`
-	ImplementationComplexity string `json:"implementation_complexity"`
-	ROI                 float64   `json:"roi"`
+	ProcessName              string  `json:"process_name"`
+	AutomationType           string  `json:"automation_type"`
+	CurrentEffort            int     `json:"current_effort"`
+	AutomatedEffort          int     `json:"automated_effort"`
+	EffortSavings            int     `json:"effort_savings"`
+	AccuracyImprovement      float64 `json:"accuracy_improvement"`
+	ImplementationComplexity string  `json:"implementation_complexity"`
+	ROI                      float64 `json:"roi"`
 }
 
 type PriorityMatrix struct {
-	HighPriority        []string  `json:"high_priority"`
-	MediumPriority      []string  `json:"medium_priority"`
-	LowPriority         []string  `json:"low_priority"`
-	QuickWins           []string  `json:"quick_wins"`
-	LongTermGoals       []string  `json:"long_term_goals"`
-	PriorityFactors     []string  `json:"priority_factors"`
+	HighPriority    []string `json:"high_priority"`
+	MediumPriority  []string `json:"medium_priority"`
+	LowPriority     []string `json:"low_priority"`
+	QuickWins       []string `json:"quick_wins"`
+	LongTermGoals   []string `json:"long_term_goals"`
+	PriorityFactors []string `json:"priority_factors"`
 }
 
 type QuotaImplementationPlan struct {
-	Phase1Actions       []string  `json:"phase1_actions"`
-	Phase2Actions       []string  `json:"phase2_actions"`
-	Phase3Actions       []string  `json:"phase3_actions"`
-	CriticalPath        []string  `json:"critical_path"`
+	Phase1Actions        []string       `json:"phase1_actions"`
+	Phase2Actions        []string       `json:"phase2_actions"`
+	Phase3Actions        []string       `json:"phase3_actions"`
+	CriticalPath         []string       `json:"critical_path"`
 	ResourceRequirements map[string]int `json:"resource_requirements"`
-	Timeline            string    `json:"timeline"`
-	Dependencies        []string  `json:"dependencies"`
-	RiskFactors         []string  `json:"risk_factors"`
+	Timeline             string         `json:"timeline"`
+	Dependencies         []string       `json:"dependencies"`
+	RiskFactors          []string       `json:"risk_factors"`
 }
 
 type ExpectedOutcomes struct {
-	ComplianceImprovement float64 `json:"compliance_improvement"`
-	CostReduction         float64 `json:"cost_reduction"`
-	PerformanceGain       float64 `json:"performance_gain"`
-	RiskReduction         float64 `json:"risk_reduction"`
-	EfficiencyGain        float64 `json:"efficiency_gain"`
-	UserSatisfaction      float64 `json:"user_satisfaction"`
+	ComplianceImprovement  float64 `json:"compliance_improvement"`
+	CostReduction          float64 `json:"cost_reduction"`
+	PerformanceGain        float64 `json:"performance_gain"`
+	RiskReduction          float64 `json:"risk_reduction"`
+	EfficiencyGain         float64 `json:"efficiency_gain"`
+	UserSatisfaction       float64 `json:"user_satisfaction"`
 	OperationalImprovement float64 `json:"operational_improvement"`
 }
 
 type QuotaAuditEntry struct {
-	EntryID             string    `json:"entry_id"`
-	Timestamp           time.Time `json:"timestamp"`
-	EntityType          string    `json:"entity_type"`
-	EntityName          string    `json:"entity_name"`
-	EventType           string    `json:"event_type"`
-	EventDescription    string    `json:"event_description"`
-	UserID              string    `json:"user_id"`
-	UserRole            string    `json:"user_role"`
-	SourceIP            string    `json:"source_ip"`
-	AffectedResources   []string  `json:"affected_resources"`
-	OldValues           map[string]interface{} `json:"old_values"`
-	NewValues           map[string]interface{} `json:"new_values"`
-	Success             bool      `json:"success"`
-	ErrorMessage        string    `json:"error_message,omitempty"`
-	SessionID           string    `json:"session_id"`
-	RequestID           string    `json:"request_id"`
-	Severity            string    `json:"severity"`
-	Category            string    `json:"category"`
-	Tags                []string  `json:"tags"`
+	EntryID           string                 `json:"entry_id"`
+	Timestamp         time.Time              `json:"timestamp"`
+	EntityType        string                 `json:"entity_type"`
+	EntityName        string                 `json:"entity_name"`
+	EventType         string                 `json:"event_type"`
+	EventDescription  string                 `json:"event_description"`
+	UserID            string                 `json:"user_id"`
+	UserRole          string                 `json:"user_role"`
+	SourceIP          string                 `json:"source_ip"`
+	AffectedResources []string               `json:"affected_resources"`
+	OldValues         map[string]interface{} `json:"old_values"`
+	NewValues         map[string]interface{} `json:"new_values"`
+	Success           bool                   `json:"success"`
+	ErrorMessage      string                 `json:"error_message,omitempty"`
+	SessionID         string                 `json:"session_id"`
+	RequestID         string                 `json:"request_id"`
+	Severity          string                 `json:"severity"`
+	Category          string                 `json:"category"`
+	Tags              []string               `json:"tags"`
 }
 
 type SystemQuotaOverview struct {
-	TotalEntities       int                   `json:"total_entities"`
-	CompliantEntities   int                   `json:"compliant_entities"`
-	NonCompliantEntities int                  `json:"non_compliant_entities"`
-	SystemCompliance    float64               `json:"system_compliance"`
-	TotalViolations     int                   `json:"total_violations"`
-	ActiveViolations    int                   `json:"active_violations"`
-	TotalAlerts         int                   `json:"total_alerts"`
-	CriticalAlerts      int                   `json:"critical_alerts"`
-	ResourceUtilization []*SystemResourceUsage `json:"resource_utilization"`
-	PolicyOverview      *PolicyOverview       `json:"policy_overview"`
-	ComplianceTrends    *SystemComplianceTrends `json:"compliance_trends"`
-	RiskAssessment      *SystemRiskAssessment `json:"risk_assessment"`
-	PerformanceMetrics  *SystemPerformanceMetrics `json:"performance_metrics"`
-	CapacityStatus      *SystemCapacityStatus `json:"capacity_status"`
-	CostAnalysis        *SystemCostAnalysis   `json:"cost_analysis"`
-	RecommendationSummary *RecommendationSummary `json:"recommendation_summary"`
-	LastUpdated         time.Time             `json:"last_updated"`
+	TotalEntities         int                       `json:"total_entities"`
+	CompliantEntities     int                       `json:"compliant_entities"`
+	NonCompliantEntities  int                       `json:"non_compliant_entities"`
+	SystemCompliance      float64                   `json:"system_compliance"`
+	TotalViolations       int                       `json:"total_violations"`
+	ActiveViolations      int                       `json:"active_violations"`
+	TotalAlerts           int                       `json:"total_alerts"`
+	CriticalAlerts        int                       `json:"critical_alerts"`
+	ResourceUtilization   []*SystemResourceUsage    `json:"resource_utilization"`
+	PolicyOverview        *PolicyOverview           `json:"policy_overview"`
+	ComplianceTrends      *SystemComplianceTrends   `json:"compliance_trends"`
+	RiskAssessment        *SystemRiskAssessment     `json:"risk_assessment"`
+	PerformanceMetrics    *SystemPerformanceMetrics `json:"performance_metrics"`
+	CapacityStatus        *SystemCapacityStatus     `json:"capacity_status"`
+	CostAnalysis          *SystemCostAnalysis       `json:"cost_analysis"`
+	RecommendationSummary *RecommendationSummary    `json:"recommendation_summary"`
+	LastUpdated           time.Time                 `json:"last_updated"`
 }
 
 type SystemResourceUsage struct {
-	ResourceType        string    `json:"resource_type"`
-	TotalQuota          float64   `json:"total_quota"`
-	UsedQuota           float64   `json:"used_quota"`
-	AvailableQuota      float64   `json:"available_quota"`
-	UtilizationRate     float64   `json:"utilization_rate"`
-	TrendDirection      string    `json:"trend_direction"`
+	ResourceType        string     `json:"resource_type"`
+	TotalQuota          float64    `json:"total_quota"`
+	UsedQuota           float64    `json:"used_quota"`
+	AvailableQuota      float64    `json:"available_quota"`
+	UtilizationRate     float64    `json:"utilization_rate"`
+	TrendDirection      string     `json:"trend_direction"`
 	ProjectedExhaustion *time.Time `json:"projected_exhaustion,omitempty"`
 }
 
 type PolicyOverview struct {
-	TotalPolicies       int       `json:"total_policies"`
-	ActivePolicies      int       `json:"active_policies"`
-	PolicyCompliance    float64   `json:"policy_compliance"`
-	PolicyViolations    int       `json:"policy_violations"`
-	PolicyExceptions    int       `json:"policy_exceptions"`
-	PolicyUpdatesNeeded int       `json:"policy_updates_needed"`
+	TotalPolicies       int     `json:"total_policies"`
+	ActivePolicies      int     `json:"active_policies"`
+	PolicyCompliance    float64 `json:"policy_compliance"`
+	PolicyViolations    int     `json:"policy_violations"`
+	PolicyExceptions    int     `json:"policy_exceptions"`
+	PolicyUpdatesNeeded int     `json:"policy_updates_needed"`
 }
 
 type SystemComplianceTrends struct {
-	ComplianceDirection string    `json:"compliance_direction"`
-	ComplianceVelocity  float64   `json:"compliance_velocity"`
-	ImprovementRate     float64   `json:"improvement_rate"`
-	DeteriorationRate   float64   `json:"deterioration_rate"`
-	TrendStability      float64   `json:"trend_stability"`
-	ForecastAccuracy    float64   `json:"forecast_accuracy"`
+	ComplianceDirection string  `json:"compliance_direction"`
+	ComplianceVelocity  float64 `json:"compliance_velocity"`
+	ImprovementRate     float64 `json:"improvement_rate"`
+	DeteriorationRate   float64 `json:"deterioration_rate"`
+	TrendStability      float64 `json:"trend_stability"`
+	ForecastAccuracy    float64 `json:"forecast_accuracy"`
 }
 
 type SystemRiskAssessment struct {
-	OverallRiskLevel    string    `json:"overall_risk_level"`
-	RiskScore           float64   `json:"risk_score"`
-	HighRiskEntities    int       `json:"high_risk_entities"`
-	MediumRiskEntities  int       `json:"medium_risk_entities"`
-	LowRiskEntities     int       `json:"low_risk_entities"`
-	EmergingRisks       []string  `json:"emerging_risks"`
-	TopRiskFactors      []string  `json:"top_risk_factors"`
+	OverallRiskLevel   string   `json:"overall_risk_level"`
+	RiskScore          float64  `json:"risk_score"`
+	HighRiskEntities   int      `json:"high_risk_entities"`
+	MediumRiskEntities int      `json:"medium_risk_entities"`
+	LowRiskEntities    int      `json:"low_risk_entities"`
+	EmergingRisks      []string `json:"emerging_risks"`
+	TopRiskFactors     []string `json:"top_risk_factors"`
 }
 
 type QuotaSystemPerformanceMetrics struct {
-	ResponseTime        float64   `json:"response_time"`
-	Throughput          float64   `json:"throughput"`
-	ErrorRate           float64   `json:"error_rate"`
-	Availability        float64   `json:"availability"`
-	ProcessingEfficiency float64  `json:"processing_efficiency"`
-	SystemLoad          float64   `json:"system_load"`
+	ResponseTime         float64 `json:"response_time"`
+	Throughput           float64 `json:"throughput"`
+	ErrorRate            float64 `json:"error_rate"`
+	Availability         float64 `json:"availability"`
+	ProcessingEfficiency float64 `json:"processing_efficiency"`
+	SystemLoad           float64 `json:"system_load"`
 }
 
 type SystemCapacityStatus struct {
-	OverallCapacity     float64   `json:"overall_capacity"`
-	UsedCapacity        float64   `json:"used_capacity"`
-	AvailableCapacity   float64   `json:"available_capacity"`
-	CapacityGrowthRate  float64   `json:"capacity_growth_rate"`
-	TimeToCapacity      *time.Time `json:"time_to_capacity,omitempty"`
-	ExpansionRecommended bool      `json:"expansion_recommended"`
+	OverallCapacity      float64    `json:"overall_capacity"`
+	UsedCapacity         float64    `json:"used_capacity"`
+	AvailableCapacity    float64    `json:"available_capacity"`
+	CapacityGrowthRate   float64    `json:"capacity_growth_rate"`
+	TimeToCapacity       *time.Time `json:"time_to_capacity,omitempty"`
+	ExpansionRecommended bool       `json:"expansion_recommended"`
 }
 
 type SystemCostAnalysis struct {
-	TotalCost           float64   `json:"total_cost"`
-	CostPerEntity       float64   `json:"cost_per_entity"`
-	CostTrend           string    `json:"cost_trend"`
-	CostOptimizationPotential float64 `json:"cost_optimization_potential"`
-	WastedResources     float64   `json:"wasted_resources"`
-	EfficiencyOpportunities []string `json:"efficiency_opportunities"`
+	TotalCost                 float64  `json:"total_cost"`
+	CostPerEntity             float64  `json:"cost_per_entity"`
+	CostTrend                 string   `json:"cost_trend"`
+	CostOptimizationPotential float64  `json:"cost_optimization_potential"`
+	WastedResources           float64  `json:"wasted_resources"`
+	EfficiencyOpportunities   []string `json:"efficiency_opportunities"`
 }
 
 type RecommendationSummary struct {
-	TotalRecommendations int       `json:"total_recommendations"`
-	HighPriorityActions  int       `json:"high_priority_actions"`
-	QuickWins            int       `json:"quick_wins"`
-	LongTermProjects     int       `json:"long_term_projects"`
-	EstimatedSavings     float64   `json:"estimated_savings"`
-	ImplementationEffort int       `json:"implementation_effort"`
+	TotalRecommendations int     `json:"total_recommendations"`
+	HighPriorityActions  int     `json:"high_priority_actions"`
+	QuickWins            int     `json:"quick_wins"`
+	LongTermProjects     int     `json:"long_term_projects"`
+	EstimatedSavings     float64 `json:"estimated_savings"`
+	ImplementationEffort int     `json:"implementation_effort"`
 }
 
 type QuotaNotificationSettings struct {
-	EntityType          string                   `json:"entity_type"`
-	EntityName          string                   `json:"entity_name"`
-	NotificationRules   []*NotificationRule      `json:"notification_rules"`
-	AlertChannels       []*AlertChannel          `json:"alert_channels"`
-	EscalationMatrix    []*EscalationRule        `json:"escalation_matrix"`
-	QuietHours          []*QuietPeriod           `json:"quiet_hours"`
-	FrequencyLimits     []*FrequencyLimit        `json:"frequency_limits"`
-	ContentTemplates    []*ContentTemplate       `json:"content_templates"`
-	DeliveryPreferences *DeliveryPreferences     `json:"delivery_preferences"`
-	SubscriptionStatus  *SubscriptionStatus      `json:"subscription_status"`
-	NotificationHistory []*NotificationHistory   `json:"notification_history"`
-	LastUpdated         time.Time                `json:"last_updated"`
+	EntityType          string                 `json:"entity_type"`
+	EntityName          string                 `json:"entity_name"`
+	NotificationRules   []*NotificationRule    `json:"notification_rules"`
+	AlertChannels       []*AlertChannel        `json:"alert_channels"`
+	EscalationMatrix    []*EscalationRule      `json:"escalation_matrix"`
+	QuietHours          []*QuietPeriod         `json:"quiet_hours"`
+	FrequencyLimits     []*FrequencyLimit      `json:"frequency_limits"`
+	ContentTemplates    []*ContentTemplate     `json:"content_templates"`
+	DeliveryPreferences *DeliveryPreferences   `json:"delivery_preferences"`
+	SubscriptionStatus  *SubscriptionStatus    `json:"subscription_status"`
+	NotificationHistory []*NotificationHistory `json:"notification_history"`
+	LastUpdated         time.Time              `json:"last_updated"`
 }
 
 type AlertChannel struct {
-	ChannelID           string    `json:"channel_id"`
-	ChannelType         string    `json:"channel_type"`
-	ChannelName         string    `json:"channel_name"`
-	Endpoint            string    `json:"endpoint"`
-	IsActive            bool      `json:"is_active"`
-	Priority            int       `json:"priority"`
-	SupportedEvents     []string  `json:"supported_events"`
-	FailureHandling     string    `json:"failure_handling"`
-	RetryPolicy         string    `json:"retry_policy"`
-	LastUsed            *time.Time `json:"last_used,omitempty"`
+	ChannelID       string     `json:"channel_id"`
+	ChannelType     string     `json:"channel_type"`
+	ChannelName     string     `json:"channel_name"`
+	Endpoint        string     `json:"endpoint"`
+	IsActive        bool       `json:"is_active"`
+	Priority        int        `json:"priority"`
+	SupportedEvents []string   `json:"supported_events"`
+	FailureHandling string     `json:"failure_handling"`
+	RetryPolicy     string     `json:"retry_policy"`
+	LastUsed        *time.Time `json:"last_used,omitempty"`
 }
 
 type QuotaEscalationRule struct {
-	RuleID              string    `json:"rule_id"`
-	TriggerCondition    string    `json:"trigger_condition"`
-	EscalationLevel     int       `json:"escalation_level"`
-	DelayMinutes        int       `json:"delay_minutes"`
-	TargetRecipients    []string  `json:"target_recipients"`
-	NotificationMethod  string    `json:"notification_method"`
-	IsActive            bool      `json:"is_active"`
-	MaxEscalations      int       `json:"max_escalations"`
+	RuleID             string   `json:"rule_id"`
+	TriggerCondition   string   `json:"trigger_condition"`
+	EscalationLevel    int      `json:"escalation_level"`
+	DelayMinutes       int      `json:"delay_minutes"`
+	TargetRecipients   []string `json:"target_recipients"`
+	NotificationMethod string   `json:"notification_method"`
+	IsActive           bool     `json:"is_active"`
+	MaxEscalations     int      `json:"max_escalations"`
 }
 
 type QuietPeriod struct {
-	PeriodID            string    `json:"period_id"`
-	StartTime           string    `json:"start_time"`
-	EndTime             string    `json:"end_time"`
-	DaysOfWeek          []int     `json:"days_of_week"`
-	Timezone            string    `json:"timezone"`
-	ExceptionEvents     []string  `json:"exception_events"`
-	IsActive            bool      `json:"is_active"`
+	PeriodID        string   `json:"period_id"`
+	StartTime       string   `json:"start_time"`
+	EndTime         string   `json:"end_time"`
+	DaysOfWeek      []int    `json:"days_of_week"`
+	Timezone        string   `json:"timezone"`
+	ExceptionEvents []string `json:"exception_events"`
+	IsActive        bool     `json:"is_active"`
 }
 
 type FrequencyLimit struct {
-	LimitType           string    `json:"limit_type"`
-	MaxNotifications    int       `json:"max_notifications"`
-	TimeWindow          int       `json:"time_window"`
-	ApplicableEvents    []string  `json:"applicable_events"`
-	OverrideConditions  []string  `json:"override_conditions"`
-	IsStrict            bool      `json:"is_strict"`
+	LimitType          string   `json:"limit_type"`
+	MaxNotifications   int      `json:"max_notifications"`
+	TimeWindow         int      `json:"time_window"`
+	ApplicableEvents   []string `json:"applicable_events"`
+	OverrideConditions []string `json:"override_conditions"`
+	IsStrict           bool     `json:"is_strict"`
 }
 
 type ContentTemplate struct {
-	TemplateID          string    `json:"template_id"`
-	TemplateName        string    `json:"template_name"`
-	EventType           string    `json:"event_type"`
-	Subject             string    `json:"subject"`
-	Body                string    `json:"body"`
-	Format              string    `json:"format"`
-	Variables           []string  `json:"variables"`
-	Localization        map[string]string `json:"localization"`
-	IsDefault           bool      `json:"is_default"`
+	TemplateID   string            `json:"template_id"`
+	TemplateName string            `json:"template_name"`
+	EventType    string            `json:"event_type"`
+	Subject      string            `json:"subject"`
+	Body         string            `json:"body"`
+	Format       string            `json:"format"`
+	Variables    []string          `json:"variables"`
+	Localization map[string]string `json:"localization"`
+	IsDefault    bool              `json:"is_default"`
 }
 
 type DeliveryPreferences struct {
-	PreferredChannels   []string  `json:"preferred_channels"`
-	BackupChannels      []string  `json:"backup_channels"`
-	DeliveryMode        string    `json:"delivery_mode"`
-	BatchingEnabled     bool      `json:"batching_enabled"`
-	BatchingWindow      int       `json:"batching_window"`
+	PreferredChannels    []string `json:"preferred_channels"`
+	BackupChannels       []string `json:"backup_channels"`
+	DeliveryMode         string   `json:"delivery_mode"`
+	BatchingEnabled      bool     `json:"batching_enabled"`
+	BatchingWindow       int      `json:"batching_window"`
 	DeduplicationEnabled bool     `json:"deduplication_enabled"`
-	DeduplicationWindow int       `json:"deduplication_window"`
+	DeduplicationWindow  int      `json:"deduplication_window"`
 }
 
 type SubscriptionStatus struct {
-	IsSubscribed        bool      `json:"is_subscribed"`
-	SubscriptionLevel   string    `json:"subscription_level"`
-	SubscribedEvents    []string  `json:"subscribed_events"`
-	ExcludedEvents      []string  `json:"excluded_events"`
-	SubscriptionDate    time.Time `json:"subscription_date"`
-	LastModified        time.Time `json:"last_modified"`
-	OptOutReason        string    `json:"opt_out_reason,omitempty"`
+	IsSubscribed      bool      `json:"is_subscribed"`
+	SubscriptionLevel string    `json:"subscription_level"`
+	SubscribedEvents  []string  `json:"subscribed_events"`
+	ExcludedEvents    []string  `json:"excluded_events"`
+	SubscriptionDate  time.Time `json:"subscription_date"`
+	LastModified      time.Time `json:"last_modified"`
+	OptOutReason      string    `json:"opt_out_reason,omitempty"`
 }
 
 type NotificationHistory struct {
-	NotificationID      string    `json:"notification_id"`
-	Timestamp           time.Time `json:"timestamp"`
-	EventType           string    `json:"event_type"`
-	Channel             string    `json:"channel"`
-	Recipient           string    `json:"recipient"`
-	Status              string    `json:"status"`
-	DeliveryTime        *time.Time `json:"delivery_time,omitempty"`
-	ReadTime            *time.Time `json:"read_time,omitempty"`
-	ResponseTime        *time.Time `json:"response_time,omitempty"`
-	ErrorDetails        string    `json:"error_details,omitempty"`
-	RetryCount          int       `json:"retry_count"`
+	NotificationID string     `json:"notification_id"`
+	Timestamp      time.Time  `json:"timestamp"`
+	EventType      string     `json:"event_type"`
+	Channel        string     `json:"channel"`
+	Recipient      string     `json:"recipient"`
+	Status         string     `json:"status"`
+	DeliveryTime   *time.Time `json:"delivery_time,omitempty"`
+	ReadTime       *time.Time `json:"read_time,omitempty"`
+	ResponseTime   *time.Time `json:"response_time,omitempty"`
+	ErrorDetails   string     `json:"error_details,omitempty"`
+	RetryCount     int        `json:"retry_count"`
 }
 
 type QuotaComplianceCollector struct {
@@ -946,84 +946,84 @@ type QuotaComplianceCollector struct {
 	mutex  sync.RWMutex
 
 	// Compliance Metrics
-	quotaComplianceScore           *prometheus.GaugeVec
-	quotaComplianceStatus          *prometheus.GaugeVec
-	quotaResourceCompliance        *prometheus.GaugeVec
-	quotaPolicyCompliance          *prometheus.GaugeVec
-	quotaViolationsSummary         *prometheus.GaugeVec
-	quotaComplianceHistory         *prometheus.GaugeVec
+	quotaComplianceScore    *prometheus.GaugeVec
+	quotaComplianceStatus   *prometheus.GaugeVec
+	quotaResourceCompliance *prometheus.GaugeVec
+	quotaPolicyCompliance   *prometheus.GaugeVec
+	quotaViolationsSummary  *prometheus.GaugeVec
+	quotaComplianceHistory  *prometheus.GaugeVec
 
 	// Violation Metrics
-	quotaViolationsTotal           *prometheus.CounterVec
-	quotaViolationsSeverity        *prometheus.GaugeVec
-	quotaViolationsResolutionTime  *prometheus.HistogramVec
-	quotaViolationsRecurrence      *prometheus.GaugeVec
-	quotaViolationsExcess          *prometheus.GaugeVec
+	quotaViolationsTotal          *prometheus.CounterVec
+	quotaViolationsSeverity       *prometheus.GaugeVec
+	quotaViolationsResolutionTime *prometheus.HistogramVec
+	quotaViolationsRecurrence     *prometheus.GaugeVec
+	quotaViolationsExcess         *prometheus.GaugeVec
 
 	// Alert Metrics
-	quotaAlertsTotal               *prometheus.GaugeVec
-	quotaAlertsActive              *prometheus.GaugeVec
-	quotaAlertsPriority            *prometheus.GaugeVec
-	quotaAlertsEscalation          *prometheus.GaugeVec
-	quotaAlertsResponse            *prometheus.HistogramVec
+	quotaAlertsTotal      *prometheus.GaugeVec
+	quotaAlertsActive     *prometheus.GaugeVec
+	quotaAlertsPriority   *prometheus.GaugeVec
+	quotaAlertsEscalation *prometheus.GaugeVec
+	quotaAlertsResponse   *prometheus.HistogramVec
 
 	// Threshold Metrics
-	quotaThresholdBreaches         *prometheus.CounterVec
-	quotaThresholdEffectiveness    *prometheus.GaugeVec
-	quotaThresholdUtilization      *prometheus.GaugeVec
-	quotaThresholdAdjustments      *prometheus.CounterVec
+	quotaThresholdBreaches      *prometheus.CounterVec
+	quotaThresholdEffectiveness *prometheus.GaugeVec
+	quotaThresholdUtilization   *prometheus.GaugeVec
+	quotaThresholdAdjustments   *prometheus.CounterVec
 
 	// Policy Metrics
-	quotaPolicyAdherence           *prometheus.GaugeVec
-	quotaPolicyViolations          *prometheus.CounterVec
-	quotaPolicyExceptions          *prometheus.GaugeVec
-	quotaPolicyEffectiveness       *prometheus.GaugeVec
+	quotaPolicyAdherence     *prometheus.GaugeVec
+	quotaPolicyViolations    *prometheus.CounterVec
+	quotaPolicyExceptions    *prometheus.GaugeVec
+	quotaPolicyEffectiveness *prometheus.GaugeVec
 
 	// Enforcement Metrics
-	quotaEnforcementActions        *prometheus.CounterVec
-	quotaEnforcementEffectiveness  *prometheus.GaugeVec
-	quotaEnforcementOverrides      *prometheus.CounterVec
-	quotaEnforcementExceptions     *prometheus.GaugeVec
+	quotaEnforcementActions       *prometheus.CounterVec
+	quotaEnforcementEffectiveness *prometheus.GaugeVec
+	quotaEnforcementOverrides     *prometheus.CounterVec
+	quotaEnforcementExceptions    *prometheus.GaugeVec
 
 	// Trend Metrics
-	quotaTrendDirection            *prometheus.GaugeVec
-	quotaTrendGrowthRate           *prometheus.GaugeVec
-	quotaTrendVolatility           *prometheus.GaugeVec
-	quotaTrendSeasonality          *prometheus.GaugeVec
-	quotaTrendAnomalies            *prometheus.GaugeVec
+	quotaTrendDirection   *prometheus.GaugeVec
+	quotaTrendGrowthRate  *prometheus.GaugeVec
+	quotaTrendVolatility  *prometheus.GaugeVec
+	quotaTrendSeasonality *prometheus.GaugeVec
+	quotaTrendAnomalies   *prometheus.GaugeVec
 
 	// Forecast Metrics
-	quotaForecastAccuracy          *prometheus.GaugeVec
-	quotaForecastConfidence        *prometheus.GaugeVec
-	quotaForecastRisk              *prometheus.GaugeVec
-	quotaForecastExhaustion        *prometheus.GaugeVec
+	quotaForecastAccuracy   *prometheus.GaugeVec
+	quotaForecastConfidence *prometheus.GaugeVec
+	quotaForecastRisk       *prometheus.GaugeVec
+	quotaForecastExhaustion *prometheus.GaugeVec
 
 	// Recommendation Metrics
-	quotaRecommendationsTotal      *prometheus.GaugeVec
-	quotaRecommendationsPriority   *prometheus.GaugeVec
-	quotaRecommendationsROI        *prometheus.GaugeVec
+	quotaRecommendationsTotal          *prometheus.GaugeVec
+	quotaRecommendationsPriority       *prometheus.GaugeVec
+	quotaRecommendationsROI            *prometheus.GaugeVec
 	quotaRecommendationsImplementation *prometheus.GaugeVec
 
 	// Audit Metrics
-	quotaAuditEvents               *prometheus.CounterVec
-	quotaAuditFailures             *prometheus.CounterVec
-	quotaAuditLatency              *prometheus.HistogramVec
+	quotaAuditEvents   *prometheus.CounterVec
+	quotaAuditFailures *prometheus.CounterVec
+	quotaAuditLatency  *prometheus.HistogramVec
 
 	// System Overview Metrics
-	systemQuotaCompliance          prometheus.Gauge
-	systemQuotaEntities            *prometheus.GaugeVec
-	systemQuotaViolations          prometheus.Gauge
-	systemQuotaAlerts              prometheus.Gauge
-	systemQuotaUtilization         *prometheus.GaugeVec
-	systemQuotaRisk                prometheus.Gauge
-	systemQuotaPerformance         *prometheus.GaugeVec
-	systemQuotaCost                *prometheus.GaugeVec
+	systemQuotaCompliance  prometheus.Gauge
+	systemQuotaEntities    *prometheus.GaugeVec
+	systemQuotaViolations  prometheus.Gauge
+	systemQuotaAlerts      prometheus.Gauge
+	systemQuotaUtilization *prometheus.GaugeVec
+	systemQuotaRisk        prometheus.Gauge
+	systemQuotaPerformance *prometheus.GaugeVec
+	systemQuotaCost        *prometheus.GaugeVec
 
 	// Notification Metrics
-	quotaNotificationsSent         *prometheus.CounterVec
-	quotaNotificationsDelivered    *prometheus.CounterVec
-	quotaNotificationsFailed       *prometheus.CounterVec
-	quotaNotificationsLatency      *prometheus.HistogramVec
+	quotaNotificationsSent      *prometheus.CounterVec
+	quotaNotificationsDelivered *prometheus.CounterVec
+	quotaNotificationsFailed    *prometheus.CounterVec
+	quotaNotificationsLatency   *prometheus.HistogramVec
 }
 
 func NewQuotaComplianceCollector(client QuotaComplianceSLURMClient) *QuotaComplianceCollector {
@@ -1879,54 +1879,53 @@ func (c *QuotaComplianceCollector) collectEnforcementMetrics(ch chan<- prometheu
 func (c *QuotaComplianceCollector) collectTrendMetrics(ch chan<- prometheus.Metric, entityType, entityName string, trends *QuotaTrends) {
 	// TODO: QuotaTrends struct is missing expected fields (UsageTrends, SeasonalPatterns, AnomalyDetection)
 	// Skipping trend metrics collection for now
-	return
 	/*
-	// Usage trends
-	for _, usageTrend := range trends.UsageTrends {
-		trendDirection := 0.0
-		switch usageTrend.TrendDirection {
-		case "INCREASING":
-			trendDirection = 1.0
-		case "DECREASING":
-			trendDirection = -1.0
-		default:
-			trendDirection = 0.0
+		// Usage trends
+		for _, usageTrend := range trends.UsageTrends {
+			trendDirection := 0.0
+			switch usageTrend.TrendDirection {
+			case "INCREASING":
+				trendDirection = 1.0
+			case "DECREASING":
+				trendDirection = -1.0
+			default:
+				trendDirection = 0.0
+			}
+
+			ch <- prometheus.MustNewConstMetric(
+				c.quotaTrendDirection.WithLabelValues(entityType, entityName, usageTrend.ResourceType).Desc(),
+				prometheus.GaugeValue,
+				trendDirection,
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.quotaTrendGrowthRate.WithLabelValues(entityType, entityName, usageTrend.ResourceType).Desc(),
+				prometheus.GaugeValue,
+				usageTrend.GrowthRate,
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.quotaTrendVolatility.WithLabelValues(entityType, entityName, usageTrend.ResourceType).Desc(),
+				prometheus.GaugeValue,
+				usageTrend.Volatility,
+			)
 		}
 
-		ch <- prometheus.MustNewConstMetric(
-			c.quotaTrendDirection.WithLabelValues(entityType, entityName, usageTrend.ResourceType).Desc(),
-			prometheus.GaugeValue,
-			trendDirection,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.quotaTrendGrowthRate.WithLabelValues(entityType, entityName, usageTrend.ResourceType).Desc(),
-			prometheus.GaugeValue,
-			usageTrend.GrowthRate,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.quotaTrendVolatility.WithLabelValues(entityType, entityName, usageTrend.ResourceType).Desc(),
-			prometheus.GaugeValue,
-			usageTrend.Volatility,
-		)
-	}
+		// Seasonal patterns
+		for _, pattern := range trends.SeasonalPatterns {
+			ch <- prometheus.MustNewConstMetric(
+				c.quotaTrendSeasonality.WithLabelValues(entityType, entityName, pattern.PatternType).Desc(),
+				prometheus.GaugeValue,
+				pattern.PatternStrength,
+			)
+		}
 
-	// Seasonal patterns
-	for _, pattern := range trends.SeasonalPatterns {
-		ch <- prometheus.MustNewConstMetric(
-			c.quotaTrendSeasonality.WithLabelValues(entityType, entityName, pattern.PatternType).Desc(),
-			prometheus.GaugeValue,
-			pattern.PatternStrength,
-		)
-	}
-
-	// Anomaly detection
-	if trends.AnomalyDetection != nil {
-		ch <- prometheus.MustNewConstMetric(
-			c.quotaTrendAnomalies.WithLabelValues(entityType, entityName, "detected").Desc(),
-			prometheus.GaugeValue,
-			float64(trends.AnomalyDetection.AnomaliesDetected),
-		)
-	}
+		// Anomaly detection
+		if trends.AnomalyDetection != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.quotaTrendAnomalies.WithLabelValues(entityType, entityName, "detected").Desc(),
+				prometheus.GaugeValue,
+				float64(trends.AnomalyDetection.AnomaliesDetected),
+			)
+		}
 	*/
 }
 
@@ -1976,61 +1975,60 @@ func (c *QuotaComplianceCollector) collectForecastMetrics(ch chan<- prometheus.M
 func (c *QuotaComplianceCollector) collectRecommendationMetrics(ch chan<- prometheus.Metric, entityType, entityName string, recommendations *QuotaRecommendations) {
 	// TODO: QuotaRecommendations struct is missing expected fields (QuotaOptimization, PolicyRecommendations, PriorityMatrix)
 	// Skipping recommendation metrics collection for now
-	return
 	/*
-	// Overall recommendations metrics
-	ch <- prometheus.MustNewConstMetric(
-		c.quotaRecommendationsTotal.WithLabelValues(entityType, entityName, "overall").Desc(),
-		prometheus.GaugeValue,
-		float64(len(recommendations.QuotaOptimization)+len(recommendations.PolicyRecommendations)),
-	)
+		// Overall recommendations metrics
+		ch <- prometheus.MustNewConstMetric(
+			c.quotaRecommendationsTotal.WithLabelValues(entityType, entityName, "overall").Desc(),
+			prometheus.GaugeValue,
+			float64(len(recommendations.QuotaOptimization)+len(recommendations.PolicyRecommendations)),
+		)
 
-	// Priority matrix
-	if recommendations.PriorityMatrix != nil {
-		ch <- prometheus.MustNewConstMetric(
-			c.quotaRecommendationsPriority.WithLabelValues(entityType, entityName, "high").Desc(),
-			prometheus.GaugeValue,
-			float64(len(recommendations.PriorityMatrix.HighPriority)),
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.quotaRecommendationsPriority.WithLabelValues(entityType, entityName, "medium").Desc(),
-			prometheus.GaugeValue,
-			float64(len(recommendations.PriorityMatrix.MediumPriority)),
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.quotaRecommendationsPriority.WithLabelValues(entityType, entityName, "low").Desc(),
-			prometheus.GaugeValue,
-			float64(len(recommendations.PriorityMatrix.LowPriority)),
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.quotaRecommendationsPriority.WithLabelValues(entityType, entityName, "quick_wins").Desc(),
-			prometheus.GaugeValue,
-			float64(len(recommendations.PriorityMatrix.QuickWins)),
-		)
-	}
+		// Priority matrix
+		if recommendations.PriorityMatrix != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.quotaRecommendationsPriority.WithLabelValues(entityType, entityName, "high").Desc(),
+				prometheus.GaugeValue,
+				float64(len(recommendations.PriorityMatrix.HighPriority)),
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.quotaRecommendationsPriority.WithLabelValues(entityType, entityName, "medium").Desc(),
+				prometheus.GaugeValue,
+				float64(len(recommendations.PriorityMatrix.MediumPriority)),
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.quotaRecommendationsPriority.WithLabelValues(entityType, entityName, "low").Desc(),
+				prometheus.GaugeValue,
+				float64(len(recommendations.PriorityMatrix.LowPriority)),
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.quotaRecommendationsPriority.WithLabelValues(entityType, entityName, "quick_wins").Desc(),
+				prometheus.GaugeValue,
+				float64(len(recommendations.PriorityMatrix.QuickWins)),
+			)
+		}
 
-	// ROI metrics
-	for _, optimization := range recommendations.QuotaOptimization {
-		ch <- prometheus.MustNewConstMetric(
-			c.quotaRecommendationsROI.WithLabelValues(entityType, entityName, optimization.ResourceType).Desc(),
-			prometheus.GaugeValue,
-			optimization.ROI,
-		)
-	}
+		// ROI metrics
+		for _, optimization := range recommendations.QuotaOptimization {
+			ch <- prometheus.MustNewConstMetric(
+				c.quotaRecommendationsROI.WithLabelValues(entityType, entityName, optimization.ResourceType).Desc(),
+				prometheus.GaugeValue,
+				optimization.ROI,
+			)
+		}
 
-	// Expected outcomes
-	if recommendations.ExpectedOutcomes != nil {
-		ch <- prometheus.MustNewConstMetric(
-			c.quotaRecommendationsROI.WithLabelValues(entityType, entityName, "compliance_improvement").Desc(),
-			prometheus.GaugeValue,
-			recommendations.ExpectedOutcomes.ComplianceImprovement,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.quotaRecommendationsROI.WithLabelValues(entityType, entityName, "cost_reduction").Desc(),
-			prometheus.GaugeValue,
-			recommendations.ExpectedOutcomes.CostReduction,
-		)
-	}
+		// Expected outcomes
+		if recommendations.ExpectedOutcomes != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.quotaRecommendationsROI.WithLabelValues(entityType, entityName, "compliance_improvement").Desc(),
+				prometheus.GaugeValue,
+				recommendations.ExpectedOutcomes.ComplianceImprovement,
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.quotaRecommendationsROI.WithLabelValues(entityType, entityName, "cost_reduction").Desc(),
+				prometheus.GaugeValue,
+				recommendations.ExpectedOutcomes.CostReduction,
+			)
+		}
 	*/
 }
 

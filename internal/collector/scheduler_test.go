@@ -12,6 +12,36 @@ import (
 	"github.com/jontk/slurm-exporter/internal/config"
 )
 
+// mockCollector is a test collector that implements the Collector interface
+type mockCollector struct {
+	name        string
+	enabled     bool
+	collectFunc func(context.Context, chan<- prometheus.Metric) error
+}
+
+func (m *mockCollector) Name() string {
+	return m.name
+}
+
+func (m *mockCollector) IsEnabled() bool {
+	return m.enabled
+}
+
+func (m *mockCollector) SetEnabled(enabled bool) {
+	m.enabled = enabled
+}
+
+func (m *mockCollector) Describe(ch chan<- *prometheus.Desc) {
+	// Mock implementation - no-op
+}
+
+func (m *mockCollector) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
+	if m.collectFunc != nil {
+		return m.collectFunc(ctx, ch)
+	}
+	return nil
+}
+
 func TestScheduler(t *testing.T) {
 	// Create test configuration
 	cfg := &config.CollectorsConfig{

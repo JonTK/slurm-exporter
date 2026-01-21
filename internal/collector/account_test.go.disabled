@@ -1,0 +1,145 @@
+package collector
+
+import (
+	"log/slog"
+	"os"
+	"testing"
+
+	"github.com/jontk/slurm-client"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+
+	"github.com/jontk/slurm-exporter/internal/testutil/mocks"
+)
+
+func TestNewAccountCollector(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
+	mockClient := new(mocks.MockSlurmClient)
+
+	collector, err := NewAccountCollector(mockClient, logger, nil)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, collector)
+}
+
+func TestAccountCollector_Describe(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
+	mockClient := new(mocks.MockSlurmClient)
+
+	collector, err := NewAccountCollector(mockClient, logger, nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, collector)
+
+	ch := make(chan *prometheus.Desc, 100)
+	go func() {
+		collector.Describe(ch)
+		close(ch)
+	}()
+
+	var descs []*prometheus.Desc
+	for desc := range ch {
+		descs = append(descs, desc)
+	}
+
+	// We expect at least some metric descriptions
+	assert.Greater(t, len(descs), 0, "Should have metric descriptions")
+}
+
+func TestAccountCollector_Collect_Success(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
+	mockClient := new(mocks.MockSlurmClient)
+	mockAccountManager := new(mocks.MockAccountManager)
+
+	mockClient.On("Accounts").Return(mockAccountManager)
+
+	// Create test account list
+	accounts := &slurm.AccountList{
+		Accounts: []slurm.Account{
+			{
+				Name:        "root",
+				Description: "Root account",
+				// Add other required fields as needed
+			},
+			{
+				Name:        "dept1",
+				Description: "Department 1",
+			},
+		},
+	}
+
+	mockAccountManager.On("List", mock.Anything, mock.Anything).Return(accounts, nil)
+
+	collector, err := NewAccountCollector(mockClient, logger, nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, collector)
+
+	ch := make(chan prometheus.Metric, 100)
+
+	collector.Collect(ch)
+	close(ch)
+
+	// Count collected metrics
+	metricCount := 0
+	for range ch {
+		metricCount++
+	}
+
+	// We should have collected some metrics
+	assert.Greater(t, metricCount, 0, "Should have collected some metrics")
+
+	mockClient.AssertExpectations(t)
+	mockAccountManager.AssertExpectations(t)
+}
+
+func TestAccountCollector_Collect_Error(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
+	mockClient := new(mocks.MockSlurmClient)
+	mockAccountManager := new(mocks.MockAccountManager)
+
+	mockClient.On("Accounts").Return(mockAccountManager)
+	mockAccountManager.On("List", mock.Anything, mock.Anything).Return(nil, assert.AnError)
+
+	collector, err := NewAccountCollector(mockClient, logger, nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, collector)
+
+	ch := make(chan prometheus.Metric, 100)
+
+	collector.Collect(ch)
+	close(ch)
+
+	// Note: Collect doesn't return error, errors are logged internally
+
+	mockClient.AssertExpectations(t)
+	mockAccountManager.AssertExpectations(t)
+}
+
+func TestAccountCollector_Collect_EmptyList(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
+	mockClient := new(mocks.MockSlurmClient)
+	mockAccountManager := new(mocks.MockAccountManager)
+
+	mockClient.On("Accounts").Return(mockAccountManager)
+
+	// Return empty account list
+	emptyAccounts := &slurm.AccountList{
+		Accounts: []slurm.Account{},
+	}
+
+	mockAccountManager.On("List", mock.Anything, mock.Anything).Return(emptyAccounts, nil)
+
+	collector, err := NewAccountCollector(mockClient, logger, nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, collector)
+
+	ch := make(chan prometheus.Metric, 100)
+
+	collector.Collect(ch)
+	close(ch)
+
+	// Should not panic on empty list
+
+	mockClient.AssertExpectations(t)
+	mockAccountManager.AssertExpectations(t)
+}

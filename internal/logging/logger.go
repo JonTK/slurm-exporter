@@ -129,17 +129,17 @@ func (l *Logger) IsHTTPSuppressed() bool {
 
 // WithComponent creates a logger with a component field
 func (l *Logger) WithComponent(component string) *logrus.Entry {
-	return l.Logger.WithField("component", component)
+	return l.WithField("component", component)
 }
 
 // WithCollector creates a logger with a collector field
 func (l *Logger) WithCollector(collector string) *logrus.Entry {
-	return l.Logger.WithField("collector", collector)
+	return l.WithField("collector", collector)
 }
 
 // WithRequest creates a logger with request fields
 func (l *Logger) WithRequest(method, path, userAgent string) *logrus.Entry {
-	return l.Logger.WithFields(logrus.Fields{
+	return l.WithFields(logrus.Fields{
 		"http_method":     method,
 		"http_path":       path,
 		"http_user_agent": userAgent,
@@ -153,13 +153,13 @@ func (l *Logger) WithError(err error) *logrus.Entry {
 
 // WithDuration creates a logger with duration field
 func (l *Logger) WithDuration(duration interface{}) *logrus.Entry {
-	return l.Logger.WithField("duration", duration)
+	return l.WithField("duration", duration)
 }
 
 // withConstantFields returns a logger entry with constant fields applied
 func (l *Logger) withConstantFields() *logrus.Entry {
 	if len(l.constantFields) > 0 {
-		return l.Logger.WithFields(l.constantFields)
+		return l.WithFields(l.constantFields)
 	}
 	return logrus.NewEntry(l.Logger)
 }
@@ -219,7 +219,7 @@ func (l *Logger) Fatalf(format string, args ...interface{}) {
 // Close closes any file outputs (for lumberjack)
 func (l *Logger) Close() error {
 	if l.config.Output == "file" {
-		if closer, ok := l.Logger.Out.(io.Closer); ok {
+		if closer, ok := l.Out.(io.Closer); ok {
 			return closer.Close()
 		}
 	}

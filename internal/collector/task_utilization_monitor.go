@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"math"
+	// Commented out as only used in commented-out task simulation functions
+	// "math"
 	"sync"
 	"time"
 
@@ -14,69 +15,69 @@ import (
 
 // TaskUtilizationMonitor provides job step task-level utilization monitoring
 type TaskUtilizationMonitor struct {
-	slurmClient     slurm.SlurmClient
-	logger          *slog.Logger
-	config          *TaskMonitorConfig
-	metrics         *TaskUtilizationMetrics
+	slurmClient slurm.SlurmClient
+	logger      *slog.Logger
+	config      *TaskMonitorConfig
+	metrics     *TaskUtilizationMetrics
 
 	// Task-level data tracking
-	taskData        map[string]*JobStepTaskData
-	stepData        map[string]*JobStepData
-	lastCollection  time.Time
-	mu              sync.RWMutex
+	taskData       map[string]*JobStepTaskData
+	stepData       map[string]*JobStepData
+	lastCollection time.Time
+	mu             sync.RWMutex
 
 	// Task performance analysis
 	performanceAnalyzer *TaskPerformanceAnalyzer
 
 	// Load balancing analysis
-	loadBalancer        *TaskLoadBalancer
+	loadBalancer *TaskLoadBalancer
 
 	// Task efficiency tracking
-	efficiencyTracker   *TaskEfficiencyTracker
+	efficiencyTracker *TaskEfficiencyTracker
 }
 
 // TaskMonitorConfig configures the task utilization monitoring collector
 type TaskMonitorConfig struct {
-	MonitoringInterval       time.Duration
-	MaxJobsPerCollection     int
-	MaxStepsPerJob          int
-	MaxTasksPerStep         int
-	EnableTaskLoadBalancing  bool
+	MonitoringInterval        time.Duration
+	MaxJobsPerCollection      int
+	MaxStepsPerJob            int
+	MaxTasksPerStep           int
+	EnableTaskLoadBalancing   bool
 	EnablePerformanceAnalysis bool
-	EnableEfficiencyTracking bool
+	EnableEfficiencyTracking  bool
 
 	// Task detection parameters
-	TaskDetectionMethod     string // "process_monitoring", "resource_tracking", "estimated"
-	MinTaskDuration         time.Duration
-	TaskSamplingInterval    time.Duration
+	TaskDetectionMethod  string // "process_monitoring", "resource_tracking", "estimated"
+	MinTaskDuration      time.Duration
+	TaskSamplingInterval time.Duration
 
 	// Load balancing parameters
-	LoadImbalanceThreshold  float64 // Threshold for detecting load imbalance
-	TaskMigrationEnabled    bool
-	LoadBalancingStrategy   string // "round_robin", "least_loaded", "performance_based"
+	LoadImbalanceThreshold float64 // Threshold for detecting load imbalance
+	TaskMigrationEnabled   bool
+	LoadBalancingStrategy  string // "round_robin", "least_loaded", "performance_based"
 
 	// Performance analysis parameters
 	PerformanceVarianceThreshold float64
-	TaskBottleneckDetection     bool
-	EnableTaskProfiling         bool
+	TaskBottleneckDetection      bool
+	EnableTaskProfiling          bool
 
 	// Data retention
-	TaskDataRetention       time.Duration
-	StepDataRetention       time.Duration
+	TaskDataRetention time.Duration
+	StepDataRetention time.Duration
 
 	// Processing optimization
-	BatchSize               int
+	BatchSize                int
 	EnableParallelProcessing bool
-	MaxConcurrentAnalyses   int
+	MaxConcurrentAnalyses    int
 }
 
 // JobStepTaskData contains task-level utilization data for a job step
 type JobStepTaskData struct {
-	JobID         string
-	StepID        string
-	TaskID        string
-	NodeID        string
-	Timestamp     time.Time
+	JobID     string
+	StepID    string
+	TaskID    string
+	NodeID    string
+	Timestamp time.Time
 
 	// Task resource utilization
 	CPUUtilization     float64 // CPU utilization for this task
@@ -85,71 +86,71 @@ type JobStepTaskData struct {
 	NetworkUtilization float64 // Network utilization for this task
 
 	// Task allocation and usage
-	AllocatedCPUs      int     // CPUs allocated to this task
-	AllocatedMemoryMB  int     // Memory allocated to this task in MB
-	ActualCPUUsage     float64 // Actual CPU cores used
-	ActualMemoryUsageMB int64  // Actual memory used in MB
+	AllocatedCPUs       int     // CPUs allocated to this task
+	AllocatedMemoryMB   int     // Memory allocated to this task in MB
+	ActualCPUUsage      float64 // Actual CPU cores used
+	ActualMemoryUsageMB int64   // Actual memory used in MB
 
 	// Task performance metrics
-	TaskThroughput     float64 // Work units completed per second
-	TaskLatency        float64 // Average task response time
-	TaskEfficiency     float64 // Overall task efficiency score
-	TaskWasteScore     float64 // Resource waste score for this task
+	TaskThroughput float64 // Work units completed per second
+	TaskLatency    float64 // Average task response time
+	TaskEfficiency float64 // Overall task efficiency score
+	TaskWasteScore float64 // Resource waste score for this task
 
 	// Task timing information
-	TaskStartTime      time.Time
-	TaskDuration       time.Duration
+	TaskStartTime       time.Time
+	TaskDuration        time.Duration
 	EstimatedCompletion *time.Time
 
 	// Task state and status
-	TaskState          string // "running", "completed", "failed", "idle"
-	TaskProgress       float64 // Progress percentage (0-1)
-	TaskErrorRate      float64 // Error rate for this task
+	TaskState     string  // "running", "completed", "failed", "idle"
+	TaskProgress  float64 // Progress percentage (0-1)
+	TaskErrorRate float64 // Error rate for this task
 
 	// Load balancing metrics
-	LoadScore          float64 // Current load score
-	LoadImbalance      float64 // Load imbalance ratio
-	BalancingRecommendation string // Load balancing recommendation
+	LoadScore               float64 // Current load score
+	LoadImbalance           float64 // Load imbalance ratio
+	BalancingRecommendation string  // Load balancing recommendation
 
 	// Communication patterns
-	MessagesSent       int64   // Number of messages sent
-	MessagesReceived   int64   // Number of messages received
-	DataTransferredMB  float64 // Data transferred in MB
+	MessagesSent      int64   // Number of messages sent
+	MessagesReceived  int64   // Number of messages received
+	DataTransferredMB float64 // Data transferred in MB
 
 	// Task dependencies
-	DependentTasks     []string // List of dependent task IDs
-	BlockingTasks      []string // List of tasks blocking this task
-	CriticalPath       bool     // Whether this task is on the critical path
+	DependentTasks []string // List of dependent task IDs
+	BlockingTasks  []string // List of tasks blocking this task
+	CriticalPath   bool     // Whether this task is on the critical path
 }
 
 // JobStepData contains aggregated data for a job step
 type JobStepData struct {
-	JobID         string
-	StepID        string
-	Timestamp     time.Time
+	JobID     string
+	StepID    string
+	Timestamp time.Time
 
 	// Step-level aggregations
-	TotalTasks        int
-	ActiveTasks       int
-	CompletedTasks    int
-	FailedTasks       int
+	TotalTasks     int
+	ActiveTasks    int
+	CompletedTasks int
+	FailedTasks    int
 
 	// Resource utilization aggregations
-	AvgCPUUtilization     float64
-	MinCPUUtilization     float64
-	MaxCPUUtilization     float64
-	StdDevCPUUtilization  float64
+	AvgCPUUtilization    float64
+	MinCPUUtilization    float64
+	MaxCPUUtilization    float64
+	StdDevCPUUtilization float64
 
-	AvgMemoryUtilization  float64
-	MinMemoryUtilization  float64
-	MaxMemoryUtilization  float64
+	AvgMemoryUtilization    float64
+	MinMemoryUtilization    float64
+	MaxMemoryUtilization    float64
 	StdDevMemoryUtilization float64
 
 	// Performance aggregations
-	AvgTaskThroughput     float64
-	AvgTaskLatency        float64
-	AvgTaskEfficiency     float64
-	TotalTaskWaste        float64
+	AvgTaskThroughput float64
+	AvgTaskLatency    float64
+	AvgTaskEfficiency float64
+	TotalTaskWaste    float64
 
 	// Load balancing metrics
 	LoadImbalanceScore    float64
@@ -157,91 +158,91 @@ type JobStepData struct {
 	TaskDistributionScore float64
 
 	// Step performance analysis
-	BottleneckTasks       []string
-	CriticalPathTasks     []string
-	PerformanceIssues     []TaskPerformanceIssue
+	BottleneckTasks           []string
+	CriticalPathTasks         []string
+	PerformanceIssues         []TaskPerformanceIssue
 	OptimizationOpportunities []TaskOptimizationOpportunity
 
 	// Communication analysis
-	TotalMessagesExchanged int64
-	TotalDataTransferredMB float64
+	TotalMessagesExchanged  int64
+	TotalDataTransferredMB  float64
 	CommunicationEfficiency float64
 
 	// Progress and timing
-	StepProgress          float64
+	StepProgress            float64
 	EstimatedStepCompletion *time.Time
-	StepBottlenecks       []TaskBottleneck
+	StepBottlenecks         []TaskBottleneck
 }
 
 // TaskPerformanceIssue represents a detected performance issue at task level
 type TaskPerformanceIssue struct {
-	IssueID     string
-	TaskID      string
-	IssueType   string // "cpu_underutilization", "memory_pressure", "load_imbalance", etc.
-	Severity    string // "low", "medium", "high", "critical"
-	Description string
-	Impact      string
-	Detection   time.Time
-	Recommendations []string
+	IssueID             string
+	TaskID              string
+	IssueType           string // "cpu_underutilization", "memory_pressure", "load_imbalance", etc.
+	Severity            string // "low", "medium", "high", "critical"
+	Description         string
+	Impact              string
+	Detection           time.Time
+	Recommendations     []string
 	ExpectedImprovement float64
 }
 
 // TaskOptimizationOpportunity represents an optimization opportunity
 type TaskOptimizationOpportunity struct {
-	OpportunityID   string
-	OpportunityType string // "load_rebalancing", "resource_reallocation", "task_migration"
-	AffectedTasks   []string
-	ExpectedBenefit float64
+	OpportunityID        string
+	OpportunityType      string // "load_rebalancing", "resource_reallocation", "task_migration"
+	AffectedTasks        []string
+	ExpectedBenefit      float64
 	ImplementationEffort string
-	Priority        string
-	Description     string
-	ActionSteps     []string
+	Priority             string
+	Description          string
+	ActionSteps          []string
 }
 
 // TaskBottleneck represents a task-level bottleneck
 type TaskBottleneck struct {
-	TaskID              string
-	BottleneckType      string // "cpu", "memory", "io", "network", "synchronization"
-	Severity            float64
-	Duration            time.Duration
-	Impact              string
-	AffectedTasks       []string
-	RecommendedActions  []string
+	TaskID             string
+	BottleneckType     string // "cpu", "memory", "io", "network", "synchronization"
+	Severity           float64
+	Duration           time.Duration
+	Impact             string
+	AffectedTasks      []string
+	RecommendedActions []string
 }
 
 // TaskPerformanceAnalyzer analyzes task-level performance
 type TaskPerformanceAnalyzer struct {
-	config           *TaskMonitorConfig
-	logger           *slog.Logger
-	performanceData  map[string]*TaskPerformanceData
-	analysisResults  map[string]*TaskAnalysisResult
-	issueHistory     map[string][]TaskPerformanceIssue
+	config          *TaskMonitorConfig
+	logger          *slog.Logger
+	performanceData map[string]*TaskPerformanceData
+	analysisResults map[string]*TaskAnalysisResult
+	issueHistory    map[string][]TaskPerformanceIssue
 }
 
 // TaskPerformanceData contains performance data for analysis
 type TaskPerformanceData struct {
-	TaskID           string
-	PerformanceHistory []TaskPerformancePoint
-	ResourceHistory   []TaskResourcePoint
+	TaskID               string
+	PerformanceHistory   []TaskPerformancePoint
+	ResourceHistory      []TaskResourcePoint
 	CommunicationHistory []TaskCommunicationPoint
-	LoadHistory      []TaskLoadPoint
+	LoadHistory          []TaskLoadPoint
 }
 
 // TaskPerformancePoint represents a single performance measurement
 type TaskPerformancePoint struct {
-	Timestamp    time.Time
-	Throughput   float64
-	Latency      float64
-	Efficiency   float64
-	ErrorRate    float64
+	Timestamp  time.Time
+	Throughput float64
+	Latency    float64
+	Efficiency float64
+	ErrorRate  float64
 }
 
 // TaskResourcePoint represents a single resource measurement
 type TaskResourcePoint struct {
-	Timestamp         time.Time
-	CPUUtilization    float64
-	MemoryUtilization float64
-	IOUtilization     float64
+	Timestamp          time.Time
+	CPUUtilization     float64
+	MemoryUtilization  float64
+	IOUtilization      float64
 	NetworkUtilization float64
 }
 
@@ -256,11 +257,11 @@ type TaskCommunicationPoint struct {
 
 // TaskLoadPoint represents a single load measurement
 type TaskLoadPoint struct {
-	Timestamp   time.Time
-	LoadScore   float64
-	Imbalance   float64
-	QueueDepth  int
-	WaitTime    time.Duration
+	Timestamp  time.Time
+	LoadScore  float64
+	Imbalance  float64
+	QueueDepth int
+	WaitTime   time.Duration
 }
 
 // TaskAnalysisResult contains analysis results for a task
@@ -279,35 +280,35 @@ type TaskAnalysisResult struct {
 
 // TaskLoadBalancer handles task load balancing analysis
 type TaskLoadBalancer struct {
-	config            *TaskMonitorConfig
-	logger            *slog.Logger
-	loadData          map[string]*TaskLoadData
-	balancingHistory  map[string][]LoadBalancingEvent
+	config               *TaskMonitorConfig
+	logger               *slog.Logger
+	loadData             map[string]*TaskLoadData
+	balancingHistory     map[string][]LoadBalancingEvent
 	migrationSuggestions []TaskMigrationSuggestion
 }
 
 // TaskLoadData contains load balancing data
 type TaskLoadData struct {
-	TaskID          string
-	CurrentLoad     float64
-	AverageLoad     float64
-	LoadTrend       string
-	LoadVariance    float64
-	Capacity        float64
-	Utilization     float64
-	QueueLength     int
-	ProcessingRate  float64
+	TaskID         string
+	CurrentLoad    float64
+	AverageLoad    float64
+	LoadTrend      string
+	LoadVariance   float64
+	Capacity       float64
+	Utilization    float64
+	QueueLength    int
+	ProcessingRate float64
 }
 
 // LoadBalancingEvent represents a load balancing event
 type LoadBalancingEvent struct {
-	EventID     string
-	Timestamp   time.Time
-	EventType   string // "imbalance_detected", "migration_suggested", "rebalancing_performed"
+	EventID       string
+	Timestamp     time.Time
+	EventType     string // "imbalance_detected", "migration_suggested", "rebalancing_performed"
 	AffectedTasks []string
-	Action      string
-	Result      string
-	Impact      float64
+	Action        string
+	Result        string
+	Impact        float64
 }
 
 // TaskMigrationSuggestion represents a task migration suggestion
@@ -325,11 +326,12 @@ type TaskMigrationSuggestion struct {
 
 // TaskEfficiencyTracker tracks task efficiency over time
 type TaskEfficiencyTracker struct {
-	config            *TaskMonitorConfig
-	logger            *slog.Logger
-	efficiencyData    map[string]*TaskEfficiencyData
-	benchmarkData     map[string]float64
-	trends            map[string]*EfficiencyTrend
+	config         *TaskMonitorConfig
+	logger         *slog.Logger
+	efficiencyData map[string]*TaskEfficiencyData
+	benchmarkData  map[string]float64
+	// TODO: EfficiencyTrend type is not defined - commented out for now
+	// trends            map[string]*EfficiencyTrend
 }
 
 // TaskEfficiencyData contains efficiency tracking data
@@ -344,41 +346,41 @@ type TaskEfficiencyData struct {
 
 // EfficiencyPoint represents a single efficiency measurement
 type EfficiencyPoint struct {
-	Timestamp   time.Time
-	Efficiency  float64
-	CPUEff      float64
-	MemoryEff   float64
-	IOEff       float64
-	NetworkEff  float64
+	Timestamp  time.Time
+	Efficiency float64
+	CPUEff     float64
+	MemoryEff  float64
+	IOEff      float64
+	NetworkEff float64
 }
 
 // TaskUtilizationMetrics holds Prometheus metrics for task utilization monitoring
 type TaskUtilizationMetrics struct {
 	// Task-level utilization metrics
-	TaskCPUUtilization    *prometheus.GaugeVec
-	TaskMemoryUtilization *prometheus.GaugeVec
-	TaskIOUtilization     *prometheus.GaugeVec
+	TaskCPUUtilization     *prometheus.GaugeVec
+	TaskMemoryUtilization  *prometheus.GaugeVec
+	TaskIOUtilization      *prometheus.GaugeVec
 	TaskNetworkUtilization *prometheus.GaugeVec
 
 	// Task performance metrics
-	TaskThroughput        *prometheus.GaugeVec
-	TaskLatency           *prometheus.GaugeVec
-	TaskEfficiency        *prometheus.GaugeVec
-	TaskWasteScore        *prometheus.GaugeVec
-	TaskErrorRate         *prometheus.GaugeVec
+	TaskThroughput *prometheus.GaugeVec
+	TaskLatency    *prometheus.GaugeVec
+	TaskEfficiency *prometheus.GaugeVec
+	TaskWasteScore *prometheus.GaugeVec
+	TaskErrorRate  *prometheus.GaugeVec
 
 	// Task load balancing metrics
-	TaskLoadScore         *prometheus.GaugeVec
-	TaskLoadImbalance     *prometheus.GaugeVec
-	LoadVarianceScore     *prometheus.GaugeVec
+	TaskLoadScore            *prometheus.GaugeVec
+	TaskLoadImbalance        *prometheus.GaugeVec
+	LoadVarianceScore        *prometheus.GaugeVec
 	TaskMigrationSuggestions *prometheus.GaugeVec
 
 	// Step-level aggregation metrics
-	StepAvgCPUUtilization  *prometheus.GaugeVec
-	StepMaxCPUUtilization  *prometheus.GaugeVec
-	StepCPUVariance        *prometheus.GaugeVec
+	StepAvgCPUUtilization    *prometheus.GaugeVec
+	StepMaxCPUUtilization    *prometheus.GaugeVec
+	StepCPUVariance          *prometheus.GaugeVec
 	StepAvgMemoryUtilization *prometheus.GaugeVec
-	StepMemoryVariance     *prometheus.GaugeVec
+	StepMemoryVariance       *prometheus.GaugeVec
 
 	// Step performance metrics
 	StepAvgThroughput      *prometheus.GaugeVec
@@ -387,24 +389,24 @@ type TaskUtilizationMetrics struct {
 	StepLoadImbalanceScore *prometheus.GaugeVec
 
 	// Task communication metrics
-	TaskMessagesExchanged  *prometheus.CounterVec
-	TaskDataTransferred    *prometheus.CounterVec
+	TaskMessagesExchanged   *prometheus.CounterVec
+	TaskDataTransferred     *prometheus.CounterVec
 	CommunicationEfficiency *prometheus.GaugeVec
 
 	// Task state metrics
-	TasksRunning           *prometheus.GaugeVec
-	TasksCompleted         *prometheus.CounterVec
-	TasksFailed            *prometheus.CounterVec
-	TaskProgress           *prometheus.GaugeVec
+	TasksRunning   *prometheus.GaugeVec
+	TasksCompleted *prometheus.CounterVec
+	TasksFailed    *prometheus.CounterVec
+	TaskProgress   *prometheus.GaugeVec
 
 	// Performance issue metrics
-	TaskPerformanceIssues  *prometheus.GaugeVec
-	TaskBottlenecks        *prometheus.GaugeVec
+	TaskPerformanceIssues     *prometheus.GaugeVec
+	TaskBottlenecks           *prometheus.GaugeVec
 	OptimizationOpportunities *prometheus.GaugeVec
 
 	// Critical path metrics
-	CriticalPathTasks      *prometheus.GaugeVec
-	StepCriticalPathLength *prometheus.GaugeVec
+	CriticalPathTasks       *prometheus.GaugeVec
+	StepCriticalPathLength  *prometheus.GaugeVec
 	CriticalPathBottlenecks *prometheus.GaugeVec
 
 	// Collection metrics
@@ -417,27 +419,27 @@ type TaskUtilizationMetrics struct {
 func NewTaskUtilizationMonitor(client slurm.SlurmClient, logger *slog.Logger, config *TaskMonitorConfig) (*TaskUtilizationMonitor, error) {
 	if config == nil {
 		config = &TaskMonitorConfig{
-			MonitoringInterval:       30 * time.Second,
-			MaxJobsPerCollection:     50,
-			MaxStepsPerJob:          10,
-			MaxTasksPerStep:         100,
-			EnableTaskLoadBalancing:  true,
-			EnablePerformanceAnalysis: true,
-			EnableEfficiencyTracking: true,
-			TaskDetectionMethod:      "resource_tracking",
-			MinTaskDuration:          1 * time.Second,
-			TaskSamplingInterval:     5 * time.Second,
-			LoadImbalanceThreshold:   0.2,
-			TaskMigrationEnabled:     false,
-			LoadBalancingStrategy:    "performance_based",
+			MonitoringInterval:           30 * time.Second,
+			MaxJobsPerCollection:         50,
+			MaxStepsPerJob:               10,
+			MaxTasksPerStep:              100,
+			EnableTaskLoadBalancing:      true,
+			EnablePerformanceAnalysis:    true,
+			EnableEfficiencyTracking:     true,
+			TaskDetectionMethod:          "resource_tracking",
+			MinTaskDuration:              1 * time.Second,
+			TaskSamplingInterval:         5 * time.Second,
+			LoadImbalanceThreshold:       0.2,
+			TaskMigrationEnabled:         false,
+			LoadBalancingStrategy:        "performance_based",
 			PerformanceVarianceThreshold: 0.3,
-			TaskBottleneckDetection:  true,
-			EnableTaskProfiling:      true,
-			TaskDataRetention:        2 * time.Hour,
-			StepDataRetention:        24 * time.Hour,
-			BatchSize:               20,
-			EnableParallelProcessing: true,
-			MaxConcurrentAnalyses:   3,
+			TaskBottleneckDetection:      true,
+			EnableTaskProfiling:          true,
+			TaskDataRetention:            2 * time.Hour,
+			StepDataRetention:            24 * time.Hour,
+			BatchSize:                    20,
+			EnableParallelProcessing:     true,
+			MaxConcurrentAnalyses:        3,
 		}
 	}
 
@@ -462,7 +464,7 @@ func NewTaskUtilizationMonitor(client slurm.SlurmClient, logger *slog.Logger, co
 		logger:         logger,
 		efficiencyData: make(map[string]*TaskEfficiencyData),
 		benchmarkData:  getTaskBenchmarks(),
-		trends:         make(map[string]*EfficiencyTrend),
+		// trends:         make(map[string]*EfficiencyTrend), // Commented out - EfficiencyTrend type not defined
 	}
 
 	return &TaskUtilizationMonitor{
@@ -869,17 +871,17 @@ func (t *TaskUtilizationMonitor) collectTaskUtilizationMetrics(ctx context.Conte
 	// Skipping job processing for now
 	_ = jobs // Suppress unused variable warning
 	/*
-	for _, job := range jobs.Jobs {
-		if err := t.processJobStepTasks(ctx, job); err != nil {
-			t.logger.Error("Failed to process job step tasks", "job_id", job.JobID, "error", err)
-			t.metrics.TaskDataCollectionErrors.WithLabelValues("process_job", "job_error").Inc()
-			continue
-		}
+		for _, job := range jobs.Jobs {
+			if err := t.processJobStepTasks(ctx, job); err != nil {
+				t.logger.Error("Failed to process job step tasks", "job_id", job.JobID, "error", err)
+				t.metrics.TaskDataCollectionErrors.WithLabelValues("process_job", "job_error").Inc()
+				continue
+			}
 
-		// Count tasks for this job
-		jobTasks := t.countJobTasks(job.JobID)
-		totalTasks += jobTasks
-	}
+			// Count tasks for this job
+			jobTasks := t.countJobTasks(job.JobID)
+			totalTasks += jobTasks
+		}
 	*/
 
 	t.metrics.MonitoredTasksCount.WithLabelValues("total").Set(float64(totalTasks))
@@ -907,6 +909,8 @@ func (t *TaskUtilizationMonitor) collectTaskUtilizationMetrics(ctx context.Conte
 	return nil
 }
 
+// TODO: Following task processing methods are unused - preserved for future task-level monitoring
+/*
 // processJobStepTasks processes task-level data for all steps in a job
 func (t *TaskUtilizationMonitor) processJobStepTasks(ctx context.Context, job *slurm.Job) error {
 	// TODO: Job field names are not compatible with current slurm-client version
@@ -922,7 +926,7 @@ func (t *TaskUtilizationMonitor) processStepTasks(ctx context.Context, job *slur
 	var stepTaskData []*JobStepTaskData
 
 	// TODO: job.JobID field not available in current slurm-client version
-	jobID := fmt.Sprintf("job_%d", job.ID)
+	jobID := fmt.Sprintf("job_%s", job.ID)
 
 	for i, task := range tasks {
 		if i >= t.config.MaxTasksPerStep {
@@ -969,6 +973,7 @@ func (t *TaskUtilizationMonitor) processStepTasks(ctx context.Context, job *slur
 
 	return nil
 }
+*/
 
 // JobStepInfo represents basic step information (placeholder)
 type JobStepInfo struct {
@@ -986,6 +991,7 @@ type TaskInfo struct {
 	MemoryMB int
 }
 
+/*
 // getJobSteps gets job steps (simplified simulation)
 func (t *TaskUtilizationMonitor) getJobSteps(job *slurm.Job) []*JobStepInfo {
 	// TODO: Job field types are not compatible with current slurm-client version
@@ -1006,7 +1012,10 @@ func (t *TaskUtilizationMonitor) getJobSteps(job *slurm.Job) []*JobStepInfo {
 
 	return steps
 }
+*/
 
+// TODO: Following task-level utility and helper methods are unused - preserved for future task monitoring implementation
+/*
 // generateStepTasks generates tasks for a step (simplified simulation)
 func (t *TaskUtilizationMonitor) generateStepTasks(job *slurm.Job, step *JobStepInfo) []*TaskInfo {
 	var tasks []*TaskInfo
@@ -1402,7 +1411,7 @@ func (t *TaskUtilizationMonitor) generateBalancingRecommendation(loadScore, load
 func (t *TaskUtilizationMonitor) aggregateStepData(job *slurm.Job, step *JobStepInfo, tasks []*JobStepTaskData) *JobStepData {
 	if len(tasks) == 0 {
 		return &JobStepData{
-			JobID:     fmt.Sprintf("job_%d", job.ID),
+			JobID:     fmt.Sprintf("job_%s", job.ID),
 			StepID:    step.StepID,
 			Timestamp: time.Now(),
 		}
@@ -1493,7 +1502,7 @@ func (t *TaskUtilizationMonitor) aggregateStepData(job *slurm.Job, step *JobStep
 	}
 
 	return &JobStepData{
-		JobID:         fmt.Sprintf("job_%d", job.ID),
+		JobID:         fmt.Sprintf("job_%s", job.ID),
 		StepID:        step.StepID,
 		Timestamp:     time.Now(),
 
@@ -1739,6 +1748,7 @@ func (t *TaskUtilizationMonitor) updateStepMetrics(job *slurm.Job, stepData *Job
 	// Update critical path metrics
 	t.metrics.CriticalPathTasks.WithLabelValues(labels...).Set(float64(len(stepData.CriticalPathTasks)))
 }
+*/
 
 // Performance analysis methods (simplified implementations)
 
@@ -1747,15 +1757,18 @@ func (a *TaskPerformanceAnalyzer) analyzeTaskPerformance() error {
 	return nil
 }
 
+/*
 func (a *TaskPerformanceAnalyzer) trackTaskPerformance(taskData *JobStepTaskData) {
 	// Placeholder for tracking task performance data
 }
+*/
 
 func (l *TaskLoadBalancer) analyzeLoadBalancing() error {
 	// Placeholder for load balancing analysis
 	return nil
 }
 
+/*
 func (l *TaskLoadBalancer) trackTaskLoad(taskData *JobStepTaskData) {
 	// Placeholder for tracking task load data
 }
@@ -1763,6 +1776,7 @@ func (l *TaskLoadBalancer) trackTaskLoad(taskData *JobStepTaskData) {
 func (e *TaskEfficiencyTracker) trackTaskEfficiency(taskData *JobStepTaskData) {
 	// Placeholder for tracking task efficiency
 }
+*/
 
 // cleanOldTaskData removes old task and step data
 func (t *TaskUtilizationMonitor) cleanOldTaskData() {
@@ -1788,12 +1802,12 @@ func (t *TaskUtilizationMonitor) cleanOldTaskData() {
 // getTaskBenchmarks returns task performance benchmarks
 func getTaskBenchmarks() map[string]float64 {
 	return map[string]float64{
-		"cpu_efficiency":    0.80,
-		"memory_efficiency": 0.75,
-		"io_efficiency":     0.70,
-		"network_efficiency": 0.65,
-		"overall_efficiency": 0.75,
-		"load_balance":      0.90,
+		"cpu_efficiency":           0.80,
+		"memory_efficiency":        0.75,
+		"io_efficiency":            0.70,
+		"network_efficiency":       0.65,
+		"overall_efficiency":       0.75,
+		"load_balance":             0.90,
 		"communication_efficiency": 0.85,
 	}
 }

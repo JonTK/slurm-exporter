@@ -31,27 +31,27 @@ type SystemSimpleCollector struct {
 	customLabels map[string]string
 
 	// SLURM daemon health metrics
-	slurmDaemonUp       *prometheus.Desc
-	slurmAPILatency     *prometheus.Desc
-	slurmAPIErrors      *prometheus.Desc
+	slurmDaemonUp   *prometheus.Desc
+	slurmAPILatency *prometheus.Desc
+	slurmAPIErrors  *prometheus.Desc
 
 	// Database connectivity
-	slurmDBConnections  *prometheus.Desc
-	slurmDBLatency      *prometheus.Desc
+	slurmDBConnections *prometheus.Desc
+	slurmDBLatency     *prometheus.Desc
 
 	// System resource metrics
-	systemLoadAvg       *prometheus.Desc
-	systemMemoryUsage   *prometheus.Desc
-	systemDiskUsage     *prometheus.Desc
+	systemLoadAvg     *prometheus.Desc
+	systemMemoryUsage *prometheus.Desc
+	systemDiskUsage   *prometheus.Desc
 
 	// SLURM configuration metrics
-	configLastModified  *prometheus.Desc
-	activeControllers   *prometheus.Desc
+	configLastModified *prometheus.Desc
+	activeControllers  *prometheus.Desc
 
 	// Performance counters
-	lastCollectionTime  time.Time
-	apiCallCount        *prometheus.CounterVec
-	collectionDuration  *prometheus.HistogramVec
+	lastCollectionTime time.Time
+	apiCallCount       *prometheus.CounterVec
+	collectionDuration *prometheus.HistogramVec
 }
 
 // NewSystemSimpleCollector creates a new System collector

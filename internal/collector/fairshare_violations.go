@@ -13,71 +13,71 @@ type FairShareViolationsCollector struct {
 	client FairShareViolationsSLURMClient
 
 	// Violation Detection Metrics
-	fairShareViolations         *prometheus.GaugeVec
-	violationSeverity           *prometheus.GaugeVec
-	violationDuration           *prometheus.GaugeVec
-	violationType               *prometheus.GaugeVec
-	violationImpact             *prometheus.GaugeVec
+	fairShareViolations *prometheus.GaugeVec
+	violationSeverity   *prometheus.GaugeVec
+	violationDuration   *prometheus.GaugeVec
+	violationType       *prometheus.GaugeVec
+	violationImpact     *prometheus.GaugeVec
 
 	// Violation Trends
-	violationTrends             *prometheus.GaugeVec
-	violationFrequency          *prometheus.CounterVec
-	violationEscalation         *prometheus.CounterVec
-	violationResolution         *prometheus.CounterVec
-	violationRecurrence         *prometheus.GaugeVec
+	violationTrends     *prometheus.GaugeVec
+	violationFrequency  *prometheus.CounterVec
+	violationEscalation *prometheus.CounterVec
+	violationResolution *prometheus.CounterVec
+	violationRecurrence *prometheus.GaugeVec
 
 	// User Violation Metrics
-	userViolationScore          *prometheus.GaugeVec
-	userViolationHistory        *prometheus.GaugeVec
-	userViolationPattern        *prometheus.GaugeVec
-	userComplianceScore         *prometheus.GaugeVec
-	userRiskAssessment          *prometheus.GaugeVec
+	userViolationScore   *prometheus.GaugeVec
+	userViolationHistory *prometheus.GaugeVec
+	userViolationPattern *prometheus.GaugeVec
+	userComplianceScore  *prometheus.GaugeVec
+	userRiskAssessment   *prometheus.GaugeVec
 
 	// Account Violation Metrics
-	accountViolationAggregate   *prometheus.GaugeVec
-	accountViolationRisk        *prometheus.GaugeVec
-	accountComplianceMetrics    *prometheus.GaugeVec
-	accountViolationImpact      *prometheus.GaugeVec
+	accountViolationAggregate *prometheus.GaugeVec
+	accountViolationRisk      *prometheus.GaugeVec
+	accountComplianceMetrics  *prometheus.GaugeVec
+	accountViolationImpact    *prometheus.GaugeVec
 
 	// System Violation Metrics
-	systemViolationOverview     *prometheus.GaugeVec
-	systemViolationThresholds   *prometheus.GaugeVec
-	systemComplianceHealth     *prometheus.GaugeVec
-	systemViolationPrediction   *prometheus.GaugeVec
+	systemViolationOverview   *prometheus.GaugeVec
+	systemViolationThresholds *prometheus.GaugeVec
+	systemComplianceHealth    *prometheus.GaugeVec
+	systemViolationPrediction *prometheus.GaugeVec
 
 	// Alert Management Metrics
-	alertsGenerated             *prometheus.CounterVec
-	alertsAcknowledged          *prometheus.CounterVec
-	alertsResolved              *prometheus.CounterVec
-	alertResponseTime           *prometheus.HistogramVec
-	alertEscalationEvents       *prometheus.CounterVec
+	alertsGenerated       *prometheus.CounterVec
+	alertsAcknowledged    *prometheus.CounterVec
+	alertsResolved        *prometheus.CounterVec
+	alertResponseTime     *prometheus.HistogramVec
+	alertEscalationEvents *prometheus.CounterVec
 
 	// Notification Metrics
-	notificationsSent           *prometheus.CounterVec
-	notificationDeliveryStatus  *prometheus.GaugeVec
-	notificationChannels        *prometheus.GaugeVec
-	notificationPreferences     *prometheus.GaugeVec
+	notificationsSent          *prometheus.CounterVec
+	notificationDeliveryStatus *prometheus.GaugeVec
+	notificationChannels       *prometheus.GaugeVec
+	notificationPreferences    *prometheus.GaugeVec
 
 	// Remediation Tracking
-	remediationActions          *prometheus.CounterVec
-	remediationEffectiveness    *prometheus.GaugeVec
-	remediationTime             *prometheus.HistogramVec
-	automatedRemediation        *prometheus.CounterVec
-	remediationSuccess          *prometheus.GaugeVec
+	remediationActions       *prometheus.CounterVec
+	remediationEffectiveness *prometheus.GaugeVec
+	remediationTime          *prometheus.HistogramVec
+	automatedRemediation     *prometheus.CounterVec
+	remediationSuccess       *prometheus.GaugeVec
 
 	// Policy Enforcement
-	policyViolations            *prometheus.CounterVec
-	policyEffectiveness         *prometheus.GaugeVec
-	policyComplianceRate        *prometheus.GaugeVec
-	policyUpdateFrequency       *prometheus.CounterVec
-	policyValidationResults     *prometheus.GaugeVec
+	policyViolations        *prometheus.CounterVec
+	policyEffectiveness     *prometheus.GaugeVec
+	policyComplianceRate    *prometheus.GaugeVec
+	policyUpdateFrequency   *prometheus.CounterVec
+	policyValidationResults *prometheus.GaugeVec
 
 	// Threshold Management
-	thresholdBreaches           *prometheus.CounterVec
-	thresholdOptimality         *prometheus.GaugeVec
-	thresholdCalibration        *prometheus.GaugeVec
-	dynamicThresholdAdjustment  *prometheus.CounterVec
-	thresholdEffectiveness      *prometheus.GaugeVec
+	thresholdBreaches          *prometheus.CounterVec
+	thresholdOptimality        *prometheus.GaugeVec
+	thresholdCalibration       *prometheus.GaugeVec
+	dynamicThresholdAdjustment *prometheus.CounterVec
+	thresholdEffectiveness     *prometheus.GaugeVec
 }
 
 // FairShareViolationsSLURMClient interface for fair-share violation operations
@@ -98,93 +98,93 @@ type FairShareViolationsSLURMClient interface {
 
 // FairShareViolationRecord represents a detected violation
 type FairShareViolationRecord struct {
-	ViolationID         string    `json:"violation_id"`
-	UserName            string    `json:"user_name"`
-	AccountName         string    `json:"account_name"`
-	ViolationType       string    `json:"violation_type"`
-	Severity            string    `json:"severity"`
-	Description         string    `json:"description"`
+	ViolationID   string `json:"violation_id"`
+	UserName      string `json:"user_name"`
+	AccountName   string `json:"account_name"`
+	ViolationType string `json:"violation_type"`
+	Severity      string `json:"severity"`
+	Description   string `json:"description"`
 
 	// Violation Details
-	CurrentFairShare    float64   `json:"current_fair_share"`
-	ExpectedFairShare   float64   `json:"expected_fair_share"`
-	ViolationMagnitude  float64   `json:"violation_magnitude"`
-	ViolationPercentage float64   `json:"violation_percentage"`
-	ThresholdExceeded   string    `json:"threshold_exceeded"`
+	CurrentFairShare    float64 `json:"current_fair_share"`
+	ExpectedFairShare   float64 `json:"expected_fair_share"`
+	ViolationMagnitude  float64 `json:"violation_magnitude"`
+	ViolationPercentage float64 `json:"violation_percentage"`
+	ThresholdExceeded   string  `json:"threshold_exceeded"`
 
 	// Context Information
-	ResourcesUsed       map[string]float64 `json:"resources_used"`
-	JobsAffected        []string           `json:"jobs_affected"`
-	TimeframeStart      time.Time          `json:"timeframe_start"`
-	TimeframeEnd        time.Time          `json:"timeframe_end"`
-	Duration            time.Duration      `json:"duration"`
+	ResourcesUsed  map[string]float64 `json:"resources_used"`
+	JobsAffected   []string           `json:"jobs_affected"`
+	TimeframeStart time.Time          `json:"timeframe_start"`
+	TimeframeEnd   time.Time          `json:"timeframe_end"`
+	Duration       time.Duration      `json:"duration"`
 
 	// Impact Assessment
-	PriorityImpact      float64   `json:"priority_impact"`
-	QueueImpact         float64   `json:"queue_impact"`
-	SystemImpact        float64   `json:"system_impact"`
-	UserImpact          float64   `json:"user_impact"`
-	OverallImpact       float64   `json:"overall_impact"`
+	PriorityImpact float64 `json:"priority_impact"`
+	QueueImpact    float64 `json:"queue_impact"`
+	SystemImpact   float64 `json:"system_impact"`
+	UserImpact     float64 `json:"user_impact"`
+	OverallImpact  float64 `json:"overall_impact"`
 
 	// Status and Resolution
-	Status              string    `json:"status"`
-	DetectedAt          time.Time `json:"detected_at"`
-	AlertSent           bool      `json:"alert_sent"`
-	Acknowledged        bool      `json:"acknowledged"`
-	AcknowledgedBy      string    `json:"acknowledged_by"`
-	AcknowledgedAt      time.Time `json:"acknowledged_at"`
-	ResolvedAt          time.Time `json:"resolved_at"`
-	Resolution          string    `json:"resolution"`
+	Status         string    `json:"status"`
+	DetectedAt     time.Time `json:"detected_at"`
+	AlertSent      bool      `json:"alert_sent"`
+	Acknowledged   bool      `json:"acknowledged"`
+	AcknowledgedBy string    `json:"acknowledged_by"`
+	AcknowledgedAt time.Time `json:"acknowledged_at"`
+	ResolvedAt     time.Time `json:"resolved_at"`
+	Resolution     string    `json:"resolution"`
 
 	// Remediation
-	RemediationActions  []string  `json:"remediation_actions"`
-	AutoRemediation     bool      `json:"auto_remediation"`
-	RemediationStatus   string    `json:"remediation_status"`
+	RemediationActions []string `json:"remediation_actions"`
+	AutoRemediation    bool     `json:"auto_remediation"`
+	RemediationStatus  string   `json:"remediation_status"`
 }
 
 // UserViolationProfile represents user-specific violation profile
 type UserViolationProfile struct {
-	UserName            string  `json:"user_name"`
-	AccountName         string  `json:"account_name"`
+	UserName    string `json:"user_name"`
+	AccountName string `json:"account_name"`
 
 	// Violation Statistics
-	TotalViolations     int     `json:"total_violations"`
-	ActiveViolations    int     `json:"active_violations"`
-	ResolvedViolations  int     `json:"resolved_violations"`
-	ViolationRate       float64 `json:"violation_rate"`
-	ViolationScore      float64 `json:"violation_score"`
+	TotalViolations    int     `json:"total_violations"`
+	ActiveViolations   int     `json:"active_violations"`
+	ResolvedViolations int     `json:"resolved_violations"`
+	ViolationRate      float64 `json:"violation_rate"`
+	ViolationScore     float64 `json:"violation_score"`
 
 	// Violation Patterns
-	ViolationTypes      map[string]int `json:"violation_types"`
-	MostCommonType      string         `json:"most_common_type"`
-	ViolationFrequency  float64        `json:"violation_frequency"`
-	RecurrenceRate      float64        `json:"recurrence_rate"`
-	EscalationRate      float64        `json:"escalation_rate"`
+	ViolationTypes     map[string]int `json:"violation_types"`
+	MostCommonType     string         `json:"most_common_type"`
+	ViolationFrequency float64        `json:"violation_frequency"`
+	RecurrenceRate     float64        `json:"recurrence_rate"`
+	EscalationRate     float64        `json:"escalation_rate"`
 
 	// Compliance Metrics
-	ComplianceScore     float64   `json:"compliance_score"`
-	ComplianceRating    string    `json:"compliance_rating"`
-	ComplianceTrend     string    `json:"compliance_trend"`
-	RiskLevel           string    `json:"risk_level"`
-	RiskScore           float64   `json:"risk_score"`
+	ComplianceScore  float64 `json:"compliance_score"`
+	ComplianceRating string  `json:"compliance_rating"`
+	ComplianceTrend  string  `json:"compliance_trend"`
+	RiskLevel        string  `json:"risk_level"`
+	RiskScore        float64 `json:"risk_score"`
 
 	// Behavioral Analysis
-	ViolationPatterns   []string  `json:"violation_patterns"`
-	BehaviorChanges     []string  `json:"behavior_changes"`
-	ImprovementTrend    string    `json:"improvement_trend"`
-	AdaptationScore     float64   `json:"adaptation_score"`
+	ViolationPatterns []string `json:"violation_patterns"`
+	BehaviorChanges   []string `json:"behavior_changes"`
+	ImprovementTrend  string   `json:"improvement_trend"`
+	AdaptationScore   float64  `json:"adaptation_score"`
 
 	// Response Metrics
-	AverageResponseTime float64   `json:"average_response_time"`
-	RemediationSuccess  float64   `json:"remediation_success"`
-	CooperationLevel    float64   `json:"cooperation_level"`
+	AverageResponseTime float64 `json:"average_response_time"`
+	RemediationSuccess  float64 `json:"remediation_success"`
+	CooperationLevel    float64 `json:"cooperation_level"`
 
 	LastUpdated time.Time `json:"last_updated"`
 }
 
 // AccountViolationSummary represents account-level violation summary
 type AccountViolationSummary struct {
-	AccountName         string  `json:"account_name"`
+	AccountName string `json:"account_name"`
 
 	// Aggregate Statistics
 	TotalUsers          int     `json:"total_users"`
@@ -194,20 +194,20 @@ type AccountViolationSummary struct {
 	ViolationRate       float64 `json:"violation_rate"`
 
 	// Risk Assessment
-	AccountRiskScore    float64 `json:"account_risk_score"`
-	RiskLevel           string  `json:"risk_level"`
-	RiskFactors         []string `json:"risk_factors"`
-	RiskTrend           string  `json:"risk_trend"`
+	AccountRiskScore float64  `json:"account_risk_score"`
+	RiskLevel        string   `json:"risk_level"`
+	RiskFactors      []string `json:"risk_factors"`
+	RiskTrend        string   `json:"risk_trend"`
 
 	// Compliance Metrics
-	ComplianceScore     float64 `json:"compliance_score"`
-	ComplianceRating    string  `json:"compliance_rating"`
-	PolicyAdherence     float64 `json:"policy_adherence"`
-	ViolationImpact     float64 `json:"violation_impact"`
+	ComplianceScore  float64 `json:"compliance_score"`
+	ComplianceRating string  `json:"compliance_rating"`
+	PolicyAdherence  float64 `json:"policy_adherence"`
+	ViolationImpact  float64 `json:"violation_impact"`
 
 	// Management Metrics
-	ManagementResponse  float64 `json:"management_response"`
-	RemediationRate     float64 `json:"remediation_rate"`
+	ManagementResponse      float64 `json:"management_response"`
+	RemediationRate         float64 `json:"remediation_rate"`
 	PreventionEffectiveness float64 `json:"prevention_effectiveness"`
 
 	LastSummarized time.Time `json:"last_summarized"`
@@ -216,74 +216,74 @@ type AccountViolationSummary struct {
 // SystemViolationOverview represents system-wide violation overview
 type SystemViolationOverview struct {
 	// Overall Statistics
-	TotalViolations       int     `json:"total_violations"`
-	ActiveViolations      int     `json:"active_violations"`
-	ViolationsToday       int     `json:"violations_today"`
-	ViolationsThisWeek    int     `json:"violations_this_week"`
-	ViolationRate         float64 `json:"violation_rate"`
+	TotalViolations    int     `json:"total_violations"`
+	ActiveViolations   int     `json:"active_violations"`
+	ViolationsToday    int     `json:"violations_today"`
+	ViolationsThisWeek int     `json:"violations_this_week"`
+	ViolationRate      float64 `json:"violation_rate"`
 
 	// Severity Breakdown
-	CriticalViolations    int     `json:"critical_violations"`
-	HighViolations        int     `json:"high_violations"`
-	MediumViolations      int     `json:"medium_violations"`
-	LowViolations         int     `json:"low_violations"`
+	CriticalViolations int `json:"critical_violations"`
+	HighViolations     int `json:"high_violations"`
+	MediumViolations   int `json:"medium_violations"`
+	LowViolations      int `json:"low_violations"`
 
 	// System Health
-	ComplianceHealth      float64 `json:"compliance_health"`
-	ViolationTrend        string  `json:"violation_trend"`
-	SystemStressLevel     float64 `json:"system_stress_level"`
-	AlertLoad             float64 `json:"alert_load"`
+	ComplianceHealth  float64 `json:"compliance_health"`
+	ViolationTrend    string  `json:"violation_trend"`
+	SystemStressLevel float64 `json:"system_stress_level"`
+	AlertLoad         float64 `json:"alert_load"`
 
 	// Thresholds
-	ThresholdBreaches     int     `json:"threshold_breaches"`
-	ThresholdAdjustments  int     `json:"threshold_adjustments"`
+	ThresholdBreaches      int     `json:"threshold_breaches"`
+	ThresholdAdjustments   int     `json:"threshold_adjustments"`
 	ThresholdEffectiveness float64 `json:"threshold_effectiveness"`
 
 	// Performance Metrics
-	DetectionAccuracy     float64 `json:"detection_accuracy"`
-	FalsePositiveRate     float64 `json:"false_positive_rate"`
-	ResponseEfficiency    float64 `json:"response_efficiency"`
-	AutomationRate        float64 `json:"automation_rate"`
+	DetectionAccuracy  float64 `json:"detection_accuracy"`
+	FalsePositiveRate  float64 `json:"false_positive_rate"`
+	ResponseEfficiency float64 `json:"response_efficiency"`
+	AutomationRate     float64 `json:"automation_rate"`
 
 	LastUpdated time.Time `json:"last_updated"`
 }
 
 // ViolationTrendAnalysis represents violation trend analysis
 type ViolationTrendAnalysis struct {
-	AnalysisPeriod      string  `json:"analysis_period"`
+	AnalysisPeriod string `json:"analysis_period"`
 
 	// Trend Metrics
-	ViolationTrend      string  `json:"violation_trend"`
-	TrendDirection      string  `json:"trend_direction"`
-	TrendVelocity       float64 `json:"trend_velocity"`
-	TrendAcceleration   float64 `json:"trend_acceleration"`
-	TrendVolatility     float64 `json:"trend_volatility"`
+	ViolationTrend    string  `json:"violation_trend"`
+	TrendDirection    string  `json:"trend_direction"`
+	TrendVelocity     float64 `json:"trend_velocity"`
+	TrendAcceleration float64 `json:"trend_acceleration"`
+	TrendVolatility   float64 `json:"trend_volatility"`
 
 	// Pattern Analysis
-	PatternType         string            `json:"pattern_type"`
-	SeasonalPatterns    map[string]float64 `json:"seasonal_patterns"`
-	CyclicalBehavior    bool              `json:"cyclical_behavior"`
-	AnomalousEvents     []string          `json:"anomalous_events"`
+	PatternType      string             `json:"pattern_type"`
+	SeasonalPatterns map[string]float64 `json:"seasonal_patterns"`
+	CyclicalBehavior bool               `json:"cyclical_behavior"`
+	AnomalousEvents  []string           `json:"anomalous_events"`
 
 	// Predictions
-	FutureTrend         string  `json:"future_trend"`
-	PredictedViolations int     `json:"predicted_violations"`
+	FutureTrend          string  `json:"future_trend"`
+	PredictedViolations  int     `json:"predicted_violations"`
 	PredictionConfidence float64 `json:"prediction_confidence"`
-	RiskForecast        string  `json:"risk_forecast"`
+	RiskForecast         string  `json:"risk_forecast"`
 
 	LastAnalyzed time.Time `json:"last_analyzed"`
 }
 
 // AlertHistory represents alert history and statistics
 type AlertHistory struct {
-	Period              string `json:"period"`
+	Period string `json:"period"`
 
 	// Alert Statistics
-	TotalAlerts         int     `json:"total_alerts"`
-	AlertsSent          int     `json:"alerts_sent"`
-	AlertsAcknowledged  int     `json:"alerts_acknowledged"`
-	AlertsResolved      int     `json:"alerts_resolved"`
-	AlertsEscalated     int     `json:"alerts_escalated"`
+	TotalAlerts        int `json:"total_alerts"`
+	AlertsSent         int `json:"alerts_sent"`
+	AlertsAcknowledged int `json:"alerts_acknowledged"`
+	AlertsResolved     int `json:"alerts_resolved"`
+	AlertsEscalated    int `json:"alerts_escalated"`
 
 	// Response Metrics
 	AverageResponseTime float64 `json:"average_response_time"`
@@ -292,25 +292,25 @@ type AlertHistory struct {
 	EscalationRate      float64 `json:"escalation_rate"`
 
 	// Channel Statistics
-	EmailAlerts         int     `json:"email_alerts"`
-	SlackAlerts         int     `json:"slack_alerts"`
-	SMSAlerts           int     `json:"sms_alerts"`
-	PagerDutyAlerts     int     `json:"pager_duty_alerts"`
-	DeliverySuccess     float64 `json:"delivery_success"`
+	EmailAlerts     int     `json:"email_alerts"`
+	SlackAlerts     int     `json:"slack_alerts"`
+	SMSAlerts       int     `json:"sms_alerts"`
+	PagerDutyAlerts int     `json:"pager_duty_alerts"`
+	DeliverySuccess float64 `json:"delivery_success"`
 
 	LastUpdated time.Time `json:"last_updated"`
 }
 
 // RemediationHistory represents remediation history and effectiveness
 type RemediationHistory struct {
-	Period                  string `json:"period"`
+	Period string `json:"period"`
 
 	// Remediation Statistics
-	TotalRemediations       int     `json:"total_remediations"`
-	SuccessfulRemediations  int     `json:"successful_remediations"`
-	FailedRemediations      int     `json:"failed_remediations"`
-	AutoRemediations        int     `json:"auto_remediations"`
-	ManualRemediations      int     `json:"manual_remediations"`
+	TotalRemediations      int `json:"total_remediations"`
+	SuccessfulRemediations int `json:"successful_remediations"`
+	FailedRemediations     int `json:"failed_remediations"`
+	AutoRemediations       int `json:"auto_remediations"`
+	ManualRemediations     int `json:"manual_remediations"`
 
 	// Effectiveness Metrics
 	RemediationSuccess      float64 `json:"remediation_success"`
@@ -319,9 +319,9 @@ type RemediationHistory struct {
 	RecurrencePrevention    float64 `json:"recurrence_prevention"`
 
 	// Action Types
-	ActionTypes             map[string]int `json:"action_types"`
-	MostEffectiveAction     string         `json:"most_effective_action"`
-	LeastEffectiveAction    string         `json:"least_effective_action"`
+	ActionTypes          map[string]int `json:"action_types"`
+	MostEffectiveAction  string         `json:"most_effective_action"`
+	LeastEffectiveAction string         `json:"least_effective_action"`
 
 	LastUpdated time.Time `json:"last_updated"`
 }
@@ -329,23 +329,23 @@ type RemediationHistory struct {
 // ThresholdValidation represents threshold validation results
 type ThresholdValidation struct {
 	// Validation Results
-	ValidationStatus    string    `json:"validation_status"`
-	ValidationScore     float64   `json:"validation_score"`
-	ThresholdAccuracy   float64   `json:"threshold_accuracy"`
-	OptimalityScore     float64   `json:"optimality_score"`
+	ValidationStatus  string  `json:"validation_status"`
+	ValidationScore   float64 `json:"validation_score"`
+	ThresholdAccuracy float64 `json:"threshold_accuracy"`
+	OptimalityScore   float64 `json:"optimality_score"`
 
 	// Threshold Analysis
-	OptimalThresholds   map[string]float64 `json:"optimal_thresholds"`
-	CurrentThresholds   map[string]float64 `json:"current_thresholds"`
-	RecommendedChanges  []string           `json:"recommended_changes"`
-	CalibrationNeeded   bool               `json:"calibration_needed"`
+	OptimalThresholds  map[string]float64 `json:"optimal_thresholds"`
+	CurrentThresholds  map[string]float64 `json:"current_thresholds"`
+	RecommendedChanges []string           `json:"recommended_changes"`
+	CalibrationNeeded  bool               `json:"calibration_needed"`
 
 	// Performance Metrics
-	FalsePositiveRate   float64   `json:"false_positive_rate"`
-	FalseNegativeRate   float64   `json:"false_negative_rate"`
-	DetectionAccuracy   float64   `json:"detection_accuracy"`
-	Sensitivity         float64   `json:"sensitivity"`
-	Specificity         float64   `json:"specificity"`
+	FalsePositiveRate float64 `json:"false_positive_rate"`
+	FalseNegativeRate float64 `json:"false_negative_rate"`
+	DetectionAccuracy float64 `json:"detection_accuracy"`
+	Sensitivity       float64 `json:"sensitivity"`
+	Specificity       float64 `json:"specificity"`
 
 	ValidatedAt time.Time `json:"validated_at"`
 }
@@ -353,19 +353,19 @@ type ThresholdValidation struct {
 // NotificationStats represents notification statistics
 type NotificationStats struct {
 	// Delivery Statistics
-	TotalNotifications  int     `json:"total_notifications"`
-	SuccessfulDeliveries int    `json:"successful_deliveries"`
-	FailedDeliveries    int     `json:"failed_deliveries"`
-	DeliveryRate        float64 `json:"delivery_rate"`
+	TotalNotifications   int     `json:"total_notifications"`
+	SuccessfulDeliveries int     `json:"successful_deliveries"`
+	FailedDeliveries     int     `json:"failed_deliveries"`
+	DeliveryRate         float64 `json:"delivery_rate"`
 
 	// Channel Performance
-	ChannelStats        map[string]*ChannelStats `json:"channel_stats"`
-	PreferredChannels   []string                 `json:"preferred_channels"`
-	ChannelEffectiveness map[string]float64      `json:"channel_effectiveness"`
+	ChannelStats         map[string]*ChannelStats `json:"channel_stats"`
+	PreferredChannels    []string                 `json:"preferred_channels"`
+	ChannelEffectiveness map[string]float64       `json:"channel_effectiveness"`
 
 	// User Preferences
-	UserPreferences     map[string]*UserNotificationPrefs `json:"user_preferences"`
-	PreferenceCompliance float64                          `json:"preference_compliance"`
+	UserPreferences      map[string]*UserNotificationPrefs `json:"user_preferences"`
+	PreferenceCompliance float64                           `json:"preference_compliance"`
 
 	LastUpdated time.Time `json:"last_updated"`
 }
@@ -381,19 +381,19 @@ type ChannelStats struct {
 
 // UserNotificationPrefs represents user notification preferences
 type UserNotificationPrefs struct {
-	UserName            string   `json:"user_name"`
-	PreferredChannels   []string `json:"preferred_channels"`
-	Severity            string   `json:"severity"`
-	TimeWindows         []string `json:"time_windows"`
-	Enabled             bool     `json:"enabled"`
+	UserName          string   `json:"user_name"`
+	PreferredChannels []string `json:"preferred_channels"`
+	Severity          string   `json:"severity"`
+	TimeWindows       []string `json:"time_windows"`
+	Enabled           bool     `json:"enabled"`
 }
 
 // PolicyComplianceReport represents policy compliance report
 type PolicyComplianceReport struct {
 	// Overall Compliance
-	OverallCompliance   float64 `json:"overall_compliance"`
-	ComplianceRating    string  `json:"compliance_rating"`
-	ComplianceTrend     string  `json:"compliance_trend"`
+	OverallCompliance float64 `json:"overall_compliance"`
+	ComplianceRating  string  `json:"compliance_rating"`
+	ComplianceTrend   string  `json:"compliance_trend"`
 
 	// Policy Metrics
 	TotalPolicies       int     `json:"total_policies"`
@@ -407,64 +407,64 @@ type PolicyComplianceReport struct {
 	ViolationsByAccount map[string]int `json:"violations_by_account"`
 
 	// Enforcement Metrics
-	EnforcementRate     float64 `json:"enforcement_rate"`
-	AutoEnforcement     float64 `json:"auto_enforcement"`
-	ManualEnforcement   float64 `json:"manual_enforcement"`
+	EnforcementRate   float64 `json:"enforcement_rate"`
+	AutoEnforcement   float64 `json:"auto_enforcement"`
+	ManualEnforcement float64 `json:"manual_enforcement"`
 
 	LastGenerated time.Time `json:"last_generated"`
 }
 
 // ViolationRiskPrediction represents violation risk prediction
 type ViolationRiskPrediction struct {
-	Scope               string  `json:"scope"`
-	PredictionHorizon   string  `json:"prediction_horizon"`
+	Scope             string `json:"scope"`
+	PredictionHorizon string `json:"prediction_horizon"`
 
 	// Risk Metrics
-	RiskScore           float64 `json:"risk_score"`
-	RiskLevel           string  `json:"risk_level"`
-	PredictedViolations int     `json:"predicted_violations"`
+	RiskScore           float64  `json:"risk_score"`
+	RiskLevel           string   `json:"risk_level"`
+	PredictedViolations int      `json:"predicted_violations"`
 	HighRiskUsers       []string `json:"high_risk_users"`
 	HighRiskAccounts    []string `json:"high_risk_accounts"`
 
 	// Risk Factors
-	PrimaryRiskFactors  []string `json:"primary_risk_factors"`
-	SecondaryRiskFactors []string `json:"secondary_risk_factors"`
+	PrimaryRiskFactors    []string `json:"primary_risk_factors"`
+	SecondaryRiskFactors  []string `json:"secondary_risk_factors"`
 	RiskMitigationActions []string `json:"risk_mitigation_actions"`
 
 	// Confidence Metrics
 	PredictionConfidence float64 `json:"prediction_confidence"`
-	ModelAccuracy       float64  `json:"model_accuracy"`
-	UncertaintyRange    float64  `json:"uncertainty_range"`
+	ModelAccuracy        float64 `json:"model_accuracy"`
+	UncertaintyRange     float64 `json:"uncertainty_range"`
 
 	PredictedAt time.Time `json:"predicted_at"`
 }
 
 // ViolationImpactAnalysis represents violation impact analysis
 type ViolationImpactAnalysis struct {
-	ViolationID         string  `json:"violation_id"`
+	ViolationID string `json:"violation_id"`
 
 	// Direct Impact
-	DirectImpact        float64 `json:"direct_impact"`
-	IndirectImpact      float64 `json:"indirect_impact"`
-	TotalImpact         float64 `json:"total_impact"`
-	ImpactRadius        float64 `json:"impact_radius"`
+	DirectImpact   float64 `json:"direct_impact"`
+	IndirectImpact float64 `json:"indirect_impact"`
+	TotalImpact    float64 `json:"total_impact"`
+	ImpactRadius   float64 `json:"impact_radius"`
 
 	// Resource Impact
-	CPUImpact           float64 `json:"cpu_impact"`
-	MemoryImpact        float64 `json:"memory_impact"`
-	StorageImpact       float64 `json:"storage_impact"`
-	NetworkImpact       float64 `json:"network_impact"`
+	CPUImpact     float64 `json:"cpu_impact"`
+	MemoryImpact  float64 `json:"memory_impact"`
+	StorageImpact float64 `json:"storage_impact"`
+	NetworkImpact float64 `json:"network_impact"`
 
 	// User Impact
-	AffectedUsers       []string `json:"affected_users"`
-	UserImpactScores    map[string]float64 `json:"user_impact_scores"`
-	JobsDelayed         int      `json:"jobs_delayed"`
-	WaitTimeIncrease    float64  `json:"wait_time_increase"`
+	AffectedUsers    []string           `json:"affected_users"`
+	UserImpactScores map[string]float64 `json:"user_impact_scores"`
+	JobsDelayed      int                `json:"jobs_delayed"`
+	WaitTimeIncrease float64            `json:"wait_time_increase"`
 
 	// System Impact
-	SystemPerformance   float64 `json:"system_performance"`
-	FairnessReduction   float64 `json:"fairness_reduction"`
-	EfficiencyLoss      float64 `json:"efficiency_loss"`
+	SystemPerformance float64 `json:"system_performance"`
+	FairnessReduction float64 `json:"fairness_reduction"`
+	EfficiencyLoss    float64 `json:"efficiency_loss"`
 
 	AnalyzedAt time.Time `json:"analyzed_at"`
 }

@@ -14,17 +14,17 @@ import (
 
 // EnergyMonitor provides energy consumption tracking and carbon footprint analysis
 type EnergyMonitor struct {
-	slurmClient     slurm.SlurmClient
-	logger          *slog.Logger
-	config          *EnergyConfig
-	metrics         *EnergyMetrics
+	slurmClient slurm.SlurmClient
+	logger      *slog.Logger
+	config      *EnergyConfig
+	metrics     *EnergyMetrics
 
 	// Energy tracking data
-	energyData      map[string]*JobEnergyData
-	carbonData      map[string]*CarbonFootprintData
-	clusterEnergy   *ClusterEnergyData
-	lastCollection  time.Time
-	mu              sync.RWMutex
+	energyData     map[string]*JobEnergyData
+	carbonData     map[string]*CarbonFootprintData
+	clusterEnergy  *ClusterEnergyData
+	lastCollection time.Time
+	mu             sync.RWMutex
 
 	// Carbon footprint calculation
 	carbonCalculator *CarbonFootprintCalculator
@@ -35,22 +35,22 @@ type EnergyMonitor struct {
 
 // EnergyConfig configures the energy monitoring collector
 type EnergyConfig struct {
-	MonitoringInterval     time.Duration
-	MaxJobsPerCollection   int
-	EnableCarbonTracking   bool
+	MonitoringInterval       time.Duration
+	MaxJobsPerCollection     int
+	EnableCarbonTracking     bool
 	EnableEfficiencyTracking bool
 
 	// Energy calculation parameters
-	EnergyCalculationMethod string // "power_model", "hardware_counters", "estimated"
-	DefaultCPUPowerWatts   float64 // Watts per CPU core
-	DefaultMemoryPowerWatts float64 // Watts per GB of memory
-	DefaultGPUPowerWatts   float64 // Watts per GPU
+	EnergyCalculationMethod   string  // "power_model", "hardware_counters", "estimated"
+	DefaultCPUPowerWatts      float64 // Watts per CPU core
+	DefaultMemoryPowerWatts   float64 // Watts per GB of memory
+	DefaultGPUPowerWatts      float64 // Watts per GPU
 	DefaultNodeBasePowerWatts float64 // Base power consumption per node
 
 	// Carbon footprint parameters
-	CarbonIntensityGCO2kWh float64 // grams CO2 per kWh
-	CarbonTrackingRegion   string  // Geographic region for carbon intensity
-	EnableRealTimeCarbonAPI bool   // Use real-time carbon intensity APIs
+	CarbonIntensityGCO2kWh  float64 // grams CO2 per kWh
+	CarbonTrackingRegion    string  // Geographic region for carbon intensity
+	EnableRealTimeCarbonAPI bool    // Use real-time carbon intensity APIs
 
 	// Efficiency parameters
 	EnablePowerCapping     bool
@@ -58,67 +58,67 @@ type EnergyConfig struct {
 	EnergyBudgetPerJobWh   float64
 
 	// Data retention
-	EnergyDataRetention    time.Duration
-	CarbonDataRetention    time.Duration
+	EnergyDataRetention time.Duration
+	CarbonDataRetention time.Duration
 }
 
 // JobEnergyData contains energy consumption data for a job
 type JobEnergyData struct {
-	JobID              string
-	Timestamp          time.Time
+	JobID     string
+	Timestamp time.Time
 
 	// Energy consumption metrics
-	TotalEnergyWh      float64 // Total energy consumed in watt-hours
-	CPUEnergyWh        float64 // CPU energy consumption
-	MemoryEnergyWh     float64 // Memory energy consumption
-	GPUEnergyWh        float64 // GPU energy consumption
-	StorageEnergyWh    float64 // Storage I/O energy consumption
-	NetworkEnergyWh    float64 // Network energy consumption
-	CoolingEnergyWh    float64 // Estimated cooling energy
+	TotalEnergyWh   float64 // Total energy consumed in watt-hours
+	CPUEnergyWh     float64 // CPU energy consumption
+	MemoryEnergyWh  float64 // Memory energy consumption
+	GPUEnergyWh     float64 // GPU energy consumption
+	StorageEnergyWh float64 // Storage I/O energy consumption
+	NetworkEnergyWh float64 // Network energy consumption
+	CoolingEnergyWh float64 // Estimated cooling energy
 
 	// Power consumption metrics
-	AveragePowerW      float64 // Average power consumption in watts
-	PeakPowerW         float64 // Peak power consumption
-	PowerEfficiency    float64 // Power utilization efficiency
+	AveragePowerW   float64 // Average power consumption in watts
+	PeakPowerW      float64 // Peak power consumption
+	PowerEfficiency float64 // Power utilization efficiency
 
 	// Energy efficiency metrics
-	EnergyPerCPUHour   float64 // Energy per CPU-hour
-	EnergyPerTaskUnit  float64 // Energy per unit of work completed
-	EnergyWasteWh      float64 // Wasted energy due to inefficiency
+	EnergyPerCPUHour  float64 // Energy per CPU-hour
+	EnergyPerTaskUnit float64 // Energy per unit of work completed
+	EnergyWasteWh     float64 // Wasted energy due to inefficiency
 
 	// Temporal analysis
-	EnergyProfile      []EnergyDataPoint // Time series energy data
-	PowerProfile       []PowerDataPoint  // Time series power data
+	EnergyProfile []EnergyDataPoint // Time series energy data
+	PowerProfile  []PowerDataPoint  // Time series power data
 
 	// Cost analysis
-	EnergyCostUSD      float64 // Energy cost in USD
-	CostPerCPUHour     float64 // Cost per CPU-hour
-	CostEfficiency     float64 // Cost efficiency score
+	EnergyCostUSD  float64 // Energy cost in USD
+	CostPerCPUHour float64 // Cost per CPU-hour
+	CostEfficiency float64 // Cost efficiency score
 }
 
 // CarbonFootprintData contains carbon footprint analysis for a job
 type CarbonFootprintData struct {
-	JobID              string
-	Timestamp          time.Time
+	JobID     string
+	Timestamp time.Time
 
 	// Carbon emissions
-	TotalCO2grams      float64 // Total CO2 emissions in grams
-	CO2PerCPUHour      float64 // CO2 emissions per CPU-hour
-	CO2PerTaskUnit     float64 // CO2 emissions per unit of work
+	TotalCO2grams  float64 // Total CO2 emissions in grams
+	CO2PerCPUHour  float64 // CO2 emissions per CPU-hour
+	CO2PerTaskUnit float64 // CO2 emissions per unit of work
 
 	// Carbon intensity tracking
-	CarbonIntensity    float64 // gCO2/kWh at time of execution
-	RegionalFactor     float64 // Regional carbon intensity factor
-	TimeOfDayFactor    float64 // Time-of-day carbon intensity variation
+	CarbonIntensity float64 // gCO2/kWh at time of execution
+	RegionalFactor  float64 // Regional carbon intensity factor
+	TimeOfDayFactor float64 // Time-of-day carbon intensity variation
 
 	// Carbon efficiency
-	CarbonEfficiency   float64 // Carbon efficiency score
-	CarbonWasteGrams   float64 // Wasted carbon emissions
+	CarbonEfficiency float64 // Carbon efficiency score
+	CarbonWasteGrams float64 // Wasted carbon emissions
 
 	// Offset and credits
-	CarbonOffsetGrams  float64 // Available carbon offsets
-	NetCarbonGrams     float64 // Net carbon after offsets
-	CarbonCreditsUsed  float64 // Carbon credits consumed
+	CarbonOffsetGrams float64 // Available carbon offsets
+	NetCarbonGrams    float64 // Net carbon after offsets
+	CarbonCreditsUsed float64 // Carbon credits consumed
 
 	// Environmental impact
 	EnvironmentalImpactScore float64 // Overall environmental impact score
@@ -128,7 +128,7 @@ type CarbonFootprintData struct {
 
 // ClusterEnergyData contains cluster-wide energy metrics
 type ClusterEnergyData struct {
-	Timestamp          time.Time
+	Timestamp time.Time
 
 	// Cluster energy consumption
 	TotalClusterEnergyWh float64
@@ -144,16 +144,16 @@ type ClusterEnergyData struct {
 	ClusterCarbonIntensity float64
 
 	// Costs
-	TotalEnergyCostUSD     float64
-	CostPerWh             float64
+	TotalEnergyCostUSD float64
+	CostPerWh          float64
 }
 
 // EnergyDataPoint represents a single energy measurement
 type EnergyDataPoint struct {
-	Timestamp   time.Time
-	EnergyWh    float64
-	PowerW      float64
-	Efficiency  float64
+	Timestamp  time.Time
+	EnergyWh   float64
+	PowerW     float64
+	Efficiency float64
 }
 
 // PowerDataPoint represents a single power measurement
@@ -185,11 +185,11 @@ type EnergyEfficiencyTracker struct {
 
 // EfficiencyTrend tracks energy efficiency trends over time
 type EfficiencyTrend struct {
-	JobID           string
-	Timestamps      []time.Time
+	JobID            string
+	Timestamps       []time.Time
 	EfficiencyScores []float64
-	Trend           string // "improving", "declining", "stable"
-	TrendStrength   float64
+	Trend            string // "improving", "declining", "stable"
+	TrendStrength    float64
 }
 
 // EnergyOptimizationRule defines energy optimization recommendations
@@ -204,21 +204,21 @@ type EnergyOptimizationRule struct {
 // EnergyMetrics holds Prometheus metrics for energy monitoring
 type EnergyMetrics struct {
 	// Energy consumption metrics
-	JobEnergyConsumption    *prometheus.GaugeVec
-	JobPowerConsumption     *prometheus.GaugeVec
-	JobEnergyEfficiency     *prometheus.GaugeVec
-	JobEnergyWaste          *prometheus.GaugeVec
+	JobEnergyConsumption *prometheus.GaugeVec
+	JobPowerConsumption  *prometheus.GaugeVec
+	JobEnergyEfficiency  *prometheus.GaugeVec
+	JobEnergyWaste       *prometheus.GaugeVec
 
 	// Carbon footprint metrics
-	JobCarbonEmissions      *prometheus.GaugeVec
-	JobCarbonEfficiency     *prometheus.GaugeVec
-	JobCarbonWaste          *prometheus.GaugeVec
-	JobSustainabilityScore  *prometheus.GaugeVec
+	JobCarbonEmissions     *prometheus.GaugeVec
+	JobCarbonEfficiency    *prometheus.GaugeVec
+	JobCarbonWaste         *prometheus.GaugeVec
+	JobSustainabilityScore *prometheus.GaugeVec
 
 	// Energy cost metrics
-	JobEnergyCost           *prometheus.GaugeVec
-	JobCostEfficiency       *prometheus.GaugeVec
-	JobEnergyROI            *prometheus.GaugeVec
+	JobEnergyCost     *prometheus.GaugeVec
+	JobCostEfficiency *prometheus.GaugeVec
+	JobEnergyROI      *prometheus.GaugeVec
 
 	// Cluster metrics
 	ClusterTotalEnergy      *prometheus.GaugeVec
@@ -227,49 +227,49 @@ type EnergyMetrics struct {
 	ClusterCarbonEmissions  *prometheus.GaugeVec
 
 	// Per-resource energy metrics
-	CPUEnergyConsumption    *prometheus.GaugeVec
-	MemoryEnergyConsumption *prometheus.GaugeVec
-	GPUEnergyConsumption    *prometheus.GaugeVec
+	CPUEnergyConsumption     *prometheus.GaugeVec
+	MemoryEnergyConsumption  *prometheus.GaugeVec
+	GPUEnergyConsumption     *prometheus.GaugeVec
 	NetworkEnergyConsumption *prometheus.GaugeVec
 	StorageEnergyConsumption *prometheus.GaugeVec
 
 	// Carbon intensity metrics
-	CarbonIntensityGCO2kWh  *prometheus.GaugeVec
-	GreenEnergyPercentage   *prometheus.GaugeVec
-	CarbonOffsetCredits     *prometheus.GaugeVec
+	CarbonIntensityGCO2kWh *prometheus.GaugeVec
+	GreenEnergyPercentage  *prometheus.GaugeVec
+	CarbonOffsetCredits    *prometheus.GaugeVec
 
 	// Energy optimization metrics
 	EnergyOptimizationOpportunities *prometheus.GaugeVec
-	EnergySavingsPotential         *prometheus.GaugeVec
-	PowerCappingEvents             *prometheus.CounterVec
+	EnergySavingsPotential          *prometheus.GaugeVec
+	PowerCappingEvents              *prometheus.CounterVec
 
 	// Collection metrics
-	EnergyDataCollectionDuration   *prometheus.HistogramVec
-	EnergyDataCollectionErrors     *prometheus.CounterVec
-	EnergyMonitoredJobsCount       *prometheus.GaugeVec
+	EnergyDataCollectionDuration *prometheus.HistogramVec
+	EnergyDataCollectionErrors   *prometheus.CounterVec
+	EnergyMonitoredJobsCount     *prometheus.GaugeVec
 }
 
 // NewEnergyMonitor creates a new energy monitoring collector
 func NewEnergyMonitor(client slurm.SlurmClient, logger *slog.Logger, config *EnergyConfig) (*EnergyMonitor, error) {
 	if config == nil {
 		config = &EnergyConfig{
-			MonitoringInterval:         60 * time.Second,
-			MaxJobsPerCollection:       100,
-			EnableCarbonTracking:       true,
-			EnableEfficiencyTracking:   true,
-			EnergyCalculationMethod:    "power_model",
-			DefaultCPUPowerWatts:       15.0,  // 15W per CPU core
-			DefaultMemoryPowerWatts:    1.5,   // 1.5W per GB
-			DefaultGPUPowerWatts:       250.0, // 250W per GPU
-			DefaultNodeBasePowerWatts:  50.0,  // 50W base power per node
-			CarbonIntensityGCO2kWh:     400.0, // 400g CO2/kWh (average grid)
-			CarbonTrackingRegion:       "US",
-			EnableRealTimeCarbonAPI:    false,
-			EnablePowerCapping:         false,
-			PowerCapThresholdWatts:     1000.0,
-			EnergyBudgetPerJobWh:       1000.0,
-			EnergyDataRetention:        7 * 24 * time.Hour,
-			CarbonDataRetention:        30 * 24 * time.Hour,
+			MonitoringInterval:        60 * time.Second,
+			MaxJobsPerCollection:      100,
+			EnableCarbonTracking:      true,
+			EnableEfficiencyTracking:  true,
+			EnergyCalculationMethod:   "power_model",
+			DefaultCPUPowerWatts:      15.0,  // 15W per CPU core
+			DefaultMemoryPowerWatts:   1.5,   // 1.5W per GB
+			DefaultGPUPowerWatts:      250.0, // 250W per GPU
+			DefaultNodeBasePowerWatts: 50.0,  // 50W base power per node
+			CarbonIntensityGCO2kWh:    400.0, // 400g CO2/kWh (average grid)
+			CarbonTrackingRegion:      "US",
+			EnableRealTimeCarbonAPI:   false,
+			EnablePowerCapping:        false,
+			PowerCapThresholdWatts:    1000.0,
+			EnergyBudgetPerJobWh:      1000.0,
+			EnergyDataRetention:       7 * 24 * time.Hour,
+			CarbonDataRetention:       30 * 24 * time.Hour,
 		}
 	}
 
@@ -613,7 +613,7 @@ func (e *EnergyMonitor) collectEnergyMetrics(ctx context.Context) error {
 		}
 
 		// Accumulate cluster totals
-		jobID := fmt.Sprintf("%d", job.ID)
+		jobID := job.ID
 		if energyData, exists := e.energyData[jobID]; exists {
 			clusterTotalEnergy += energyData.TotalEnergyWh
 			clusterTotalPower += energyData.AveragePowerW
@@ -647,14 +647,14 @@ func (e *EnergyMonitor) processJobEnergyMetrics(ctx context.Context, job *slurm.
 
 	// Track efficiency trends if enabled
 	if e.config.EnableEfficiencyTracking {
-		e.efficiencyTracker.trackEnergyEfficiency(fmt.Sprintf("%d", job.ID), energyData.PowerEfficiency)
+		e.efficiencyTracker.trackEnergyEfficiency(job.ID, energyData.PowerEfficiency)
 	}
 
 	// Store data
 	e.mu.Lock()
-	e.energyData[fmt.Sprintf("%d", job.ID)] = energyData
+	e.energyData[job.ID] = energyData
 	if carbonData != nil {
-		e.carbonData[fmt.Sprintf("%d", job.ID)] = carbonData
+		e.carbonData[job.ID] = carbonData
 	}
 	e.mu.Unlock()
 
@@ -700,7 +700,7 @@ func (e *EnergyMonitor) calculateJobEnergyConsumption(job *slurm.Job) *JobEnergy
 
 	// Calculate power metrics
 	averagePowerW := totalEnergyWh / math.Max(runtimeHours, 0.001) // Avoid division by zero
-	peakPowerW := averagePowerW * 1.5 // Estimate peak as 50% higher than average
+	peakPowerW := averagePowerW * 1.5                              // Estimate peak as 50% higher than average
 
 	// Calculate efficiency metrics
 	powerEfficiency := e.calculatePowerEfficiency(job, totalEnergyWh, runtimeHours)
@@ -714,24 +714,24 @@ func (e *EnergyMonitor) calculateJobEnergyConsumption(job *slurm.Job) *JobEnergy
 	costEfficiency := e.calculateCostEfficiency(energyCostUSD, totalEnergyWh, powerEfficiency)
 
 	return &JobEnergyData{
-		JobID:              fmt.Sprintf("%d", job.ID),
-		Timestamp:          now,
-		TotalEnergyWh:      totalEnergyWh,
-		CPUEnergyWh:        cpuEnergyWh,
-		MemoryEnergyWh:     memoryEnergyWh,
-		GPUEnergyWh:        gpuEnergyWh,
-		StorageEnergyWh:    storageEnergyWh,
-		NetworkEnergyWh:    networkEnergyWh,
-		CoolingEnergyWh:    coolingEnergyWh,
-		AveragePowerW:      averagePowerW,
-		PeakPowerW:         peakPowerW,
-		PowerEfficiency:    powerEfficiency,
-		EnergyPerCPUHour:   energyPerCPUHour,
-		EnergyPerTaskUnit:  energyPerTaskUnit,
-		EnergyWasteWh:      energyWasteWh,
-		EnergyCostUSD:      energyCostUSD,
-		CostPerCPUHour:     costPerCPUHour,
-		CostEfficiency:     costEfficiency,
+		JobID:             job.ID,
+		Timestamp:         now,
+		TotalEnergyWh:     totalEnergyWh,
+		CPUEnergyWh:       cpuEnergyWh,
+		MemoryEnergyWh:    memoryEnergyWh,
+		GPUEnergyWh:       gpuEnergyWh,
+		StorageEnergyWh:   storageEnergyWh,
+		NetworkEnergyWh:   networkEnergyWh,
+		CoolingEnergyWh:   coolingEnergyWh,
+		AveragePowerW:     averagePowerW,
+		PeakPowerW:        peakPowerW,
+		PowerEfficiency:   powerEfficiency,
+		EnergyPerCPUHour:  energyPerCPUHour,
+		EnergyPerTaskUnit: energyPerTaskUnit,
+		EnergyWasteWh:     energyWasteWh,
+		EnergyCostUSD:     energyCostUSD,
+		CostPerCPUHour:    costPerCPUHour,
+		CostEfficiency:    costEfficiency,
 	}
 }
 
@@ -860,7 +860,7 @@ func (e *EnergyMonitor) calculatePowerEfficiency(job *slurm.Job, totalEnergyWh, 
 	}
 
 	// Calculate theoretical minimum power based on allocated resources
-	minCPUPower := float64(job.CPUs) * e.config.DefaultCPUPowerWatts * 0.1 // 10% minimum CPU power
+	minCPUPower := float64(job.CPUs) * e.config.DefaultCPUPowerWatts * 0.1                // 10% minimum CPU power
 	minMemoryPower := float64(job.Memory) / 1024 * e.config.DefaultMemoryPowerWatts * 0.5 // 50% memory power
 	minBasePower := e.config.DefaultNodeBasePowerWatts * float64(len(job.Nodes))
 
@@ -972,7 +972,7 @@ func (c *CarbonFootprintCalculator) calculateCarbonFootprint(job *slurm.Job, ene
 	environmentalImpact := c.calculateEnvironmentalImpact(totalCO2grams, energyData.TotalEnergyWh)
 
 	return &CarbonFootprintData{
-		JobID:                    fmt.Sprintf("%d", job.ID),
+		JobID:                    job.ID,
 		Timestamp:                now,
 		TotalCO2grams:            totalCO2grams,
 		CO2PerCPUHour:            co2PerCPUHour,
@@ -1146,7 +1146,7 @@ func (t *EnergyEfficiencyTracker) calculateTrend(scores []float64) (string, floa
 
 // updateJobEnergyMetrics updates Prometheus metrics for a job
 func (e *EnergyMonitor) updateJobEnergyMetrics(job *slurm.Job, energyData *JobEnergyData, carbonData *CarbonFootprintData) {
-	labels := []string{fmt.Sprintf("%d", job.ID), "", "", job.Partition} // TODO: job.UserName and job.Account fields not available
+	labels := []string{job.ID, "", "", job.Partition} // TODO: job.UserName and job.Account fields not available
 
 	// Update energy metrics
 	e.metrics.JobEnergyConsumption.WithLabelValues(labels...).Set(energyData.TotalEnergyWh)
@@ -1249,10 +1249,10 @@ func (e *EnergyMonitor) cleanOldEnergyData() {
 // getRegionalCarbonFactors returns carbon intensity factors by region
 func getRegionalCarbonFactors() map[string]float64 {
 	return map[string]float64{
-		"US":   1.0,   // Baseline
-		"EU":   0.8,   // Lower carbon intensity
-		"ASIA": 1.2,   // Higher carbon intensity
-		"AU":   0.9,   // Moderate carbon intensity
+		"US":   1.0, // Baseline
+		"EU":   0.8, // Lower carbon intensity
+		"ASIA": 1.2, // Higher carbon intensity
+		"AU":   0.9, // Moderate carbon intensity
 	}
 }
 
@@ -1274,9 +1274,9 @@ func getTimeOfDayFactors() map[int]float64 {
 // getEnergyBenchmarks returns energy efficiency benchmarks
 func getEnergyBenchmarks() map[string]float64 {
 	return map[string]float64{
-		"cpu_efficiency":    0.75,
-		"memory_efficiency": 0.80,
-		"gpu_efficiency":    0.70,
+		"cpu_efficiency":     0.75,
+		"memory_efficiency":  0.80,
+		"gpu_efficiency":     0.70,
 		"overall_efficiency": 0.75,
 	}
 }
@@ -1340,10 +1340,10 @@ func (e *EnergyMonitor) GetEnergyStats() map[string]interface{} {
 	defer e.mu.RUnlock()
 
 	return map[string]interface{}{
-		"monitored_jobs":    len(e.energyData),
-		"carbon_tracked":    len(e.carbonData),
-		"last_collection":   e.lastCollection,
-		"cluster_energy":    e.clusterEnergy,
-		"config":            e.config,
+		"monitored_jobs":  len(e.energyData),
+		"carbon_tracked":  len(e.carbonData),
+		"last_collection": e.lastCollection,
+		"cluster_energy":  e.clusterEnergy,
+		"config":          e.config,
 	}
 }

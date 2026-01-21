@@ -2,7 +2,8 @@ package collector
 
 import (
 	"context"
-	"math"
+	// Commented out as only used in commented-out calculation function
+	// "math"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -438,6 +439,8 @@ type QueueMetrics struct {
 	TurnoverRate    float64
 }
 
+// TODO: Following calculation and parser functions are unused - preserved for future performance analysis
+/*
 // calculateEfficiency calculates overall system efficiency
 func (pc *PerformanceCollector) calculateEfficiency(metrics *EfficiencyMetrics) float64 {
 	// Weighted average of different resource utilizations
@@ -505,3 +508,4 @@ func (pc *PerformanceCollector) parseEfficiencyData(data interface{}) (*Efficien
 		},
 	}, nil
 }
+*/

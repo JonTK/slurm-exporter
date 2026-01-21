@@ -20,47 +20,47 @@ type FairShareDecayCollector struct {
 	fairShareDecayEffectiveness *prometheus.GaugeVec
 
 	// Reset Cycle Metrics
-	fairShareResetSchedule      *prometheus.GaugeVec
-	fairShareResetCountdown     *prometheus.GaugeVec
-	fairShareResetImpact        *prometheus.GaugeVec
-	fairShareResetFrequency     *prometheus.GaugeVec
-	fairShareResetEfficiency    *prometheus.GaugeVec
+	fairShareResetSchedule   *prometheus.GaugeVec
+	fairShareResetCountdown  *prometheus.GaugeVec
+	fairShareResetImpact     *prometheus.GaugeVec
+	fairShareResetFrequency  *prometheus.GaugeVec
+	fairShareResetEfficiency *prometheus.GaugeVec
 
 	// Historical Tracking
-	fairShareDecayHistory       *prometheus.GaugeVec
-	fairShareResetHistory       *prometheus.CounterVec
-	fairShareTrendAnalysis      *prometheus.GaugeVec
-	fairSharePrediction         *prometheus.GaugeVec
+	fairShareDecayHistory  *prometheus.GaugeVec
+	fairShareResetHistory  *prometheus.CounterVec
+	fairShareTrendAnalysis *prometheus.GaugeVec
+	fairSharePrediction    *prometheus.GaugeVec
 
 	// User Impact Analysis
-	userDecayImpact             *prometheus.GaugeVec
-	userResetBenefit            *prometheus.GaugeVec
-	userDecayPatterns           *prometheus.GaugeVec
-	userAdaptationScore         *prometheus.GaugeVec
+	userDecayImpact     *prometheus.GaugeVec
+	userResetBenefit    *prometheus.GaugeVec
+	userDecayPatterns   *prometheus.GaugeVec
+	userAdaptationScore *prometheus.GaugeVec
 
 	// System Impact Metrics
-	systemDecayEffectiveness    *prometheus.GaugeVec
-	systemResetEffectiveness    *prometheus.GaugeVec
-	systemBalanceScore          *prometheus.GaugeVec
-	systemFairnessMetrics       *prometheus.GaugeVec
+	systemDecayEffectiveness *prometheus.GaugeVec
+	systemResetEffectiveness *prometheus.GaugeVec
+	systemBalanceScore       *prometheus.GaugeVec
+	systemFairnessMetrics    *prometheus.GaugeVec
 
 	// Configuration Metrics
-	decayConfigValidation       *prometheus.GaugeVec
-	decayParameterOptimality    *prometheus.GaugeVec
-	decayTuningRecommendations  *prometheus.GaugeVec
-	decayPerformanceScore       *prometheus.GaugeVec
+	decayConfigValidation      *prometheus.GaugeVec
+	decayParameterOptimality   *prometheus.GaugeVec
+	decayTuningRecommendations *prometheus.GaugeVec
+	decayPerformanceScore      *prometheus.GaugeVec
 
 	// Temporal Analysis
-	decaySeasonalPatterns       *prometheus.GaugeVec
-	decayCyclicalBehavior       *prometheus.GaugeVec
-	decayAnomalyDetection       *prometheus.GaugeVec
-	decayPredictiveModeling     *prometheus.GaugeVec
+	decaySeasonalPatterns   *prometheus.GaugeVec
+	decayCyclicalBehavior   *prometheus.GaugeVec
+	decayAnomalyDetection   *prometheus.GaugeVec
+	decayPredictiveModeling *prometheus.GaugeVec
 
 	// Cross-Factor Analysis
-	decayFactorInteraction      *prometheus.GaugeVec
-	decayPriorityCorrelation    *prometheus.GaugeVec
-	decayResourceUtilization    *prometheus.GaugeVec
-	decayJobPerformanceImpact   *prometheus.GaugeVec
+	decayFactorInteraction    *prometheus.GaugeVec
+	decayPriorityCorrelation  *prometheus.GaugeVec
+	decayResourceUtilization  *prometheus.GaugeVec
+	decayJobPerformanceImpact *prometheus.GaugeVec
 }
 
 // FairShareDecaySLURMClient interface for fair-share decay operations
@@ -80,11 +80,11 @@ type FairShareDecaySLURMClient interface {
 // FairShareDecayConfig represents decay configuration
 type FairShareDecayConfig struct {
 	// Decay Parameters
-	DecayHalfLife       time.Duration `json:"decay_half_life"`
-	DecayFactor         float64       `json:"decay_factor"`
-	DecayInterval       time.Duration `json:"decay_interval"`
-	MaxDecayAge         time.Duration `json:"max_decay_age"`
-	MinFairShareValue   float64       `json:"min_fair_share_value"`
+	DecayHalfLife     time.Duration `json:"decay_half_life"`
+	DecayFactor       float64       `json:"decay_factor"`
+	DecayInterval     time.Duration `json:"decay_interval"`
+	MaxDecayAge       time.Duration `json:"max_decay_age"`
+	MinFairShareValue float64       `json:"min_fair_share_value"`
 
 	// Reset Parameters
 	ResetInterval       time.Duration `json:"reset_interval"`
@@ -94,49 +94,49 @@ type FairShareDecayConfig struct {
 	PartialResetEnabled bool          `json:"partial_reset_enabled"`
 
 	// Configuration Metadata
-	ConfigVersion       string        `json:"config_version"`
-	LastModified        time.Time     `json:"last_modified"`
-	ModifiedBy          string        `json:"modified_by"`
-	EffectiveFrom       time.Time     `json:"effective_from"`
-	ScheduledChanges    []string      `json:"scheduled_changes"`
+	ConfigVersion    string    `json:"config_version"`
+	LastModified     time.Time `json:"last_modified"`
+	ModifiedBy       string    `json:"modified_by"`
+	EffectiveFrom    time.Time `json:"effective_from"`
+	ScheduledChanges []string  `json:"scheduled_changes"`
 
 	// Optimization Settings
-	AutoOptimization    bool          `json:"auto_optimization"`
-	OptimizationTarget  string        `json:"optimization_target"`
-	TuningEnabled       bool          `json:"tuning_enabled"`
-	AdaptiveDecay       bool          `json:"adaptive_decay"`
+	AutoOptimization   bool   `json:"auto_optimization"`
+	OptimizationTarget string `json:"optimization_target"`
+	TuningEnabled      bool   `json:"tuning_enabled"`
+	AdaptiveDecay      bool   `json:"adaptive_decay"`
 
 	LastUpdated time.Time `json:"last_updated"`
 }
 
 // FairShareDecayMetrics represents user-specific decay metrics
 type FairShareDecayMetrics struct {
-	UserName            string    `json:"user_name"`
-	AccountName         string    `json:"account_name"`
+	UserName    string `json:"user_name"`
+	AccountName string `json:"account_name"`
 
 	// Current Decay State
-	CurrentFairShare    float64   `json:"current_fair_share"`
-	PreDecayFairShare   float64   `json:"pre_decay_fair_share"`
-	DecayAmount         float64   `json:"decay_amount"`
-	DecayPercentage     float64   `json:"decay_percentage"`
-	TimeSinceLastDecay  float64   `json:"time_since_last_decay"`
+	CurrentFairShare   float64 `json:"current_fair_share"`
+	PreDecayFairShare  float64 `json:"pre_decay_fair_share"`
+	DecayAmount        float64 `json:"decay_amount"`
+	DecayPercentage    float64 `json:"decay_percentage"`
+	TimeSinceLastDecay float64 `json:"time_since_last_decay"`
 
 	// Historical Decay Data
-	DecayHistory        []float64 `json:"decay_history"`
-	DecayVelocity       float64   `json:"decay_velocity"`
-	DecayAcceleration   float64   `json:"decay_acceleration"`
-	DecayTrend          string    `json:"decay_trend"`
+	DecayHistory      []float64 `json:"decay_history"`
+	DecayVelocity     float64   `json:"decay_velocity"`
+	DecayAcceleration float64   `json:"decay_acceleration"`
+	DecayTrend        string    `json:"decay_trend"`
 
 	// Impact Analysis
-	PriorityImpact      float64   `json:"priority_impact"`
-	QueuePositionImpact float64   `json:"queue_position_impact"`
-	WaitTimeImpact      float64   `json:"wait_time_impact"`
-	OverallImpact       float64   `json:"overall_impact"`
+	PriorityImpact      float64 `json:"priority_impact"`
+	QueuePositionImpact float64 `json:"queue_position_impact"`
+	WaitTimeImpact      float64 `json:"wait_time_impact"`
+	OverallImpact       float64 `json:"overall_impact"`
 
 	// Predictive Metrics
-	PredictedDecay      float64   `json:"predicted_decay"`
-	TimeToReset         float64   `json:"time_to_reset"`
-	ExpectedResetBenefit float64  `json:"expected_reset_benefit"`
+	PredictedDecay       float64 `json:"predicted_decay"`
+	TimeToReset          float64 `json:"time_to_reset"`
+	ExpectedResetBenefit float64 `json:"expected_reset_benefit"`
 
 	LastCalculated time.Time `json:"last_calculated"`
 }
@@ -144,58 +144,58 @@ type FairShareDecayMetrics struct {
 // FairShareResetSchedule represents reset scheduling information
 type FairShareResetSchedule struct {
 	// Current Reset Info
-	NextResetTime       time.Time     `json:"next_reset_time"`
-	LastResetTime       time.Time     `json:"last_reset_time"`
-	TimeSinceLastReset  time.Duration `json:"time_since_last_reset"`
-	TimeToNextReset     time.Duration `json:"time_to_next_reset"`
+	NextResetTime      time.Time     `json:"next_reset_time"`
+	LastResetTime      time.Time     `json:"last_reset_time"`
+	TimeSinceLastReset time.Duration `json:"time_since_last_reset"`
+	TimeToNextReset    time.Duration `json:"time_to_next_reset"`
 
 	// Reset Configuration
-	ResetFrequency      string        `json:"reset_frequency"`
-	ResetMethod         string        `json:"reset_method"`
-	AffectedUsers       int           `json:"affected_users"`
-	AffectedAccounts    int           `json:"affected_accounts"`
+	ResetFrequency   string `json:"reset_frequency"`
+	ResetMethod      string `json:"reset_method"`
+	AffectedUsers    int    `json:"affected_users"`
+	AffectedAccounts int    `json:"affected_accounts"`
 
 	// Impact Estimation
-	EstimatedImpact     string        `json:"estimated_impact"`
-	PriorityChanges     int           `json:"priority_changes"`
-	QueueReordering     bool          `json:"queue_reordering"`
-	SystemDisruption    float64       `json:"system_disruption"`
+	EstimatedImpact  string  `json:"estimated_impact"`
+	PriorityChanges  int     `json:"priority_changes"`
+	QueueReordering  bool    `json:"queue_reordering"`
+	SystemDisruption float64 `json:"system_disruption"`
 
 	// Historical Reset Data
-	ResetHistory        []time.Time   `json:"reset_history"`
+	ResetHistory         []time.Time   `json:"reset_history"`
 	AverageResetInterval time.Duration `json:"average_reset_interval"`
-	ResetEffectiveness  float64       `json:"reset_effectiveness"`
-	ResetReliability    float64       `json:"reset_reliability"`
+	ResetEffectiveness   float64       `json:"reset_effectiveness"`
+	ResetReliability     float64       `json:"reset_reliability"`
 
 	LastUpdated time.Time `json:"last_updated"`
 }
 
 // UserDecayImpactAnalysis represents user-specific decay impact
 type UserDecayImpactAnalysis struct {
-	UserName            string  `json:"user_name"`
-	AccountName         string  `json:"account_name"`
+	UserName    string `json:"user_name"`
+	AccountName string `json:"account_name"`
 
 	// Decay Impact Metrics
-	DecayImpactScore    float64 `json:"decay_impact_score"`
-	DecayAdaptation     float64 `json:"decay_adaptation"`
-	DecayResistance     float64 `json:"decay_resistance"`
-	DecayRecovery       float64 `json:"decay_recovery"`
+	DecayImpactScore float64 `json:"decay_impact_score"`
+	DecayAdaptation  float64 `json:"decay_adaptation"`
+	DecayResistance  float64 `json:"decay_resistance"`
+	DecayRecovery    float64 `json:"decay_recovery"`
 
 	// Behavioral Analysis
-	SubmissionPatterns  string  `json:"submission_patterns"`
-	UsageOptimization   float64 `json:"usage_optimization"`
-	AdaptationStrategy  string  `json:"adaptation_strategy"`
-	BehaviorChanges     []string `json:"behavior_changes"`
+	SubmissionPatterns string   `json:"submission_patterns"`
+	UsageOptimization  float64  `json:"usage_optimization"`
+	AdaptationStrategy string   `json:"adaptation_strategy"`
+	BehaviorChanges    []string `json:"behavior_changes"`
 
 	// Performance Metrics
-	JobSuccessRate      float64 `json:"job_success_rate"`
-	ResourceEfficiency  float64 `json:"resource_efficiency"`
-	QueuePerformance    float64 `json:"queue_performance"`
-	OverallPerformance  float64 `json:"overall_performance"`
+	JobSuccessRate     float64 `json:"job_success_rate"`
+	ResourceEfficiency float64 `json:"resource_efficiency"`
+	QueuePerformance   float64 `json:"queue_performance"`
+	OverallPerformance float64 `json:"overall_performance"`
 
 	// Reset Benefits
-	ResetBenefit        float64 `json:"reset_benefit"`
-	ResetUtilization    float64 `json:"reset_utilization"`
+	ResetBenefit         float64 `json:"reset_benefit"`
+	ResetUtilization     float64 `json:"reset_utilization"`
 	PostResetPerformance float64 `json:"post_reset_performance"`
 
 	LastAnalyzed time.Time `json:"last_analyzed"`
@@ -210,29 +210,29 @@ type SystemDecayEffectiveness struct {
 	PerformanceScore     float64 `json:"performance_score"`
 
 	// Decay Metrics
-	DecayEfficiency      float64 `json:"decay_efficiency"`
-	DecayConsistency     float64 `json:"decay_consistency"`
-	DecayPredictability  float64 `json:"decay_predictability"`
-	DecayStability       float64 `json:"decay_stability"`
+	DecayEfficiency     float64 `json:"decay_efficiency"`
+	DecayConsistency    float64 `json:"decay_consistency"`
+	DecayPredictability float64 `json:"decay_predictability"`
+	DecayStability      float64 `json:"decay_stability"`
 
 	// Reset Metrics
-	ResetEffectiveness   float64 `json:"reset_effectiveness"`
-	ResetTimingOptimality float64 `json:"reset_timing_optimality"`
+	ResetEffectiveness      float64 `json:"reset_effectiveness"`
+	ResetTimingOptimality   float64 `json:"reset_timing_optimality"`
 	ResetImpactMinimization float64 `json:"reset_impact_minimization"`
-	ResetRecoverySpeed   float64 `json:"reset_recovery_speed"`
+	ResetRecoverySpeed      float64 `json:"reset_recovery_speed"`
 
 	// System Health
-	SystemStress         float64 `json:"system_stress"`
-	UserSatisfaction     float64 `json:"user_satisfaction"`
+	SystemStress          float64 `json:"system_stress"`
+	UserSatisfaction      float64 `json:"user_satisfaction"`
 	OperationalEfficiency float64 `json:"operational_efficiency"`
-	ConfigurationHealth  float64 `json:"configuration_health"`
+	ConfigurationHealth   float64 `json:"configuration_health"`
 
 	LastCalculated time.Time `json:"last_calculated"`
 }
 
 // DecayTrendAnalysis represents decay trend analysis
 type DecayTrendAnalysis struct {
-	AnalysisPeriod      string  `json:"analysis_period"`
+	AnalysisPeriod string `json:"analysis_period"`
 
 	// Trend Metrics
 	DecayTrendDirection string  `json:"decay_trend_direction"`
@@ -241,15 +241,15 @@ type DecayTrendAnalysis struct {
 	DecayVolatility     float64 `json:"decay_volatility"`
 
 	// Seasonal Analysis
-	SeasonalPatterns    map[string]float64 `json:"seasonal_patterns"`
-	SeasonalStrength    float64            `json:"seasonal_strength"`
-	CyclicalBehavior    bool               `json:"cyclical_behavior"`
-	CyclePeriod         string             `json:"cycle_period"`
+	SeasonalPatterns map[string]float64 `json:"seasonal_patterns"`
+	SeasonalStrength float64            `json:"seasonal_strength"`
+	CyclicalBehavior bool               `json:"cyclical_behavior"`
+	CyclePeriod      string             `json:"cycle_period"`
 
 	// Predictive Analysis
-	FutureTrend         string  `json:"future_trend"`
+	FutureTrend          string  `json:"future_trend"`
 	PredictionConfidence float64 `json:"prediction_confidence"`
-	TrendStability      float64 `json:"trend_stability"`
+	TrendStability       float64 `json:"trend_stability"`
 
 	LastAnalyzed time.Time `json:"last_analyzed"`
 }
@@ -257,21 +257,21 @@ type DecayTrendAnalysis struct {
 // DecayConfigurationValidation represents configuration validation
 type DecayConfigurationValidation struct {
 	// Validation Results
-	IsValid             bool     `json:"is_valid"`
-	ValidationScore     float64  `json:"validation_score"`
-	ValidationIssues    []string `json:"validation_issues"`
-	ValidationWarnings  []string `json:"validation_warnings"`
+	IsValid            bool     `json:"is_valid"`
+	ValidationScore    float64  `json:"validation_score"`
+	ValidationIssues   []string `json:"validation_issues"`
+	ValidationWarnings []string `json:"validation_warnings"`
 
 	// Parameter Analysis
-	HalfLifeOptimality  float64  `json:"half_life_optimality"`
-	IntervalOptimality  float64  `json:"interval_optimality"`
+	HalfLifeOptimality    float64 `json:"half_life_optimality"`
+	IntervalOptimality    float64 `json:"interval_optimality"`
 	ResetTimingOptimality float64 `json:"reset_timing_optimality"`
-	OverallOptimality   float64  `json:"overall_optimality"`
+	OverallOptimality     float64 `json:"overall_optimality"`
 
 	// Recommendations
-	RecommendedChanges  []string `json:"recommended_changes"`
-	OptimizationPotential float64 `json:"optimization_potential"`
-	RiskAssessment      string   `json:"risk_assessment"`
+	RecommendedChanges    []string `json:"recommended_changes"`
+	OptimizationPotential float64  `json:"optimization_potential"`
+	RiskAssessment        string   `json:"risk_assessment"`
 
 	ValidatedAt time.Time `json:"validated_at"`
 }
@@ -279,39 +279,39 @@ type DecayConfigurationValidation struct {
 // DecayOptimizationResult represents optimization analysis
 type DecayOptimizationResult struct {
 	// Current Configuration
-	CurrentHalfLife     time.Duration `json:"current_half_life"`
-	CurrentDecayFactor  float64       `json:"current_decay_factor"`
-	CurrentEffectiveness float64      `json:"current_effectiveness"`
+	CurrentHalfLife      time.Duration `json:"current_half_life"`
+	CurrentDecayFactor   float64       `json:"current_decay_factor"`
+	CurrentEffectiveness float64       `json:"current_effectiveness"`
 
 	// Recommended Configuration
-	RecommendedHalfLife time.Duration `json:"recommended_half_life"`
-	RecommendedDecayFactor float64    `json:"recommended_decay_factor"`
-	ExpectedEffectiveness float64     `json:"expected_effectiveness"`
-	ExpectedImprovement  float64      `json:"expected_improvement"`
+	RecommendedHalfLife    time.Duration `json:"recommended_half_life"`
+	RecommendedDecayFactor float64       `json:"recommended_decay_factor"`
+	ExpectedEffectiveness  float64       `json:"expected_effectiveness"`
+	ExpectedImprovement    float64       `json:"expected_improvement"`
 
 	// Implementation Analysis
-	ImplementationRisk   string    `json:"implementation_risk"`
-	TransitionPeriod     string    `json:"transition_period"`
-	RollbackPlan         string    `json:"rollback_plan"`
+	ImplementationRisk string `json:"implementation_risk"`
+	TransitionPeriod   string `json:"transition_period"`
+	RollbackPlan       string `json:"rollback_plan"`
 
 	OptimizedAt time.Time `json:"optimized_at"`
 }
 
 // DecayImpactPrediction represents decay impact predictions
 type DecayImpactPrediction struct {
-	UserName            string    `json:"user_name"`
-	PredictionTimeframe string    `json:"prediction_timeframe"`
+	UserName            string `json:"user_name"`
+	PredictionTimeframe string `json:"prediction_timeframe"`
 
 	// Predicted Changes
-	PredictedFairShare  float64   `json:"predicted_fair_share"`
-	PredictedPriority   float64   `json:"predicted_priority"`
-	PredictedWaitTime   float64   `json:"predicted_wait_time"`
-	PredictedPosition   int       `json:"predicted_position"`
+	PredictedFairShare float64 `json:"predicted_fair_share"`
+	PredictedPriority  float64 `json:"predicted_priority"`
+	PredictedWaitTime  float64 `json:"predicted_wait_time"`
+	PredictedPosition  int     `json:"predicted_position"`
 
 	// Confidence Metrics
-	PredictionConfidence float64  `json:"prediction_confidence"`
-	ModelAccuracy       float64   `json:"model_accuracy"`
-	UncertaintyRange    float64   `json:"uncertainty_range"`
+	PredictionConfidence float64 `json:"prediction_confidence"`
+	ModelAccuracy        float64 `json:"model_accuracy"`
+	UncertaintyRange     float64 `json:"uncertainty_range"`
 
 	PredictedAt time.Time `json:"predicted_at"`
 }

@@ -2,7 +2,8 @@ package collector
 
 import (
 	"context"
-	"strconv"
+	// Commented out as only used in commented-out parser functions
+	// "strconv"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -492,6 +493,8 @@ func (jc *JobCollector) parseJobState(slurmState string) string {
 	}
 }
 
+// TODO: Following parser functions are unused - preserved for future data parsing needs
+/*
 // parseTimeString converts SLURM time string to Unix timestamp
 func (jc *JobCollector) parseTimeString(slurmTime string) (int64, error) {
 	if slurmTime == "" || slurmTime == "Unknown" {
@@ -574,3 +577,4 @@ func (jc *JobCollector) parseMemorySize(slurmMemory string) (int64, error) {
 		return int64(value), nil
 	}
 }
+*/

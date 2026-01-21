@@ -15,18 +15,18 @@ import (
 
 // MetricPattern represents a learned pattern for a specific metric
 type MetricPattern struct {
-	Name             string            `json:"name"`
-	Labels           map[string]string `json:"labels"`
-	Values           []float64         `json:"values"`
-	Timestamps       []time.Time       `json:"timestamps"`
-	Mean             float64           `json:"mean"`
-	Variance         float64           `json:"variance"`
-	ChangeRate       float64           `json:"change_rate"`
-	NoiseScore       float64           `json:"noise_score"`
-	Correlation      float64           `json:"correlation"`
-	LastUpdated      time.Time         `json:"last_updated"`
-	SampleCount      int               `json:"sample_count"`
-	FilterRecommend  FilterAction      `json:"filter_recommend"`
+	Name            string            `json:"name"`
+	Labels          map[string]string `json:"labels"`
+	Values          []float64         `json:"values"`
+	Timestamps      []time.Time       `json:"timestamps"`
+	Mean            float64           `json:"mean"`
+	Variance        float64           `json:"variance"`
+	ChangeRate      float64           `json:"change_rate"`
+	NoiseScore      float64           `json:"noise_score"`
+	Correlation     float64           `json:"correlation"`
+	LastUpdated     time.Time         `json:"last_updated"`
+	SampleCount     int               `json:"sample_count"`
+	FilterRecommend FilterAction      `json:"filter_recommend"`
 }
 
 // FilterAction represents the recommended action for a metric
@@ -54,30 +54,30 @@ func (a FilterAction) String() string {
 
 // SmartFilter implements intelligent metric filtering with pattern learning
 type SmartFilter struct {
-	config   config.SmartFilteringConfig
-	logger   *logrus.Logger
-	metrics  *FilterMetrics
-	mu       sync.RWMutex
-	
+	config  config.SmartFilteringConfig
+	logger  *logrus.Logger
+	metrics *FilterMetrics
+	mu      sync.RWMutex
+
 	// Pattern storage
-	patterns        map[string]*MetricPattern
-	patternHistory  map[string][]float64
-	
+	patterns       map[string]*MetricPattern
+	patternHistory map[string][]float64
+
 	// Learning state
-	enabled          bool
-	learningPhase    bool
-	learningSince    time.Time
-	totalSamples     int64
-	filteredSamples  int64
-	
+	enabled         bool
+	learningPhase   bool
+	learningSince   time.Time
+	totalSamples    int64
+	filteredSamples int64
+
 	// Cache for quick lookups
-	filterCache     map[string]FilterAction
-	cacheExpiry     time.Time
-	
+	filterCache map[string]FilterAction
+	cacheExpiry time.Time
+
 	// Background processing
-	ctx             context.Context
-	cancel          context.CancelFunc
-	wg              sync.WaitGroup
+	ctx    context.Context
+	cancel context.CancelFunc
+	wg     sync.WaitGroup
 }
 
 // FilterMetrics holds Prometheus metrics for the smart filter
@@ -164,17 +164,17 @@ func NewSmartFilter(cfg config.SmartFilteringConfig, logger *logrus.Logger) (*Sm
 	ctx, cancel := context.WithCancel(context.Background())
 
 	filter := &SmartFilter{
-		config:          cfg,
-		logger:          logger,
-		metrics:         metrics,
-		enabled:         true,
-		learningPhase:   true,
-		learningSince:   time.Now(),
-		patterns:        make(map[string]*MetricPattern),
-		patternHistory:  make(map[string][]float64),
-		filterCache:     make(map[string]FilterAction),
-		ctx:             ctx,
-		cancel:          cancel,
+		config:         cfg,
+		logger:         logger,
+		metrics:        metrics,
+		enabled:        true,
+		learningPhase:  true,
+		learningSince:  time.Now(),
+		patterns:       make(map[string]*MetricPattern),
+		patternHistory: make(map[string][]float64),
+		filterCache:    make(map[string]FilterAction),
+		ctx:            ctx,
+		cancel:         cancel,
 	}
 
 	// Start background processing
@@ -185,11 +185,11 @@ func NewSmartFilter(cfg config.SmartFilteringConfig, logger *logrus.Logger) (*Sm
 	filter.metrics.learningPhase.Set(1)
 
 	logger.WithFields(logrus.Fields{
-		"noise_threshold":  cfg.NoiseThreshold,
-		"cache_size":       cfg.CacheSize,
-		"learning_window":  cfg.LearningWindow,
-		"variance_limit":   cfg.VarianceLimit,
-		"correlation_min":  cfg.CorrelationMin,
+		"noise_threshold": cfg.NoiseThreshold,
+		"cache_size":      cfg.CacheSize,
+		"learning_window": cfg.LearningWindow,
+		"variance_limit":  cfg.VarianceLimit,
+		"correlation_min": cfg.CorrelationMin,
 	}).Info("Smart filtering initialized in learning mode")
 
 	return filter, nil
@@ -321,7 +321,7 @@ func (sf *SmartFilter) processMetricFamily(ctx context.Context, collector string
 func (sf *SmartFilter) shouldKeepMetric(ctx context.Context, collector, metricName string, metric *dto.Metric) bool {
 	// Create unique key for this metric
 	key := sf.createMetricKey(metricName, metric)
-	
+
 	// Check cache first
 	if action, found := sf.getCachedDecision(key); found {
 		sf.recordDecision(action, "cache_hit")
@@ -330,21 +330,21 @@ func (sf *SmartFilter) shouldKeepMetric(ctx context.Context, collector, metricNa
 
 	// Get or create pattern for this metric
 	pattern := sf.getOrCreatePattern(key, metricName, metric)
-	
+
 	// Update pattern with current value
 	value := sf.extractValue(metric)
 	sf.updatePattern(pattern, value)
-	
+
 	// Make filtering decision
 	action := sf.makeFilterDecision(pattern, collector)
-	
+
 	// Cache the decision
 	sf.cacheDecision(key, action)
-	
+
 	// Record metrics
 	sf.metrics.noiseScore.WithLabelValues(collector).Observe(pattern.NoiseScore)
 	sf.recordDecision(action, "computed")
-	
+
 	return action == ActionKeep
 }
 
@@ -353,7 +353,7 @@ func (sf *SmartFilter) createMetricKey(name string, metric *dto.Metric) string {
 	if len(metric.Label) == 0 {
 		return name
 	}
-	
+
 	// Create deterministic key from labels
 	key := name
 	for _, label := range metric.Label {
@@ -366,12 +366,12 @@ func (sf *SmartFilter) createMetricKey(name string, metric *dto.Metric) string {
 func (sf *SmartFilter) getCachedDecision(key string) (FilterAction, bool) {
 	sf.mu.RLock()
 	defer sf.mu.RUnlock()
-	
+
 	// Check if cache is expired
 	if time.Now().After(sf.cacheExpiry) {
 		return ActionUnknown, false
 	}
-	
+
 	action, found := sf.filterCache[key]
 	return action, found
 }
@@ -380,7 +380,7 @@ func (sf *SmartFilter) getCachedDecision(key string) (FilterAction, bool) {
 func (sf *SmartFilter) cacheDecision(key string, action FilterAction) {
 	sf.mu.Lock()
 	defer sf.mu.Unlock()
-	
+
 	// Limit cache size
 	if len(sf.filterCache) >= sf.config.CacheSize {
 		// Simple eviction: clear half the cache
@@ -391,9 +391,9 @@ func (sf *SmartFilter) cacheDecision(key string, action FilterAction) {
 			}
 		}
 	}
-	
+
 	sf.filterCache[key] = action
-	
+
 	// Set cache expiry if not set
 	if sf.cacheExpiry.IsZero() {
 		sf.cacheExpiry = time.Now().Add(5 * time.Minute)
@@ -404,7 +404,7 @@ func (sf *SmartFilter) cacheDecision(key string, action FilterAction) {
 func (sf *SmartFilter) getOrCreatePattern(key, name string, metric *dto.Metric) *MetricPattern {
 	sf.mu.Lock()
 	defer sf.mu.Unlock()
-	
+
 	pattern, exists := sf.patterns[key]
 	if !exists {
 		// Extract labels
@@ -412,7 +412,7 @@ func (sf *SmartFilter) getOrCreatePattern(key, name string, metric *dto.Metric) 
 		for _, label := range metric.Label {
 			labels[label.GetName()] = label.GetValue()
 		}
-		
+
 		pattern = &MetricPattern{
 			Name:            name,
 			Labels:          labels,
@@ -423,7 +423,7 @@ func (sf *SmartFilter) getOrCreatePattern(key, name string, metric *dto.Metric) 
 		}
 		sf.patterns[key] = pattern
 	}
-	
+
 	return pattern
 }
 
@@ -449,21 +449,21 @@ func (sf *SmartFilter) extractValue(metric *dto.Metric) float64 {
 func (sf *SmartFilter) updatePattern(pattern *MetricPattern, value float64) {
 	sf.mu.Lock()
 	defer sf.mu.Unlock()
-	
+
 	now := time.Now()
-	
+
 	// Add new value
 	pattern.Values = append(pattern.Values, value)
 	pattern.Timestamps = append(pattern.Timestamps, now)
 	pattern.LastUpdated = now
 	pattern.SampleCount++
-	
+
 	// Maintain window size
 	if len(pattern.Values) > sf.config.LearningWindow {
 		pattern.Values = pattern.Values[1:]
 		pattern.Timestamps = pattern.Timestamps[1:]
 	}
-	
+
 	// Recalculate statistics if we have enough samples
 	if len(pattern.Values) >= 3 {
 		sf.calculateStatistics(pattern)
@@ -474,14 +474,14 @@ func (sf *SmartFilter) updatePattern(pattern *MetricPattern, value float64) {
 func (sf *SmartFilter) calculateStatistics(pattern *MetricPattern) {
 	values := pattern.Values
 	n := len(values)
-	
+
 	// Calculate mean
 	sum := 0.0
 	for _, v := range values {
 		sum += v
 	}
 	pattern.Mean = sum / float64(n)
-	
+
 	// Calculate variance
 	variance := 0.0
 	for _, v := range values {
@@ -489,7 +489,7 @@ func (sf *SmartFilter) calculateStatistics(pattern *MetricPattern) {
 		variance += diff * diff
 	}
 	pattern.Variance = variance / float64(n-1)
-	
+
 	// Calculate change rate (how much the metric changes)
 	if n > 1 {
 		changes := 0.0
@@ -501,10 +501,10 @@ func (sf *SmartFilter) calculateStatistics(pattern *MetricPattern) {
 		}
 		pattern.ChangeRate = changes / float64(n-1)
 	}
-	
+
 	// Calculate noise score (combination of variance and change rate)
 	pattern.NoiseScore = sf.calculateNoiseScore(pattern)
-	
+
 	// Calculate correlation with time (trend detection)
 	pattern.Correlation = sf.calculateTimeCorrelation(pattern)
 }
@@ -513,13 +513,13 @@ func (sf *SmartFilter) calculateStatistics(pattern *MetricPattern) {
 func (sf *SmartFilter) calculateNoiseScore(pattern *MetricPattern) float64 {
 	// Normalize variance (higher variance = more noise)
 	normalizedVariance := math.Min(pattern.Variance/sf.config.VarianceLimit, 1.0)
-	
+
 	// Normalize change rate (higher change rate = more noise)
 	normalizedChangeRate := math.Min(pattern.ChangeRate, 1.0)
-	
+
 	// Combine factors (weighted average)
 	noiseScore := 0.6*normalizedVariance + 0.4*normalizedChangeRate
-	
+
 	return math.Min(noiseScore, 1.0)
 }
 
@@ -527,17 +527,17 @@ func (sf *SmartFilter) calculateNoiseScore(pattern *MetricPattern) float64 {
 func (sf *SmartFilter) calculateTimeCorrelation(pattern *MetricPattern) float64 {
 	values := pattern.Values
 	n := len(values)
-	
+
 	if n < 3 {
 		return 0
 	}
-	
+
 	// Create time series (0, 1, 2, ...)
 	timeValues := make([]float64, n)
 	for i := range timeValues {
 		timeValues[i] = float64(i)
 	}
-	
+
 	// Calculate correlation coefficient
 	return sf.calculateCorrelation(timeValues, values)
 }
@@ -548,7 +548,7 @@ func (sf *SmartFilter) calculateCorrelation(x, y []float64) float64 {
 	if n != len(y) || n < 2 {
 		return 0
 	}
-	
+
 	// Calculate means
 	meanX := 0.0
 	meanY := 0.0
@@ -558,12 +558,12 @@ func (sf *SmartFilter) calculateCorrelation(x, y []float64) float64 {
 	}
 	meanX /= float64(n)
 	meanY /= float64(n)
-	
+
 	// Calculate correlation
 	numerator := 0.0
 	sumSqX := 0.0
 	sumSqY := 0.0
-	
+
 	for i := 0; i < n; i++ {
 		dx := x[i] - meanX
 		dy := y[i] - meanY
@@ -571,12 +571,12 @@ func (sf *SmartFilter) calculateCorrelation(x, y []float64) float64 {
 		sumSqX += dx * dx
 		sumSqY += dy * dy
 	}
-	
+
 	denominator := math.Sqrt(sumSqX * sumSqY)
 	if denominator == 0 {
 		return 0
 	}
-	
+
 	return numerator / denominator
 }
 
@@ -586,19 +586,19 @@ func (sf *SmartFilter) makeFilterDecision(pattern *MetricPattern, collector stri
 	if sf.learningPhase {
 		return ActionKeep
 	}
-	
+
 	// Check noise threshold
 	if pattern.NoiseScore > sf.config.NoiseThreshold {
 		// High noise - filter it
 		return ActionFilter
 	}
-	
+
 	// Check if metric has low variance and low correlation (constant value)
 	if pattern.Variance < sf.config.VarianceLimit*0.1 && math.Abs(pattern.Correlation) < sf.config.CorrelationMin {
 		// Constant metrics might be noise
 		return ActionReduce
 	}
-	
+
 	// Keep everything else
 	return ActionKeep
 }
@@ -611,10 +611,10 @@ func (sf *SmartFilter) recordDecision(action FilterAction, reason string) {
 // backgroundProcessor handles background tasks for the filter
 func (sf *SmartFilter) backgroundProcessor() {
 	defer sf.wg.Done()
-	
+
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-sf.ctx.Done():
@@ -629,21 +629,21 @@ func (sf *SmartFilter) backgroundProcessor() {
 func (sf *SmartFilter) performMaintenance() {
 	sf.mu.Lock()
 	defer sf.mu.Unlock()
-	
+
 	now := time.Now()
-	
+
 	// Check if we should exit learning phase
 	if sf.learningPhase && now.Sub(sf.learningSince) > 10*time.Minute {
 		sf.learningPhase = false
 		sf.metrics.learningPhase.Set(0)
 		sf.logger.Info("Smart filter exited learning phase and started filtering")
 	}
-	
+
 	// Update pattern count metrics
 	keepCount := 0
 	filterCount := 0
 	reduceCount := 0
-	
+
 	for _, pattern := range sf.patterns {
 		switch pattern.FilterRecommend {
 		case ActionKeep:
@@ -654,11 +654,11 @@ func (sf *SmartFilter) performMaintenance() {
 			reduceCount++
 		}
 	}
-	
+
 	sf.metrics.patternsLearned.WithLabelValues("keep").Set(float64(keepCount))
 	sf.metrics.patternsLearned.WithLabelValues("filter").Set(float64(filterCount))
 	sf.metrics.patternsLearned.WithLabelValues("reduce").Set(float64(reduceCount))
-	
+
 	// Calculate cache hit rate
 	totalDecisions := sf.totalSamples
 	if totalDecisions > 0 {
@@ -666,13 +666,13 @@ func (sf *SmartFilter) performMaintenance() {
 		cacheHitRate := 0.7 // Placeholder - implement proper cache hit tracking
 		sf.metrics.cacheHitRate.Set(cacheHitRate)
 	}
-	
+
 	// Clear expired cache entries
 	if now.After(sf.cacheExpiry) {
 		sf.filterCache = make(map[string]FilterAction)
 		sf.cacheExpiry = time.Time{}
 	}
-	
+
 	// Clean up old patterns
 	sf.cleanupOldPatterns(now)
 }
@@ -680,7 +680,7 @@ func (sf *SmartFilter) performMaintenance() {
 // cleanupOldPatterns removes patterns that haven't been updated recently
 func (sf *SmartFilter) cleanupOldPatterns(now time.Time) {
 	maxAge := 24 * time.Hour
-	
+
 	for key, pattern := range sf.patterns {
 		if now.Sub(pattern.LastUpdated) > maxAge {
 			delete(sf.patterns, key)
@@ -695,23 +695,23 @@ func (sf *SmartFilter) GetStats() map[string]interface{} {
 			"enabled": false,
 		}
 	}
-	
+
 	sf.mu.RLock()
 	defer sf.mu.RUnlock()
-	
+
 	stats := map[string]interface{}{
-		"enabled":         true,
-		"learning_phase":  sf.learningPhase,
-		"total_patterns":  len(sf.patterns),
-		"cache_size":      len(sf.filterCache),
-		"total_samples":   sf.totalSamples,
+		"enabled":          true,
+		"learning_phase":   sf.learningPhase,
+		"total_patterns":   len(sf.patterns),
+		"cache_size":       len(sf.filterCache),
+		"total_samples":    sf.totalSamples,
 		"filtered_samples": sf.filteredSamples,
 	}
-	
+
 	if sf.totalSamples > 0 {
 		stats["filter_rate"] = float64(sf.filteredSamples) / float64(sf.totalSamples)
 	}
-	
+
 	return stats
 }
 
@@ -720,17 +720,17 @@ func (sf *SmartFilter) GetPatterns() map[string]MetricPattern {
 	if !sf.enabled {
 		return nil
 	}
-	
+
 	sf.mu.RLock()
 	defer sf.mu.RUnlock()
-	
+
 	patterns := make(map[string]MetricPattern)
 	for key, pattern := range sf.patterns {
 		// Create a copy to prevent external modification
 		patternCopy := *pattern
 		patterns[key] = patternCopy
 	}
-	
+
 	return patterns
 }
 
@@ -745,7 +745,7 @@ func (sf *SmartFilter) Close() error {
 		sf.cancel()
 		sf.wg.Wait()
 	}
-	
+
 	sf.logger.Info("Smart filter shutdown complete")
 	return nil
 }

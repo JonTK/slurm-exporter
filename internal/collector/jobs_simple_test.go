@@ -126,8 +126,8 @@ func TestJobsSimpleCollector_Filtering(t *testing.T) {
 
 	// Configure filtering
 	filterConfig := config.FilterConfig{
-		MetricFilter: config.MetricFilterConfig{
-			EnableAll: false,
+		Metrics: config.MetricFilterConfig{
+			EnableAll:      false,
 			IncludeMetrics: []string{"slurm_job_state"},
 			ExcludeMetrics: []string{},
 		},
@@ -208,11 +208,11 @@ func TestJobsSimpleCollector_EmptyJobList(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	// Should still have some metrics (zeros)
+	// With empty job list, no metrics should be emitted
 	count := 0
 	for range ch {
 		count++
 	}
 
-	assert.True(t, count > 0, "should have metrics even with empty job list")
+	assert.Equal(t, 0, count, "should not emit metrics when job list is empty")
 }

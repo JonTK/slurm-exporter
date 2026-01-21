@@ -50,355 +50,355 @@ type FairSharePolicyEffectivenessSLURMClient interface {
 
 // FairSharePolicyConfiguration represents the current fair-share policy setup
 type FairSharePolicyConfiguration struct {
-	PolicyID                string                 `json:"policy_id"`
-	PolicyName              string                 `json:"policy_name"`
-	PolicyVersion           string                 `json:"policy_version"`
-	ImplementationDate      time.Time              `json:"implementation_date"`
-	LastModified            time.Time              `json:"last_modified"`
+	PolicyID           string    `json:"policy_id"`
+	PolicyName         string    `json:"policy_name"`
+	PolicyVersion      string    `json:"policy_version"`
+	ImplementationDate time.Time `json:"implementation_date"`
+	LastModified       time.Time `json:"last_modified"`
 
 	// Core Parameters
-	FairShareAlgorithm      string                 `json:"fairshare_algorithm"`
-	DecayHalfLife           float64                `json:"decay_half_life"`
-	UsageFactor             float64                `json:"usage_factor"`
-	LevelFactor             float64                `json:"level_factor"`
-	PriorityWeight          float64                `json:"priority_weight"`
+	FairShareAlgorithm string  `json:"fairshare_algorithm"`
+	DecayHalfLife      float64 `json:"decay_half_life"`
+	UsageFactor        float64 `json:"usage_factor"`
+	LevelFactor        float64 `json:"level_factor"`
+	PriorityWeight     float64 `json:"priority_weight"`
 
 	// Account Hierarchy Settings
-	AccountHierarchyEnabled bool                   `json:"account_hierarchy_enabled"`
-	InheritParentLimits     bool                   `json:"inherit_parent_limits"`
-	AccountNormalization    string                 `json:"account_normalization"`
-	HierarchyDepth          int                    `json:"hierarchy_depth"`
+	AccountHierarchyEnabled bool   `json:"account_hierarchy_enabled"`
+	InheritParentLimits     bool   `json:"inherit_parent_limits"`
+	AccountNormalization    string `json:"account_normalization"`
+	HierarchyDepth          int    `json:"hierarchy_depth"`
 
 	// User and QoS Settings
-	UserFairShareEnabled    bool                   `json:"user_fairshare_enabled"`
-	QoSFairShareEnabled     bool                   `json:"qos_fairshare_enabled"`
-	PartitionFairShare      map[string]float64     `json:"partition_fairshare"`
-	DefaultFairShare        float64                `json:"default_fairshare"`
+	UserFairShareEnabled bool               `json:"user_fairshare_enabled"`
+	QoSFairShareEnabled  bool               `json:"qos_fairshare_enabled"`
+	PartitionFairShare   map[string]float64 `json:"partition_fairshare"`
+	DefaultFairShare     float64            `json:"default_fairshare"`
 
 	// Enforcement Settings
-	EnforcementLevel        string                 `json:"enforcement_level"`
-	GracePeriodsEnabled     bool                   `json:"grace_periods_enabled"`
-	GracePeriodDuration     float64                `json:"grace_period_duration"`
-	ViolationPenalties      map[string]float64     `json:"violation_penalties"`
+	EnforcementLevel    string             `json:"enforcement_level"`
+	GracePeriodsEnabled bool               `json:"grace_periods_enabled"`
+	GracePeriodDuration float64            `json:"grace_period_duration"`
+	ViolationPenalties  map[string]float64 `json:"violation_penalties"`
 
 	// Advanced Settings
-	CalculationFrequency    string                 `json:"calculation_frequency"`
-	DatabasePurgePolicy     string                 `json:"database_purge_policy"`
-	BackfillConsideration   bool                   `json:"backfill_consideration"`
-	PreemptionEnabled       bool                   `json:"preemption_enabled"`
+	CalculationFrequency  string `json:"calculation_frequency"`
+	DatabasePurgePolicy   string `json:"database_purge_policy"`
+	BackfillConsideration bool   `json:"backfill_consideration"`
+	PreemptionEnabled     bool   `json:"preemption_enabled"`
 
 	// Validation and Status
-	ConfigurationValid      bool                   `json:"configuration_valid"`
-	ValidationErrors        []string               `json:"validation_errors"`
-	ConfigurationHash       string                 `json:"configuration_hash"`
-	LastValidated           time.Time              `json:"last_validated"`
+	ConfigurationValid bool      `json:"configuration_valid"`
+	ValidationErrors   []string  `json:"validation_errors"`
+	ConfigurationHash  string    `json:"configuration_hash"`
+	LastValidated      time.Time `json:"last_validated"`
 }
 
 // FairSharePolicyEffectivenessMetrics represents comprehensive policy effectiveness measurements
 type FairSharePolicyEffectivenessMetrics struct {
-	PolicyID            string                 `json:"policy_id"`
-	MeasurementPeriod   string                 `json:"measurement_period"`
+	PolicyID          string `json:"policy_id"`
+	MeasurementPeriod string `json:"measurement_period"`
 
 	// Fairness Metrics
-	GiniCoefficient     float64                `json:"gini_coefficient"`
-	FairnessIndex       float64                `json:"fairness_index"`
-	EquityScore         float64                `json:"equity_score"`
-	VariationCoefficient float64               `json:"variation_coefficient"`
-	JainsFairnessIndex  float64                `json:"jains_fairness_index"`
+	GiniCoefficient      float64 `json:"gini_coefficient"`
+	FairnessIndex        float64 `json:"fairness_index"`
+	EquityScore          float64 `json:"equity_score"`
+	VariationCoefficient float64 `json:"variation_coefficient"`
+	JainsFairnessIndex   float64 `json:"jains_fairness_index"`
 
 	// Effectiveness Scores
-	OverallEffectiveness    float64            `json:"overall_effectiveness"`
-	AllocationEffectiveness float64            `json:"allocation_effectiveness"`
-	EnforcementEffectiveness float64           `json:"enforcement_effectiveness"`
-	UserComplianceRate      float64            `json:"user_compliance_rate"`
-	SystemStabilityScore    float64            `json:"system_stability_score"`
+	OverallEffectiveness     float64 `json:"overall_effectiveness"`
+	AllocationEffectiveness  float64 `json:"allocation_effectiveness"`
+	EnforcementEffectiveness float64 `json:"enforcement_effectiveness"`
+	UserComplianceRate       float64 `json:"user_compliance_rate"`
+	SystemStabilityScore     float64 `json:"system_stability_score"`
 
 	// Resource Distribution
-	ResourceDistributionFairness float64       `json:"resource_distribution_fairness"`
-	WaitTimeEquity              float64        `json:"wait_time_equity"`
-	ThroughputFairness          float64        `json:"throughput_fairness"`
-	AccessibilityScore          float64        `json:"accessibility_score"`
+	ResourceDistributionFairness float64 `json:"resource_distribution_fairness"`
+	WaitTimeEquity               float64 `json:"wait_time_equity"`
+	ThroughputFairness           float64 `json:"throughput_fairness"`
+	AccessibilityScore           float64 `json:"accessibility_score"`
 
 	// Policy Adherence
-	PolicyAdherenceRate     float64            `json:"policy_adherence_rate"`
-	ViolationRate           float64            `json:"violation_rate"`
-	CorrectionEfficiency    float64            `json:"correction_efficiency"`
-	Responseiveness         float64            `json:"responsiveness"`
+	PolicyAdherenceRate  float64 `json:"policy_adherence_rate"`
+	ViolationRate        float64 `json:"violation_rate"`
+	CorrectionEfficiency float64 `json:"correction_efficiency"`
+	Responseiveness      float64 `json:"responsiveness"`
 
 	// Impact Assessment
-	UserSatisfactionImpact  float64            `json:"user_satisfaction_impact"`
-	SystemPerformanceImpact float64            `json:"system_performance_impact"`
-	ResourceEfficiencyImpact float64           `json:"resource_efficiency_impact"`
-	CollaborationImpact     float64            `json:"collaboration_impact"`
+	UserSatisfactionImpact   float64 `json:"user_satisfaction_impact"`
+	SystemPerformanceImpact  float64 `json:"system_performance_impact"`
+	ResourceEfficiencyImpact float64 `json:"resource_efficiency_impact"`
+	CollaborationImpact      float64 `json:"collaboration_impact"`
 
 	// Temporal Analysis
-	TrendDirection          string             `json:"trend_direction"`
-	EffectivenessStability  float64            `json:"effectiveness_stability"`
-	ImprovementRate         float64            `json:"improvement_rate"`
-	AdaptationScore         float64            `json:"adaptation_score"`
+	TrendDirection         string  `json:"trend_direction"`
+	EffectivenessStability float64 `json:"effectiveness_stability"`
+	ImprovementRate        float64 `json:"improvement_rate"`
+	AdaptationScore        float64 `json:"adaptation_score"`
 
-	LastMeasured            time.Time          `json:"last_measured"`
+	LastMeasured time.Time `json:"last_measured"`
 }
 
 // PolicyImplementationDetails represents policy implementation details
 type PolicyImplementationDetails struct {
-	PolicyID              string                 `json:"policy_id"`
-	ImplementationStatus  string                 `json:"implementation_status"`
-	ImplementationDate    time.Time              `json:"implementation_date"`
-	Parameters            map[string]interface{} `json:"parameters"`
-	ValidationResults     []string               `json:"validation_results"`
+	PolicyID             string                 `json:"policy_id"`
+	ImplementationStatus string                 `json:"implementation_status"`
+	ImplementationDate   time.Time              `json:"implementation_date"`
+	Parameters           map[string]interface{} `json:"parameters"`
+	ValidationResults    []string               `json:"validation_results"`
 }
 
 // PolicyParameterAnalysis represents policy parameter analysis
 type PolicyParameterAnalysis struct {
-	Parameters         map[string]interface{} `json:"parameters"`
-	Sensitivity        map[string]float64     `json:"sensitivity"`
-	OptimalRanges      map[string]interface{} `json:"optimal_ranges"`
-	CurrentEfficiency  float64                `json:"current_efficiency"`
-	Recommendations    []string               `json:"recommendations"`
+	Parameters        map[string]interface{} `json:"parameters"`
+	Sensitivity       map[string]float64     `json:"sensitivity"`
+	OptimalRanges     map[string]interface{} `json:"optimal_ranges"`
+	CurrentEfficiency float64                `json:"current_efficiency"`
+	Recommendations   []string               `json:"recommendations"`
 }
 
 // PolicyConfigurationValidation represents policy configuration validation
 type PolicyConfigurationValidation struct {
-	IsValid           bool                   `json:"is_valid"`
-	ValidationErrors  []string               `json:"validation_errors"`
-	ValidationWarnings []string              `json:"validation_warnings"`
-	ConfigSuggestions []string               `json:"config_suggestions"`
-	LastValidated     time.Time              `json:"last_validated"`
+	IsValid            bool      `json:"is_valid"`
+	ValidationErrors   []string  `json:"validation_errors"`
+	ValidationWarnings []string  `json:"validation_warnings"`
+	ConfigSuggestions  []string  `json:"config_suggestions"`
+	LastValidated      time.Time `json:"last_validated"`
 }
 
 // FairnessDistributionAnalysis represents fairness distribution analysis
 type FairnessDistributionAnalysis struct {
-	Period               string                 `json:"period"`
-	GiniCoefficient      float64                `json:"gini_coefficient"`
-	LorenzCurve          []float64              `json:"lorenz_curve"`
-	FairnessIndex        float64                `json:"fairness_index"`
-	DistributionMetrics  map[string]float64     `json:"distribution_metrics"`
+	Period              string             `json:"period"`
+	GiniCoefficient     float64            `json:"gini_coefficient"`
+	LorenzCurve         []float64          `json:"lorenz_curve"`
+	FairnessIndex       float64            `json:"fairness_index"`
+	DistributionMetrics map[string]float64 `json:"distribution_metrics"`
 }
 
 // ResourceAllocationEffectiveness represents resource allocation effectiveness
 type ResourceAllocationEffectiveness struct {
-	Period                    string             `json:"period"`
-	AllocationEfficiency      float64            `json:"allocation_efficiency"`
-	ResourceUtilization       float64            `json:"resource_utilization"`
-	AllocationFairness        float64            `json:"allocation_fairness"`
-	EffectivenessScore        float64            `json:"effectiveness_score"`
-	ImprovementOpportunities  []string           `json:"improvement_opportunities"`
+	Period                   string   `json:"period"`
+	AllocationEfficiency     float64  `json:"allocation_efficiency"`
+	ResourceUtilization      float64  `json:"resource_utilization"`
+	AllocationFairness       float64  `json:"allocation_fairness"`
+	EffectivenessScore       float64  `json:"effectiveness_score"`
+	ImprovementOpportunities []string `json:"improvement_opportunities"`
 }
 
 // UserEquityAnalysis represents user equity analysis
 type UserEquityAnalysis struct {
-	Period              string             `json:"period"`
-	EquityScore         float64            `json:"equity_score"`
-	UserDistribution    map[string]float64 `json:"user_distribution"`
-	FairnessMetrics     map[string]float64 `json:"fairness_metrics"`
-	InequalityMetrics   map[string]float64 `json:"inequality_metrics"`
+	Period            string             `json:"period"`
+	EquityScore       float64            `json:"equity_score"`
+	UserDistribution  map[string]float64 `json:"user_distribution"`
+	FairnessMetrics   map[string]float64 `json:"fairness_metrics"`
+	InequalityMetrics map[string]float64 `json:"inequality_metrics"`
 }
 
 // SystemPerformanceImpact represents system performance impact
 type SystemPerformanceImpact struct {
-	Period               string             `json:"period"`
-	ThroughputChange     float64            `json:"throughput_change"`
-	UtilizationChange    float64            `json:"utilization_change"`
-	EfficiencyChange     float64            `json:"efficiency_change"`
-	PerformanceMetrics   map[string]float64 `json:"performance_metrics"`
+	Period             string             `json:"period"`
+	ThroughputChange   float64            `json:"throughput_change"`
+	UtilizationChange  float64            `json:"utilization_change"`
+	EfficiencyChange   float64            `json:"efficiency_change"`
+	PerformanceMetrics map[string]float64 `json:"performance_metrics"`
 }
 
 // UserSatisfactionMetrics represents user satisfaction metrics
 type UserSatisfactionMetrics struct {
-	Period               string             `json:"period"`
-	SatisfactionScore    float64            `json:"satisfaction_score"`
-	UserFeedback         map[string]float64 `json:"user_feedback"`
-	ComplaintRate        float64            `json:"complaint_rate"`
-	UserRetention        float64            `json:"user_retention"`
+	Period            string             `json:"period"`
+	SatisfactionScore float64            `json:"satisfaction_score"`
+	UserFeedback      map[string]float64 `json:"user_feedback"`
+	ComplaintRate     float64            `json:"complaint_rate"`
+	UserRetention     float64            `json:"user_retention"`
 }
 
 // ResourceUtilizationImpact represents resource utilization impact
 type ResourceUtilizationImpact struct {
-	Period                string             `json:"period"`
-	CPUUtilizationChange  float64            `json:"cpu_utilization_change"`
-	MemoryUtilizationChange float64          `json:"memory_utilization_change"`
-	GPUUtilizationChange   float64           `json:"gpu_utilization_change"`
-	OverallUtilizationChange float64         `json:"overall_utilization_change"`
+	Period                   string  `json:"period"`
+	CPUUtilizationChange     float64 `json:"cpu_utilization_change"`
+	MemoryUtilizationChange  float64 `json:"memory_utilization_change"`
+	GPUUtilizationChange     float64 `json:"gpu_utilization_change"`
+	OverallUtilizationChange float64 `json:"overall_utilization_change"`
 }
 
 // PolicyOptimizationRecommendations represents policy optimization recommendations
 type PolicyOptimizationRecommendations struct {
-	PolicyID             string               `json:"policy_id"`
-	Recommendations      []string             `json:"recommendations"`
-	PriorityChanges      map[string]float64   `json:"priority_changes"`
-	ParameterChanges     map[string]interface{} `json:"parameter_changes"`
-	ExpectedImprovement  float64              `json:"expected_improvement"`
+	PolicyID            string                 `json:"policy_id"`
+	Recommendations     []string               `json:"recommendations"`
+	PriorityChanges     map[string]float64     `json:"priority_changes"`
+	ParameterChanges    map[string]interface{} `json:"parameter_changes"`
+	ExpectedImprovement float64                `json:"expected_improvement"`
 }
 
 // PolicyTuningHistory represents policy tuning history
 type PolicyTuningHistory struct {
-	PolicyID         string                        `json:"policy_id"`
-	TuningEvents     []PolicyTuningEvent          `json:"tuning_events"`
-	TotalTunings     int                          `json:"total_tunings"`
-	SuccessRate      float64                      `json:"success_rate"`
-	LastTuned        time.Time                    `json:"last_tuned"`
+	PolicyID     string              `json:"policy_id"`
+	TuningEvents []PolicyTuningEvent `json:"tuning_events"`
+	TotalTunings int                 `json:"total_tunings"`
+	SuccessRate  float64             `json:"success_rate"`
+	LastTuned    time.Time           `json:"last_tuned"`
 }
 
 // PolicyTuningEvent represents a single policy tuning event
 type PolicyTuningEvent struct {
-	Timestamp       time.Time                    `json:"timestamp"`
-	Changes         map[string]interface{}       `json:"changes"`
-	Impact          float64                      `json:"impact"`
-	Success         bool                         `json:"success"`
+	Timestamp time.Time              `json:"timestamp"`
+	Changes   map[string]interface{} `json:"changes"`
+	Impact    float64                `json:"impact"`
+	Success   bool                   `json:"success"`
 }
 
 // PolicyPerformanceComparison represents policy performance comparison
 type PolicyPerformanceComparison struct {
-	ComparisonPeriod    string                      `json:"comparison_period"`
-	Policies            []string                    `json:"policies"`
-	PerformanceMetrics  map[string]map[string]float64 `json:"performance_metrics"`
-	BestPolicy          string                      `json:"best_policy"`
-	ComparisonInsights  []string                    `json:"comparison_insights"`
+	ComparisonPeriod   string                        `json:"comparison_period"`
+	Policies           []string                      `json:"policies"`
+	PerformanceMetrics map[string]map[string]float64 `json:"performance_metrics"`
+	BestPolicy         string                        `json:"best_policy"`
+	ComparisonInsights []string                      `json:"comparison_insights"`
 }
 
 // OptimalPolicyParameters represents optimal policy parameters
 type OptimalPolicyParameters struct {
-	PolicyID            string                      `json:"policy_id"`
-	OptimalParameters   map[string]interface{}      `json:"optimal_parameters"`
-	ConfidenceLevel     float64                     `json:"confidence_level"`
-	ValidationMetrics   map[string]float64          `json:"validation_metrics"`
-	LastOptimized       time.Time                   `json:"last_optimized"`
+	PolicyID          string                 `json:"policy_id"`
+	OptimalParameters map[string]interface{} `json:"optimal_parameters"`
+	ConfidenceLevel   float64                `json:"confidence_level"`
+	ValidationMetrics map[string]float64     `json:"validation_metrics"`
+	LastOptimized     time.Time              `json:"last_optimized"`
 }
 
 // PolicyComplianceMonitoring represents policy compliance monitoring
 type PolicyComplianceMonitoring struct {
-	PolicyID            string                      `json:"policy_id"`
-	ComplianceScore     float64                     `json:"compliance_score"`
-	ViolationCount      int                         `json:"violation_count"`
-	ComplianceMetrics   map[string]float64          `json:"compliance_metrics"`
-	NonCompliantUsers   []string                    `json:"non_compliant_users"`
+	PolicyID          string             `json:"policy_id"`
+	ComplianceScore   float64            `json:"compliance_score"`
+	ViolationCount    int                `json:"violation_count"`
+	ComplianceMetrics map[string]float64 `json:"compliance_metrics"`
+	NonCompliantUsers []string           `json:"non_compliant_users"`
 }
 
 // PolicyViolationAnalysis represents policy violation analysis
 type PolicyViolationAnalysis struct {
-	PolicyID            string                      `json:"policy_id"`
-	ViolationCount      int                         `json:"violation_count"`
-	ViolationTypes      map[string]int              `json:"violation_types"`
-	ViolationSeverity   map[string]int              `json:"violation_severity"`
-	ViolationTrends     []float64                   `json:"violation_trends"`
+	PolicyID          string         `json:"policy_id"`
+	ViolationCount    int            `json:"violation_count"`
+	ViolationTypes    map[string]int `json:"violation_types"`
+	ViolationSeverity map[string]int `json:"violation_severity"`
+	ViolationTrends   []float64      `json:"violation_trends"`
 }
 
 // PolicyDriftDetection represents policy drift detection
 type PolicyDriftDetection struct {
-	PolicyID            string                      `json:"policy_id"`
-	DriftDetected       bool                        `json:"drift_detected"`
-	DriftMagnitude      float64                     `json:"drift_magnitude"`
-	DriftDirection      string                      `json:"drift_direction"`
-	LastDetected        time.Time                   `json:"last_detected"`
+	PolicyID       string    `json:"policy_id"`
+	DriftDetected  bool      `json:"drift_detected"`
+	DriftMagnitude float64   `json:"drift_magnitude"`
+	DriftDirection string    `json:"drift_direction"`
+	LastDetected   time.Time `json:"last_detected"`
 }
 
 // PolicyEffectivenessAlerts represents policy effectiveness alerts
 type PolicyEffectivenessAlerts struct {
-	PolicyID            string                      `json:"policy_id"`
-	ActiveAlerts        int                         `json:"active_alerts"`
-	AlertTypes          map[string]int              `json:"alert_types"`
-	AlertSeverity       map[string]int              `json:"alert_severity"`
-	LastAlert           time.Time                   `json:"last_alert"`
+	PolicyID      string         `json:"policy_id"`
+	ActiveAlerts  int            `json:"active_alerts"`
+	AlertTypes    map[string]int `json:"alert_types"`
+	AlertSeverity map[string]int `json:"alert_severity"`
+	LastAlert     time.Time      `json:"last_alert"`
 }
 
 // PolicyEffectivenessTrends represents policy effectiveness trends
 type PolicyEffectivenessTrends struct {
-	PolicyID            string                      `json:"policy_id"`
-	Period              string                      `json:"period"`
-	TrendDirection      string                      `json:"trend_direction"`
-	TrendMagnitude      float64                     `json:"trend_magnitude"`
-	TrendData           []float64                   `json:"trend_data"`
+	PolicyID       string    `json:"policy_id"`
+	Period         string    `json:"period"`
+	TrendDirection string    `json:"trend_direction"`
+	TrendMagnitude float64   `json:"trend_magnitude"`
+	TrendData      []float64 `json:"trend_data"`
 }
 
 // PolicyScenarioAnalysis represents policy scenario analysis
 type PolicyScenarioAnalysis struct {
-	PolicyID            string                      `json:"policy_id"`
-	Scenarios           []PolicyScenario            `json:"scenarios"`
-	BestScenario        string                      `json:"best_scenario"`
-	WorstScenario       string                      `json:"worst_scenario"`
-	RecommendedScenario string                      `json:"recommended_scenario"`
+	PolicyID            string           `json:"policy_id"`
+	Scenarios           []PolicyScenario `json:"scenarios"`
+	BestScenario        string           `json:"best_scenario"`
+	WorstScenario       string           `json:"worst_scenario"`
+	RecommendedScenario string           `json:"recommended_scenario"`
 }
 
 // PolicyScenario represents a single policy scenario
 type PolicyScenario struct {
-	ScenarioID          string                      `json:"scenario_id"`
-	Description         string                      `json:"description"`
-	Parameters          map[string]interface{}      `json:"parameters"`
-	ExpectedOutcome     map[string]float64          `json:"expected_outcome"`
-	Risk                float64                     `json:"risk"`
+	ScenarioID      string                 `json:"scenario_id"`
+	Description     string                 `json:"description"`
+	Parameters      map[string]interface{} `json:"parameters"`
+	ExpectedOutcome map[string]float64     `json:"expected_outcome"`
+	Risk            float64                `json:"risk"`
 }
 
 // PolicyPredictiveModeling represents policy predictive modeling
 type PolicyPredictiveModeling struct {
-	PolicyID            string                      `json:"policy_id"`
-	PredictionHorizon   string                      `json:"prediction_horizon"`
-	PredictedMetrics    map[string]float64          `json:"predicted_metrics"`
-	ConfidenceInterval  float64                     `json:"confidence_interval"`
-	ModelAccuracy       float64                     `json:"model_accuracy"`
+	PolicyID           string             `json:"policy_id"`
+	PredictionHorizon  string             `json:"prediction_horizon"`
+	PredictedMetrics   map[string]float64 `json:"predicted_metrics"`
+	ConfidenceInterval float64            `json:"confidence_interval"`
+	ModelAccuracy      float64            `json:"model_accuracy"`
 }
 
 // PolicyCostBenefitAnalysis represents policy cost benefit analysis
 type PolicyCostBenefitAnalysis struct {
-	PolicyID            string                      `json:"policy_id"`
-	TotalCost           float64                     `json:"total_cost"`
-	TotalBenefit        float64                     `json:"total_benefit"`
-	NetBenefit          float64                     `json:"net_benefit"`
-	ROI                 float64                     `json:"roi"`
-	PaybackPeriod       string                      `json:"payback_period"`
+	PolicyID      string  `json:"policy_id"`
+	TotalCost     float64 `json:"total_cost"`
+	TotalBenefit  float64 `json:"total_benefit"`
+	NetBenefit    float64 `json:"net_benefit"`
+	ROI           float64 `json:"roi"`
+	PaybackPeriod string  `json:"payback_period"`
 }
 
 // PolicyImpactAssessment represents detailed policy impact analysis
 type PolicyImpactAssessment struct {
-	PolicyID            string                 `json:"policy_id"`
-	AssessmentPeriod    string                 `json:"assessment_period"`
+	PolicyID         string `json:"policy_id"`
+	AssessmentPeriod string `json:"assessment_period"`
 
 	// Quantitative Impact
 	ResourceAllocationChange map[string]float64 `json:"resource_allocation_change"`
-	WaitTimeImpact          float64            `json:"wait_time_impact"`
-	ThroughputImpact        float64            `json:"throughput_impact"`
-	UtilizationImpact       float64            `json:"utilization_impact"`
-	EfficiencyImpact        float64            `json:"efficiency_impact"`
+	WaitTimeImpact           float64            `json:"wait_time_impact"`
+	ThroughputImpact         float64            `json:"throughput_impact"`
+	UtilizationImpact        float64            `json:"utilization_impact"`
+	EfficiencyImpact         float64            `json:"efficiency_impact"`
 
 	// User Behavior Impact
-	SubmissionPatternChange float64            `json:"submission_pattern_change"`
-	UserAdaptationRate      float64            `json:"user_adaptation_rate"`
-	CollaborationChange     float64            `json:"collaboration_change"`
-	CompetitionLevel        float64            `json:"competition_level"`
-	GameficationPrevention  float64            `json:"gamification_prevention"`
+	SubmissionPatternChange float64 `json:"submission_pattern_change"`
+	UserAdaptationRate      float64 `json:"user_adaptation_rate"`
+	CollaborationChange     float64 `json:"collaboration_change"`
+	CompetitionLevel        float64 `json:"competition_level"`
+	GameficationPrevention  float64 `json:"gamification_prevention"`
 
 	// System Health Impact
-	SystemStabilityChange   float64            `json:"system_stability_change"`
-	LoadBalancingImprovement float64           `json:"load_balancing_improvement"`
-	ResourceContentionChange float64           `json:"resource_contention_change"`
-	SchedulingEfficiencyChange float64         `json:"scheduling_efficiency_change"`
+	SystemStabilityChange      float64 `json:"system_stability_change"`
+	LoadBalancingImprovement   float64 `json:"load_balancing_improvement"`
+	ResourceContentionChange   float64 `json:"resource_contention_change"`
+	SchedulingEfficiencyChange float64 `json:"scheduling_efficiency_change"`
 
 	// Economic Impact
-	CostEfficiencyChange    float64            `json:"cost_efficiency_change"`
-	ResourceWasteReduction  float64            `json:"resource_waste_reduction"`
-	ProductivityImpact      float64            `json:"productivity_impact"`
-	ROIImprovement          float64            `json:"roi_improvement"`
+	CostEfficiencyChange   float64 `json:"cost_efficiency_change"`
+	ResourceWasteReduction float64 `json:"resource_waste_reduction"`
+	ProductivityImpact     float64 `json:"productivity_impact"`
+	ROIImprovement         float64 `json:"roi_improvement"`
 
 	// Compliance and Governance
-	PolicyComplianceImprovement float64        `json:"policy_compliance_improvement"`
-	GovernanceEffectiveness     float64        `json:"governance_effectiveness"`
-	AuditabilityScore          float64         `json:"auditability_score"`
-	TransparencyImprovement    float64         `json:"transparency_improvement"`
+	PolicyComplianceImprovement float64 `json:"policy_compliance_improvement"`
+	GovernanceEffectiveness     float64 `json:"governance_effectiveness"`
+	AuditabilityScore           float64 `json:"auditability_score"`
+	TransparencyImprovement     float64 `json:"transparency_improvement"`
 
 	// Risk Assessment
-	ImplementationRisk      float64            `json:"implementation_risk"`
+	ImplementationRisk float64 `json:"implementation_risk"`
 
 	// Additional Impact Metrics
-	UserSatisfactionImpact   float64           `json:"user_satisfaction_impact"`
-	SystemPerformanceImpact  float64           `json:"system_performance_impact"`
-	ResourceEfficiencyImpact float64           `json:"resource_efficiency_impact"`
-	CollaborationImpact      float64           `json:"collaboration_impact"`
-	UserAcceptanceRisk      float64            `json:"user_acceptance_risk"`
-	SystemPerformanceRisk   float64            `json:"system_performance_risk"`
-	ComplianceRisk          float64            `json:"compliance_risk"`
+	UserSatisfactionImpact   float64 `json:"user_satisfaction_impact"`
+	SystemPerformanceImpact  float64 `json:"system_performance_impact"`
+	ResourceEfficiencyImpact float64 `json:"resource_efficiency_impact"`
+	CollaborationImpact      float64 `json:"collaboration_impact"`
+	UserAcceptanceRisk       float64 `json:"user_acceptance_risk"`
+	SystemPerformanceRisk    float64 `json:"system_performance_risk"`
+	ComplianceRisk           float64 `json:"compliance_risk"`
 
-	ImpactConfidence        float64            `json:"impact_confidence"`
-	LastAssessed            time.Time          `json:"last_assessed"`
+	ImpactConfidence float64   `json:"impact_confidence"`
+	LastAssessed     time.Time `json:"last_assessed"`
 }
 
 // FairSharePolicyEffectivenessCollector collects fair-share policy effectiveness metrics
@@ -407,53 +407,53 @@ type FairSharePolicyEffectivenessCollector struct {
 	mutex  sync.RWMutex
 
 	// Policy Configuration Metrics
-	policyConfigurationValid     *prometheus.GaugeVec
-	policyParameterValue         *prometheus.GaugeVec
-	policyImplementationAge      *prometheus.GaugeVec
-	policyLastModified           *prometheus.GaugeVec
-	policyValidationErrors       *prometheus.GaugeVec
-	policyConfigurationHash      *prometheus.GaugeVec
+	policyConfigurationValid *prometheus.GaugeVec
+	policyParameterValue     *prometheus.GaugeVec
+	policyImplementationAge  *prometheus.GaugeVec
+	policyLastModified       *prometheus.GaugeVec
+	policyValidationErrors   *prometheus.GaugeVec
+	policyConfigurationHash  *prometheus.GaugeVec
 
 	// Policy Effectiveness Metrics
-	policyOverallEffectiveness    *prometheus.GaugeVec
-	policyAllocationEffectiveness *prometheus.GaugeVec
+	policyOverallEffectiveness     *prometheus.GaugeVec
+	policyAllocationEffectiveness  *prometheus.GaugeVec
 	policyEnforcementEffectiveness *prometheus.GaugeVec
-	policyFairnessIndex           *prometheus.GaugeVec
-	policyGiniCoefficient         *prometheus.GaugeVec
-	policyEquityScore             *prometheus.GaugeVec
-	policyUserComplianceRate      *prometheus.GaugeVec
-	policySystemStabilityScore    *prometheus.GaugeVec
+	policyFairnessIndex            *prometheus.GaugeVec
+	policyGiniCoefficient          *prometheus.GaugeVec
+	policyEquityScore              *prometheus.GaugeVec
+	policyUserComplianceRate       *prometheus.GaugeVec
+	policySystemStabilityScore     *prometheus.GaugeVec
 
 	// Resource Distribution Fairness
-	resourceDistributionFairness  *prometheus.GaugeVec
-	waitTimeEquity               *prometheus.GaugeVec
-	throughputFairness           *prometheus.GaugeVec
-	accessibilityScore           *prometheus.GaugeVec
+	resourceDistributionFairness    *prometheus.GaugeVec
+	waitTimeEquity                  *prometheus.GaugeVec
+	throughputFairness              *prometheus.GaugeVec
+	accessibilityScore              *prometheus.GaugeVec
 	resourceAllocationEffectiveness *prometheus.GaugeVec
 
 	// Policy Adherence and Violations
-	policyAdherenceRate          *prometheus.GaugeVec
-	policyViolationRate          *prometheus.GaugeVec
-	policyCorrectionEfficiency   *prometheus.GaugeVec
-	policyResponseiveness        *prometheus.GaugeVec
-	policyDriftDetection         *prometheus.GaugeVec
+	policyAdherenceRate        *prometheus.GaugeVec
+	policyViolationRate        *prometheus.GaugeVec
+	policyCorrectionEfficiency *prometheus.GaugeVec
+	policyResponseiveness      *prometheus.GaugeVec
+	policyDriftDetection       *prometheus.GaugeVec
 
 	// Impact Assessment Metrics
-	userSatisfactionImpact       *prometheus.GaugeVec
-	systemPerformanceImpact      *prometheus.GaugeVec
-	resourceEfficiencyImpact     *prometheus.GaugeVec
-	collaborationImpact          *prometheus.GaugeVec
-	resourceAllocationChange     *prometheus.GaugeVec
-	waitTimeImpact               *prometheus.GaugeVec
-	throughputImpact             *prometheus.GaugeVec
-	utilizationImpact            *prometheus.GaugeVec
+	userSatisfactionImpact   *prometheus.GaugeVec
+	systemPerformanceImpact  *prometheus.GaugeVec
+	resourceEfficiencyImpact *prometheus.GaugeVec
+	collaborationImpact      *prometheus.GaugeVec
+	resourceAllocationChange *prometheus.GaugeVec
+	waitTimeImpact           *prometheus.GaugeVec
+	throughputImpact         *prometheus.GaugeVec
+	utilizationImpact        *prometheus.GaugeVec
 
 	// Optimization and Tuning
-	policyOptimizationPotential  *prometheus.GaugeVec
-	policyTuningEffectiveness    *prometheus.GaugeVec
-	policyParameterOptimality    *prometheus.GaugeVec
-	policyPerformanceComparison  *prometheus.GaugeVec
-	policyAdaptationScore        *prometheus.GaugeVec
+	policyOptimizationPotential *prometheus.GaugeVec
+	policyTuningEffectiveness   *prometheus.GaugeVec
+	policyParameterOptimality   *prometheus.GaugeVec
+	policyPerformanceComparison *prometheus.GaugeVec
+	policyAdaptationScore       *prometheus.GaugeVec
 
 	// Trend and Stability Analysis
 	policyEffectivenessTrend     *prometheus.GaugeVec
@@ -463,19 +463,19 @@ type FairSharePolicyEffectivenessCollector struct {
 	policyVolatilityIndex        *prometheus.GaugeVec
 
 	// Economic and ROI Metrics
-	policyCostEffectiveness      *prometheus.GaugeVec
-	policyROIScore              *prometheus.GaugeVec
-	resourceWasteReduction      *prometheus.GaugeVec
-	productivityImpact          *prometheus.GaugeVec
-	costBenefitRatio            *prometheus.GaugeVec
+	policyCostEffectiveness *prometheus.GaugeVec
+	policyROIScore          *prometheus.GaugeVec
+	resourceWasteReduction  *prometheus.GaugeVec
+	productivityImpact      *prometheus.GaugeVec
+	costBenefitRatio        *prometheus.GaugeVec
 
 	// Advanced Analytics
-	policyPredictiveAccuracy     *prometheus.GaugeVec
-	policyScenarioScore         *prometheus.GaugeVec
-	policyRiskAssessment        *prometheus.GaugeVec
-	policyGovernanceScore       *prometheus.GaugeVec
-	policyTransparencyScore     *prometheus.GaugeVec
-	policyAuditabilityScore     *prometheus.GaugeVec
+	policyPredictiveAccuracy *prometheus.GaugeVec
+	policyScenarioScore      *prometheus.GaugeVec
+	policyRiskAssessment     *prometheus.GaugeVec
+	policyGovernanceScore    *prometheus.GaugeVec
+	policyTransparencyScore  *prometheus.GaugeVec
+	policyAuditabilityScore  *prometheus.GaugeVec
 
 	// User and System Interaction
 	userAdaptationToPolicy      *prometheus.GaugeVec
@@ -1117,11 +1117,12 @@ func (c *FairSharePolicyEffectivenessCollector) collectPolicyEffectiveness(ctx c
 	c.policySystemStabilityScore.WithLabelValues(metrics.PolicyID, "overall").Set(metrics.SystemStabilityScore)
 
 	// Effectiveness trends
-	if metrics.TrendDirection == "improving" {
+	switch metrics.TrendDirection {
+	case "improving":
 		c.policyEffectivenessTrend.WithLabelValues(metrics.PolicyID, "overall", "24h").Set(1.0)
-	} else if metrics.TrendDirection == "declining" {
+	case "declining":
 		c.policyEffectivenessTrend.WithLabelValues(metrics.PolicyID, "overall", "24h").Set(-1.0)
-	} else {
+	default:
 		c.policyEffectivenessTrend.WithLabelValues(metrics.PolicyID, "overall", "24h").Set(0.0)
 	}
 
@@ -1154,17 +1155,17 @@ func (c *FairSharePolicyEffectivenessCollector) collectOptimizationMetrics(ctx c
 	_, err := c.client.GetPolicyOptimizationRecommendations(ctx)
 	if err == nil {
 		c.policyOptimizationPotential.WithLabelValues("policy_1", "parameters").Set(0.3) // Mock data
-		c.policyTuningEffectiveness.WithLabelValues("policy_1", "automated").Set(0.8)   // Mock data
+		c.policyTuningEffectiveness.WithLabelValues("policy_1", "automated").Set(0.8)    // Mock data
 	}
 
 	// Policy parameter optimality
-	c.policyParameterOptimality.WithLabelValues("policy_1", "decay_half_life").Set(0.85)  // Mock data
+	c.policyParameterOptimality.WithLabelValues("policy_1", "decay_half_life").Set(0.85) // Mock data
 	c.policyParameterOptimality.WithLabelValues("policy_1", "usage_factor").Set(0.92)    // Mock data
 	c.policyParameterOptimality.WithLabelValues("policy_1", "level_factor").Set(0.78)    // Mock data
 
 	// Adaptation scores
-	c.policyAdaptationScore.WithLabelValues("policy_1", "load_changes").Set(0.82)        // Mock data
-	c.policyAdaptationScore.WithLabelValues("policy_1", "user_behavior").Set(0.75)      // Mock data
+	c.policyAdaptationScore.WithLabelValues("policy_1", "load_changes").Set(0.82)  // Mock data
+	c.policyAdaptationScore.WithLabelValues("policy_1", "user_behavior").Set(0.75) // Mock data
 }
 
 func (c *FairSharePolicyEffectivenessCollector) collectAdvancedAnalytics(ctx context.Context) {
@@ -1177,17 +1178,17 @@ func (c *FairSharePolicyEffectivenessCollector) collectAdvancedAnalytics(ctx con
 	// Cost-benefit analysis
 	_, err = c.client.GetPolicyCostBenefitAnalysis(ctx, "30d")
 	if err == nil {
-		c.policyCostEffectiveness.WithLabelValues("policy_1", "operational").Set(0.85)    // Mock data
+		c.policyCostEffectiveness.WithLabelValues("policy_1", "operational").Set(0.85)   // Mock data
 		c.policyROIScore.WithLabelValues("policy_1", "efficiency_gains").Set(2.3)        // Mock data
 		c.costBenefitRatio.WithLabelValues("policy_1", "resource_optimization").Set(3.2) // Mock data
 	}
 
 	// Risk assessment
-	c.policyRiskAssessment.WithLabelValues("policy_1", "implementation", "low").Set(0.15)    // Mock data
+	c.policyRiskAssessment.WithLabelValues("policy_1", "implementation", "low").Set(0.15)     // Mock data
 	c.policyRiskAssessment.WithLabelValues("policy_1", "user_acceptance", "medium").Set(0.35) // Mock data
 
 	// Governance and transparency
-	c.policyGovernanceScore.WithLabelValues("policy_1", "documentation").Set(0.9)      // Mock data
+	c.policyGovernanceScore.WithLabelValues("policy_1", "documentation").Set(0.9)       // Mock data
 	c.policyTransparencyScore.WithLabelValues("policy_1", "decision_process").Set(0.85) // Mock data
 	c.policyAuditabilityScore.WithLabelValues("policy_1", "change_tracking").Set(0.92)  // Mock data
 

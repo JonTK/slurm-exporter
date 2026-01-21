@@ -163,15 +163,15 @@ func (c *ClusterSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 	}
 
 	// Parse version components (simple parsing)
-	major := "0"
-	minor := "0"
-	patch := "0"
 	// Version might be like "23.02.1"
 	var maj, min, pat int
-	fmt.Sscanf(info.Version, "%d.%d.%d", &maj, &min, &pat)
-	major = fmt.Sprintf("%d", maj)
-	minor = fmt.Sprintf("%d", min)
-	patch = fmt.Sprintf("%d", pat)
+	if _, err := fmt.Sscanf(info.Version, "%d.%d.%d", &maj, &min, &pat); err != nil {
+		// If parsing fails, use defaults
+		maj, min, pat = 0, 0, 0
+	}
+	major := fmt.Sprintf("%d", maj)
+	minor := fmt.Sprintf("%d", min)
+	patch := fmt.Sprintf("%d", pat)
 
 	// RPC/API version
 	rpcVersion := info.APIVersion

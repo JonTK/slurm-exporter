@@ -86,9 +86,9 @@ func (fs *FileProfileStorage) Save(profile *CollectorProfile) error {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 
-	// Generate profile ID
-	id := fmt.Sprintf("%s_%d", profile.CollectorName, profile.StartTime.Unix())
-	
+	// Generate profile ID with nanosecond precision to avoid collisions
+	id := fmt.Sprintf("%s_%d", profile.CollectorName, profile.StartTime.UnixNano())
+
 	// Create profile directory
 	profileDir := filepath.Join(fs.config.Path, id)
 	if err := os.MkdirAll(profileDir, 0755); err != nil {
@@ -191,7 +191,7 @@ func (fs *FileProfileStorage) saveBuffer(filename string, buf io.Reader) (int64,
 	if err != nil {
 		return 0, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	return io.Copy(file, buf)
 }
@@ -322,7 +322,7 @@ func (fs *FileProfileStorage) Cleanup() error {
 	}
 
 	cutoff := time.Now().Add(-fs.config.Retention)
-	
+
 	entries, err := os.ReadDir(fs.config.Path)
 	if err != nil {
 		return fmt.Errorf("reading profile directory: %w", err)
@@ -455,8 +455,9 @@ func (ms *MemoryProfileStorage) Save(profile *CollectorProfile) error {
 	ms.mu.Lock()
 	defer ms.mu.Unlock()
 
-	id := fmt.Sprintf("%s_%d", profile.CollectorName, profile.StartTime.Unix())
-	
+	// Generate profile ID with nanosecond precision to avoid collisions
+	id := fmt.Sprintf("%s_%d", profile.CollectorName, profile.StartTime.UnixNano())
+
 	// Calculate size
 	var size int64
 	if profile.CPUProfile != nil {
@@ -548,7 +549,7 @@ func (ms *MemoryProfileStorage) Cleanup() error {
 	}
 
 	cutoff := time.Now().Add(-ms.config.Retention)
-	
+
 	for id, metadata := range ms.metadata {
 		if metadata.StartTime.Before(cutoff) {
 			delete(ms.profiles, id)
@@ -560,6 +561,7 @@ func (ms *MemoryProfileStorage) Cleanup() error {
 }
 
 // enforceLimits enforces storage limits
+// NOTE: This method assumes the caller already holds ms.mu write lock
 func (ms *MemoryProfileStorage) enforceLimits() {
 	// Enforce count limit
 	maxProfiles := 100 // Default max profiles in memory
@@ -567,11 +569,19 @@ func (ms *MemoryProfileStorage) enforceLimits() {
 		return
 	}
 
-	// Get sorted list of profiles
-	profiles, _ := ms.List()
+	// Build sorted list of profiles without calling List() to avoid lock reentry
+	profiles := make([]*ProfileMetadata, 0, len(ms.metadata))
+	for _, metadata := range ms.metadata {
+		profiles = append(profiles, metadata)
+	}
+
+	// Sort by start time (oldest first for deletion)
+	sort.Slice(profiles, func(i, j int) bool {
+		return profiles[i].StartTime.Before(profiles[j].StartTime)
+	})
 
 	// Delete oldest profiles
-	for i := maxProfiles; i < len(profiles); i++ {
+	for i := 0; i < len(profiles)-maxProfiles; i++ {
 		delete(ms.profiles, profiles[i].ID)
 		delete(ms.metadata, profiles[i].ID)
 	}

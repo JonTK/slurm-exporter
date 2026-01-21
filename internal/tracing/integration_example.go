@@ -11,10 +11,10 @@ import (
 
 // ExampleCollectorWithTracing demonstrates how to integrate tracing into a collector
 type ExampleCollectorWithTracing struct {
-	name    string
-	tracer  *CollectionTracer
-	client  ExampleSLURMClient
-	logger  *logrus.Logger
+	name   string
+	tracer *CollectionTracer
+	client ExampleSLURMClient
+	logger *logrus.Logger
 }
 
 // ExampleSLURMClient represents a simple SLURM client interface for the example
@@ -32,10 +32,10 @@ type ExampleJob struct {
 
 // ExampleJobDetails represents detailed job information
 type ExampleJobDetails struct {
-	ID       string
-	CPUs     int
-	Memory   int64
-	Runtime  time.Duration
+	ID      string
+	CPUs    int
+	Memory  int64
+	Runtime time.Duration
 }
 
 // NewExampleCollectorWithTracing creates a new example collector with tracing
@@ -69,7 +69,7 @@ func (c *ExampleCollectorWithTracing) Collect(ctx context.Context, ch chan<- pro
 	ctx, finishListJobs := c.tracer.TraceAPICall(ctx, "jobs", "LIST")
 	jobs, err := c.client.ListJobs(ctx)
 	finishListJobs(err)
-	
+
 	if err != nil {
 		c.tracer.RecordError(ctx, err)
 		return err
@@ -82,7 +82,7 @@ func (c *ExampleCollectorWithTracing) Collect(ctx context.Context, ch chan<- pro
 	for i, job := range jobs {
 		// Create child span for job processing
 		jobCtx, jobSpan := c.tracer.CreateChildSpan(ctx, "process_job")
-		
+
 		c.tracer.AddSpanAttribute(jobCtx, "job.id", job.ID)
 		c.tracer.AddSpanAttribute(jobCtx, "job.name", job.Name)
 		c.tracer.AddSpanAttribute(jobCtx, "job.state", job.State)
@@ -120,9 +120,9 @@ func (c *ExampleCollectorWithTracing) Collect(ctx context.Context, ch chan<- pro
 	finishMetrics()
 
 	c.logger.WithFields(logrus.Fields{
-		"collector":    c.name,
+		"collector":      c.name,
 		"jobs_processed": len(jobs),
-		"trace_id":     c.tracer.GetTraceID(ctx),
+		"trace_id":       c.tracer.GetTraceID(ctx),
 	}).Info("Collection completed")
 
 	return nil
@@ -143,11 +143,11 @@ func (c *ExampleCollectorWithTracing) generateJobMetrics(
 
 	// Example metrics (in real implementation, these would be actual Prometheus metrics)
 	c.logger.WithFields(logrus.Fields{
-		"job_id":     job.ID,
-		"cpus":       details.CPUs,
-		"memory_mb":  details.Memory / 1024 / 1024,
-		"runtime":    details.Runtime,
-		"trace_id":   c.tracer.GetTraceID(ctx),
+		"job_id":    job.ID,
+		"cpus":      details.CPUs,
+		"memory_mb": details.Memory / 1024 / 1024,
+		"runtime":   details.Runtime,
+		"trace_id":  c.tracer.GetTraceID(ctx),
 	}).Debug("Generated job metrics")
 
 	c.tracer.AddSpanAttribute(ctx, "metrics.generated", 3)
@@ -197,7 +197,7 @@ func ExampleInitialization() (*CollectionTracer, error) {
 	// Create tracing configuration
 	tracingConfig := config.TracingConfig{
 		Enabled:    true,
-		SampleRate: 0.1, // Sample 10% of traces
+		SampleRate: 0.1,              // Sample 10% of traces
 		Endpoint:   "localhost:4318", // OTLP HTTP endpoint
 		Insecure:   true,
 	}
@@ -219,7 +219,7 @@ func ExampleUsageInMainApplication() {
 	if err != nil {
 		logrus.WithError(err).Fatal("Failed to initialize tracing")
 	}
-	defer tracer.Shutdown(context.Background())
+	defer func() { _ = tracer.Shutdown(context.Background()) }()
 
 	// Create example client (in real code, this would be the actual SLURM client)
 	client := &MockSLURMClient{}
@@ -256,7 +256,7 @@ type MockSLURMClient struct{}
 func (m *MockSLURMClient) ListJobs(ctx context.Context) ([]ExampleJob, error) {
 	// Simulate API delay
 	time.Sleep(10 * time.Millisecond)
-	
+
 	return []ExampleJob{
 		{ID: "123", Name: "job1", State: "RUNNING"},
 		{ID: "124", Name: "job2", State: "PENDING"},
@@ -267,7 +267,7 @@ func (m *MockSLURMClient) ListJobs(ctx context.Context) ([]ExampleJob, error) {
 func (m *MockSLURMClient) GetJobDetails(ctx context.Context, jobID string) (*ExampleJobDetails, error) {
 	// Simulate API delay
 	time.Sleep(5 * time.Millisecond)
-	
+
 	return &ExampleJobDetails{
 		ID:      jobID,
 		CPUs:    4,

@@ -22,100 +22,100 @@ type BottleneckAnalyzer struct {
 	mu             sync.RWMutex
 
 	// Cache for analysis results
-	analysisCache   map[string]*StepPerformanceAnalysis
-	cacheTTL        time.Duration
-	lastCollection  time.Time
+	analysisCache  map[string]*StepPerformanceAnalysis
+	cacheTTL       time.Duration
+	lastCollection time.Time
 }
 
 // BottleneckConfig holds configuration for bottleneck analysis
 type BottleneckConfig struct {
-	AnalysisInterval          time.Duration `yaml:"analysis_interval"`
-	MaxJobsPerAnalysis        int           `yaml:"max_jobs_per_analysis"`
-	EnablePredictiveAnalysis  bool          `yaml:"enable_predictive_analysis"`
-	EnableRootCauseAnalysis   bool          `yaml:"enable_root_cause_analysis"`
-	CacheTTL                  time.Duration `yaml:"cache_ttl"`
+	AnalysisInterval         time.Duration `yaml:"analysis_interval"`
+	MaxJobsPerAnalysis       int           `yaml:"max_jobs_per_analysis"`
+	EnablePredictiveAnalysis bool          `yaml:"enable_predictive_analysis"`
+	EnableRootCauseAnalysis  bool          `yaml:"enable_root_cause_analysis"`
+	CacheTTL                 time.Duration `yaml:"cache_ttl"`
 
 	// Bottleneck detection thresholds
-	CPUBottleneckThreshold      float64 `yaml:"cpu_bottleneck_threshold"`      // CPU usage above this indicates bottleneck
-	MemoryBottleneckThreshold   float64 `yaml:"memory_bottleneck_threshold"`   // Memory usage above this indicates bottleneck
-	IOBottleneckThreshold       float64 `yaml:"io_bottleneck_threshold"`       // I/O wait above this indicates bottleneck
-	NetworkBottleneckThreshold  float64 `yaml:"network_bottleneck_threshold"`  // Network utilization above this indicates bottleneck
+	CPUBottleneckThreshold     float64 `yaml:"cpu_bottleneck_threshold"`     // CPU usage above this indicates bottleneck
+	MemoryBottleneckThreshold  float64 `yaml:"memory_bottleneck_threshold"`  // Memory usage above this indicates bottleneck
+	IOBottleneckThreshold      float64 `yaml:"io_bottleneck_threshold"`      // I/O wait above this indicates bottleneck
+	NetworkBottleneckThreshold float64 `yaml:"network_bottleneck_threshold"` // Network utilization above this indicates bottleneck
 
 	// Performance degradation thresholds
 	PerformanceDegradationThreshold float64 `yaml:"performance_degradation_threshold"` // Performance drop above this is significant
 
 	// Analysis sensitivity settings
-	SensitivityLevel           string  `yaml:"sensitivity_level"`             // "low", "medium", "high"
-	MinDataPointsForAnalysis   int     `yaml:"min_data_points_for_analysis"`
-	AnalysisConfidenceLevel    float64 `yaml:"analysis_confidence_level"`
+	SensitivityLevel         string  `yaml:"sensitivity_level"` // "low", "medium", "high"
+	MinDataPointsForAnalysis int     `yaml:"min_data_points_for_analysis"`
+	AnalysisConfidenceLevel  float64 `yaml:"analysis_confidence_level"`
 }
 
 // StepPerformanceAnalysis represents comprehensive performance analysis of a job step
 type StepPerformanceAnalysis struct {
-	JobID                string    `json:"job_id"`
-	StepID               string    `json:"step_id"`
-	AnalysisTimestamp    time.Time `json:"analysis_timestamp"`
+	JobID             string    `json:"job_id"`
+	StepID            string    `json:"step_id"`
+	AnalysisTimestamp time.Time `json:"analysis_timestamp"`
 
 	// Bottleneck identification
-	PrimaryBottleneck    string    `json:"primary_bottleneck"`    // "cpu", "memory", "io", "network", "none"
-	SecondaryBottlenecks []string  `json:"secondary_bottlenecks"`
-	BottleneckSeverity   float64   `json:"bottleneck_severity"`   // 0.0 to 1.0
-	BottleneckConfidence float64   `json:"bottleneck_confidence"` // 0.0 to 1.0
+	PrimaryBottleneck    string   `json:"primary_bottleneck"` // "cpu", "memory", "io", "network", "none"
+	SecondaryBottlenecks []string `json:"secondary_bottlenecks"`
+	BottleneckSeverity   float64  `json:"bottleneck_severity"`   // 0.0 to 1.0
+	BottleneckConfidence float64  `json:"bottleneck_confidence"` // 0.0 to 1.0
 
 	// Performance metrics
-	CPUEfficiency        float64   `json:"cpu_efficiency"`
-	MemoryEfficiency     float64   `json:"memory_efficiency"`
-	IOEfficiency         float64   `json:"io_efficiency"`
-	NetworkEfficiency    float64   `json:"network_efficiency"`
-	OverallEfficiency    float64   `json:"overall_efficiency"`
+	CPUEfficiency     float64 `json:"cpu_efficiency"`
+	MemoryEfficiency  float64 `json:"memory_efficiency"`
+	IOEfficiency      float64 `json:"io_efficiency"`
+	NetworkEfficiency float64 `json:"network_efficiency"`
+	OverallEfficiency float64 `json:"overall_efficiency"`
 
 	// Resource utilization patterns
-	CPUUtilizationPattern    string `json:"cpu_utilization_pattern"`    // "stable", "bursty", "declining", "increasing"
-	MemoryUtilizationPattern string `json:"memory_utilization_pattern"`
-	IOUtilizationPattern     string `json:"io_utilization_pattern"`
+	CPUUtilizationPattern     string `json:"cpu_utilization_pattern"` // "stable", "bursty", "declining", "increasing"
+	MemoryUtilizationPattern  string `json:"memory_utilization_pattern"`
+	IOUtilizationPattern      string `json:"io_utilization_pattern"`
 	NetworkUtilizationPattern string `json:"network_utilization_pattern"`
 
 	// Performance issues
-	PerformanceIssues    []PerformanceIssue `json:"performance_issues"`
+	PerformanceIssues         []PerformanceIssue        `json:"performance_issues"`
 	OptimizationOpportunities []OptimizationOpportunity `json:"optimization_opportunities"`
 
 	// Predictive analysis
-	PredictedCompletion  *time.Time `json:"predicted_completion,omitempty"`
-	EstimatedTimeRemaining float64   `json:"estimated_time_remaining"` // seconds
-	PerformanceTrend     string     `json:"performance_trend"`        // "improving", "stable", "degrading"
+	PredictedCompletion    *time.Time `json:"predicted_completion,omitempty"`
+	EstimatedTimeRemaining float64    `json:"estimated_time_remaining"` // seconds
+	PerformanceTrend       string     `json:"performance_trend"`        // "improving", "stable", "degrading"
 
 	// Root cause analysis
-	RootCauses           []RootCause `json:"root_causes"`
-	RecommendedActions   []string    `json:"recommended_actions"`
+	RootCauses         []RootCause `json:"root_causes"`
+	RecommendedActions []string    `json:"recommended_actions"`
 }
 
 // PerformanceIssue represents a detected performance issue
 type PerformanceIssue struct {
-	Type        string    `json:"type"`        // "cpu_underutilization", "memory_pressure", "io_wait", "network_congestion"
-	Severity    string    `json:"severity"`    // "low", "medium", "high", "critical"
+	Type        string    `json:"type"`     // "cpu_underutilization", "memory_pressure", "io_wait", "network_congestion"
+	Severity    string    `json:"severity"` // "low", "medium", "high", "critical"
 	Description string    `json:"description"`
-	Impact      string    `json:"impact"`      // Description of performance impact
+	Impact      string    `json:"impact"` // Description of performance impact
 	FirstSeen   time.Time `json:"first_seen"`
-	Frequency   float64   `json:"frequency"`   // How often this issue occurs (0.0 to 1.0)
+	Frequency   float64   `json:"frequency"` // How often this issue occurs (0.0 to 1.0)
 }
 
 // Note: OptimizationOpportunity type is defined in common_types.go
 
 // RootCause represents a root cause analysis result
 type RootCause struct {
-	Cause               string  `json:"cause"`
-	Confidence          float64 `json:"confidence"`          // 0.0 to 1.0
-	ContributionFactor  float64 `json:"contribution_factor"` // How much this cause contributes to the issue (0.0 to 1.0)
-	Evidence            []string `json:"evidence"`           // Supporting evidence for this root cause
+	Cause              string   `json:"cause"`
+	Confidence         float64  `json:"confidence"`          // 0.0 to 1.0
+	ContributionFactor float64  `json:"contribution_factor"` // How much this cause contributes to the issue (0.0 to 1.0)
+	Evidence           []string `json:"evidence"`            // Supporting evidence for this root cause
 }
 
 // BottleneckMetrics holds Prometheus metrics for bottleneck analysis
 type BottleneckMetrics struct {
 	// Bottleneck detection metrics
-	BottleneckDetected         *prometheus.GaugeVec
-	BottleneckSeverity         *prometheus.GaugeVec
-	BottleneckConfidence       *prometheus.GaugeVec
-	BottleneckType            *prometheus.GaugeVec
+	BottleneckDetected   *prometheus.GaugeVec
+	BottleneckSeverity   *prometheus.GaugeVec
+	BottleneckConfidence *prometheus.GaugeVec
+	BottleneckType       *prometheus.GaugeVec
 
 	// Performance analysis metrics
 	PerformanceEfficiencyScore *prometheus.GaugeVec
@@ -123,19 +123,19 @@ type BottleneckMetrics struct {
 	OptimizationOpportunities  *prometheus.GaugeVec
 
 	// Predictive metrics
-	PredictedCompletionTime    *prometheus.GaugeVec
-	EstimatedTimeRemaining     *prometheus.GaugeVec
-	PerformanceTrendIndicator  *prometheus.GaugeVec
+	PredictedCompletionTime   *prometheus.GaugeVec
+	EstimatedTimeRemaining    *prometheus.GaugeVec
+	PerformanceTrendIndicator *prometheus.GaugeVec
 
 	// Root cause analysis metrics
-	RootCauseCount            *prometheus.GaugeVec
-	RootCauseConfidence       *prometheus.GaugeVec
+	RootCauseCount      *prometheus.GaugeVec
+	RootCauseConfidence *prometheus.GaugeVec
 
 	// Analysis performance metrics
-	AnalysisDuration          prometheus.Histogram
-	AnalysisErrors            *prometheus.CounterVec
-	StepsAnalyzed             prometheus.Counter
-	BottlenecksFound          prometheus.Counter
+	AnalysisDuration prometheus.Histogram
+	AnalysisErrors   *prometheus.CounterVec
+	StepsAnalyzed    prometheus.Counter
+	BottlenecksFound prometheus.Counter
 }
 
 // NewBottleneckAnalyzer creates a new bottleneck analyzer
@@ -146,15 +146,15 @@ func NewBottleneckAnalyzer(slurmClient slurm.SlurmClient, logger *slog.Logger, c
 			MaxJobsPerAnalysis:              100,
 			EnablePredictiveAnalysis:        true,
 			EnableRootCauseAnalysis:         true,
-			CacheTTL:                       5 * time.Minute,
-			CPUBottleneckThreshold:         0.9,   // 90% CPU usage
-			MemoryBottleneckThreshold:      0.85,  // 85% memory usage
-			IOBottleneckThreshold:          0.2,   // 20% I/O wait
-			NetworkBottleneckThreshold:     0.8,   // 80% network utilization
+			CacheTTL:                        5 * time.Minute,
+			CPUBottleneckThreshold:          0.9,  // 90% CPU usage
+			MemoryBottleneckThreshold:       0.85, // 85% memory usage
+			IOBottleneckThreshold:           0.2,  // 20% I/O wait
+			NetworkBottleneckThreshold:      0.8,  // 80% network utilization
 			PerformanceDegradationThreshold: 0.2,  // 20% performance drop
-			SensitivityLevel:               "medium",
-			MinDataPointsForAnalysis:       3,
-			AnalysisConfidenceLevel:        0.7,   // 70% confidence threshold
+			SensitivityLevel:                "medium",
+			MinDataPointsForAnalysis:        3,
+			AnalysisConfidenceLevel:         0.7, // 70% confidence threshold
 		}
 	}
 
@@ -367,7 +367,7 @@ func (b *BottleneckAnalyzer) analyzeBottlenecks(ctx context.Context) error {
 		analysis := b.performStepPerformanceAnalysis(&job)
 
 		// Cache the analysis
-		cacheKey := fmt.Sprintf("%d:0", job.ID) // Step 0 for main job step
+		cacheKey := fmt.Sprintf("%s:0", job.ID) // Step 0 for main job step
 		b.analysisCache[cacheKey] = analysis
 
 		// Update metrics
@@ -390,7 +390,7 @@ func (b *BottleneckAnalyzer) analyzeBottlenecks(ctx context.Context) error {
 // performStepPerformanceAnalysis performs comprehensive analysis on a job step
 func (b *BottleneckAnalyzer) performStepPerformanceAnalysis(job *slurm.Job) *StepPerformanceAnalysis {
 	analysis := &StepPerformanceAnalysis{
-		JobID:             fmt.Sprintf("%d", job.ID),
+		JobID:             job.ID,
 		StepID:            "0", // Main job step
 		AnalysisTimestamp: time.Now(),
 	}

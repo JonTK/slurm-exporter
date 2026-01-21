@@ -37,10 +37,10 @@ type UserBehaviorAnalysisSLURMClient interface {
 
 // UserBehaviorProfile represents comprehensive user behavior characteristics
 type UserBehaviorAnalysisProfile struct {
-	UserName           string                 `json:"user_name"`
-	AccountName        string                 `json:"account_name"`
-	ProfileVersion     string                 `json:"profile_version"`
-	AnalysisPeriod     string                 `json:"analysis_period"`
+	UserName       string `json:"user_name"`
+	AccountName    string `json:"account_name"`
+	ProfileVersion string `json:"profile_version"`
+	AnalysisPeriod string `json:"analysis_period"`
 
 	// Submission Behavior
 	SubmissionFrequency   float64            `json:"submission_frequency"`
@@ -50,300 +50,300 @@ type UserBehaviorAnalysisProfile struct {
 	SubmissionBurstiness  float64            `json:"submission_burstiness"`
 
 	// Resource Usage Behavior
-	ResourceEfficiency    float64            `json:"resource_efficiency"`
-	ResourcePredictability float64          `json:"resource_predictability"`
-	ResourceOverRequest   float64            `json:"resource_over_request"`
-	ResourceUnderUsage    float64            `json:"resource_under_usage"`
-	ResourceOptimization  float64            `json:"resource_optimization"`
+	ResourceEfficiency     float64 `json:"resource_efficiency"`
+	ResourcePredictability float64 `json:"resource_predictability"`
+	ResourceOverRequest    float64 `json:"resource_over_request"`
+	ResourceUnderUsage     float64 `json:"resource_under_usage"`
+	ResourceOptimization   float64 `json:"resource_optimization"`
 
 	// Scheduling Behavior
-	QueuePatience         float64            `json:"queue_patience"`
-	PriorityUsage         float64            `json:"priority_usage"`
-	PartitionPreference   map[string]float64 `json:"partition_preference"`
-	TimeSlotPreference    map[string]float64 `json:"time_slot_preference"`
-	JobSizeDistribution   map[string]float64 `json:"job_size_distribution"`
+	QueuePatience       float64            `json:"queue_patience"`
+	PriorityUsage       float64            `json:"priority_usage"`
+	PartitionPreference map[string]float64 `json:"partition_preference"`
+	TimeSlotPreference  map[string]float64 `json:"time_slot_preference"`
+	JobSizeDistribution map[string]float64 `json:"job_size_distribution"`
 
 	// Adaptation and Learning
-	BehaviorStability     float64            `json:"behavior_stability"`
-	AdaptationRate        float64            `json:"adaptation_rate"`
-	LearningCurve         float64            `json:"learning_curve"`
-	PolicyCompliance      float64            `json:"policy_compliance"`
-	ResponseToFeedback    float64            `json:"response_to_feedback"`
+	BehaviorStability  float64 `json:"behavior_stability"`
+	AdaptationRate     float64 `json:"adaptation_rate"`
+	LearningCurve      float64 `json:"learning_curve"`
+	PolicyCompliance   float64 `json:"policy_compliance"`
+	ResponseToFeedback float64 `json:"response_to_feedback"`
 
 	// Collaboration and Social Behavior
-	CollaborationLevel    float64            `json:"collaboration_level"`
-	ResourceSharing       float64            `json:"resource_sharing"`
-	HelpSeeking          float64            `json:"help_seeking"`
-	CommunityEngagement  float64            `json:"community_engagement"`
-	MentorshipParticipation float64         `json:"mentorship_participation"`
+	CollaborationLevel      float64 `json:"collaboration_level"`
+	ResourceSharing         float64 `json:"resource_sharing"`
+	HelpSeeking             float64 `json:"help_seeking"`
+	CommunityEngagement     float64 `json:"community_engagement"`
+	MentorshipParticipation float64 `json:"mentorship_participation"`
 
 	// Risk and Compliance
-	RiskProfile          string             `json:"risk_profile"`
-	ComplianceScore      float64            `json:"compliance_score"`
-	ViolationProneness   float64            `json:"violation_proneness"`
-	PolicyAwareness      float64            `json:"policy_awareness"`
-	SafetyMindedness     float64            `json:"safety_mindedness"`
+	RiskProfile        string  `json:"risk_profile"`
+	ComplianceScore    float64 `json:"compliance_score"`
+	ViolationProneness float64 `json:"violation_proneness"`
+	PolicyAwareness    float64 `json:"policy_awareness"`
+	SafetyMindedness   float64 `json:"safety_mindedness"`
 
 	// Metadata
-	ProfileConfidence    float64            `json:"profile_confidence"`
-	DataCompleteness     float64            `json:"data_completeness"`
-	LastUpdated          time.Time          `json:"last_updated"`
-	NextUpdateDue        time.Time          `json:"next_update_due"`
+	ProfileConfidence float64   `json:"profile_confidence"`
+	DataCompleteness  float64   `json:"data_completeness"`
+	LastUpdated       time.Time `json:"last_updated"`
+	NextUpdateDue     time.Time `json:"next_update_due"`
 }
 
 // FairShareOptimization represents fair-share optimization data
 type FairShareOptimization struct {
-	UserName              string                 `json:"user_name"`
-	CurrentFairShare      float64                `json:"current_fair_share"`
-	OptimalFairShare      float64                `json:"optimal_fair_share"`
-	RecommendedAdjustment float64                `json:"recommended_adjustment"`
-	ImpactAnalysis        map[string]float64     `json:"impact_analysis"`
+	UserName              string             `json:"user_name"`
+	CurrentFairShare      float64            `json:"current_fair_share"`
+	OptimalFairShare      float64            `json:"optimal_fair_share"`
+	RecommendedAdjustment float64            `json:"recommended_adjustment"`
+	ImpactAnalysis        map[string]float64 `json:"impact_analysis"`
 }
 
 // UserAdaptationMetrics represents user adaptation metrics
 type UserAdaptationMetrics struct {
-	UserName             string                 `json:"user_name"`
-	AdaptationScore      float64                `json:"adaptation_score"`
-	BehaviorChangeRate   float64                `json:"behavior_change_rate"`
-	PolicyCompliance     float64                `json:"policy_compliance"`
-	LearningCurve        []float64              `json:"learning_curve"`
+	UserName           string    `json:"user_name"`
+	AdaptationScore    float64   `json:"adaptation_score"`
+	BehaviorChangeRate float64   `json:"behavior_change_rate"`
+	PolicyCompliance   float64   `json:"policy_compliance"`
+	LearningCurve      []float64 `json:"learning_curve"`
 }
 
 // UserComplianceAnalysis represents user compliance analysis
 type UserComplianceAnalysis struct {
-	UserName             string                 `json:"user_name"`
-	ComplianceScore      float64                `json:"compliance_score"`
-	ViolationCount       int                    `json:"violation_count"`
-	ComplianceHistory    []float64              `json:"compliance_history"`
-	ComplianceTrend      string                 `json:"compliance_trend"`
+	UserName          string    `json:"user_name"`
+	ComplianceScore   float64   `json:"compliance_score"`
+	ViolationCount    int       `json:"violation_count"`
+	ComplianceHistory []float64 `json:"compliance_history"`
+	ComplianceTrend   string    `json:"compliance_trend"`
 }
 
 // UserEfficiencyTrends represents user efficiency trends
 type UserEfficiencyTrends struct {
-	UserName             string                 `json:"user_name"`
-	Period               string                 `json:"period"`
-	EfficiencyScores     []float64              `json:"efficiency_scores"`
-	TrendDirection       string                 `json:"trend_direction"`
-	ImprovementRate      float64                `json:"improvement_rate"`
+	UserName         string    `json:"user_name"`
+	Period           string    `json:"period"`
+	EfficiencyScores []float64 `json:"efficiency_scores"`
+	TrendDirection   string    `json:"trend_direction"`
+	ImprovementRate  float64   `json:"improvement_rate"`
 }
 
 // UserBehaviorPrediction represents user behavior prediction
 type UserBehaviorPrediction struct {
-	UserName             string                 `json:"user_name"`
-	PredictionType       string                 `json:"prediction_type"`
-	PredictedValue       float64                `json:"predicted_value"`
-	ConfidenceLevel      float64                `json:"confidence_level"`
-	PredictionHorizon    string                 `json:"prediction_horizon"`
+	UserName          string  `json:"user_name"`
+	PredictionType    string  `json:"prediction_type"`
+	PredictedValue    float64 `json:"predicted_value"`
+	ConfidenceLevel   float64 `json:"confidence_level"`
+	PredictionHorizon string  `json:"prediction_horizon"`
 }
 
 // UserClusteringAnalysis represents user clustering analysis
 type UserClusteringAnalysis struct {
-	ClusterCount         int                    `json:"cluster_count"`
-	Clusters             []UserCluster          `json:"clusters"`
-	OptimalClusterCount  int                    `json:"optimal_cluster_count"`
-	SilhouetteScore      float64                `json:"silhouette_score"`
+	ClusterCount        int           `json:"cluster_count"`
+	Clusters            []UserCluster `json:"clusters"`
+	OptimalClusterCount int           `json:"optimal_cluster_count"`
+	SilhouetteScore     float64       `json:"silhouette_score"`
 }
 
 // UserCluster represents a single user cluster
 type UserCluster struct {
-	ClusterID            string                 `json:"cluster_id"`
-	UserCount            int                    `json:"user_count"`
-	CenterPoint          map[string]float64     `json:"center_point"`
-	Members              []string               `json:"members"`
-	Characteristics      []string               `json:"characteristics"`
+	ClusterID       string             `json:"cluster_id"`
+	UserCount       int                `json:"user_count"`
+	CenterPoint     map[string]float64 `json:"center_point"`
+	Members         []string           `json:"members"`
+	Characteristics []string           `json:"characteristics"`
 }
 
 // BehavioralAnomalies represents detected behavioral anomalies
 type BehavioralAnomalies struct {
-	UserName             string                 `json:"user_name"`
-	AnomalyCount         int                    `json:"anomaly_count"`
-	Anomalies            []BehavioralAnomaly    `json:"anomalies"`
-	AnomalyScore         float64                `json:"anomaly_score"`
-	LastDetected         time.Time              `json:"last_detected"`
+	UserName     string              `json:"user_name"`
+	AnomalyCount int                 `json:"anomaly_count"`
+	Anomalies    []BehavioralAnomaly `json:"anomalies"`
+	AnomalyScore float64             `json:"anomaly_score"`
+	LastDetected time.Time           `json:"last_detected"`
 }
 
 // BehavioralAnomaly represents a single behavioral anomaly
 type BehavioralAnomaly struct {
-	Timestamp            time.Time              `json:"timestamp"`
-	Type                 string                 `json:"type"`
-	Severity             string                 `json:"severity"`
-	Description          string                 `json:"description"`
-	Impact               float64                `json:"impact"`
+	Timestamp   time.Time `json:"timestamp"`
+	Type        string    `json:"type"`
+	Severity    string    `json:"severity"`
+	Description string    `json:"description"`
+	Impact      float64   `json:"impact"`
 }
 
 // UserLearningProgress represents user learning progress
 type UserLearningProgress struct {
-	UserName             string                 `json:"user_name"`
-	ProgressScore        float64                `json:"progress_score"`
-	LearningRate         float64                `json:"learning_rate"`
-	MilestonesCompleted  int                    `json:"milestones_completed"`
-	NextMilestone        string                 `json:"next_milestone"`
+	UserName            string  `json:"user_name"`
+	ProgressScore       float64 `json:"progress_score"`
+	LearningRate        float64 `json:"learning_rate"`
+	MilestonesCompleted int     `json:"milestones_completed"`
+	NextMilestone       string  `json:"next_milestone"`
 }
 
 // PersonalizedRecommendations represents personalized recommendations
 type PersonalizedRecommendations struct {
-	UserName             string                 `json:"user_name"`
-	Recommendations      []Recommendation       `json:"recommendations"`
-	Priority             string                 `json:"priority"`
-	LastGenerated        time.Time              `json:"last_generated"`
+	UserName        string           `json:"user_name"`
+	Recommendations []Recommendation `json:"recommendations"`
+	Priority        string           `json:"priority"`
+	LastGenerated   time.Time        `json:"last_generated"`
 }
 
 // Recommendation represents a single recommendation
 type Recommendation struct {
-	ID                   string                 `json:"id"`
-	Type                 string                 `json:"type"`
-	Title                string                 `json:"title"`
-	Description          string                 `json:"description"`
-	Impact               float64                `json:"impact"`
-	Effort               string                 `json:"effort"`
+	ID          string  `json:"id"`
+	Type        string  `json:"type"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	Impact      float64 `json:"impact"`
+	Effort      string  `json:"effort"`
 }
 
 // BehaviorOptimizationSuggestions represents behavior optimization suggestions
 type BehaviorOptimizationSuggestions struct {
-	UserName             string                 `json:"user_name"`
+	UserName             string                           `json:"user_name"`
 	Suggestions          []BehaviorOptimizationSuggestion `json:"suggestions"`
-	EstimatedImprovement float64                `json:"estimated_improvement"`
-	ImplementationPlan   []string               `json:"implementation_plan"`
+	EstimatedImprovement float64                          `json:"estimated_improvement"`
+	ImplementationPlan   []string                         `json:"implementation_plan"`
 }
 
 // BehaviorOptimizationSuggestion represents a single optimization suggestion
 type BehaviorOptimizationSuggestion struct {
-	Category             string                 `json:"category"`
-	Action               string                 `json:"action"`
-	ExpectedBenefit      float64                `json:"expected_benefit"`
-	Priority             int                    `json:"priority"`
+	Category        string  `json:"category"`
+	Action          string  `json:"action"`
+	ExpectedBenefit float64 `json:"expected_benefit"`
+	Priority        int     `json:"priority"`
 }
 
 // TrainingRecommendations represents training recommendations
 type TrainingRecommendations struct {
-	UserName             string                 `json:"user_name"`
-	SkillGaps            []string               `json:"skill_gaps"`
-	RecommendedCourses   []Course               `json:"recommended_courses"`
-	EstimatedDuration    string                 `json:"estimated_duration"`
-	ExpectedImprovement  float64                `json:"expected_improvement"`
+	UserName            string   `json:"user_name"`
+	SkillGaps           []string `json:"skill_gaps"`
+	RecommendedCourses  []Course `json:"recommended_courses"`
+	EstimatedDuration   string   `json:"estimated_duration"`
+	ExpectedImprovement float64  `json:"expected_improvement"`
 }
 
 // Course represents a training course
 type Course struct {
-	CourseID             string                 `json:"course_id"`
-	Title                string                 `json:"title"`
-	Level                string                 `json:"level"`
-	Duration             string                 `json:"duration"`
-	Relevance            float64                `json:"relevance"`
+	CourseID  string  `json:"course_id"`
+	Title     string  `json:"title"`
+	Level     string  `json:"level"`
+	Duration  string  `json:"duration"`
+	Relevance float64 `json:"relevance"`
 }
 
 // JobSubmissionPatterns represents user job submission behavior patterns
 type JobSubmissionPatterns struct {
-	UserName            string                 `json:"user_name"`
-	AnalysisPeriod      string                 `json:"analysis_period"`
+	UserName       string `json:"user_name"`
+	AnalysisPeriod string `json:"analysis_period"`
 
 	// Temporal Patterns
-	HourlyDistribution  map[int]float64       `json:"hourly_distribution"`
-	DailyDistribution   map[string]float64    `json:"daily_distribution"`
-	WeeklyDistribution  map[int]float64       `json:"weekly_distribution"`
-	MonthlyDistribution map[int]float64       `json:"monthly_distribution"`
-	SeasonalPatterns    map[string]float64    `json:"seasonal_patterns"`
+	HourlyDistribution  map[int]float64    `json:"hourly_distribution"`
+	DailyDistribution   map[string]float64 `json:"daily_distribution"`
+	WeeklyDistribution  map[int]float64    `json:"weekly_distribution"`
+	MonthlyDistribution map[int]float64    `json:"monthly_distribution"`
+	SeasonalPatterns    map[string]float64 `json:"seasonal_patterns"`
 
 	// Submission Characteristics
-	AverageJobsPerDay   float64               `json:"average_jobs_per_day"`
-	MaxJobsPerDay       int                   `json:"max_jobs_per_day"`
-	SubmissionVariability float64             `json:"submission_variability"`
-	BurstSubmissions    int                   `json:"burst_submissions"`
-	BurstFrequency      float64               `json:"burst_frequency"`
+	AverageJobsPerDay     float64 `json:"average_jobs_per_day"`
+	MaxJobsPerDay         int     `json:"max_jobs_per_day"`
+	SubmissionVariability float64 `json:"submission_variability"`
+	BurstSubmissions      int     `json:"burst_submissions"`
+	BurstFrequency        float64 `json:"burst_frequency"`
 
 	// Timing Patterns
-	PreferredSubmissionTime string            `json:"preferred_submission_time"`
-	SubmissionPredictability float64          `json:"submission_predictability"`
-	PlanningHorizon     float64               `json:"planning_horizon"`
-	UrgencyPattern      map[string]float64    `json:"urgency_pattern"`
-	DeadlineAwareness   float64               `json:"deadline_awareness"`
+	PreferredSubmissionTime  string             `json:"preferred_submission_time"`
+	SubmissionPredictability float64            `json:"submission_predictability"`
+	PlanningHorizon          float64            `json:"planning_horizon"`
+	UrgencyPattern           map[string]float64 `json:"urgency_pattern"`
+	DeadlineAwareness        float64            `json:"deadline_awareness"`
 
 	// Adaptation Patterns
-	PatternStability    float64               `json:"pattern_stability"`
-	SeasonalAdaptation  float64               `json:"seasonal_adaptation"`
-	WorkloadAdaptation  float64               `json:"workload_adaptation"`
-	PolicyAdaptation    float64               `json:"policy_adaptation"`
+	PatternStability   float64 `json:"pattern_stability"`
+	SeasonalAdaptation float64 `json:"seasonal_adaptation"`
+	WorkloadAdaptation float64 `json:"workload_adaptation"`
+	PolicyAdaptation   float64 `json:"policy_adaptation"`
 
-	LastAnalyzed        time.Time             `json:"last_analyzed"`
+	LastAnalyzed time.Time `json:"last_analyzed"`
 }
 
 // ResourceUsagePatterns represents user resource utilization behavior
 type ResourceUsagePatterns struct {
-	UserName           string                 `json:"user_name"`
-	AnalysisPeriod     string                 `json:"analysis_period"`
+	UserName       string `json:"user_name"`
+	AnalysisPeriod string `json:"analysis_period"`
 
 	// Resource Request Patterns
-	CPURequestPattern    map[string]float64   `json:"cpu_request_pattern"`
-	MemoryRequestPattern map[string]float64   `json:"memory_request_pattern"`
-	GPURequestPattern    map[string]float64   `json:"gpu_request_pattern"`
-	StorageRequestPattern map[string]float64  `json:"storage_request_pattern"`
-	RuntimeRequestPattern map[string]float64  `json:"runtime_request_pattern"`
+	CPURequestPattern     map[string]float64 `json:"cpu_request_pattern"`
+	MemoryRequestPattern  map[string]float64 `json:"memory_request_pattern"`
+	GPURequestPattern     map[string]float64 `json:"gpu_request_pattern"`
+	StorageRequestPattern map[string]float64 `json:"storage_request_pattern"`
+	RuntimeRequestPattern map[string]float64 `json:"runtime_request_pattern"`
 
 	// Utilization Efficiency
-	CPUEfficiency        float64              `json:"cpu_efficiency"`
-	MemoryEfficiency     float64              `json:"memory_efficiency"`
-	GPUEfficiency        float64              `json:"gpu_efficiency"`
-	IOEfficiency         float64              `json:"io_efficiency"`
-	OverallEfficiency    float64              `json:"overall_efficiency"`
+	CPUEfficiency     float64 `json:"cpu_efficiency"`
+	MemoryEfficiency  float64 `json:"memory_efficiency"`
+	GPUEfficiency     float64 `json:"gpu_efficiency"`
+	IOEfficiency      float64 `json:"io_efficiency"`
+	OverallEfficiency float64 `json:"overall_efficiency"`
 
 	// Request Accuracy
-	RequestAccuracy      float64              `json:"request_accuracy"`
-	OverestimationRate   float64              `json:"overestimation_rate"`
-	UnderestimationRate  float64              `json:"underestimation_rate"`
-	WasteRate           float64              `json:"waste_rate"`
-	UtilizationVariability float64           `json:"utilization_variability"`
+	RequestAccuracy        float64 `json:"request_accuracy"`
+	OverestimationRate     float64 `json:"overestimation_rate"`
+	UnderestimationRate    float64 `json:"underestimation_rate"`
+	WasteRate              float64 `json:"waste_rate"`
+	UtilizationVariability float64 `json:"utilization_variability"`
 
 	// Optimization Behavior
-	ResourceLearning     float64              `json:"resource_learning"`
-	OptimizationTrend    string               `json:"optimization_trend"`
-	BestPracticeAdoption float64              `json:"best_practice_adoption"`
-	EfficiencyImprovement float64             `json:"efficiency_improvement"`
+	ResourceLearning      float64 `json:"resource_learning"`
+	OptimizationTrend     string  `json:"optimization_trend"`
+	BestPracticeAdoption  float64 `json:"best_practice_adoption"`
+	EfficiencyImprovement float64 `json:"efficiency_improvement"`
 
 	// Resource Competition
-	ResourceContention   float64              `json:"resource_contention"`
-	PeakUsageImpact     float64              `json:"peak_usage_impact"`
-	ResourceSharing     float64              `json:"resource_sharing"`
-	CollaborativeUsage  float64              `json:"collaborative_usage"`
+	ResourceContention float64 `json:"resource_contention"`
+	PeakUsageImpact    float64 `json:"peak_usage_impact"`
+	ResourceSharing    float64 `json:"resource_sharing"`
+	CollaborativeUsage float64 `json:"collaborative_usage"`
 
-	LastAnalyzed        time.Time             `json:"last_analyzed"`
+	LastAnalyzed time.Time `json:"last_analyzed"`
 }
 
 // SchedulingBehavior represents user interaction with the scheduling system
 type SchedulingBehavior struct {
-	UserName            string                 `json:"user_name"`
+	UserName string `json:"user_name"`
 
 	// Queue Behavior
-	QueuePatience       float64               `json:"queue_patience"`
-	QueueJumping       float64               `json:"queue_jumping"`
-	CancellationRate   float64               `json:"cancellation_rate"`
-	ResubmissionRate   float64               `json:"resubmission_rate"`
-	QueueOptimization  float64               `json:"queue_optimization"`
+	QueuePatience     float64 `json:"queue_patience"`
+	QueueJumping      float64 `json:"queue_jumping"`
+	CancellationRate  float64 `json:"cancellation_rate"`
+	ResubmissionRate  float64 `json:"resubmission_rate"`
+	QueueOptimization float64 `json:"queue_optimization"`
 
 	// Priority Usage
-	PriorityStrategy   string                `json:"priority_strategy"`
-	PriorityEfficiency float64               `json:"priority_efficiency"`
-	PriorityAbuse      float64               `json:"priority_abuse"`
-	PrioritySharing    float64               `json:"priority_sharing"`
+	PriorityStrategy   string  `json:"priority_strategy"`
+	PriorityEfficiency float64 `json:"priority_efficiency"`
+	PriorityAbuse      float64 `json:"priority_abuse"`
+	PrioritySharing    float64 `json:"priority_sharing"`
 
 	// Partition and Resource Selection
-	PartitionWisdom    float64               `json:"partition_wisdom"`
-	ResourceMatching   float64               `json:"resource_matching"`
-	LoadAwareness      float64               `json:"load_awareness"`
-	OptimalSelection   float64               `json:"optimal_selection"`
+	PartitionWisdom  float64 `json:"partition_wisdom"`
+	ResourceMatching float64 `json:"resource_matching"`
+	LoadAwareness    float64 `json:"load_awareness"`
+	OptimalSelection float64 `json:"optimal_selection"`
 
 	// Scheduling Optimization
-	BackfillUtilization float64              `json:"backfill_utilization"`
-	OffPeakUsage       float64               `json:"off_peak_usage"`
-	FlexibilityScore   float64               `json:"flexibility_score"`
-	AdaptiveScheduling float64               `json:"adaptive_scheduling"`
+	BackfillUtilization float64 `json:"backfill_utilization"`
+	OffPeakUsage        float64 `json:"off_peak_usage"`
+	FlexibilityScore    float64 `json:"flexibility_score"`
+	AdaptiveScheduling  float64 `json:"adaptive_scheduling"`
 
 	// Interaction Quality
-	SystemRespect      float64               `json:"system_respect"`
-	PolicyAdherence    float64               `json:"policy_adherence"`
-	FairPlayScore      float64               `json:"fair_play_score"`
-	CommunityImpact    float64               `json:"community_impact"`
+	SystemRespect   float64 `json:"system_respect"`
+	PolicyAdherence float64 `json:"policy_adherence"`
+	FairPlayScore   float64 `json:"fair_play_score"`
+	CommunityImpact float64 `json:"community_impact"`
 
-	LastAnalyzed       time.Time             `json:"last_analyzed"`
+	LastAnalyzed time.Time `json:"last_analyzed"`
 }
 
 // UserBehaviorAnalysisCollector collects user behavior pattern metrics for fair-share optimization
@@ -352,10 +352,10 @@ type UserBehaviorAnalysisCollector struct {
 	mutex  sync.RWMutex
 
 	// User Behavior Profile Metrics
-	userSubmissionFrequency     *prometheus.GaugeVec
-	userSubmissionConsistency   *prometheus.GaugeVec
-	userResourceEfficiency      *prometheus.GaugeVec
-	userResourcePredictability  *prometheus.GaugeVec
+	userSubmissionFrequency    *prometheus.GaugeVec
+	userSubmissionConsistency  *prometheus.GaugeVec
+	userResourceEfficiency     *prometheus.GaugeVec
+	userResourcePredictability *prometheus.GaugeVec
 	userQueuePatience          *prometheus.GaugeVec
 	userBehaviorStability      *prometheus.GaugeVec
 	userAdaptationRate         *prometheus.GaugeVec
@@ -366,54 +366,54 @@ type UserBehaviorAnalysisCollector struct {
 	userComplianceScore        *prometheus.GaugeVec
 
 	// Job Submission Pattern Metrics
-	submissionHourlyDistribution  *prometheus.GaugeVec
-	submissionDailyDistribution   *prometheus.GaugeVec
-	submissionVariability         *prometheus.GaugeVec
-	burstSubmissionFrequency      *prometheus.GaugeVec
-	submissionPredictability      *prometheus.GaugeVec
+	submissionHourlyDistribution *prometheus.GaugeVec
+	submissionDailyDistribution  *prometheus.GaugeVec
+	submissionVariability        *prometheus.GaugeVec
+	burstSubmissionFrequency     *prometheus.GaugeVec
+	submissionPredictability     *prometheus.GaugeVec
 	planningHorizon              *prometheus.GaugeVec
 	deadlineAwareness            *prometheus.GaugeVec
-	submissionPatternStability    *prometheus.GaugeVec
+	submissionPatternStability   *prometheus.GaugeVec
 
 	// Resource Usage Pattern Metrics
-	cpuRequestAccuracy           *prometheus.GaugeVec
-	memoryRequestAccuracy        *prometheus.GaugeVec
-	resourceWasteRate           *prometheus.GaugeVec
-	resourceLearningRate        *prometheus.GaugeVec
-	utilizationVariability      *prometheus.GaugeVec
-	resourceOptimizationTrend   *prometheus.GaugeVec
-	bestPracticeAdoption        *prometheus.GaugeVec
-	resourceContention          *prometheus.GaugeVec
+	cpuRequestAccuracy        *prometheus.GaugeVec
+	memoryRequestAccuracy     *prometheus.GaugeVec
+	resourceWasteRate         *prometheus.GaugeVec
+	resourceLearningRate      *prometheus.GaugeVec
+	utilizationVariability    *prometheus.GaugeVec
+	resourceOptimizationTrend *prometheus.GaugeVec
+	bestPracticeAdoption      *prometheus.GaugeVec
+	resourceContention        *prometheus.GaugeVec
 
 	// Scheduling Behavior Metrics
-	queueOptimizationScore      *prometheus.GaugeVec
-	priorityUsageEfficiency     *prometheus.GaugeVec
-	partitionSelectionWisdom    *prometheus.GaugeVec
-	backfillUtilization         *prometheus.GaugeVec
-	offPeakUsagePreference      *prometheus.GaugeVec
-	schedulingFlexibility       *prometheus.GaugeVec
-	systemRespectScore          *prometheus.GaugeVec
-	fairPlayScore               *prometheus.GaugeVec
+	queueOptimizationScore   *prometheus.GaugeVec
+	priorityUsageEfficiency  *prometheus.GaugeVec
+	partitionSelectionWisdom *prometheus.GaugeVec
+	backfillUtilization      *prometheus.GaugeVec
+	offPeakUsagePreference   *prometheus.GaugeVec
+	schedulingFlexibility    *prometheus.GaugeVec
+	systemRespectScore       *prometheus.GaugeVec
+	fairPlayScore            *prometheus.GaugeVec
 
 	// Fair-Share Optimization Metrics
-	fairShareOptimizationScore   *prometheus.GaugeVec
-	adaptationEffectiveness     *prometheus.GaugeVec
-	complianceImprovement       *prometheus.GaugeVec
-	efficiencyTrend             *prometheus.GaugeVec
-	behaviorPredictionAccuracy  *prometheus.GaugeVec
-	optimizationPotential       *prometheus.GaugeVec
-	recommendationAdoption      *prometheus.GaugeVec
-	trainingEffectiveness       *prometheus.GaugeVec
+	fairShareOptimizationScore *prometheus.GaugeVec
+	adaptationEffectiveness    *prometheus.GaugeVec
+	complianceImprovement      *prometheus.GaugeVec
+	efficiencyTrend            *prometheus.GaugeVec
+	behaviorPredictionAccuracy *prometheus.GaugeVec
+	optimizationPotential      *prometheus.GaugeVec
+	recommendationAdoption     *prometheus.GaugeVec
+	trainingEffectiveness      *prometheus.GaugeVec
 
 	// Behavioral Analysis Metrics
-	behaviorClusterAssignment   *prometheus.GaugeVec
-	anomalyDetectionScore       *prometheus.GaugeVec
-	learningProgressScore       *prometheus.GaugeVec
+	behaviorClusterAssignment    *prometheus.GaugeVec
+	anomalyDetectionScore        *prometheus.GaugeVec
+	learningProgressScore        *prometheus.GaugeVec
 	personalizationEffectiveness *prometheus.GaugeVec
-	behaviorImpactScore         *prometheus.GaugeVec
-	communityInfluence          *prometheus.GaugeVec
-	mentorshipEngagement        *prometheus.GaugeVec
-	knowledgeTransfer          *prometheus.GaugeVec
+	behaviorImpactScore          *prometheus.GaugeVec
+	communityInfluence           *prometheus.GaugeVec
+	mentorshipEngagement         *prometheus.GaugeVec
+	knowledgeTransfer            *prometheus.GaugeVec
 }
 
 // NewUserBehaviorAnalysisCollector creates a new user behavior analysis collector
@@ -1041,11 +1041,12 @@ func (c *UserBehaviorAnalysisCollector) collectResourceUsagePatterns(ctx context
 	c.utilizationVariability.WithLabelValues(patterns.UserName, "default", "cpu").Set(patterns.UtilizationVariability)
 	c.resourceContention.WithLabelValues(patterns.UserName, "default", "cpu").Set(patterns.ResourceContention)
 
-	if patterns.OptimizationTrend == "improving" {
+	switch patterns.OptimizationTrend {
+	case "improving":
 		c.resourceOptimizationTrend.WithLabelValues(patterns.UserName, "default").Set(1.0)
-	} else if patterns.OptimizationTrend == "declining" {
+	case "declining":
 		c.resourceOptimizationTrend.WithLabelValues(patterns.UserName, "default").Set(-1.0)
-	} else {
+	default:
 		c.resourceOptimizationTrend.WithLabelValues(patterns.UserName, "default").Set(0.0)
 	}
 
@@ -1095,7 +1096,7 @@ func (c *UserBehaviorAnalysisCollector) collectFairShareOptimization(ctx context
 
 	// Collect optimization potential
 	c.optimizationPotential.WithLabelValues(userName, "default", "resource_usage").Set(0.4) // Mock data
-	c.recommendationAdoption.WithLabelValues(userName, "default", "efficiency").Set(0.6) // Mock data
+	c.recommendationAdoption.WithLabelValues(userName, "default", "efficiency").Set(0.6)    // Mock data
 	c.trainingEffectiveness.WithLabelValues(userName, "default", "best_practices").Set(0.7) // Mock data
 }
 
@@ -1120,8 +1121,8 @@ func (c *UserBehaviorAnalysisCollector) collectBehavioralAnalysis(ctx context.Co
 
 	// Collect personalization effectiveness
 	c.personalizationEffectiveness.WithLabelValues(userName, "default", "recommendations").Set(0.8) // Mock data
-	c.behaviorImpactScore.WithLabelValues(userName, "default", "system_efficiency").Set(0.6) // Mock data
-	c.communityInfluence.WithLabelValues(userName, "default", "best_practices").Set(0.3) // Mock data
-	c.mentorshipEngagement.WithLabelValues(userName, "default", "mentor").Set(0.5) // Mock data
-	c.knowledgeTransfer.WithLabelValues(userName, "default", "peer_learning").Set(0.4) // Mock data
+	c.behaviorImpactScore.WithLabelValues(userName, "default", "system_efficiency").Set(0.6)        // Mock data
+	c.communityInfluence.WithLabelValues(userName, "default", "best_practices").Set(0.3)            // Mock data
+	c.mentorshipEngagement.WithLabelValues(userName, "default", "mentor").Set(0.5)                  // Mock data
+	c.knowledgeTransfer.WithLabelValues(userName, "default", "peer_learning").Set(0.4)              // Mock data
 }
