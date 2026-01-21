@@ -315,28 +315,28 @@ func (ct *CollectionTimer) Stop() time.Duration {
 
 // APITimer provides specialized timing for API operations
 type APITimer struct {
-	endpoint string
-	method   string
-	metrics  *PerformanceMetrics
-	timer    *Timer
+	endpoint  string
+	method    string
+	metrics   *PerformanceMetrics
+	startTime time.Time
 }
 
 // NewAPITimer creates a timer for API operations
 func (pm *PerformanceMetrics) NewAPITimer(endpoint, method string) *APITimer {
 	return &APITimer{
-		endpoint: endpoint,
-		method:   method,
-		metrics:  pm,
-		// Timer will be created when status is known
+		endpoint:  endpoint,
+		method:    method,
+		metrics:   pm,
+		startTime: time.Now(), // Capture start time immediately
 	}
 }
 
 // StopWithStatus stops the API timer with the given status
 func (at *APITimer) StopWithStatus(status string) time.Duration {
-	if at.timer == nil {
-		at.timer = NewTimer(at.metrics.APICallDuration.WithLabelValues(at.endpoint, at.method, status))
-	}
-	return at.timer.Stop()
+	duration := time.Since(at.startTime)
+	// Observe the duration with the correct labels
+	at.metrics.APICallDuration.WithLabelValues(at.endpoint, at.method, status).Observe(duration.Seconds())
+	return duration
 }
 
 // RecordError records an API error

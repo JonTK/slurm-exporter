@@ -83,7 +83,7 @@ func TestNewBatchProcessor(t *testing.T) {
 func TestBatchProcessor_Add(t *testing.T) {
 	logger := logrus.NewEntry(logrus.New())
 	config := BatchConfig{
-		MaxBatchSize: 3,
+		MaxBatchSize: 10, // Increased to prevent auto-flush when adding 3 items
 		MaxBatchWait: 100 * time.Millisecond,
 	}
 
@@ -109,9 +109,11 @@ func TestBatchProcessor_Add(t *testing.T) {
 	bp.mu.RUnlock()
 
 	assert.True(t, exists)
-	assert.Len(t, batch.items, 3)
-	assert.Equal(t, 60, batch.totalSize)
-	assert.Equal(t, 3, batch.priority)
+	if exists {
+		assert.Len(t, batch.items, 3)
+		assert.Equal(t, 60, batch.totalSize)
+		assert.Equal(t, 3, batch.priority)
+	}
 }
 
 func TestBatchProcessor_Deduplication(t *testing.T) {
