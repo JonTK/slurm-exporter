@@ -16,10 +16,15 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: read
+  security-events: write
+
 env:
   GO_VERSION: '1.24'
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  # Docker image names must be lowercase
+  IMAGE_NAME: jontk/slurm-exporter
 
 jobs:
   # Unit Tests with multiple Go versions
