@@ -135,9 +135,12 @@ security:
 	@echo "Running security audit..."
 	@command -v gosec >/dev/null 2>&1 || { \
 		echo "Installing gosec..."; \
-		go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest; \
+		go install github.com/securego/gosec/v2/cmd/gosec@latest; \
 	}
 	gosec ./...
+
+# Security scan (alias for security)
+security-scan: security
 
 # Run all checks (lint, vet, test)
 check: fmt vet lint test
@@ -274,8 +277,35 @@ changelog:
 	@./scripts/version.sh changelog
 
 # Release preparation
-release-prep: check-version clean tidy fmt vet lint test
+release-prep: check-version clean tidy fmt vet lint test security-scan
 	@echo "Release preparation complete"
+
+# GoReleaser validation
+goreleaser-check:
+	@echo "Checking GoReleaser configuration..."
+	@command -v goreleaser >/dev/null 2>&1 || { \
+		echo "Installing goreleaser..."; \
+		go install github.com/goreleaser/goreleaser@latest; \
+	}
+	goreleaser check
+
+# GoReleaser snapshot build (local testing)
+goreleaser-snapshot: goreleaser-check
+	@echo "Building GoReleaser snapshot..."
+	goreleaser release --snapshot --clean
+
+# GoReleaser release build
+goreleaser-release: goreleaser-check
+	@echo "Building GoReleaser release..."
+	goreleaser release --clean
+
+# Create release tag (usage: make release-tag VERSION=v0.2.0)
+release-tag:
+	@if [ -z "$(VERSION)" ]; then echo "Error: VERSION required (e.g., make release-tag VERSION=v0.2.0)"; exit 1; fi
+	@echo "Creating release tag $(VERSION)..."
+	git tag -a $(VERSION) -m "Release $(VERSION)"
+	git push origin $(VERSION)
+	@echo "Tag created and pushed. GitHub Actions release workflow will start automatically."
 
 # Show help
 help:
@@ -323,6 +353,10 @@ help:
 	@echo "  prepare-release-major - Prepare major release"
 	@echo "  changelog       - Generate changelog"
 	@echo "  release-prep    - Run all release preparation checks"
+	@echo "  goreleaser-check - Validate GoReleaser configuration"
+	@echo "  goreleaser-snapshot - Build GoReleaser snapshot (local testing)"
+	@echo "  goreleaser-release - Build GoReleaser release"
+	@echo "  release-tag     - Create and push release tag (VERSION=v0.2.0)"
 	@echo ""
 	@echo "Docker targets:"
 	@echo "  docker-build    - Build Docker image"

@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to release (e.g., v1.2.3)'
+        description: 'Tag to release (e.g., v0.1.0)'
         required: true
         type: string
 
@@ -18,413 +18,182 @@ permissions:
   contents: write
   packages: write
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-  GO_VERSION: '1.24'
-
 jobs:
   validate-tag:
-    name: Validate Tag
+    name: Validate Release Tag
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get_version.outputs.version }}
       prerelease: ${{ steps.check_prerelease.outputs.prerelease }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: Get version from tag
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.tag }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Version: ${VERSION}"
 
-    - name: Get version from tag
-      id: get_version
-      run: |
-        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-          VERSION="${{ github.event.inputs.tag }}"
-        else
-          VERSION="${GITHUB_REF#refs/tags/}"
-        fi
-        echo "version=${VERSION}" >> $GITHUB_OUTPUT
-        echo "Version: ${VERSION}"
+      - name: Validate version format
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          if ! echo "$VERSION" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$'; then
+            echo "Invalid version format: $VERSION"
+            echo "Expected format: vX.Y.Z or vX.Y.Z-suffix"
+            exit 1
+          fi
 
-    - name: Validate version format
-      run: |
-        VERSION="${{ steps.get_version.outputs.version }}"
-        if ! echo "$VERSION" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$'; then
-          echo "Invalid version format: $VERSION"
-          echo "Expected format: vX.Y.Z or vX.Y.Z-suffix"
-          exit 1
-        fi
+      - name: Check if prerelease
+        id: check_prerelease
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          if echo "$VERSION" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+-'; then
+            echo "prerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+          fi
 
-    - name: Check if prerelease
-      id: check_prerelease
-      run: |
-        VERSION="${{ steps.get_version.outputs.version }}"
-        if echo "$VERSION" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+-'; then
-          echo "prerelease=true" >> $GITHUB_OUTPUT
-        else
-          echo "prerelease=false" >> $GITHUB_OUTPUT
-        fi
-
-  test-release:
-    name: Test Release Build
+  test:
+    name: Test Release
+    runs-on: ubuntu-latest
     needs: validate-tag
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: ${{ env.GO_VERSION }}
-        cache: true
-
-      - name: Run unit tests
-        run: |
-          echo "🧪 Running unit tests..."
-          make test
-
-      - name: Run integration tests
-        run: |
-          echo "🔗 Running integration tests..."
-          make test-integration
-
-      - name: Run security scan
-        run: |
-          echo "🔒 Running security scan..."
-          go install github.com/securego/gosec/v2/cmd/gosec@latest
-          gosec -exclude=G101,G104,G115,G301,G304,G306,G404 ./...
-
-      - name: Check code quality
-        run: |
-          echo "✨ Checking code quality..."
-          make lint
-          make vet
-
-  # Build multi-platform binaries
-  build:
-    name: Build Binaries
-    runs-on: ubuntu-latest
-    needs: [validate-tag, test-release]
-    strategy:
-      matrix:
-        include:
-          - os: linux
-            arch: amd64
-          - os: linux
-            arch: arm64
-          - os: darwin
-            arch: amd64
-          - os: darwin
-            arch: arm64
-          - os: windows
-            arch: amd64
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: '1.24'
+          cache: true
 
-      - name: Build binary
-        env:
-          GOOS: ${{ matrix.os }}
-          GOARCH: ${{ matrix.arch }}
-          VERSION: ${{ needs.validate-tag.outputs.version }}
-        run: |
-          echo "🔨 Building for $GOOS/$GOARCH..."
-          
-          # Set binary name
-          BINARY_NAME="slurm-exporter"
-          if [ "$GOOS" = "windows" ]; then
-            BINARY_NAME="${BINARY_NAME}.exe"
-          fi
-          
-          # Build with version info
-          go build \
-            -ldflags "-X main.version=${VERSION} -X main.buildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ) -X main.gitCommit=$(git rev-parse HEAD)" \
-            -o "dist/${BINARY_NAME}-${GOOS}-${GOARCH}" \
-            ./cmd/slurm-exporter
+      - name: Run tests
+        run: make test
 
-      - name: Create archive
-        run: |
-          cd dist
-          ARCHIVE_NAME="slurm-exporter-${{ needs.validate-tag.outputs.version }}-${{ matrix.os }}-${{ matrix.arch }}"
-          
-          if [ "${{ matrix.os }}" = "windows" ]; then
-            zip "${ARCHIVE_NAME}.zip" slurm-exporter-${{ matrix.os }}-${{ matrix.arch }}.exe
-          else
-            tar -czf "${ARCHIVE_NAME}.tar.gz" slurm-exporter-${{ matrix.os }}-${{ matrix.arch }}
-          fi
+      - name: Run linting
+        run: make lint
 
-      - name: Generate checksums
-        run: |
-          cd dist
-          if [ "${{ matrix.os }}" = "windows" ]; then
-            sha256sum *.zip > checksums-${{ matrix.os }}-${{ matrix.arch }}.txt
-          else
-            sha256sum *.tar.gz > checksums-${{ matrix.os }}-${{ matrix.arch }}.txt
-          fi
+      - name: Run security scan
+        run: make security-scan
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: binaries-${{ matrix.os }}-${{ matrix.arch }}
-          path: dist/
-
-  # Build and push Docker images
-  docker:
-    name: Build Docker Images
+  goreleaser:
+    name: Build and Release with GoReleaser
     runs-on: ubuntu-latest
-    needs: [validate-tag, test-release]
-    permissions:
-      contents: read
-      packages: write
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Log in to Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Extract metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        tags: |
-          type=ref,event=tag
-          type=raw,value=latest,enable={{is_default_branch}}
-          type=raw,value={{date 'YYYY-MM-DD'}}-{{sha}}
-        labels: |
-          org.opencontainers.image.title=SLURM Exporter
-          org.opencontainers.image.description=Prometheus exporter for SLURM workload manager
-          org.opencontainers.image.vendor=SLURM Exporter Project
-
-    - name: Build and push container image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        platforms: linux/amd64,linux/arm64
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        build-args: |
-          VERSION=${{ needs.validate-tag.outputs.version }}
-          BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          COMMIT=${{ github.sha }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
-  helm:
-    name: Build Helm Chart
-    runs-on: ubuntu-latest
-    needs: [validate-tag, test-release]
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Set up Helm
-      uses: azure/setup-helm@v3
-      with:
-        version: '3.12.0'
-
-    - name: Package Helm chart
-      env:
-        VERSION: ${{ needs.validate-tag.outputs.version }}
-      run: |
-        # Update chart version
-        sed -i "s/^version:.*/version: ${VERSION#v}/" charts/slurm-exporter/Chart.yaml
-        sed -i "s/^appVersion:.*/appVersion: ${VERSION}/" charts/slurm-exporter/Chart.yaml
-        
-        # Package chart
-        mkdir -p dist/helm
-        helm package charts/slurm-exporter --destination dist/helm
-        
-        # Generate index
-        helm repo index dist/helm --url https://github.com/${{ github.repository }}/releases/download/${{ needs.validate-tag.outputs.version }}
-
-    - name: Upload Helm artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: helm-chart
-        path: dist/helm/*
-        retention-days: 5
-
-  changelog:
-    name: Generate Changelog
-    runs-on: ubuntu-latest
-    needs: validate
-    outputs:
-      changelog: ${{ steps.changelog.outputs.changelog }}
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Generate changelog
-      id: changelog
-      run: |
-        # Get previous tag
-        PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-        CURRENT_TAG="${{ needs.validate-tag.outputs.version }}"
-        
-        echo "Generating changelog from ${PREVIOUS_TAG} to ${CURRENT_TAG}"
-        
-        # Generate changelog
-        if [ -n "$PREVIOUS_TAG" ]; then
-          CHANGELOG=$(git log --pretty=format:"* %s (%h)" ${PREVIOUS_TAG}..HEAD | grep -E "^\\* (feat|fix|docs|style|refactor|perf|test|chore)" | head -50)
-        else
-          CHANGELOG=$(git log --pretty=format:"* %s (%h)" | grep -E "^\\* (feat|fix|docs|style|refactor|perf|test|chore)" | head -20)
-        fi
-        
-        if [ -z "$CHANGELOG" ]; then
-          CHANGELOG="* Initial release"
-        fi
-        
-        # Save to output (handle multiline)
-        echo "changelog<<EOF" >> $GITHUB_OUTPUT
-        echo "$CHANGELOG" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
-
-  release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    needs: [validate, build, docker, helm, changelog]
+    needs: [validate-tag, test]
     permissions:
       contents: write
+      packages: write
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache: true
 
-    - name: Prepare release assets
-      run: |
-        mkdir -p release-assets
-        
-        # Copy binary archives and checksums
-        find artifacts -name "*.tar.gz" -o -name "*.zip" -o -name "checksums-*.txt" | while read file; do
-          cp "$file" release-assets/
-        done
-        
-        # Copy Helm chart
-        find artifacts -name "*.tgz" | while read file; do
-          cp "$file" release-assets/
-        done
-        
-        # List release assets
-        echo "Release assets:"
-        ls -la release-assets/
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: ${{ needs.validate-tag.outputs.version }}
-        name: Release ${{ needs.validate-tag.outputs.version }}
-        body: |
-          # SLURM Exporter ${{ needs.validate-tag.outputs.version }}
-          
-          ## Changes
-          ${{ needs.changelog.outputs.changelog }}
-          
-          ## Container Images
-          ```bash
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate-tag.outputs.version }}
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          ```
-          
-          ## Helm Chart
-          ```bash
-          helm repo add slurm-exporter https://github.com/${{ github.repository }}/releases/download/${{ needs.validate-tag.outputs.version }}
-          helm install slurm-exporter slurm-exporter/slurm-exporter
-          ```
-          
-          ## Binaries
-          Download the appropriate binary for your platform from the assets below.
-          
-          ## Verification
-          All binaries include SHA256 checksums for verification.
-          
-        files: release-assets/*
-        prerelease: ${{ needs.validate-tag.outputs.is_prerelease }}
-        generate_release_notes: true
-        make_latest: ${{ needs.validate-tag.outputs.is_prerelease == 'false' }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  verify:
+    name: Verify Release
+    runs-on: ubuntu-latest
+    needs: [validate-tag, goreleaser]
+
+    steps:
+      - name: Verify GitHub Release
+        run: |
+          RELEASE_INFO=$(curl -s https://api.github.com/repos/jontk/slurm-exporter/releases/tags/${{ needs.validate-tag.outputs.version }})
+
+          if echo "$RELEASE_INFO" | grep -q "\"tag_name\": \"${{ needs.validate-tag.outputs.version }}\""; then
+            echo "✓ Release created successfully"
+            echo "Assets available:"
+            echo "$RELEASE_INFO" | jq '.assets[] | .name' | head -10
+          else
+            echo "✗ Failed to verify release"
+            echo "Response: $RELEASE_INFO"
+            exit 1
+          fi
 
   docs:
     name: Update Documentation
     runs-on: ubuntu-latest
-    needs: [release, validate]
-    if: needs.validate-tag.outputs.is_prerelease == 'false'
+    needs: [validate-tag, verify]
+    if: needs.validate-tag.outputs.prerelease == 'false'
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Update version references
-      env:
-        VERSION: ${{ needs.validate-tag.outputs.version }}
-      run: |
-        # Update README with latest version
-        if [ -f README.md ]; then
-          sed -i "s/slurm-exporter:v[0-9]\+\.[0-9]\+\.[0-9]\+/slurm-exporter:${VERSION}/g" README.md
-          sed -i "s/download\/v[0-9]\+\.[0-9]\+\.[0-9]\+/download\/${VERSION}/g" README.md
-        fi
-        
-        # Update Helm chart documentation
-        if [ -f charts/slurm-exporter/README.md ]; then
-          sed -i "s/version: [0-9]\+\.[0-9]\+\.[0-9]\+/version: ${VERSION#v}/g" charts/slurm-exporter/README.md
-        fi
+      - name: Update version references
+        env:
+          VERSION: ${{ needs.validate-tag.outputs.version }}
+        run: |
+          # Update README with latest version
+          if [ -f README.md ]; then
+            sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+/${VERSION}/g" README.md || true
+          fi
 
-    - name: Commit documentation updates
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        
-        if git diff --quiet; then
-          echo "No documentation changes to commit"
-        else
-          git add .
-          git commit -m "docs: update version references to ${{ needs.validate-tag.outputs.version }}"
-          git push
-        fi
+      - name: Commit documentation updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          if git diff --quiet; then
+            echo "No documentation changes to commit"
+          else
+            git add .
+            git commit -m "docs: update version references to ${{ needs.validate-tag.outputs.version }}"
+            git push
+          fi
 
   notify:
-    name: Notify
+    name: Notify Release Completion
     runs-on: ubuntu-latest
-    needs: [release, validate]
+    needs: [validate-tag, verify]
     if: always()
-    steps:
-    - name: Release success notification
-      if: needs.release.result == 'success'
-      run: |
-        echo "✅ Release ${{ needs.validate-tag.outputs.version }} created successfully!"
-        echo "🐳 Container images pushed to ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-        echo "📦 Binaries and Helm chart available in GitHub release"
 
-    - name: Release failure notification
-      if: needs.release.result == 'failure'
-      run: |
-        echo "❌ Release ${{ needs.validate-tag.outputs.version }} failed!"
-        exit 1
+    steps:
+      - name: Release success notification
+        if: needs.verify.result == 'success'
+        run: |
+          echo "✅ Release ${{ needs.validate-tag.outputs.version }} created successfully!"
+          echo "📦 Binaries and packages available in GitHub release"
+          echo "🐳 Docker images available in Docker Hub"
+
+      - name: Release failure notification
+        if: needs.verify.result != 'success'
+        run: |
+          echo "❌ Release ${{ needs.validate-tag.outputs.version }} failed!"
+          exit 1

@@ -1,0 +1,262 @@
+version: 2
+
+project_name: slurm-exporter
+
+before:
+  hooks:
+    - go mod tidy
+    - go test ./...
+
+builds:
+  - id: linux
+    main: ./cmd/slurm-exporter
+    binary: slurm-exporter
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+      - arm
+    goarm:
+      - 7
+    ldflags:
+      - -X github.com/jontk/slurm-exporter/pkg/version.Version={{.Version}}
+      - -X github.com/jontk/slurm-exporter/pkg/version.GitCommit={{.Commit}}
+      - -X github.com/jontk/slurm-exporter/pkg/version.BuildTime={{.CommitDate}}
+
+  - id: darwin
+    main: ./cmd/slurm-exporter
+    binary: slurm-exporter
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -X github.com/jontk/slurm-exporter/pkg/version.Version={{.Version}}
+      - -X github.com/jontk/slurm-exporter/pkg/version.GitCommit={{.Commit}}
+      - -X github.com/jontk/slurm-exporter/pkg/version.BuildTime={{.CommitDate}}
+
+  - id: windows
+    main: ./cmd/slurm-exporter
+    binary: slurm-exporter
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - windows
+    goarch:
+      - amd64
+    ldflags:
+      - -X github.com/jontk/slurm-exporter/pkg/version.Version={{.Version}}
+      - -X github.com/jontk/slurm-exporter/pkg/version.GitCommit={{.Commit}}
+      - -X github.com/jontk/slurm-exporter/pkg/version.BuildTime={{.CommitDate}}
+
+archives:
+  - id: linux-archives
+    builds:
+      - linux
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    files:
+      - LICENSE
+      - README.md
+      - CHANGELOG.md
+      - RELEASE.md
+
+  - id: darwin-archives
+    builds:
+      - darwin
+    format: tar.gz
+    name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+      - CHANGELOG.md
+      - RELEASE.md
+
+  - id: windows-archives
+    builds:
+      - windows
+    format: zip
+    name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+      - CHANGELOG.md
+      - RELEASE.md
+
+checksum:
+  name_template: "{{ .ProjectName }}-{{ .Version }}-checksums.txt"
+  algorithm: sha256
+
+snapshot:
+  name_template: "{{ .Version }}-snapshot"
+
+changelog:
+  use: github-native
+  sort: asc
+  groups:
+    - title: New Features
+      regexp: '^.*?feat(\(.+\))?!?:.+$'
+      order: 0
+    - title: Bug Fixes
+      regexp: '^.*?fix(\(.+\))?!?:.+$'
+      order: 1
+    - title: Performance
+      regexp: '^.*?perf(\(.+\))?!?:.+$'
+      order: 2
+    - title: Security
+      regexp: '^.*?(sec|security)(\(.+\))?!?:.+$'
+      order: 3
+    - title: Other Changes
+      order: 999
+
+release:
+  github:
+    owner: jontk
+    name: slurm-exporter
+  draft: false
+  prerelease: auto
+  mode: replace
+  header: |
+    ## slurm-exporter {{ .Version }}
+
+    This is a release of slurm-exporter, a Prometheus exporter for SLURM metrics.
+
+    ### Installation
+
+    **Binary Downloads:**
+    Download your platform's binary from the [releases page](https://github.com/jontk/slurm-exporter/releases/tag/{{ .Tag }}).
+
+    **Package Installation:**
+    ```bash
+    # Ubuntu/Debian
+    sudo apt-get install ./slurm-exporter_{{ .Version }}_amd64.deb
+
+    # CentOS/RHEL/Fedora
+    sudo rpm -i slurm-exporter-{{ .Version }}-1.x86_64.rpm
+    ```
+
+    **Go Installation:**
+    ```bash
+    go install github.com/jontk/slurm-exporter@{{ .Version }}
+    ```
+
+    **Docker:**
+    ```bash
+    docker run -p 9341:9341 jontk/slurm-exporter:{{ .Version }}
+    ```
+
+  footer: |
+    ### Docker Images
+
+    - `jontk/slurm-exporter:{{ .Version }}` - Standard Alpine-based image
+    - `jontk/slurm-exporter:{{ .Version }}-alpine` - Alpine Linux
+    - `jontk/slurm-exporter:{{ .Version }}-distroless` - Distroless (minimal)
+    - `jontk/slurm-exporter:latest` - Latest stable release
+
+    ### Checksums
+
+    All binary downloads are signed with SHA256. Download the [checksums file](https://github.com/jontk/slurm-exporter/releases/download/{{ .Tag }}/{{ .ProjectName }}-{{ .Version }}-checksums.txt) and verify:
+
+    ```bash
+    sha256sum -c {{ .ProjectName }}-{{ .Version }}-checksums.txt
+    ```
+
+    ### Changelog
+
+    For detailed changes in this release, see [CHANGELOG.md](https://github.com/jontk/slurm-exporter/blob/main/CHANGELOG.md).
+
+    ### Release Links
+
+    - [Compare with previous release](https://github.com/jontk/slurm-exporter/compare/{{ .PreviousTag }}...{{ .Tag }})
+    - [Full Release Documentation](https://jontk.github.io/slurm-exporter)
+
+nfpms:
+  - id: deb
+    package_name: slurm-exporter
+    file_name_template: "{{ .PackageName }}_{{ .Version }}_{{ .Arch }}"
+    homepage: https://github.com/jontk/slurm-exporter
+    description: Prometheus exporter for SLURM metrics
+    maintainer: JonTK <support@github.com>
+    license: Apache 2.0
+    vendor: JonTK
+    formats:
+      - deb
+    contents:
+      - src: LICENSE
+        dst: /usr/share/doc/{{ .PackageName }}/LICENSE
+      - src: README.md
+        dst: /usr/share/doc/{{ .PackageName }}/README.md
+
+  - id: rpm
+    package_name: slurm-exporter
+    file_name_template: "{{ .PackageName }}-{{ .Version }}-{{ .Release }}.{{ .Arch }}"
+    homepage: https://github.com/jontk/slurm-exporter
+    description: Prometheus exporter for SLURM metrics
+    maintainer: JonTK <support@github.com>
+    license: Apache 2.0
+    vendor: JonTK
+    formats:
+      - rpm
+    contents:
+      - src: LICENSE
+        dst: /usr/share/doc/{{ .PackageName }}/LICENSE
+      - src: README.md
+        dst: /usr/share/doc/{{ .PackageName }}/README.md
+
+dockers:
+  - id: default
+    goos: linux
+    goarch: amd64
+    image_templates:
+      - "jontk/slurm-exporter:{{ .Version }}-amd64"
+      - "jontk/slurm-exporter:latest-amd64"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.description=Prometheus exporter for SLURM metrics"
+      - "--label=org.opencontainers.image.url=https://github.com/jontk/slurm-exporter"
+      - "--label=org.opencontainers.image.source=https://github.com/jontk/slurm-exporter"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.revision={{ .Commit }}"
+      - "--label=org.opencontainers.image.created={{ .CommitDate }}"
+
+  - id: alpine
+    goos: linux
+    goarch: amd64
+    image_templates:
+      - "jontk/slurm-exporter:{{ .Version }}-alpine-amd64"
+      - "jontk/slurm-exporter:latest-alpine-amd64"
+    dockerfile: Dockerfile.alpine
+    build_flag_templates:
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.description=Prometheus exporter for SLURM metrics (Alpine)"
+      - "--label=org.opencontainers.image.url=https://github.com/jontk/slurm-exporter"
+      - "--label=org.opencontainers.image.source=https://github.com/jontk/slurm-exporter"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.revision={{ .Commit }}"
+      - "--label=org.opencontainers.image.created={{ .CommitDate }}"
+
+  - id: distroless
+    goos: linux
+    goarch: amd64
+    image_templates:
+      - "jontk/slurm-exporter:{{ .Version }}-distroless-amd64"
+      - "jontk/slurm-exporter:latest-distroless-amd64"
+    dockerfile: Dockerfile.distroless
+    build_flag_templates:
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.description=Prometheus exporter for SLURM metrics (Distroless)"
+      - "--label=org.opencontainers.image.url=https://github.com/jontk/slurm-exporter"
+      - "--label=org.opencontainers.image.source=https://github.com/jontk/slurm-exporter"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.revision={{ .Commit }}"
+      - "--label=org.opencontainers.image.created={{ .CommitDate }}"
