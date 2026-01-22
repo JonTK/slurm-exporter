@@ -127,62 +127,21 @@ jobs:
         sarif_file: 'trivy-results-${{ matrix.dockerfile }}.sarif'
         category: 'container-${{ matrix.dockerfile }}'
 
-  sign-images:
-    name: Sign Container Images
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-    permissions:
-      contents: read
-      packages: write
-      id-token: write
+  # TODO: Re-enable image signing once metadata action outputs are properly wired
+  # sign-images:
+  #   name: Sign Container Images
+  #   runs-on: ubuntu-latest
+  #   needs: build-and-push
+  #   if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+  #   ...
 
-    steps:
-    - name: Install Cosign
-      uses: sigstore/cosign-installer@v3
-
-    - name: Log in to Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Sign container images
-      run: |
-        # Sign all built images
-        images=(
-          "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-alpine:${{ github.sha }}"
-          "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-distroless:${{ github.sha }}"
-        )
-        
-        for image in "${images[@]}"; do
-          echo "Signing $image"
-          cosign sign --yes "$image"
-        done
-
-  update-readme:
-    name: Update Container Registry README
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Update GitHub Container Registry description
-      uses: christian-korneck/update-container-description-action@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        destination_container_repo: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        provider: github
-        readme_file: 'docker/README.md'
+  # TODO: Re-enable README update once docker/README.md exists
+  # update-readme:
+  #   name: Update Container Registry README
+  #   runs-on: ubuntu-latest
+  #   needs: build-and-push
+  #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  #   ...
 
   cleanup:
     name: Cleanup Old Images
