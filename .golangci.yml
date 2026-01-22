@@ -1,0 +1,235 @@
+version: "2"
+linters:
+  default: all
+  disable:
+    - canonicalheader
+    - containedctx
+    - contextcheck
+    - copyloopvar
+    - cyclop
+    - dupword
+    - embeddedstructfieldcheck  # Embedded struct formatting is stylistic
+    - err113
+    - errorlint
+    - exhaustive
+    - exhaustruct
+    - forbidigo
+    - forcetypeassert
+    - funcorder                 # Function ordering is developer's choice
+    - funlen                    # Will be enabled in Phase 4 after refactoring large files
+    - gochecknoglobals
+    - gochecknoinits
+    - gocognit                  # Will be enabled in Phase 4 after complexity reduction
+    - goconst                   # Will be enabled in Phase 2 after constant extraction
+    - gocritic
+    - godoclint                 # Doc comment style (v2.8+ only)
+    - godot
+    - godox                     # Will be enabled in Phase 3 after TODO cleanup
+    - gosmopolitan              # I18n linter - not needed for this project
+    - interfacebloat
+    - intrange
+    - ireturn
+    - lll
+    - maintidx
+    - mnd
+    - modernize                 # Modernization suggestions (v2.8+ only) - not always appropriate
+    - nestif
+    - nilerr
+    - noinlineerr               # Inline error handling is idiomatic Go
+    - nlreturn
+    - noctx
+    - nonamedreturns
+    - paralleltest
+    - perfsprint
+    - prealloc
+    - revive
+    - tagliatelle
+    - testifylint
+    - testpackage
+    - thelper
+    - tparallel
+    - unparam
+    - usetesting
+    - varnamelen
+    - wrapcheck
+    - wsl                       # Whitespace linter (deprecated version)
+    - wsl_v5                    # Whitespace linter (new version) - very opinionated
+  settings:
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: github.com/pkg/errors
+              desc: Use standard library errors package or fmt.Errorf with %w
+    dogsled:
+      max-blank-identifiers: 2
+    dupl:
+      threshold: 150            # Start high, will reduce in Phase 5
+    errcheck:
+      check-type-assertions: false
+      check-blank: false
+    gocritic:
+      disabled-checks:
+        - dupImport
+        - ifElseChain
+        - octalLiteral
+        - whyNoLint
+        - wrapperFunc
+      enabled-tags:
+        - diagnostic
+        - experimental
+        - opinionated
+        - performance
+        - style
+    gocyclo:
+      min-complexity: 75        # Start high, will reduce in Phase 4
+    gosec:
+      excludes:
+        - G104  # Duplicated errcheck
+        - G307  # Duplicated errcheck on file defer Close()
+        - G115  # Integer overflow conversion - SLURM resource counts unlikely to overflow int32
+        - G404  # Use of weak random generator - acceptable for test data and non-cryptographic randomness
+        - G601  # Implicit memory aliasing - fixed in Go 1.22+ with new loop variable scoping
+        - G602  # Slice index out of range - covered by bounds checking
+    misspell:
+      locale: US
+      ignore-rules:
+        - cancelled
+        - cancelling
+        - marshalled
+        - marshalling
+        - analyses
+    nakedret:
+      max-func-lines: 30
+    prealloc:
+      simple: true
+      range-loops: true
+      for-loops: false
+    staticcheck:
+      checks:
+        - all
+        - -SA9003   # Empty branch - placeholder branches reserved for future implementation
+        - -ST1003   # Package naming - some packages use underscores for clarity
+        - -QF1001   # De Morgan's law - readability preference
+        - -QF1003   # Tagged switch - style preference
+        - -QF1008   # Embedded field selector - intentional for clarity
+    unparam:
+      check-exported: false
+    usestdlibvars:
+      http-method: true
+      http-status-code: true
+      time-weekday: true
+      time-month: true
+      time-layout: true
+      crypto-hash: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      # Test files - relax various linters
+      - linters:
+          - bodyclose
+          - dupl
+          - errcheck
+          - errchkjson
+          - goconst
+          - gocyclo
+          - gosec
+          - staticcheck
+        path: _test\.go
+      # Test helpers
+      - linters:
+          - deadcode
+          - unused
+        path: test_helpers\.go
+      # Large collector files - relax complexity until Phase 4 refactoring
+      - linters:
+          - funlen
+          - gocognit
+          - gocyclo
+          - lll
+        path: internal/collector/(anomaly_detection_streaming|bottleneck_analyzer|live_job_monitor|job_performance|resource_pool_monitor|trend_analyzer)\.go
+      # Collector package - common duplication patterns
+      - linters:
+          - dupl
+        path: ^internal/collector/
+      # Mock and test utilities
+      - linters:
+          - dupl
+        path: ^internal/testutil/
+      # Generated code markers
+      - linters:
+          - lll
+        source: '^//go:generate '
+      # Example code
+      - linters:
+          - dupl
+          - errcheck
+          - gosec
+          - ineffassign
+          - staticcheck
+          - unused
+        path: ^examples/
+      # Command line tools
+      - linters:
+          - dupl
+          - errcheck
+          - staticcheck
+          - unused
+        path: ^cmd/
+      # Benchmark code
+      - linters:
+          - bodyclose
+          - errcheck
+          - staticcheck
+        path: ^test/benchmark/
+      # Integration tests
+      - linters:
+          - bodyclose
+          - errcheck
+          - staticcheck
+        path: ^test/integration/
+      # Adapters with deprecated SLURM API usage
+      - linters:
+          - staticcheck
+        path: internal/slurm/
+        text: deprecated
+      # Context nil checks in tests
+      - linters:
+          - staticcheck
+        path: _test\.go
+        text: do not pass a nil Context
+    paths:
+      - .*\.pb\.go$
+      - .*\.gen\.go$
+      - vendor
+      - third_party
+      - testdata
+      - third_party$
+      - builtin$
+      - examples$
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+formatters:
+  # Formatters should only run with --fix, not during regular linting
+  # enable:
+  #   - gci
+  #   - gofmt
+  #   - gofumpt
+  #   - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - .*\.pb\.go$
+      - .*\.gen\.go$
+      - vendor
+      - third_party
+      - testdata
+      - third_party$
+      - builtin$
+      - examples$

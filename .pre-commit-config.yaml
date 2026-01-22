@@ -1,0 +1,44 @@
+repos:
+  - repo: local
+    hooks:
+      - id: golangci-lint-fast
+        name: golangci-lint (fast)
+        entry: make lint-fast
+        language: system
+        types: [go]
+        pass_filenames: false
+
+      - id: go-fmt
+        name: go fmt
+        entry: gofmt -w
+        language: system
+        types: [go]
+
+      - id: go-mod-tidy
+        name: go mod tidy
+        entry: bash -c 'go mod tidy && git diff --exit-code go.mod go.sum'
+        language: system
+        pass_filenames: false
+        files: ^go\.(mod|sum)$
+
+      - id: spdx-check
+        name: SPDX License Headers
+        entry: bash -c 'scripts/check-spdx-headers.sh'
+        language: system
+        types: [go]
+        pass_filenames: false
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: (\.md$|\.patch$|\.diff$)
+      - id: end-of-file-fixer
+        exclude: (\.md$|\.svg$)
+      - id: check-yaml
+        args: ['--unsafe']  # Allow custom YAML tags
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: ['--fix=lf']

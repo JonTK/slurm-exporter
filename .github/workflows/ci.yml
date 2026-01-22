@@ -32,12 +32,12 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v6
       with:
         go-version: ${{ matrix.go-version }}
         cache: true
@@ -74,19 +74,22 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v6
       with:
         go-version: ${{ env.GO_VERSION_STABLE }}
         cache: true
 
     - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v6
+      uses: golangci/golangci-lint-action@v9
       with:
         version: latest
-        args: --timeout=10m
+        args: --timeout=10m --max-issues-per-linter=0 --max-same-issues=0
+      env:
+        # Increase buffer size to handle large linter output
+        NODE_OPTIONS: --max-old-space-size=8192
 
   staticcheck:
     name: Static Analysis
@@ -94,10 +97,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v6
       with:
         go-version: ${{ env.GO_VERSION_STABLE }}
         cache: true
@@ -114,10 +117,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v6
       with:
         go-version: ${{ env.GO_VERSION_STABLE }}
         cache: true
@@ -144,10 +147,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v6
       with:
         go-version: ${{ env.GO_VERSION_STABLE }}
         cache: true
@@ -165,6 +168,42 @@ jobs:
     - name: Verify dependencies
       run: go mod verify
 
+  license-check:
+    name: License Check
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Check SPDX headers
+      run: |
+        # Check that all Go files have SPDX headers (except generated files)
+        missing_headers=0
+        while IFS= read -r file; do
+          # Skip generated files
+          if grep -q "Code generated" "$file" 2>/dev/null; then
+            continue
+          fi
+          # Skip test fixtures and mock data
+          if [[ "$file" =~ /testdata/ ]] || [[ "$file" =~ /fixtures/ ]]; then
+            continue
+          fi
+          # Check for SPDX license identifier
+          if ! grep -q "SPDX-License-Identifier: Apache-2.0" "$file"; then
+            echo "❌ Missing SPDX header: $file"
+            missing_headers=$((missing_headers + 1))
+          fi
+        done < <(find . -name "*.go" -type f -not -path "./vendor/*" -not -path "./.git/*")
+
+        if [ $missing_headers -gt 0 ]; then
+          echo ""
+          echo "Found $missing_headers files missing SPDX headers"
+          echo "Run 'scripts/check-spdx-headers.sh' for detailed check"
+          exit 1
+        fi
+        echo "✅ All files have proper SPDX headers"
+
   integration:
     name: Integration Tests
     runs-on: ubuntu-latest
@@ -172,10 +211,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v6
       with:
         go-version: ${{ env.GO_VERSION_STABLE }}
         cache: true
@@ -195,10 +234,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v6
       with:
         go-version: ${{ env.GO_VERSION_STABLE }}
         cache: true
@@ -220,7 +259,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -239,7 +278,7 @@ jobs:
 
   all-checks-passed:
     name: All Checks Passed
-    needs: [test, lint, staticcheck, build, module-check]
+    needs: [test, lint, staticcheck, build, module-check, license-check]
     runs-on: ubuntu-latest
     if: always()
 
@@ -252,12 +291,14 @@ jobs:
         echo "  staticcheck: ${{ needs.staticcheck.result }}"
         echo "  build: ${{ needs.build.result }}"
         echo "  module-check: ${{ needs.module-check.result }}"
+        echo "  license-check: ${{ needs.license-check.result }}"
 
         if [ "${{ needs.test.result }}" == "failure" ] || \
            [ "${{ needs.lint.result }}" == "failure" ] || \
            [ "${{ needs.staticcheck.result }}" == "failure" ] || \
            [ "${{ needs.build.result }}" == "failure" ] || \
-           [ "${{ needs.module-check.result }}" == "failure" ]; then
+           [ "${{ needs.module-check.result }}" == "failure" ] || \
+           [ "${{ needs.license-check.result }}" == "failure" ]; then
           echo "One or more checks failed"
           exit 1
         fi

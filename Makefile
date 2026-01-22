@@ -89,10 +89,20 @@ profile-all:
 	@echo "Running all profiling..."
 	./scripts/profile.sh -a
 
-# Lint the code
-lint: install-tools
-	@echo "Running linter..."
-	golangci-lint run
+# Lint the code with golangci-lint
+lint: install-linter
+	@echo "Running golangci-lint..."
+	golangci-lint run --timeout=10m
+
+# Run golangci-lint with auto-fix
+lint-fix: install-linter
+	@echo "Running golangci-lint with auto-fix..."
+	golangci-lint run --fix --timeout=10m
+
+# Run only fast linters (for pre-commit)
+lint-fast: install-linter
+	@echo "Running fast linters..."
+	golangci-lint run --fast --timeout=5m
 
 # Format the code
 fmt:
@@ -111,12 +121,25 @@ clean:
 	rm -f bin/$(BINARY_NAME)
 	rm -f coverage.out coverage.html
 
-# Install development tools
-install-tools:
-	@echo "Installing development tools..."
+# Install golangci-lint
+install-linter:
+	@echo "Checking for golangci-lint..."
 	@command -v golangci-lint >/dev/null 2>&1 || { \
 		echo "Installing golangci-lint..."; \
-		go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest; \
+		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | \
+		sh -s -- -b $$(go env GOPATH)/bin latest; \
+	}
+
+# Install development tools
+install-tools: install-linter
+	@echo "Installing development tools..."
+	@command -v mockgen >/dev/null 2>&1 || { \
+		echo "Installing mockgen..."; \
+		go install go.uber.org/mock/mockgen@latest; \
+	}
+	@command -v gosec >/dev/null 2>&1 || { \
+		echo "Installing gosec..."; \
+		go install github.com/securego/gosec/v2/cmd/gosec@latest; \
 	}
 
 # Tidy up dependencies
@@ -328,7 +351,9 @@ help:
 	@echo "  bench-performance - Run performance benchmarks"
 	@echo ""
 	@echo "Quality targets:"
-	@echo "  lint            - Run linter"
+	@echo "  lint            - Run golangci-lint (10m timeout)"
+	@echo "  lint-fix        - Run golangci-lint with auto-fix"
+	@echo "  lint-fast       - Run fast linters (for pre-commit, 5m timeout)"
 	@echo "  fmt             - Format code"
 	@echo "  vet             - Run go vet"
 	@echo "  security        - Run security audit"
@@ -368,7 +393,8 @@ help:
 	@echo "Utility targets:"
 	@echo "  run             - Run the application"
 	@echo "  install         - Install the binary locally"
-	@echo "  install-tools   - Install development tools"
+	@echo "  install-tools   - Install all development tools"
+	@echo "  install-linter  - Install golangci-lint"
 	@echo "  mocks           - Generate mock files"
 	@echo "  tidy            - Tidy up dependencies"
 	@echo "  update          - Update dependencies"
