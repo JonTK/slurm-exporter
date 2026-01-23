@@ -725,116 +725,115 @@ func (s *Server) handleDebugPerformance(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Cache-Control", "no-cache")
 
-	// Calculate aggregated statistics
-	summary := map[string]interface{}{
-		"total_collectors": len(perfStats),
-		"total_collections": func() int64 {
-			var total int64
-			for _, stats := range perfStats {
-				total += stats.CollectionCount
-			}
-			return total
-		}(),
-		"total_errors": func() int64 {
-			var total int64
-			for _, stats := range perfStats {
-				total += stats.ErrorCount
-			}
-			return total
-		}(),
-		"total_metrics": func() int64 {
-			var total int64
-			for _, stats := range perfStats {
-				total += stats.TotalMetrics
-			}
-			return total
-		}(),
-		"collectors_with_errors": func() int {
-			count := 0
-			for _, stats := range perfStats {
-				if stats.ErrorCount > 0 {
-					count++
-				}
-			}
-			return count
-		}(),
-		"collectors_with_sla_violations": func() int {
-			count := 0
-			for _, stats := range perfStats {
-				if stats.SLAViolations > 0 {
-					count++
-				}
-			}
-			return count
-		}(),
-	}
-
-	// Format detailed statistics for each collector
-	collectorDetails := make(map[string]interface{})
-	for name, stats := range perfStats {
-		avgDuration := time.Duration(0)
-		if stats.CollectionCount > 0 {
-			avgDuration = stats.TotalDuration / time.Duration(stats.CollectionCount)
-		}
-
-		successRate := float64(0)
-		if stats.CollectionCount > 0 {
-			successRate = float64(stats.SuccessCount) / float64(stats.CollectionCount) * 100
-		}
-
-		avgMetrics := int64(0)
-		if stats.SuccessCount > 0 {
-			avgMetrics = stats.TotalMetrics / stats.SuccessCount
-		}
-
-		collectorDetails[name] = map[string]interface{}{
-			"collection_count":   stats.CollectionCount,
-			"success_count":      stats.SuccessCount,
-			"error_count":        stats.ErrorCount,
-			"success_rate":       fmt.Sprintf("%.2f%%", successRate),
-			"consecutive_errors": stats.ConsecutiveErrors,
-			"last_error": func() interface{} {
-				if stats.LastError != nil {
-					return map[string]interface{}{
-						"message": stats.LastError.Error(),
-						"time":    stats.LastErrorTime,
-					}
-				}
-				return nil
-			}(),
-			"timing": map[string]interface{}{
-				"last_duration": stats.LastDuration.String(),
-				"avg_duration":  avgDuration.String(),
-				"min_duration":  stats.MinDuration.String(),
-				"max_duration":  stats.MaxDuration.String(),
-			},
-			"metrics": map[string]interface{}{
-				"total_metrics": stats.TotalMetrics,
-				"last_count":    stats.LastMetricCount,
-				"avg_count":     avgMetrics,
-				"max_count":     stats.MaxMetricCount,
-			},
-			"resources": map[string]interface{}{
-				"last_memory_bytes": stats.LastMemoryUsage,
-				"max_memory_bytes":  stats.MaxMemoryUsage,
-				"goroutines":        stats.GoroutineCount,
-			},
-			"sla": map[string]interface{}{
-				"violations":          stats.SLAViolations,
-				"last_violation_time": stats.LastSLAViolation,
-			},
-			"last_success_time": stats.LastSuccessTime,
-		}
-	}
-
-	debugInfo := map[string]interface{}{
-		"summary":    summary,
-		"collectors": collectorDetails,
-		"timestamp":  time.Now(),
-	}
+	debugInfo := s.buildDebugPerformanceResponse(perfStats)
 
 	if err := json.NewEncoder(w).Encode(debugInfo); err != nil {
 		logger.WithError(err).Error("Failed to encode debug performance response")
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
+}
+
+// buildDebugPerformanceResponse constructs the debug performance response from collector stats
+func (s *Server) buildDebugPerformanceResponse(perfStats map[string]*collector.CollectorPerformanceStats) map[string]interface{} {
+	return map[string]interface{}{
+		"summary":    s.buildPerfSummary(perfStats),
+		"collectors": s.buildCollectorDetails(perfStats),
+		"timestamp":  time.Now(),
+	}
+}
+
+// buildPerfSummary calculates aggregated performance statistics
+func (s *Server) buildPerfSummary(perfStats map[string]*collector.CollectorPerformanceStats) map[string]interface{} {
+	var totalCollections, totalErrors, totalMetrics int64
+	var collectorsWithErrors, collectorsWithSLAViolations int
+
+	for _, stats := range perfStats {
+		totalCollections += stats.CollectionCount
+		totalErrors += stats.ErrorCount
+		totalMetrics += stats.TotalMetrics
+		if stats.ErrorCount > 0 {
+			collectorsWithErrors++
+		}
+		if stats.SLAViolations > 0 {
+			collectorsWithSLAViolations++
+		}
+	}
+
+	return map[string]interface{}{
+		"total_collectors":               len(perfStats),
+		"total_collections":              totalCollections,
+		"total_errors":                   totalErrors,
+		"total_metrics":                  totalMetrics,
+		"collectors_with_errors":         collectorsWithErrors,
+		"collectors_with_sla_violations": collectorsWithSLAViolations,
+	}
+}
+
+// buildCollectorDetails formats detailed statistics for each collector
+func (s *Server) buildCollectorDetails(perfStats map[string]*collector.CollectorPerformanceStats) map[string]interface{} {
+	collectorDetails := make(map[string]interface{})
+	for name, stats := range perfStats {
+		collectorDetails[name] = s.buildCollectorDetail(stats)
+	}
+	return collectorDetails
+}
+
+// buildCollectorDetail formats statistics for a single collector
+func (s *Server) buildCollectorDetail(stats *collector.CollectorPerformanceStats) map[string]interface{} {
+	avgDuration := time.Duration(0)
+	if stats.CollectionCount > 0 {
+		avgDuration = stats.TotalDuration / time.Duration(stats.CollectionCount)
+	}
+
+	successRate := float64(0)
+	if stats.CollectionCount > 0 {
+		successRate = float64(stats.SuccessCount) / float64(stats.CollectionCount) * 100
+	}
+
+	avgMetrics := int64(0)
+	if stats.SuccessCount > 0 {
+		avgMetrics = stats.TotalMetrics / stats.SuccessCount
+	}
+
+	return map[string]interface{}{
+		"collection_count":   stats.CollectionCount,
+		"success_count":      stats.SuccessCount,
+		"error_count":        stats.ErrorCount,
+		"success_rate":       fmt.Sprintf("%.2f%%", successRate),
+		"consecutive_errors": stats.ConsecutiveErrors,
+		"last_error":         s.buildLastErrorInfo(stats),
+		"timing": map[string]interface{}{
+			"last_duration": stats.LastDuration.String(),
+			"avg_duration":  avgDuration.String(),
+			"min_duration":  stats.MinDuration.String(),
+			"max_duration":  stats.MaxDuration.String(),
+		},
+		"metrics": map[string]interface{}{
+			"total_metrics": stats.TotalMetrics,
+			"last_count":    stats.LastMetricCount,
+			"avg_count":     avgMetrics,
+			"max_count":     stats.MaxMetricCount,
+		},
+		"resources": map[string]interface{}{
+			"last_memory_bytes": stats.LastMemoryUsage,
+			"max_memory_bytes":  stats.MaxMemoryUsage,
+			"goroutines":        stats.GoroutineCount,
+		},
+		"sla": map[string]interface{}{
+			"violations":          stats.SLAViolations,
+			"last_violation_time": stats.LastSLAViolation,
+		},
+		"last_success_time": stats.LastSuccessTime,
+	}
+}
+
+// buildLastErrorInfo formats the last error information
+func (s *Server) buildLastErrorInfo(stats *collector.CollectorPerformanceStats) interface{} {
+	if stats.LastError != nil {
+		return map[string]interface{}{
+			"message": stats.LastError.Error(),
+			"time":    stats.LastErrorTime,
+		}
+	}
+	return nil
 }
