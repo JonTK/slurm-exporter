@@ -322,6 +322,16 @@ func (dg *DocumentationGenerator) GenerateHelmChart() error {
 	chartDir := filepath.Join(dg.outputDir, "helm-chart", "slurm-exporter")
 
 	// Create chart directory structure
+	if err := dg.createHelmDirectories(chartDir); err != nil {
+		return err
+	}
+
+	// Write chart files
+	return dg.writeHelmFiles(chartDir)
+}
+
+// createHelmDirectories creates the Helm chart directory structure
+func (dg *DocumentationGenerator) createHelmDirectories(chartDir string) error {
 	dirs := []string{
 		chartDir,
 		filepath.Join(chartDir, "templates"),
@@ -334,8 +344,28 @@ func (dg *DocumentationGenerator) GenerateHelmChart() error {
 		}
 	}
 
-	// Chart.yaml
-	chartYaml := `apiVersion: v2
+	return nil
+}
+
+// writeHelmFiles writes the Chart.yaml and values.yaml files
+func (dg *DocumentationGenerator) writeHelmFiles(chartDir string) error {
+	files := map[string]string{
+		filepath.Join(chartDir, "Chart.yaml"):  helmChartYaml,
+		filepath.Join(chartDir, "values.yaml"): helmValuesYaml,
+	}
+
+	for path, content := range files {
+		//nolint:gosec // Helm chart files need to be world-readable for deployment tools
+		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+			return fmt.Errorf("failed to write %s: %w", path, err)
+		}
+	}
+
+	return nil
+}
+
+// helmChartYaml is the Chart.yaml template for the Helm chart
+const helmChartYaml = `apiVersion: v2
 name: slurm-exporter
 description: A Helm chart for SLURM Prometheus Exporter
 type: application
@@ -354,8 +384,8 @@ maintainers:
     email: support@example.com
 `
 
-	// values.yaml
-	valuesYaml := `# Default values for slurm-exporter
+// helmValuesYaml is the values.yaml template for the Helm chart
+const helmValuesYaml = `# Default values for slurm-exporter
 replicaCount: 1
 
 image:
@@ -449,21 +479,6 @@ serviceMonitor:
   interval: 30s
   scrapeTimeout: 10s
 `
-
-	files := map[string]string{
-		filepath.Join(chartDir, "Chart.yaml"):  chartYaml,
-		filepath.Join(chartDir, "values.yaml"): valuesYaml,
-	}
-
-	for path, content := range files {
-		//nolint:gosec // Helm chart files need to be world-readable for deployment tools
-		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
-			return fmt.Errorf("failed to write %s: %w", path, err)
-		}
-	}
-
-	return nil
-}
 
 // GenerateMetricsHTML creates an HTML metrics browser
 func (dg *DocumentationGenerator) GenerateMetricsHTML() string {
