@@ -103,6 +103,26 @@ func (jc *JobCollector) collectJobMetrics(ctx context.Context, ch chan<- prometh
 	return nil
 }
 
+// sendJobMetric sends a job metric with standard labels (cluster, jobID, user, account, partition)
+func (jc *JobCollector) sendJobMetric(ch chan<- prometheus.Metric, metricVec *prometheus.GaugeVec, value float64, jobID, user, account, partition string) {
+	jc.SendMetric(ch, jc.BuildMetric(
+		metricVec.WithLabelValues(jc.clusterName, jobID, user, account, partition).Desc(),
+		prometheus.GaugeValue,
+		value,
+		jc.clusterName, jobID, user, account, partition,
+	))
+}
+
+// sendJobInfoMetric sends the job info metric with state label
+func (jc *JobCollector) sendJobInfoMetric(ch chan<- prometheus.Metric, jobID, jobName, user, account, partition, state string) {
+	jc.SendMetric(ch, jc.BuildMetric(
+		jc.metrics.JobInfo.WithLabelValues(jc.clusterName, jobID, jobName, user, account, partition, state).Desc(),
+		prometheus.GaugeValue,
+		1,
+		jc.clusterName, jobID, jobName, user, account, partition, state,
+	))
+}
+
 // collectActiveJobs collects metrics for individual active jobs
 func (jc *JobCollector) collectActiveJobs(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Simulate active job data - in real implementation this would come from SLURM API
@@ -189,203 +209,29 @@ func (jc *JobCollector) collectActiveJobs(ctx context.Context, ch chan<- prometh
 		normalizedState := jc.parseJobState(job.State)
 
 		// Job info metric
-		jc.SendMetric(ch, jc.BuildMetric(
-			jc.metrics.JobInfo.WithLabelValues(
-				jc.clusterName,
-				job.JobID,
-				job.JobName,
-				job.User,
-				job.Account,
-				job.Partition,
-				normalizedState,
-			).Desc(),
-			prometheus.GaugeValue,
-			1,
-			jc.clusterName,
-			job.JobID,
-			job.JobName,
-			job.User,
-			job.Account,
-			job.Partition,
-			normalizedState,
-		))
+		jc.sendJobInfoMetric(ch, job.JobID, job.JobName, job.User, job.Account, job.Partition, normalizedState)
 
 		// Resource request metrics
-		jc.SendMetric(ch, jc.BuildMetric(
-			jc.metrics.JobCPURequested.WithLabelValues(
-				jc.clusterName,
-				job.JobID,
-				job.User,
-				job.Account,
-				job.Partition,
-			).Desc(),
-			prometheus.GaugeValue,
-			float64(job.CPUsRequested),
-			jc.clusterName,
-			job.JobID,
-			job.User,
-			job.Account,
-			job.Partition,
-		))
+		jc.sendJobMetric(ch, jc.metrics.JobCPURequested, float64(job.CPUsRequested), job.JobID, job.User, job.Account, job.Partition)
+		jc.sendJobMetric(ch, jc.metrics.JobMemoryRequested, float64(job.MemoryRequested), job.JobID, job.User, job.Account, job.Partition)
+		jc.sendJobMetric(ch, jc.metrics.JobNodesRequested, float64(job.NodesRequested), job.JobID, job.User, job.Account, job.Partition)
 
-		jc.SendMetric(ch, jc.BuildMetric(
-			jc.metrics.JobMemoryRequested.WithLabelValues(
-				jc.clusterName,
-				job.JobID,
-				job.User,
-				job.Account,
-				job.Partition,
-			).Desc(),
-			prometheus.GaugeValue,
-			float64(job.MemoryRequested),
-			jc.clusterName,
-			job.JobID,
-			job.User,
-			job.Account,
-			job.Partition,
-		))
-
-		jc.SendMetric(ch, jc.BuildMetric(
-			jc.metrics.JobNodesRequested.WithLabelValues(
-				jc.clusterName,
-				job.JobID,
-				job.User,
-				job.Account,
-				job.Partition,
-			).Desc(),
-			prometheus.GaugeValue,
-			float64(job.NodesRequested),
-			jc.clusterName,
-			job.JobID,
-			job.User,
-			job.Account,
-			job.Partition,
-		))
-
-		// Resource allocation metrics (if allocated)
-		jc.SendMetric(ch, jc.BuildMetric(
-			jc.metrics.JobCPUAllocated.WithLabelValues(
-				jc.clusterName,
-				job.JobID,
-				job.User,
-				job.Account,
-				job.Partition,
-			).Desc(),
-			prometheus.GaugeValue,
-			float64(job.CPUsAllocated),
-			jc.clusterName,
-			job.JobID,
-			job.User,
-			job.Account,
-			job.Partition,
-		))
-
-		jc.SendMetric(ch, jc.BuildMetric(
-			jc.metrics.JobMemoryAllocated.WithLabelValues(
-				jc.clusterName,
-				job.JobID,
-				job.User,
-				job.Account,
-				job.Partition,
-			).Desc(),
-			prometheus.GaugeValue,
-			float64(job.MemoryAllocated),
-			jc.clusterName,
-			job.JobID,
-			job.User,
-			job.Account,
-			job.Partition,
-		))
-
-		jc.SendMetric(ch, jc.BuildMetric(
-			jc.metrics.JobNodesAllocated.WithLabelValues(
-				jc.clusterName,
-				job.JobID,
-				job.User,
-				job.Account,
-				job.Partition,
-			).Desc(),
-			prometheus.GaugeValue,
-			float64(job.NodesAllocated),
-			jc.clusterName,
-			job.JobID,
-			job.User,
-			job.Account,
-			job.Partition,
-		))
+		// Resource allocation metrics
+		jc.sendJobMetric(ch, jc.metrics.JobCPUAllocated, float64(job.CPUsAllocated), job.JobID, job.User, job.Account, job.Partition)
+		jc.sendJobMetric(ch, jc.metrics.JobMemoryAllocated, float64(job.MemoryAllocated), job.JobID, job.User, job.Account, job.Partition)
+		jc.sendJobMetric(ch, jc.metrics.JobNodesAllocated, float64(job.NodesAllocated), job.JobID, job.User, job.Account, job.Partition)
 
 		// Priority metric
-		jc.SendMetric(ch, jc.BuildMetric(
-			jc.metrics.JobPriority.WithLabelValues(
-				jc.clusterName,
-				job.JobID,
-				job.User,
-				job.Account,
-				job.Partition,
-			).Desc(),
-			prometheus.GaugeValue,
-			float64(job.Priority),
-			jc.clusterName,
-			job.JobID,
-			job.User,
-			job.Account,
-			job.Partition,
-		))
+		jc.sendJobMetric(ch, jc.metrics.JobPriority, float64(job.Priority), job.JobID, job.User, job.Account, job.Partition)
 
 		// Timing metrics
 		if job.StartTime > 0 {
-			jc.SendMetric(ch, jc.BuildMetric(
-				jc.metrics.JobStartTime.WithLabelValues(
-					jc.clusterName,
-					job.JobID,
-					job.User,
-					job.Account,
-					job.Partition,
-				).Desc(),
-				prometheus.GaugeValue,
-				float64(job.StartTime),
-				jc.clusterName,
-				job.JobID,
-				job.User,
-				job.Account,
-				job.Partition,
-			))
+			jc.sendJobMetric(ch, jc.metrics.JobStartTime, float64(job.StartTime), job.JobID, job.User, job.Account, job.Partition)
 		}
 
 		if job.EndTime > 0 {
-			jc.SendMetric(ch, jc.BuildMetric(
-				jc.metrics.JobEndTime.WithLabelValues(
-					jc.clusterName,
-					job.JobID,
-					job.User,
-					job.Account,
-					job.Partition,
-				).Desc(),
-				prometheus.GaugeValue,
-				float64(job.EndTime),
-				jc.clusterName,
-				job.JobID,
-				job.User,
-				job.Account,
-				job.Partition,
-			))
-
-			jc.SendMetric(ch, jc.BuildMetric(
-				jc.metrics.JobExitCode.WithLabelValues(
-					jc.clusterName,
-					job.JobID,
-					job.User,
-					job.Account,
-					job.Partition,
-				).Desc(),
-				prometheus.GaugeValue,
-				float64(job.ExitCode),
-				jc.clusterName,
-				job.JobID,
-				job.User,
-				job.Account,
-				job.Partition,
-			))
+			jc.sendJobMetric(ch, jc.metrics.JobEndTime, float64(job.EndTime), job.JobID, job.User, job.Account, job.Partition)
+			jc.sendJobMetric(ch, jc.metrics.JobExitCode, float64(job.ExitCode), job.JobID, job.User, job.Account, job.Partition)
 		}
 	}
 
