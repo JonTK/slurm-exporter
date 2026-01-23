@@ -102,20 +102,106 @@ func (pc *PartitionCollector) collectPartitionMetrics(ctx context.Context, ch ch
 
 // collectPartitionInfo collects basic partition information and configuration
 func (pc *PartitionCollector) collectPartitionInfo(ctx context.Context, ch chan<- prometheus.Metric) error {
-	// Simulate partition information - in real implementation this would come from SLURM API
-	// This represents what we might get from /slurm/v1/partitions
-	partitions := []struct {
-		Name        string
-		State       string
-		TotalNodes  int
-		TotalCPUs   int
-		TotalMemory int64 // bytes
-		AllowGroups string
-		AllowUsers  string
-		Default     bool
-		Hidden      bool
-		RootOnly    bool
-	}{
+	partitions := getTestPartitions()
+
+	for _, partition := range partitions {
+		pc.sendPartitionInfoMetric(ch, partition)
+		pc.sendPartitionResourceMetrics(ch, partition)
+		pc.sendPartitionStateMetrics(ch, partition)
+	}
+
+	pc.LogCollectionf("Collected info for %d partitions", len(partitions))
+	return nil
+}
+
+// partitionInfo holds partition information for metric collection
+type partitionInfo struct {
+	Name        string
+	State       string
+	TotalNodes  int
+	TotalCPUs   int
+	TotalMemory int64 // bytes
+	AllowGroups string
+	AllowUsers  string
+	Default     bool
+	Hidden      bool
+	RootOnly    bool
+}
+
+// sendPartitionInfoMetric sends the partition info metric with all labels
+func (pc *PartitionCollector) sendPartitionInfoMetric(ch chan<- prometheus.Metric, partition partitionInfo) {
+	pc.SendMetric(ch, pc.BuildMetric(
+		pc.metrics.PartitionInfo.WithLabelValues(
+			pc.clusterName,
+			partition.Name,
+			partition.State,
+			partition.AllowGroups,
+			partition.AllowUsers,
+		).Desc(),
+		prometheus.GaugeValue,
+		1,
+		pc.clusterName,
+		partition.Name,
+		partition.State,
+		partition.AllowGroups,
+		partition.AllowUsers,
+	))
+}
+
+// sendPartitionResourceMetrics sends node, CPU, and memory metrics
+func (pc *PartitionCollector) sendPartitionResourceMetrics(ch chan<- prometheus.Metric, partition partitionInfo) {
+	// Partition nodes
+	pc.SendMetric(ch, pc.BuildMetric(
+		pc.metrics.PartitionNodes.WithLabelValues(pc.clusterName, partition.Name).Desc(),
+		prometheus.GaugeValue,
+		float64(partition.TotalNodes),
+		pc.clusterName,
+		partition.Name,
+	))
+
+	// Partition CPUs
+	pc.SendMetric(ch, pc.BuildMetric(
+		pc.metrics.PartitionCPUs.WithLabelValues(pc.clusterName, partition.Name).Desc(),
+		prometheus.GaugeValue,
+		float64(partition.TotalCPUs),
+		pc.clusterName,
+		partition.Name,
+	))
+
+	// Partition memory
+	pc.SendMetric(ch, pc.BuildMetric(
+		pc.metrics.PartitionMemory.WithLabelValues(pc.clusterName, partition.Name).Desc(),
+		prometheus.GaugeValue,
+		float64(partition.TotalMemory),
+		pc.clusterName,
+		partition.Name,
+	))
+}
+
+// sendPartitionStateMetrics sends binary state metrics for all possible states
+func (pc *PartitionCollector) sendPartitionStateMetrics(ch chan<- prometheus.Metric, partition partitionInfo) {
+	states := []string{"UP", "DOWN", "DRAIN", "INACTIVE"}
+	for _, state := range states {
+		value := float64(0)
+		if partition.State == state {
+			value = 1
+		}
+
+		pc.SendMetric(ch, pc.BuildMetric(
+			pc.metrics.PartitionState.WithLabelValues(pc.clusterName, partition.Name, state).Desc(),
+			prometheus.GaugeValue,
+			value,
+			pc.clusterName,
+			partition.Name,
+			state,
+		))
+	}
+}
+
+// getTestPartitions returns test data for partition information
+// In real implementation this would come from SLURM API
+func getTestPartitions() []partitionInfo {
+	return []partitionInfo{
 		{
 			Name:        "compute",
 			State:       "UP",
@@ -177,74 +263,6 @@ func (pc *PartitionCollector) collectPartitionInfo(ctx context.Context, ch chan<
 			RootOnly:    true,
 		},
 	}
-
-	for _, partition := range partitions {
-		// Partition info metric
-		pc.SendMetric(ch, pc.BuildMetric(
-			pc.metrics.PartitionInfo.WithLabelValues(
-				pc.clusterName,
-				partition.Name,
-				partition.State,
-				partition.AllowGroups,
-				partition.AllowUsers,
-			).Desc(),
-			prometheus.GaugeValue,
-			1,
-			pc.clusterName,
-			partition.Name,
-			partition.State,
-			partition.AllowGroups,
-			partition.AllowUsers,
-		))
-
-		// Partition nodes
-		pc.SendMetric(ch, pc.BuildMetric(
-			pc.metrics.PartitionNodes.WithLabelValues(pc.clusterName, partition.Name).Desc(),
-			prometheus.GaugeValue,
-			float64(partition.TotalNodes),
-			pc.clusterName,
-			partition.Name,
-		))
-
-		// Partition CPUs
-		pc.SendMetric(ch, pc.BuildMetric(
-			pc.metrics.PartitionCPUs.WithLabelValues(pc.clusterName, partition.Name).Desc(),
-			prometheus.GaugeValue,
-			float64(partition.TotalCPUs),
-			pc.clusterName,
-			partition.Name,
-		))
-
-		// Partition memory
-		pc.SendMetric(ch, pc.BuildMetric(
-			pc.metrics.PartitionMemory.WithLabelValues(pc.clusterName, partition.Name).Desc(),
-			prometheus.GaugeValue,
-			float64(partition.TotalMemory),
-			pc.clusterName,
-			partition.Name,
-		))
-
-		// Partition state - convert to binary metrics for different states
-		states := []string{"UP", "DOWN", "DRAIN", "INACTIVE"}
-		for _, state := range states {
-			value := float64(0)
-			if partition.State == state {
-				value = 1
-			}
-
-			pc.SendMetric(ch, pc.BuildMetric(
-				pc.metrics.PartitionState.WithLabelValues(pc.clusterName, partition.Name, state).Desc(),
-				prometheus.GaugeValue,
-				value,
-				pc.clusterName,
-				partition.Name,
-				state,
-			))
-		}
-	}
-
-	pc.LogCollectionf("Collected info for %d partitions", len(partitions))
-	return nil
 }
 
 // collectPartitionUtilization collects partition resource utilization
