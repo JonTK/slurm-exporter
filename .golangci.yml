@@ -65,11 +65,8 @@ linters:
     goconst:
       min-len: 3                # Minimum length of string constant
       min-occurrences: 5        # Start high to reduce noise, will lower in Phase 4
-      ignore-tests: true        # Ignore test files for now
       match-constant: true      # Match constants
       numbers: false            # Don't check numbers (too noisy)
-      min: 3
-      max: 3
     godox:
       keywords:                 # Track these keywords
         - TODO
