@@ -204,25 +204,123 @@ func (uc *UserCollector) collectUserStats(ctx context.Context, ch chan<- prometh
 
 // collectAccountStats collects account-level information and usage
 func (uc *UserCollector) collectAccountStats(ctx context.Context, ch chan<- prometheus.Metric) error {
-	// Simulate account information and usage - in real implementation this would come from SLURM API
-	// This represents data from account associations and usage tracking
-	accountStats := []struct {
-		AccountName          string
-		Organization         string
-		Description          string
-		ParentAccount        string
-		Priority             int
-		MaxJobs              int
-		MaxCPUs              int
-		MaxMemory            int64 // bytes
-		TotalJobCount        int
-		TotalCPUAllocated    int
-		TotalMemoryAllocated int64 // bytes
-		FairShareScore       float64
-		RawUsage             float64 // CPU hours
-		NormalizedUsage      float64 // normalized units
-		EffectiveUsage       float64 // with fair-share applied
-	}{
+	accountStats := getTestAccountStats()
+
+	for _, account := range accountStats {
+		uc.sendAccountInfoMetric(ch, account)
+		uc.sendAccountResourceMetrics(ch, account)
+		uc.sendAccountFairShareMetric(ch, account)
+		uc.sendAccountUsageMetrics(ch, account)
+	}
+
+	uc.LogCollectionf("Collected statistics for %d accounts", len(accountStats))
+	return nil
+}
+
+// accountStat holds account statistics for metric collection
+type accountStat struct {
+	AccountName          string
+	Organization         string
+	Description          string
+	ParentAccount        string
+	Priority             int
+	MaxJobs              int
+	MaxCPUs              int
+	MaxMemory            int64 // bytes
+	TotalJobCount        int
+	TotalCPUAllocated    int
+	TotalMemoryAllocated int64 // bytes
+	FairShareScore       float64
+	RawUsage             float64 // CPU hours
+	NormalizedUsage      float64 // normalized units
+	EffectiveUsage       float64 // with fair-share applied
+}
+
+// sendAccountInfoMetric sends the account info metric with all labels
+func (uc *UserCollector) sendAccountInfoMetric(ch chan<- prometheus.Metric, account accountStat) {
+	uc.SendMetric(ch, uc.BuildMetric(
+		uc.metrics.AccountInfo.WithLabelValues(
+			uc.clusterName,
+			account.AccountName,
+			account.Organization,
+			account.Description,
+			account.ParentAccount,
+		).Desc(),
+		prometheus.GaugeValue,
+		1,
+		uc.clusterName,
+		account.AccountName,
+		account.Organization,
+		account.Description,
+		account.ParentAccount,
+	))
+}
+
+// sendAccountResourceMetrics sends job count, CPU, and memory allocation metrics
+func (uc *UserCollector) sendAccountResourceMetrics(ch chan<- prometheus.Metric, account accountStat) {
+	// Account job count
+	uc.SendMetric(ch, uc.BuildMetric(
+		uc.metrics.AccountJobCount.WithLabelValues(uc.clusterName, account.AccountName).Desc(),
+		prometheus.GaugeValue,
+		float64(account.TotalJobCount),
+		uc.clusterName,
+		account.AccountName,
+	))
+
+	// Account CPU allocation
+	uc.SendMetric(ch, uc.BuildMetric(
+		uc.metrics.AccountCPUAllocated.WithLabelValues(uc.clusterName, account.AccountName).Desc(),
+		prometheus.GaugeValue,
+		float64(account.TotalCPUAllocated),
+		uc.clusterName,
+		account.AccountName,
+	))
+
+	// Account memory allocation
+	uc.SendMetric(ch, uc.BuildMetric(
+		uc.metrics.AccountMemoryAllocated.WithLabelValues(uc.clusterName, account.AccountName).Desc(),
+		prometheus.GaugeValue,
+		float64(account.TotalMemoryAllocated),
+		uc.clusterName,
+		account.AccountName,
+	))
+}
+
+// sendAccountFairShareMetric sends the fair-share score metric
+func (uc *UserCollector) sendAccountFairShareMetric(ch chan<- prometheus.Metric, account accountStat) {
+	uc.SendMetric(ch, uc.BuildMetric(
+		uc.metrics.AccountFairShare.WithLabelValues(uc.clusterName, account.AccountName).Desc(),
+		prometheus.GaugeValue,
+		account.FairShareScore,
+		uc.clusterName,
+		account.AccountName,
+	))
+}
+
+// sendAccountUsageMetrics sends raw, normalized, and effective usage metrics
+func (uc *UserCollector) sendAccountUsageMetrics(ch chan<- prometheus.Metric, account accountStat) {
+	usageTypes := map[string]float64{
+		"raw":        account.RawUsage,
+		"normalized": account.NormalizedUsage,
+		"effective":  account.EffectiveUsage,
+	}
+
+	for usageType, usage := range usageTypes {
+		uc.SendMetric(ch, uc.BuildMetric(
+			uc.metrics.AccountUsage.WithLabelValues(uc.clusterName, account.AccountName, usageType).Desc(),
+			prometheus.GaugeValue,
+			usage,
+			uc.clusterName,
+			account.AccountName,
+			usageType,
+		))
+	}
+}
+
+// getTestAccountStats returns test data for account statistics
+// In real implementation this would come from SLURM API
+func getTestAccountStats() []accountStat {
+	return []accountStat{
 		{
 			AccountName:          "ml_team",
 			Organization:         "Computer Science",
@@ -292,83 +390,6 @@ func (uc *UserCollector) collectAccountStats(ctx context.Context, ch chan<- prom
 			EffectiveUsage:       0.48,
 		},
 	}
-
-	for _, account := range accountStats {
-		// Account info metric
-		uc.SendMetric(ch, uc.BuildMetric(
-			uc.metrics.AccountInfo.WithLabelValues(
-				uc.clusterName,
-				account.AccountName,
-				account.Organization,
-				account.Description,
-				account.ParentAccount,
-			).Desc(),
-			prometheus.GaugeValue,
-			1,
-			uc.clusterName,
-			account.AccountName,
-			account.Organization,
-			account.Description,
-			account.ParentAccount,
-		))
-
-		// Account job count
-		uc.SendMetric(ch, uc.BuildMetric(
-			uc.metrics.AccountJobCount.WithLabelValues(uc.clusterName, account.AccountName).Desc(),
-			prometheus.GaugeValue,
-			float64(account.TotalJobCount),
-			uc.clusterName,
-			account.AccountName,
-		))
-
-		// Account CPU allocation
-		uc.SendMetric(ch, uc.BuildMetric(
-			uc.metrics.AccountCPUAllocated.WithLabelValues(uc.clusterName, account.AccountName).Desc(),
-			prometheus.GaugeValue,
-			float64(account.TotalCPUAllocated),
-			uc.clusterName,
-			account.AccountName,
-		))
-
-		// Account memory allocation
-		uc.SendMetric(ch, uc.BuildMetric(
-			uc.metrics.AccountMemoryAllocated.WithLabelValues(uc.clusterName, account.AccountName).Desc(),
-			prometheus.GaugeValue,
-			float64(account.TotalMemoryAllocated),
-			uc.clusterName,
-			account.AccountName,
-		))
-
-		// Account fair-share score
-		uc.SendMetric(ch, uc.BuildMetric(
-			uc.metrics.AccountFairShare.WithLabelValues(uc.clusterName, account.AccountName).Desc(),
-			prometheus.GaugeValue,
-			account.FairShareScore,
-			uc.clusterName,
-			account.AccountName,
-		))
-
-		// Account usage metrics (different types)
-		usageTypes := map[string]float64{
-			"raw":        account.RawUsage,
-			"normalized": account.NormalizedUsage,
-			"effective":  account.EffectiveUsage,
-		}
-
-		for usageType, usage := range usageTypes {
-			uc.SendMetric(ch, uc.BuildMetric(
-				uc.metrics.AccountUsage.WithLabelValues(uc.clusterName, account.AccountName, usageType).Desc(),
-				prometheus.GaugeValue,
-				usage,
-				uc.clusterName,
-				account.AccountName,
-				usageType,
-			))
-		}
-	}
-
-	uc.LogCollectionf("Collected statistics for %d accounts", len(accountStats))
-	return nil
 }
 
 // AccountInfo represents account information structure
