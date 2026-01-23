@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2024 SLURM Exporter Contributors
+
 package mocks
 
 // Re-export the generated mocks with backward-compatible names
