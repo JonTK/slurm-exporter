@@ -118,6 +118,88 @@ func (c *AccountsSimpleCollector) Collect(ctx context.Context, ch chan<- prometh
 	return c.collect(ch)
 }
 
+// accountContext holds normalized account information
+type accountContext struct {
+	name            string
+	organization    string
+	description     string
+	parentAccount   string
+	defaultPartition string
+}
+
+// extractAccountContext extracts and normalizes account fields with safe defaults
+func extractAccountContext(account slurm.Account) accountContext {
+	ctx := accountContext{
+		name:             account.Name,
+		organization:     account.Organization,
+		description:      account.Description,
+		parentAccount:    account.ParentAccount,
+		defaultPartition: account.DefaultPartition,
+	}
+
+	// Apply safe defaults
+	if ctx.organization == "" {
+		ctx.organization = "default"
+	}
+	if ctx.description == "" {
+		ctx.description = "No description"
+	}
+	if ctx.parentAccount == "" {
+		ctx.parentAccount = "root"
+	}
+	if ctx.defaultPartition == "" {
+		ctx.defaultPartition = "default"
+	}
+
+	return ctx
+}
+
+// sendAccountInfoMetric sends the account info metric
+func (c *AccountsSimpleCollector) sendAccountInfoMetric(ch chan<- prometheus.Metric, ctx accountContext) {
+	ch <- prometheus.MustNewConstMetric(
+		c.accountInfo,
+		prometheus.GaugeValue,
+		1,
+		ctx.name, ctx.organization, ctx.description, ctx.parentAccount,
+	)
+}
+
+// sendAccountUserCountMetric sends the user count metric
+func (c *AccountsSimpleCollector) sendAccountUserCountMetric(ch chan<- prometheus.Metric, accountName string, userCount int) {
+	ch <- prometheus.MustNewConstMetric(
+		c.accountUsers,
+		prometheus.GaugeValue,
+		float64(userCount),
+		accountName,
+	)
+}
+
+// sendAccountLimitMetric sends a resource limit metric if the limit is greater than zero
+func (c *AccountsSimpleCollector) sendAccountLimitMetric(ch chan<- prometheus.Metric, desc *prometheus.Desc, limit int, accountName, partition string) {
+	if limit > 0 {
+		ch <- prometheus.MustNewConstMetric(
+			desc,
+			prometheus.GaugeValue,
+			float64(limit),
+			accountName, partition,
+		)
+	}
+}
+
+// sendAccountMemoryLimit sends memory limit metric from TRES if available
+func (c *AccountsSimpleCollector) sendAccountMemoryLimit(ch chan<- prometheus.Metric, account slurm.Account, partition string) {
+	if account.MaxTRES != nil {
+		if memLimit, ok := account.MaxTRES["mem"]; ok && memLimit > 0 {
+			ch <- prometheus.MustNewConstMetric(
+				c.accountMemoryLimit,
+				prometheus.GaugeValue,
+				float64(memLimit)*1024*1024, // Convert MB to bytes
+				account.Name, partition,
+			)
+		}
+	}
+}
+
 // collect gathers metrics from SLURM
 func (c *AccountsSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 	ctx := context.Background()
@@ -152,85 +234,22 @@ func (c *AccountsSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, account := range accountList.Accounts {
-		// Account info metric
-		organization := account.Organization
-		if organization == "" {
-			organization = "default"
-		}
+		// Extract normalized account context
+		accCtx := extractAccountContext(account)
 
-		description := account.Description
-		if description == "" {
-			description = "No description"
-		}
+		// Send account info metric
+		c.sendAccountInfoMetric(ch, accCtx)
 
-		parentAccount := account.ParentAccount
-		if parentAccount == "" {
-			parentAccount = "root"
-		}
+		// Send user count metric
+		c.sendAccountUserCountMetric(ch, account.Name, userCounts[account.Name])
 
-		ch <- prometheus.MustNewConstMetric(
-			c.accountInfo,
-			prometheus.GaugeValue,
-			1,
-			account.Name, organization, description, parentAccount,
-		)
+		// Send resource limit metrics
+		c.sendAccountLimitMetric(ch, c.accountCPULimit, account.CPULimit, account.Name, accCtx.defaultPartition)
+		c.sendAccountLimitMetric(ch, c.accountJobLimit, account.MaxJobs, account.Name, accCtx.defaultPartition)
+		c.sendAccountLimitMetric(ch, c.accountNodeLimit, account.MaxNodes, account.Name, accCtx.defaultPartition)
 
-		// Number of users in account
-		userCount := float64(userCounts[account.Name])
-		ch <- prometheus.MustNewConstMetric(
-			c.accountUsers,
-			prometheus.GaugeValue,
-			userCount,
-			account.Name,
-		)
-
-		// Resource limits (account-wide, not per partition)
-		defaultPartition := account.DefaultPartition
-		if defaultPartition == "" {
-			defaultPartition = "default"
-		}
-
-		// CPU limit
-		if account.CPULimit > 0 {
-			ch <- prometheus.MustNewConstMetric(
-				c.accountCPULimit,
-				prometheus.GaugeValue,
-				float64(account.CPULimit),
-				account.Name, defaultPartition,
-			)
-		}
-
-		// Job limit
-		if account.MaxJobs > 0 {
-			ch <- prometheus.MustNewConstMetric(
-				c.accountJobLimit,
-				prometheus.GaugeValue,
-				float64(account.MaxJobs),
-				account.Name, defaultPartition,
-			)
-		}
-
-		// Node limit
-		if account.MaxNodes > 0 {
-			ch <- prometheus.MustNewConstMetric(
-				c.accountNodeLimit,
-				prometheus.GaugeValue,
-				float64(account.MaxNodes),
-				account.Name, defaultPartition,
-			)
-		}
-
-		// Check TRES limits for memory
-		if account.MaxTRES != nil {
-			if memLimit, ok := account.MaxTRES["mem"]; ok && memLimit > 0 {
-				ch <- prometheus.MustNewConstMetric(
-					c.accountMemoryLimit,
-					prometheus.GaugeValue,
-					float64(memLimit)*1024*1024, // Convert MB to bytes
-					account.Name, defaultPartition,
-				)
-			}
-		}
+		// Send memory limit from TRES
+		c.sendAccountMemoryLimit(ch, account, accCtx.defaultPartition)
 	}
 
 	return nil
