@@ -218,22 +218,14 @@ linters:
           - funlen
         path: internal/config/config\.go
         text: 'Function .Default.'
-      # Complex collection methods requiring refactoring - tracked for Phase 5
-      - linters:
-          - funlen
-          - gocognit
-        path: internal/collector/job\.go
-        text: '(Function .collectActiveJobs|cognitive complexity.*collectActiveJobs)'
-      - linters:
-          - funlen
-        path: internal/collector/cluster_health_streaming\.go
-        text: 'Function .collectStreamingMetrics'
+      # job.collectActiveJobs and cluster_health_streaming.collectStreamingMetrics refactored in Phase 5
       # Phase 5: Remaining complexity after tightening thresholds
       # These are candidates for future refactoring but acceptable for now
       - linters:
           - funlen
         path: internal/collector/
-        text: 'Function .(collectStreamingMetrics|resetAllMetrics|collectAllMetrics|collectPartitionInfo|collectAccountStats|collectSecurityEvents|ReconfigureCollectors)'
+        text: 'Function .(collectStreamingMetrics|resetAllMetrics|collectAllMetrics|collectPartitionInfo|collectSecurityEvents|ReconfigureCollectors)'
+      # collectAccountStats refactored in Phase 5
       - linters:
           - funlen
         path: internal/server/
