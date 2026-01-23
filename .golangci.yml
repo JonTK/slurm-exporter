@@ -16,10 +16,8 @@ linters:
     - forbidigo
     - forcetypeassert
     - funcorder                 # Function ordering is developer's choice
-    - funlen                    # Will be enabled in Phase 4 after refactoring large files
     - gochecknoglobals
     - gochecknoinits
-    - gocognit                  # Will be enabled in Phase 4 after complexity reduction
     - gocritic
     - godoclint                 # Doc comment style (v2.8+ only)
     - godot
@@ -31,7 +29,6 @@ linters:
     - maintidx
     - mnd
     - modernize                 # Modernization suggestions (v2.8+ only) - not always appropriate
-    - nestif
     - nilerr
     - noinlineerr               # Inline error handling is idiomatic Go
     - nlreturn
@@ -124,7 +121,15 @@ linters:
         - performance
         - style
     gocyclo:
-      min-complexity: 75        # Start high, will reduce in Phase 4
+      min-complexity: 30        # Cyclomatic complexity (reduced from 75)
+    funlen:
+      lines: 150                # Maximum function length in lines (pragmatic starting point)
+      statements: 80            # Maximum function length in statements (pragmatic starting point)
+      ignore-comments: true     # Don't count comment lines
+    gocognit:
+      min-complexity: 40        # Cognitive complexity threshold (pragmatic starting point)
+    nestif:
+      min-complexity: 7         # Maximum nesting depth (will be reduced to 5 in Phase 5)
     gosec:
       excludes:
         - G104  # Duplicated errcheck
@@ -189,13 +194,78 @@ linters:
           - deadcode
           - unused
         path: test_helpers\.go
-      # Large collector files - relax complexity until Phase 4 refactoring
+      # Phase 4 Complexity Linters - Pragmatic exclusions for inherent patterns
+      # Constructor functions - inherently long due to metric initialization
+      - linters:
+          - funlen
+          - gocognit
+        text: 'Function .New\w+. (is too long|has cognitive complexity)'
+      # Metrics initialization functions - repetitive Prometheus desc creation
+      - linters:
+          - funlen
+        text: 'Function .new\w*[Mm]etrics. is too long'
+      # Prometheus Describe methods - inherently long, listing all metrics
+      - linters:
+          - funlen
+        text: 'Function .Describe. (is too long|has too many statements)'
+      # Prometheus Collect methods - inherently long, collecting many metrics
+      - linters:
+          - funlen
+        path: ^internal/collector/
+        text: 'Function .Collect. (is too long|has too many statements)'
+      # Configuration default initialization - repetitive field assignments
+      - linters:
+          - funlen
+        path: internal/config/config\.go
+        text: 'Function .Default.'
+      # Complex collection methods requiring refactoring - tracked for Phase 5
+      - linters:
+          - funlen
+          - gocognit
+        path: internal/collector/job\.go
+        text: '(Function .collectActiveJobs|cognitive complexity.*collectActiveJobs)'
+      - linters:
+          - funlen
+        path: internal/collector/cluster_health_streaming\.go
+        text: 'Function .collectStreamingMetrics'
+      - linters:
+          - gocognit
+          - gocyclo
+        path: internal/collector/jobs_simple\.go
+        text: '(cognitive|cyclomatic) complexity.*collect'
+      - linters:
+          - gocognit
+        path: internal/collector/access_validation\.go
+        text: 'cognitive complexity.*collectRiskAssessmentMetrics'
       - linters:
           - funlen
           - gocognit
           - gocyclo
-          - lll
-        path: internal/collector/(anomaly_detection_streaming|bottleneck_analyzer|live_job_monitor|job_performance|resource_pool_monitor|trend_analyzer)\.go
+        path: internal/collector/registry\.go
+        text: '(Function .CreateCollectorsFromConfig|(cognitive|cyclomatic) complexity.*CreateCollectorsFromConfig)'
+      - linters:
+          - funlen
+        path: internal/collector/jobs_simple\.go
+        text: 'Function .collect. is too long'
+      # Deep nesting - will be reduced through refactoring in Phase 5
+      - linters:
+          - nestif
+        path: internal/collector/
+        text: 'has complex nested blocks'
+      - linters:
+          - nestif
+        path: internal/config/
+        text: 'has complex nested blocks'
+      # Test functions - can be legitimately long with multiple test cases
+      - linters:
+          - funlen
+          - gocognit
+        path: _test\.go
+      # Main function - inherently long due to setup/configuration
+      - linters:
+          - funlen
+        path: cmd/.*/main\.go
+        text: 'Function .main.'
       # Collector package - common duplication patterns
       - linters:
           - dupl
