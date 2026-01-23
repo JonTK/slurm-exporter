@@ -674,7 +674,7 @@ func (e *EnergyMonitor) calculateJobEnergyConsumption(job *slurm.Job) *JobEnergy
 	// Calculate runtime
 	var runtimeHours float64
 	if job.StartTime != nil {
-		if job.State == "COMPLETED" && job.EndTime != nil {
+		if job.State == "JobStateCompleted" && job.EndTime != nil {
 			runtimeHours = job.EndTime.Sub(*job.StartTime).Hours()
 		} else {
 			runtimeHours = time.Since(*job.StartTime).Hours()
@@ -884,7 +884,7 @@ func (e *EnergyMonitor) calculateEnergyPerTaskUnit(job *slurm.Job, totalEnergyWh
 	// Simple heuristic - assume task units are CPU-hours
 	var runtimeHours float64
 	if job.StartTime != nil {
-		if job.State == "COMPLETED" && job.EndTime != nil {
+		if job.State == "JobStateCompleted" && job.EndTime != nil {
 			runtimeHours = job.EndTime.Sub(*job.StartTime).Hours()
 		} else {
 			runtimeHours = time.Since(*job.StartTime).Hours()
@@ -947,7 +947,7 @@ func (c *CarbonFootprintCalculator) calculateCarbonFootprint(job *slurm.Job, ene
 	// Calculate per-unit emissions
 	var runtimeHours float64
 	if job.StartTime != nil {
-		if job.State == "COMPLETED" && job.EndTime != nil {
+		if job.State == "JobStateCompleted" && job.EndTime != nil {
 			runtimeHours = job.EndTime.Sub(*job.StartTime).Hours()
 		} else {
 			runtimeHours = time.Since(*job.StartTime).Hours()

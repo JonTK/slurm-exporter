@@ -1273,7 +1273,7 @@ func (c *AccessValidationCollector) collectAuditMetrics() {
 			c.auditEvents.WithLabelValues(event.EventType, event.Result).Inc()
 
 			if event.EventType == "login" {
-				if event.Result == "success" {
+				if event.Result == StatusSuccess {
 					c.successfulLogins.WithLabelValues(event.AccountName).Inc()
 				} else {
 					c.failedLogins.WithLabelValues(event.AccountName, event.Result).Inc()
@@ -1498,12 +1498,12 @@ func (c *AccessValidationCollector) collectSecurityAlertMetrics() {
 
 			severityCount[alert.Severity]++
 
-			if alert.Status == "active" {
+			if alert.Status == StatusActive {
 				activeCount[alert.Severity]++
 			}
 
 			// Track resolution time
-			if alert.Status == "resolved" && !alert.ResolutionTime.IsZero() {
+			if alert.Status == StatusResolved && !alert.ResolutionTime.IsZero() {
 				resolutionTime := alert.ResolutionTime.Sub(alert.Timestamp).Seconds()
 				c.meanTimeToResolve.WithLabelValues(alert.AlertType).Observe(resolutionTime)
 			}

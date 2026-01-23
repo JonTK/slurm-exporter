@@ -1132,9 +1132,9 @@ func (c *AccountCostTrackingCollector) collectBudgetMetrics(ctx context.Context,
 
 	var statusValue float64
 	switch budget.BudgetStatus {
-	case "healthy":
+	case StatusHealthy:
 		statusValue = 0
-	case "warning":
+	case StatusWarning:
 		statusValue = 1
 	case "critical":
 		statusValue = 2

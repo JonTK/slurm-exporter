@@ -17,6 +17,12 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Authentication type constants
+const (
+	AuthTypeJWT  = "jwt"
+	AuthTypeNone = "none"
+)
+
 // Config represents the application configuration.
 type Config struct {
 	Server        ServerConfig        `yaml:"server"`
@@ -910,9 +916,9 @@ func (s *SLURMConfig) Validate() error {
 // Validate validates the auth configuration.
 func (a *AuthConfig) Validate() error {
 	switch a.Type {
-	case "none":
+	case AuthTypeNone:
 		// No validation needed
-	case "jwt":
+	case AuthTypeJWT:
 		if a.Token == "" && a.TokenFile == "" {
 			return fmt.Errorf("slurm.auth.token or slurm.auth.token_file must be specified when using JWT auth (set slurm.auth.type='none' to disable authentication)")
 		}
@@ -1747,17 +1753,6 @@ func (r *Reloader) Close() error {
 	return r.watcher.Close()
 }
 
-// TODO: Following validation helper functions are unused - preserved for future validation enhancements
-/*
-// validateDuration validates that a duration string is properly formatted
-func validateDuration(duration time.Duration, field string) error {
-	if duration <= 0 {
-		return fmt.Errorf("%s must be a positive duration (e.g., '30s', '1m', '5m')", field)
-	}
-	return nil
-}
-*/
-
 // validateURL validates that a URL is properly formatted
 func validateURL(url, field string) error {
 	if url == "" {
@@ -1770,16 +1765,6 @@ func validateURL(url, field string) error {
 
 	return nil
 }
-
-/*
-// validatePath validates that a file path is specified when required
-func validatePath(path, field string) error {
-	if path == "" {
-		return fmt.Errorf("%s must be specified (e.g., '/path/to/file')", field)
-	}
-	return nil
-}
-*/
 
 // validateAPIVersion validates that the SLURM API version is supported
 func validateAPIVersion(version string) error {

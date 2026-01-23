@@ -499,7 +499,7 @@ func CreateResourceUtilizationDataFromJob(job *slurm.Job) *ResourceUtilizationDa
 		if job.EndTime != nil {
 			data.EndTime = *job.EndTime
 			data.WallTime = job.EndTime.Sub(*job.StartTime).Seconds()
-		} else if job.State == "RUNNING" {
+		} else if job.State == JobStateRunning {
 			data.EndTime = time.Now()
 			data.WallTime = time.Since(*job.StartTime).Seconds()
 		}

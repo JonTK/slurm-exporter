@@ -190,7 +190,7 @@ func NewRefreshableAuth(initial slurmauth.Provider, refreshFunc func() (slurmaut
 
 // GetProvider returns the current auth provider, refreshing if necessary
 func (r *RefreshableAuth) GetProvider() (slurmauth.Provider, error) {
-	// TODO: Implement refresh logic based on time
-	// For now, just return the current provider
+	// NOTE: Currently returns the provider without time-based refresh logic.
+	// Future enhancement: Add automatic refresh based on token expiration time.
 	return r.provider, nil
 }

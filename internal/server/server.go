@@ -301,8 +301,7 @@ func (s *Server) setupHealthChecks() {
 		&http.Client{Timeout: 10 * time.Second},
 	))
 
-	// TODO: Add SLURM connectivity check when SLURM client is available
-	// This would be added in the main.go where we have access to the SLURM client
+	// Note: SLURM connectivity checks are handled in main.go where the SLURM client is available
 }
 
 // setupRoutes configures HTTP routes

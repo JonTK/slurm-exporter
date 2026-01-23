@@ -445,7 +445,7 @@ func (jc *JobCollector) collectJobStatesSummary(ctx context.Context, ch chan<- p
 		"running":   120,
 		"completed": 850,
 		"cancelled": 15,
-		"failed":    8,
+		"StatusFailed":    8,
 		"timeout":   3,
 	}
 
@@ -478,7 +478,7 @@ func (jc *JobCollector) parseJobState(slurmState string) string {
 	case "CANCELLED", "CA":
 		return "cancelled"
 	case "FAILED", "F":
-		return "failed"
+		return "StatusFailed"
 	case "TIMEOUT", "TO":
 		return "timeout"
 	case "NODE_FAIL", "NF":

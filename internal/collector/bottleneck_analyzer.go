@@ -228,7 +228,7 @@ func NewBottleneckAnalyzer(slurmClient slurm.SlurmClient, logger *slog.Logger, c
 		PerformanceTrendIndicator: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Name: "slurm_job_performance_trend_indicator",
-				Help: "Performance trend indicator (1=improving, 0=stable, -1=degrading)",
+				Help: "Performance trend indicator (1=StateImproving, 0=StateStable, -1=degrading)",
 			},
 			[]string{"job_id", "step_id", "user", "account", "partition"},
 		),
@@ -378,7 +378,7 @@ func (b *BottleneckAnalyzer) analyzeBottlenecks(ctx context.Context) error {
 
 		b.metrics.StepsAnalyzed.Inc()
 
-		if analysis.PrimaryBottleneck != "none" {
+		if analysis.PrimaryBottleneck != StateNone {
 			b.metrics.BottlenecksFound.Inc()
 		}
 	}
@@ -468,7 +468,7 @@ func (b *BottleneckAnalyzer) identifyPrimaryBottleneck(data *ResourceUtilization
 
 	// Find the highest scoring bottleneck
 	maxScore := 0.0
-	primaryBottleneck := "none"
+	primaryBottleneck := StateNone
 
 	for resource, score := range scores {
 		if score > maxScore {
@@ -479,7 +479,7 @@ func (b *BottleneckAnalyzer) identifyPrimaryBottleneck(data *ResourceUtilization
 
 	// Set minimum threshold for bottleneck detection
 	if maxScore < 0.3 {
-		primaryBottleneck = "none"
+		primaryBottleneck = "StateNone"
 		maxScore = 0.0
 	}
 
@@ -581,7 +581,7 @@ func (b *BottleneckAnalyzer) calculateNetworkBottleneckScore(data *ResourceUtili
 
 // calculateBottleneckConfidence calculates confidence in bottleneck detection
 func (b *BottleneckAnalyzer) calculateBottleneckConfidence(scores map[string]float64, primary string) float64 {
-	if primary == "none" {
+	if primary == StateNone {
 		return 0.0
 	}
 
@@ -616,7 +616,7 @@ func (b *BottleneckAnalyzer) analyzeUtilizationPattern(resourceType string, data
 		if data.CPUAllocated > 0 {
 			util := data.CPUUsed / data.CPUAllocated
 			if util > 0.8 {
-				return "stable"
+				return StateStable
 			} else if util < 0.3 {
 				return "low"
 			}
@@ -633,7 +633,7 @@ func (b *BottleneckAnalyzer) analyzeUtilizationPattern(resourceType string, data
 		}
 		return "moderate"
 	default:
-		return "unknown"
+		return StateUnknown
 	}
 }
 
@@ -708,11 +708,11 @@ func (b *BottleneckAnalyzer) performPredictiveAnalysis(job *slurm.Job, data *Res
 
 		// Performance trend analysis (simplified)
 		if analysis.OverallEfficiency > 0.7 {
-			analysis.PerformanceTrend = "stable"
+			analysis.PerformanceTrend = StateStable
 		} else if analysis.OverallEfficiency < 0.4 {
 			analysis.PerformanceTrend = "degrading"
 		} else {
-			analysis.PerformanceTrend = "stable"
+			analysis.PerformanceTrend = StateStable
 		}
 	}
 }
@@ -789,12 +789,12 @@ func (b *BottleneckAnalyzer) updateAnalysisMetrics(job *slurm.Job, analysis *Ste
 
 	// Bottleneck detection metrics
 	bottleneckValue := 0.0
-	if analysis.PrimaryBottleneck != "none" {
+	if analysis.PrimaryBottleneck != StateNone {
 		bottleneckValue = 1.0
 	}
 	b.metrics.BottleneckDetected.WithLabelValues(labels...).Set(bottleneckValue)
 
-	if analysis.PrimaryBottleneck != "none" {
+	if analysis.PrimaryBottleneck != StateNone {
 		severityLabels := append(labels, analysis.PrimaryBottleneck)
 		b.metrics.BottleneckSeverity.WithLabelValues(severityLabels...).Set(analysis.BottleneckSeverity)
 		b.metrics.BottleneckConfidence.WithLabelValues(severityLabels...).Set(analysis.BottleneckConfidence)
@@ -837,7 +837,7 @@ func (b *BottleneckAnalyzer) updateAnalysisMetrics(job *slurm.Job, analysis *Ste
 	// Performance trend
 	trendValue := 0.0
 	switch analysis.PerformanceTrend {
-	case "improving":
+	case StateImproving:
 		trendValue = 1.0
 	case "degrading":
 		trendValue = -1.0
