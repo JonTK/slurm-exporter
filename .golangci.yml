@@ -20,11 +20,9 @@ linters:
     - gochecknoglobals
     - gochecknoinits
     - gocognit                  # Will be enabled in Phase 4 after complexity reduction
-    - goconst                   # Will be enabled in Phase 2 after constant extraction
     - gocritic
     - godoclint                 # Doc comment style (v2.8+ only)
     - godot
-    - godox                     # Will be enabled in Phase 3 after TODO cleanup
     - gosmopolitan              # I18n linter - not needed for this project
     - interfacebloat
     - intrange
@@ -42,7 +40,6 @@ linters:
     - paralleltest
     - perfsprint
     - prealloc
-    - revive
     - tagliatelle
     - testifylint
     - testpackage
@@ -65,6 +62,51 @@ linters:
       max-blank-identifiers: 2
     dupl:
       threshold: 150            # Start high, will reduce in Phase 5
+    goconst:
+      min-len: 3                # Minimum length of string constant
+      min-occurrences: 5        # Start high to reduce noise, will lower in Phase 4
+      match-constant: true      # Match constants
+      numbers: false            # Don't check numbers (too noisy)
+    godox:
+      keywords:                 # Track these keywords
+        - TODO
+        - FIXME
+        - BUG
+        - XXX
+        - HACK
+        - OPTIMIZE
+    revive:
+      severity: warning
+      enable-all-rules: false   # Start with selected rules
+      rules:
+        # High-value rules that catch real issues
+        - name: blank-imports
+        - name: context-as-argument
+        - name: context-keys-type
+        - name: dot-imports
+        - name: error-return
+        - name: error-strings
+        - name: error-naming
+        - name: exported
+          arguments:
+            - "checkPrivateReceivers"
+            - "disableStutteringCheck"
+        - name: increment-decrement
+        - name: var-declaration
+        - name: package-comments
+          disabled: true          # Too opinionated for now
+        - name: range
+        - name: receiver-naming
+        - name: time-naming
+        - name: unexported-return
+        - name: indent-error-flow
+        - name: errorf
+        - name: empty-block
+        - name: superfluous-else
+        - name: unused-parameter
+          disabled: true          # Too many false positives with interface implementations
+        - name: unreachable-code
+        - name: redefines-builtin-id
     errcheck:
       check-type-assertions: false
       check-blank: false
@@ -139,6 +181,7 @@ linters:
           - goconst
           - gocyclo
           - gosec
+          - revive
           - staticcheck
         path: _test\.go
       # Test helpers
@@ -242,6 +285,42 @@ linters:
           - spancheck
         path: internal/tracing/tracer\.go
         text: 'return can be reached without calling span.End'
+      # Phase 3 Linters - Pragmatic exclusions for intentional patterns
+      # godox - Intentional TODO comments documenting preserved code and missing fields
+      - linters:
+          - godox
+        path: ^internal/collector/
+      - linters:
+          - godox
+        path: ^internal/(config|metrics|performance|server|slurm)/
+        text: '(Unused field|Unused fields|unused|preserved for future)'
+      # goconst - Intentional status/state string comparisons
+      - linters:
+          - goconst
+        text: 'has \d+ occurrences, but such constant .* already exists'
+      # revive - Empty blocks for channel draining (intentional pattern)
+      - linters:
+          - revive
+        text: 'this block is empty, you can remove it'
+      # revive - Context keys in test code
+      - linters:
+          - revive
+        path: _test\.go
+        text: 'context-keys-type'
+      # revive - Var declarations in test code (mock nil clients)
+      - linters:
+          - revive
+        path: _test\.go
+        text: 'var-declaration.*Mock client'
+      # revive - Indent-error-flow in existing code (will be refactored in Phase 4)
+      - linters:
+          - revive
+        text: 'indent-error-flow'
+      # revive - Context-as-argument in Prometheus collectors (chan first is idiomatic pattern)
+      - linters:
+          - revive
+        path: ^internal/collector/
+        text: 'context-as-argument'
     paths:
       - .*\.pb\.go$
       - .*\.gen\.go$

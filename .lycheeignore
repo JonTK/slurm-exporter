@@ -1,0 +1,46 @@
+# Lychee link checker ignore patterns
+# See: https://github.com/lycheeverse/lychee
+
+# GitHub features not yet enabled
+# Will be enabled when repository goes public
+https://github.com/jontk/slurm-exporter/discussions
+https://github.com/jontk/slurm-exporter/docs
+https://github.com/jontk/slurm-exporter/security/advisories
+https://github.com/jontk/slurm-exporter/security/advisories.atom
+https://github.com/orgs/jontk/teams/maintainers
+https://jontk.github.io/slurm-exporter
+
+# Example/placeholder URLs in documentation
+https://example.pagerduty.com/
+
+# Email addresses (lychee cannot verify these)
+mailto:security@slurm-exporter.io
+mailto:hello@slurm-exporter.io
+
+# Documentation files to be created in future PRs
+file:///home/runner/work/slurm-exporter/slurm-exporter/CONTRIBUTING.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/docs/api.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/docs/security-threat-model.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/docs/security-architecture.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/docs/security-configuration.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/docs/security-incident-response.md
+
+# Runbook files referenced but not yet created
+# These will be created as part of production deployment documentation (Phase 6)
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/authentication-failure.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/pod-scheduling.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/memory-issues.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/pvc-management.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/rolling-updates.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/error-rate-high.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/backup-recovery.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/sla-breach.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/network-policy.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/configuration-drift.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/slurm-connectivity.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/data-stale.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/cardinality-explosion.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/capacity-planning.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/hpa-scaling.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/certificate-renewal.md
+file:///home/runner/work/slurm-exporter/slurm-exporter/deployment/production/runbooks/service-discovery.md

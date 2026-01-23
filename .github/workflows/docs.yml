@@ -195,7 +195,7 @@ jobs:
           --exclude-private
           --include-mail
           './**/*.md'
-        fail: false
+        fail: true
 
   spellcheck:
     name: Spellcheck Documentation

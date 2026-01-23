@@ -441,12 +441,12 @@ func (jc *JobCollector) collectJobQueueStats(ctx context.Context, ch chan<- prom
 func (jc *JobCollector) collectJobStatesSummary(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Simulate job states summary
 	jobStates := map[string]int{
-		"pending":   45,
-		"running":   120,
-		"completed": 850,
-		"cancelled": 15,
-		"failed":    8,
-		"timeout":   3,
+		"pending":    45,
+		"running":    120,
+		"completed":  850,
+		"cancelled":  15,
+		StatusFailed: 8,
+		"timeout":    3,
 	}
 
 	for state, count := range jobStates {
@@ -478,7 +478,7 @@ func (jc *JobCollector) parseJobState(slurmState string) string {
 	case "CANCELLED", "CA":
 		return "cancelled"
 	case "FAILED", "F":
-		return "failed"
+		return StatusFailed
 	case "TIMEOUT", "TO":
 		return "timeout"
 	case "NODE_FAIL", "NF":

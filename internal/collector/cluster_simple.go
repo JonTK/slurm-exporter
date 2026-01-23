@@ -150,7 +150,7 @@ func (c *ClusterSimpleCollector) collect(ch chan<- prometheus.Metric) error {
 	c.logger.WithField("cluster", info.ClusterName).Info("Collected cluster info")
 
 	// Extract cluster name with default
-	clusterName := "default"
+	clusterName := DefaultClusterName
 	if info.ClusterName != "" {
 		clusterName = info.ClusterName
 	}
