@@ -18,6 +18,7 @@ import (
 )
 
 func TestJobsSimpleCollector_Describe(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -37,6 +38,7 @@ func TestJobsSimpleCollector_Describe(t *testing.T) {
 }
 
 func TestJobsSimpleCollector_Collect_Success(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockJobManager := new(mocks.MockJobManager)
@@ -69,6 +71,7 @@ func TestJobsSimpleCollector_Collect_Success(t *testing.T) {
 }
 
 func TestJobsSimpleCollector_Collect_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -92,6 +95,7 @@ func TestJobsSimpleCollector_Collect_Disabled(t *testing.T) {
 }
 
 func TestJobsSimpleCollector_Collect_Error(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockJobManager := new(mocks.MockJobManager)
@@ -116,6 +120,7 @@ func TestJobsSimpleCollector_Collect_Error(t *testing.T) {
 }
 
 func TestJobsSimpleCollector_Filtering(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockJobManager := new(mocks.MockJobManager)
@@ -158,6 +163,7 @@ func TestJobsSimpleCollector_Filtering(t *testing.T) {
 }
 
 func TestJobsSimpleCollector_CustomLabels(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockJobManager := new(mocks.MockJobManager)
@@ -193,6 +199,7 @@ func TestJobsSimpleCollector_CustomLabels(t *testing.T) {
 }
 
 func TestJobsSimpleCollector_EmptyJobList(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockJobManager := new(mocks.MockJobManager)

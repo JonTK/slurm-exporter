@@ -10,6 +10,7 @@ import (
 )
 
 func TestGet(t *testing.T) {
+	t.Parallel()
 	info := Get()
 
 	// Check that fields are populated
@@ -39,6 +40,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
+	t.Parallel()
 	info := Get()
 	result := info.String()
 
@@ -99,6 +101,7 @@ func TestShort(t *testing.T) {
 }
 
 func TestInfoStructure(t *testing.T) {
+	t.Parallel()
 	info := Get()
 
 	// Verify all fields are accessible

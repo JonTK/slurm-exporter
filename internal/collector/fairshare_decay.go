@@ -946,6 +946,7 @@ func (c *FairShareDecayCollector) collectAnomalyDetection(ctx context.Context) {
 }
 
 func (c *FairShareDecayCollector) collectCrossFactorAnalysis(ctx context.Context) {
+	_ = ctx
 	// Simulate cross-factor analysis data
 	factors := []string{"age", "qos", "partition", "size"}
 	for _, factor := range factors {

@@ -1096,6 +1096,7 @@ func (c *AccountCostTrackingCollector) Collect(ch chan<- prometheus.Metric) {
 }
 
 func (c *AccountCostTrackingCollector) collectCostMetrics(ctx context.Context, account string, ch chan<- prometheus.Metric) {
+	_ = ch
 	metrics, err := c.client.GetAccountCostMetrics(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting cost metrics for account %s: %v", account, err)
@@ -1117,6 +1118,7 @@ func (c *AccountCostTrackingCollector) collectCostMetrics(ctx context.Context, a
 }
 
 func (c *AccountCostTrackingCollector) collectBudgetMetrics(ctx context.Context, account string, ch chan<- prometheus.Metric) {
+	_ = ch
 	budget, err := c.client.GetAccountBudgetInfo(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting budget info for account %s: %v", account, err)
@@ -1156,6 +1158,7 @@ func (c *AccountCostTrackingCollector) collectBudgetMetrics(ctx context.Context,
 }
 
 func (c *AccountCostTrackingCollector) collectCostBreakdown(ctx context.Context, account string, ch chan<- prometheus.Metric) {
+	_ = ch
 	breakdown, err := c.client.GetAccountCostBreakdown(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting cost breakdown for account %s: %v", account, err)
@@ -1177,6 +1180,7 @@ func (c *AccountCostTrackingCollector) collectCostBreakdown(ctx context.Context,
 }
 
 func (c *AccountCostTrackingCollector) collectForecastMetrics(ctx context.Context, account string, ch chan<- prometheus.Metric) {
+	_ = ch
 	forecasts, err := c.client.GetAccountCostForecasts(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting cost forecasts for account %s: %v", account, err)
@@ -1204,6 +1208,7 @@ func (c *AccountCostTrackingCollector) collectForecastMetrics(ctx context.Contex
 }
 
 func (c *AccountCostTrackingCollector) collectAlertMetrics(ctx context.Context, account string, ch chan<- prometheus.Metric) {
+	_ = ch
 	alerts, err := c.client.GetAccountCostAlerts(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting cost alerts for account %s: %v", account, err)
@@ -1266,6 +1271,7 @@ func (c *AccountCostTrackingCollector) collectAlertMetrics(ctx context.Context, 
 }
 
 func (c *AccountCostTrackingCollector) collectOptimizationMetrics(ctx context.Context, account string, ch chan<- prometheus.Metric) {
+	_ = ch
 	optimizations, err := c.client.GetAccountCostOptimizations(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting cost optimizations for account %s: %v", account, err)
@@ -1309,6 +1315,7 @@ func (c *AccountCostTrackingCollector) collectOptimizationMetrics(ctx context.Co
 }
 
 func (c *AccountCostTrackingCollector) collectComparisonMetrics(ctx context.Context, account string, ch chan<- prometheus.Metric) {
+	_ = ch
 	comparisons, err := c.client.GetAccountCostComparisons(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting cost comparisons for account %s: %v", account, err)
@@ -1323,6 +1330,7 @@ func (c *AccountCostTrackingCollector) collectComparisonMetrics(ctx context.Cont
 }
 
 func (c *AccountCostTrackingCollector) collectUtilizationMetrics(ctx context.Context, account string, ch chan<- prometheus.Metric) {
+	_ = ch
 	utilization, err := c.client.GetAccountBudgetUtilization(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting budget utilization for account %s: %v", account, err)
@@ -1338,6 +1346,7 @@ func (c *AccountCostTrackingCollector) collectUtilizationMetrics(ctx context.Con
 }
 
 func (c *AccountCostTrackingCollector) collectTrendMetrics(ctx context.Context, account string, ch chan<- prometheus.Metric) {
+	_ = ch
 	trends, err := c.client.GetAccountCostTrends(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting cost trends for account %s: %v", account, err)
@@ -1351,6 +1360,7 @@ func (c *AccountCostTrackingCollector) collectTrendMetrics(ctx context.Context, 
 }
 
 func (c *AccountCostTrackingCollector) collectAnalyticsMetrics(ctx context.Context, account string, ch chan<- prometheus.Metric) {
+	_ = ch
 	analytics, err := c.client.GetAccountCostAnalytics(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting cost analytics for account %s: %v", account, err)
@@ -1368,6 +1378,7 @@ func (c *AccountCostTrackingCollector) collectAnalyticsMetrics(ctx context.Conte
 }
 
 func (c *AccountCostTrackingCollector) collectPolicyMetrics(ctx context.Context, account string, ch chan<- prometheus.Metric) {
+	_ = ch
 	policies, err := c.client.GetAccountCostPolicies(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting cost policies for account %s: %v", account, err)

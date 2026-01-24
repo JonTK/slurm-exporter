@@ -51,11 +51,11 @@ func (s *SecurityTestSuite) TearDownTest() {
 }
 
 func TestSecurityTestSuite(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, new(SecurityTestSuite))
 }
 
 func (s *SecurityTestSuite) TestSecurityHeaders() {
-	// Test that security headers are properly set
 	resp := s.makeRequest("GET", "/metrics", nil, nil)
 
 	expectedHeaders := map[string]string{
@@ -73,13 +73,10 @@ func (s *SecurityTestSuite) TestSecurityHeaders() {
 }
 
 func (s *SecurityTestSuite) TestHTTPSRedirect() {
-	// Test that HTTP requests are redirected to HTTPS in production
-	// This would require a more sophisticated test setup
 	s.T().Skip("HTTPS redirect testing requires TLS server setup")
 }
 
 func (s *SecurityTestSuite) TestAuthenticationBypass() {
-	// Test various authentication bypass attempts
 	bypassAttempts := []struct {
 		name     string
 		headers  map[string]string
@@ -158,7 +155,6 @@ func (s *SecurityTestSuite) TestAuthenticationBypass() {
 }
 
 func (s *SecurityTestSuite) TestPathTraversalAttacks() {
-	// Test path traversal attacks on various endpoints
 	pathTraversalAttempts := []struct {
 		name string
 		path string
@@ -194,7 +190,6 @@ func (s *SecurityTestSuite) TestPathTraversalAttacks() {
 }
 
 func (s *SecurityTestSuite) TestXSSPrevention() {
-	// Test XSS prevention in various input fields
 	xssPayloads := []string{
 		"<script>alert('xss')</script>",
 		"javascript:alert('xss')",
@@ -223,7 +218,6 @@ func (s *SecurityTestSuite) TestXSSPrevention() {
 }
 
 func (s *SecurityTestSuite) TestSQLInjection() {
-	// Test SQL injection attempts (even though we don't use SQL directly)
 	sqlPayloads := []string{
 		"' OR '1'='1",
 		"'; DROP TABLE users; --",
@@ -259,7 +253,6 @@ func (s *SecurityTestSuite) TestSQLInjection() {
 }
 
 func (s *SecurityTestSuite) TestCSRFProtection() {
-	// Test CSRF protection for state-changing operations
 	stateChangingRequests := []struct {
 		method string
 		path   string
@@ -283,7 +276,6 @@ func (s *SecurityTestSuite) TestCSRFProtection() {
 }
 
 func (s *SecurityTestSuite) TestRateLimiting() {
-	// Test rate limiting on sensitive endpoints
 	sensitiveEndpoints := []string{
 		"/debug/profiling",
 		"/debug/collectors",
@@ -320,7 +312,6 @@ func (s *SecurityTestSuite) TestRateLimiting() {
 }
 
 func (s *SecurityTestSuite) TestInputValidation() {
-	// Test input validation with various malicious inputs
 	maliciousInputs := []struct {
 		name  string
 		value string
@@ -360,7 +351,6 @@ func (s *SecurityTestSuite) TestInputValidation() {
 }
 
 func (s *SecurityTestSuite) TestInformationDisclosure() {
-	// Test that sensitive information is not disclosed
 	resp := s.makeRequest("GET", "/debug/status", nil, nil)
 	body := s.readResponseBody(resp)
 
@@ -385,7 +375,6 @@ func (s *SecurityTestSuite) TestInformationDisclosure() {
 }
 
 func (s *SecurityTestSuite) TestHTTPMethodSecurity() {
-	// Test HTTP method restrictions
 	methods := []string{"GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS", "TRACE"}
 
 	for _, method := range methods {
@@ -407,7 +396,6 @@ func (s *SecurityTestSuite) TestHTTPMethodSecurity() {
 }
 
 func (s *SecurityTestSuite) TestTimeoutAttacks() {
-	// Test protection against timeout attacks
 	s.Run("slow_loris", func() {
 		// This would require more sophisticated testing
 		// For now, just verify basic timeout handling
@@ -468,7 +456,9 @@ func (s *SecurityTestSuite) addSecurityMiddleware(handler http.Handler) http.Han
 	})
 }
 
+//nolint:unparam
 func (s *SecurityTestSuite) makeRequest(method, path string, headers map[string]string, body interface{}) *http.Response {
+	_ = body
 	var reqBody io.Reader
 	if body != nil {
 		reqBody = strings.NewReader(fmt.Sprintf("%v", body))

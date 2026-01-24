@@ -18,6 +18,7 @@ import (
 )
 
 func TestReservationCollector_Describe(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -37,6 +38,7 @@ func TestReservationCollector_Describe(t *testing.T) {
 }
 
 func TestReservationCollector_Collect_Success(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockReservationManager := new(mocks.MockReservationManager)
@@ -95,6 +97,7 @@ func TestReservationCollector_Collect_Success(t *testing.T) {
 }
 
 func TestReservationCollector_Collect_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -118,6 +121,7 @@ func TestReservationCollector_Collect_Disabled(t *testing.T) {
 }
 
 func TestReservationCollector_Collect_Error(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockReservationManager := new(mocks.MockReservationManager)
@@ -141,6 +145,7 @@ func TestReservationCollector_Collect_Error(t *testing.T) {
 }
 
 func TestReservationCollector_EmptyReservationList(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockReservationManager := new(mocks.MockReservationManager)

@@ -53,7 +53,7 @@ jobs:
         version: latest
 
     - name: Run tests
-      run: go test -v -race -coverprofile=coverage.out ./...
+      run: go test -v -race -timeout=10m -coverprofile=coverage.out ./...
 
     - name: Generate coverage report
       run: go tool cover -func=coverage.out
@@ -93,10 +93,10 @@ jobs:
       run: go mod download
 
     - name: Run integration tests
-      run: go test -v -race ./internal/integration/
+      run: go test -v -race -timeout=5m ./internal/integration/
 
     - name: Run integration tests with coverage
-      run: go test -v -race -coverprofile=integration-coverage.out ./internal/integration/
+      run: go test -v -race -timeout=5m -coverprofile=integration-coverage.out ./internal/integration/
 
     - name: Upload integration coverage
       uses: codecov/codecov-action@v5

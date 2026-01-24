@@ -183,6 +183,8 @@ func (c *JobsSimpleCollector) SetCardinalityManager(cm *metrics.CardinalityManag
 }
 
 // shouldCollectMetric checks if a metric should be collected based on filters
+//
+//nolint:unparam
 func (c *JobsSimpleCollector) shouldCollectMetric(name string, metricType MetricType, isTiming bool, isResource bool) bool {
 	if c.metricFilter == nil {
 		return true

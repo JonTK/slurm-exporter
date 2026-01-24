@@ -13,7 +13,10 @@ import (
 )
 
 func TestPerformanceMetrics(t *testing.T) {
+	t.Parallel(
 	// Create a test registry
+	)
+
 	registry := prometheus.NewRegistry()
 
 	// Create performance metrics
@@ -95,6 +98,7 @@ func TestPerformanceMetrics(t *testing.T) {
 }
 
 func TestCacheMetricsRecorder(t *testing.T) {
+	t.Parallel()
 	metrics := NewPerformanceMetrics("test")
 	recorder := NewCacheMetricsRecorder(metrics)
 
@@ -108,10 +112,12 @@ func TestCacheMetricsRecorder(t *testing.T) {
 }
 
 func TestCardinalityTracker(t *testing.T) {
+	t.Parallel()
 	registry := prometheus.NewRegistry()
 	metrics := NewPerformanceMetrics("test")
 
 	// Register some test metrics
+	//
 	//nolint:promlinter // Test metric name is intentionally simple
 	testCounter := prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "test_counter_total",
@@ -134,6 +140,7 @@ func TestCardinalityTracker(t *testing.T) {
 }
 
 func TestTimerZeroDuration(t *testing.T) {
+	t.Parallel()
 	metrics := NewPerformanceMetrics("test")
 
 	// Create timer and stop immediately
@@ -145,6 +152,7 @@ func TestTimerZeroDuration(t *testing.T) {
 }
 
 func TestMetricsDoubleRegistration(t *testing.T) {
+	t.Parallel()
 	registry := prometheus.NewRegistry()
 	metrics := NewPerformanceMetrics("test")
 
@@ -158,6 +166,7 @@ func TestMetricsDoubleRegistration(t *testing.T) {
 }
 
 func TestUpdateFunctions(t *testing.T) {
+	t.Parallel()
 	metrics := NewPerformanceMetrics("test")
 
 	// Test all update functions don't panic

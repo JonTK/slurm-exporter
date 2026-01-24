@@ -159,6 +159,8 @@ func (c *TRESCollector) Collect(ctx context.Context, ch chan<- prometheus.Metric
 }
 
 func (c *TRESCollector) collectNodeTRES(ctx context.Context, ch chan<- prometheus.Metric, clusterName string) {
+	_ = ch
+	_ = clusterName
 	// Get node information which contains TRES allocation data
 	nodeManager := c.client.Nodes()
 	if nodeManager == nil {

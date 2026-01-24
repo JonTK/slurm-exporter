@@ -1009,6 +1009,8 @@ func (e *JobAnalyticsEngine) performJobAnalytics(ctx context.Context) error {
 }
 
 // processBatch processes a batch of jobs for analytics
+//
+//nolint:unparam
 func (e *JobAnalyticsEngine) processBatch(ctx context.Context, jobs []*slurm.Job) error {
 	for _, job := range jobs {
 		if err := e.analyzeJob(ctx, job); err != nil {
@@ -1047,6 +1049,7 @@ func (e *JobAnalyticsEngine) analyzeJob(ctx context.Context, job *slurm.Job) err
 
 // performComprehensiveAnalysis performs comprehensive analysis for a job
 func (e *JobAnalyticsEngine) performComprehensiveAnalysis(ctx context.Context, job *slurm.Job) *JobAnalyticsData {
+	_ = ctx
 	now := time.Now()
 
 	// Extract enhanced SLURM job data
@@ -1604,6 +1607,7 @@ func (e *JobAnalyticsEngine) calculateResourceEfficiencyScore(utilizationRate, w
 
 // determineUsagePattern determines the usage pattern for a resource
 func (e *JobAnalyticsEngine) determineUsagePattern(resourceType string, used, allocated, wallTime float64) (string, float64) {
+	_ = resourceType
 	utilizationRate := used / allocated
 
 	// Simple pattern detection based on utilization rate and resource type
@@ -1621,6 +1625,7 @@ func (e *JobAnalyticsEngine) determineUsagePattern(resourceType string, used, al
 
 // calculateVariabilityIndex calculates variability index for resource usage
 func (e *JobAnalyticsEngine) calculateVariabilityIndex(resourceType string, used, allocated float64) float64 {
+	_ = resourceType
 	utilizationRate := used / allocated
 
 	// Simple variability calculation based on utilization rate
@@ -1635,6 +1640,8 @@ func (e *JobAnalyticsEngine) calculateVariabilityIndex(resourceType string, used
 
 // calculateOptimalAllocation calculates optimal resource allocation
 func (e *JobAnalyticsEngine) calculateOptimalAllocation(resourceType string, used, allocated, efficiencyScore float64) float64 {
+	_ = resourceType
+	_ = efficiencyScore
 	utilizationRate := used / allocated
 
 	// Optimal allocation aims for 70-80% utilization
@@ -1888,6 +1895,7 @@ func (e *JobAnalyticsEngine) analyzeMemoryWaste(data *ResourceUtilizationData, m
 
 // analyzeTimeWaste analyzes time-related waste
 func (e *JobAnalyticsEngine) analyzeTimeWaste(job *slurm.Job, data *ResourceUtilizationData) *WasteDetail {
+	_ = data
 	if job.StartTime == nil || job.TimeLimit <= 0 {
 		return &WasteDetail{
 			WasteType:  "time",
@@ -1940,6 +1948,7 @@ func (e *JobAnalyticsEngine) analyzeTimeWaste(job *slurm.Job, data *ResourceUtil
 
 // analyzeQueueWaste analyzes queue time waste
 func (e *JobAnalyticsEngine) analyzeQueueWaste(job *slurm.Job) *WasteDetail {
+	_ = job
 	// Simplified queue waste analysis
 	// In real implementation, would compare submit time vs start time
 
@@ -2031,6 +2040,7 @@ func (e *JobAnalyticsEngine) calculateTotalWasteScore(cpu, memory, time, queue, 
 
 // calculateWasteImpact calculates the broader impact of waste
 func (e *JobAnalyticsEngine) calculateWasteImpact(job *slurm.Job, wasteScore float64, categories map[string]*WasteCategory) *WasteImpactAnalysis {
+	_ = categories
 	// Simple impact calculation based on waste score and job characteristics
 	baseImpact := wasteScore
 
@@ -2056,6 +2066,7 @@ func (e *JobAnalyticsEngine) calculateWasteImpact(job *slurm.Job, wasteScore flo
 
 // calculateCostOfWaste calculates the monetary cost of waste
 func (e *JobAnalyticsEngine) calculateCostOfWaste(job *slurm.Job, wasteScore float64, categories map[string]*WasteCategory) float64 {
+	_ = categories
 	// Base cost calculation
 	cpuCost := float64(job.CPUs) * 0.10             // $0.10 per CPU-hour
 	memoryCost := float64(job.Memory) / 1024 * 0.02 // $0.02 per GB-hour
@@ -2073,6 +2084,7 @@ func (e *JobAnalyticsEngine) calculateCostOfWaste(job *slurm.Job, wasteScore flo
 
 // generateWasteReductionPlan generates a plan to reduce waste
 func (e *JobAnalyticsEngine) generateWasteReductionPlan(categories map[string]*WasteCategory, cpu, memory, time *WasteDetail) []WasteReductionAction {
+	_ = categories
 	var plan []WasteReductionAction
 
 	// Generate actions for each type of waste
@@ -2151,6 +2163,7 @@ func (e *JobAnalyticsEngine) calculateExpectedSavings(plan []WasteReductionActio
 
 // performEfficiencyAnalysis performs efficiency analysis (simplified)
 func (e *JobAnalyticsEngine) performEfficiencyAnalysis(job *slurm.Job, data *ResourceUtilizationData) *EfficiencyAnalysisResult {
+	_ = job
 	// Calculate efficiency using the efficiency calculator
 	efficiencyMetrics, _ := e.efficiencyCalc.CalculateEfficiency(data)
 	efficiency := 0.0
@@ -2180,6 +2193,7 @@ func (e *JobAnalyticsEngine) performEfficiencyAnalysis(job *slurm.Job, data *Res
 
 // performPerformanceAnalysis performs performance analysis (simplified)
 func (e *JobAnalyticsEngine) performPerformanceAnalysis(job *slurm.Job, data *ResourceUtilizationData) *PerformanceAnalyticsResult {
+	_ = job
 	return &PerformanceAnalyticsResult{
 		ThroughputAnalysis: &ThroughputAnalysis{
 			AverageThroughput: data.CPUUsed / data.CPUAllocated * 100,
@@ -2190,6 +2204,7 @@ func (e *JobAnalyticsEngine) performPerformanceAnalysis(job *slurm.Job, data *Re
 
 // performCostAnalysis performs cost analysis (simplified)
 func (e *JobAnalyticsEngine) performCostAnalysis(job *slurm.Job, data *ResourceUtilizationData, waste *WasteAnalysisResult) *JobCostAnalysisResult {
+	_ = data
 	wallTime := 1.0
 	if job.StartTime != nil {
 		wallTime = time.Since(*job.StartTime).Hours()
@@ -2213,6 +2228,7 @@ func (e *JobAnalyticsEngine) performCostAnalysis(job *slurm.Job, data *ResourceU
 
 // performJobTrendAnalysis performs trend analysis (simplified)
 func (e *JobAnalyticsEngine) performJobTrendAnalysis(jobID string) *JobTrendAnalysis {
+	_ = jobID
 	return &JobTrendAnalysis{
 		PerformanceTrend: "stable",
 		EfficiencyTrend:  "improving",
@@ -2222,6 +2238,7 @@ func (e *JobAnalyticsEngine) performJobTrendAnalysis(jobID string) *JobTrendAnal
 
 // performBenchmarkComparison performs benchmark comparison (simplified)
 func (e *JobAnalyticsEngine) performBenchmarkComparison(job *slurm.Job, data *ResourceUtilizationData) *JobBenchmarkComparisonResult {
+	_ = job
 	utilizationScore := (data.CPUUsed / data.CPUAllocated) * 100
 
 	return &JobBenchmarkComparisonResult{
@@ -2234,6 +2251,10 @@ func (e *JobAnalyticsEngine) performBenchmarkComparison(job *slurm.Job, data *Re
 
 // generateOptimizationInsights generates optimization insights (simplified)
 func (e *JobAnalyticsEngine) generateOptimizationInsights(job *slurm.Job, resourceAnalysis *ResourceUtilizationAnalysis, wasteAnalysis *WasteAnalysisResult, efficiencyAnalysis *EfficiencyAnalysisResult, performanceAnalysis *PerformanceAnalyticsResult) *OptimizationInsights {
+	_ = job
+	_ = resourceAnalysis
+	_ = efficiencyAnalysis
+	_ = performanceAnalysis
 	var primaryInsights []OptimizationInsight
 	var quickWins []QuickWinOpportunity
 
@@ -2290,6 +2311,7 @@ func (e *JobAnalyticsEngine) generateActionableRecommendations(insights *Optimiz
 
 // calculateOverallScore calculates overall performance score
 func (e *JobAnalyticsEngine) calculateOverallScore(efficiency *EfficiencyAnalysisResult, performance *PerformanceAnalyticsResult, waste *WasteAnalysisResult) float64 {
+	_ = performance
 	efficiencyScore := efficiency.OverallEfficiency
 
 	wasteScore := 1.0

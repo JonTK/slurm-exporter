@@ -111,7 +111,10 @@ func (cc *ClusterCollector) collectClusterMetrics(ctx context.Context, ch chan<-
 }
 
 // collectClusterInfo collects basic cluster information
+//
+//nolint:unparam
 func (cc *ClusterCollector) collectClusterInfo(ctx context.Context, ch chan<- prometheus.Metric) error {
+	_ = ctx
 	// Simulate cluster info - in real implementation this would come from SLURM API
 	clusterInfo := map[string]string{
 		"cluster_name":    cc.clusterName,
@@ -141,7 +144,10 @@ func (cc *ClusterCollector) collectClusterInfo(ctx context.Context, ch chan<- pr
 }
 
 // collectNodeSummary collects node summary information for cluster aggregates
+//
+//nolint:unparam
 func (cc *ClusterCollector) collectNodeSummary(ctx context.Context, ch chan<- prometheus.Metric) error {
+	_ = ctx
 	// Simulate node data - in real implementation this would come from SLURM API
 	// This represents what we might get from /slurm/v1/nodes
 	nodeData := struct {
@@ -255,7 +261,10 @@ func (cc *ClusterCollector) collectNodeSummary(ctx context.Context, ch chan<- pr
 }
 
 // collectJobSummary collects job summary information for cluster aggregates
+//
+//nolint:unparam
 func (cc *ClusterCollector) collectJobSummary(ctx context.Context, ch chan<- prometheus.Metric) error {
+	_ = ctx
 	// Simulate job data - in real implementation this would come from SLURM API
 	// This represents what we might get from /slurm/v1/jobs
 	jobStates := map[string]int{
@@ -299,7 +308,10 @@ func (cc *ClusterCollector) collectJobSummary(ctx context.Context, ch chan<- pro
 }
 
 // collectPartitionSummary collects partition summary information
+//
+//nolint:unparam
 func (cc *ClusterCollector) collectPartitionSummary(ctx context.Context, ch chan<- prometheus.Metric) error {
+	_ = ctx
 	// Simulate partition data - in real implementation this would come from SLURM API
 	// This represents what we might get from /slurm/v1/partitions
 	partitionCount := 8 // Example: compute, gpu, highmem, debug, etc.

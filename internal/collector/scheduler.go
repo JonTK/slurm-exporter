@@ -135,6 +135,7 @@ func (s *Scheduler) InitializeSchedules() error {
 	defer s.mu.Unlock()
 
 	// Helper function to create schedule
+	//nolint:unparam
 	createSchedule := func(name string, cfg config.CollectorConfig) error {
 		interval := cfg.Interval
 		if interval <= 0 {

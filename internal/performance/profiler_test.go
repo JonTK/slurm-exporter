@@ -275,7 +275,9 @@ func TestProfiler(t *testing.T) {
 		require.NoError(t, err)
 
 		stats := profiler.GetStats()
-		assert.True(t, stats["enabled"].(bool))
+		enabled, ok := stats["enabled"].(bool)
+		require.True(t, ok, "enabled should be bool")
+		assert.True(t, enabled)
 		assert.NotNil(t, stats["config"])
 		assert.NotNil(t, stats["storage"])
 	})
@@ -433,6 +435,7 @@ func TestMemoryProfileStorage(t *testing.T) {
 
 	t.Run("EnforceLimits", func(t *testing.T) {
 		// Create many profiles to exceed limit
+
 		for i := 0; i < 150; i++ {
 			profile := &CollectorProfile{
 				CollectorName: fmt.Sprintf("test_%d", i),

@@ -376,6 +376,7 @@ func (c *SystemSimpleCollector) collectSystemMetrics(ch chan<- prometheus.Metric
 
 // collectSlurmSystemInfo collects SLURM-specific system information
 func (c *SystemSimpleCollector) collectSlurmSystemInfo(ch chan<- prometheus.Metric, ctx context.Context, clusterName string) {
+	_ = ctx
 	// Number of active controllers (simulated)
 	ch <- prometheus.MustNewConstMetric(
 		c.activeControllers,

@@ -491,6 +491,7 @@ func (b *BottleneckAnalyzer) identifyPrimaryBottleneck(data *ResourceUtilization
 
 // identifySecondaryBottlenecks identifies secondary bottlenecks
 func (b *BottleneckAnalyzer) identifySecondaryBottlenecks(data *ResourceUtilizationData, efficiency *EfficiencyMetrics, primary string) []string {
+	_ = data
 	secondary := []string{}
 
 	if primary != "cpu" && efficiency.CPUEfficiency < 0.6 {
@@ -673,6 +674,7 @@ func (b *BottleneckAnalyzer) detectPerformanceIssues(data *ResourceUtilizationDa
 
 // identifyOptimizationOpportunities identifies optimization opportunities
 func (b *BottleneckAnalyzer) identifyOptimizationOpportunities(data *ResourceUtilizationData, efficiency *EfficiencyMetrics, issues []PerformanceIssue) []OptimizationOpportunity {
+	_ = issues
 	opportunities := []OptimizationOpportunity{}
 
 	// Resource reduction opportunities
@@ -719,6 +721,8 @@ func (b *BottleneckAnalyzer) performPredictiveAnalysis(job *slurm.Job, data *Res
 
 // performRootCauseAnalysis performs root cause analysis
 func (b *BottleneckAnalyzer) performRootCauseAnalysis(data *ResourceUtilizationData, efficiency *EfficiencyMetrics, issues []PerformanceIssue) []RootCause {
+	_ = data
+	_ = efficiency
 	causes := []RootCause{}
 
 	// Analyze root causes based on detected issues

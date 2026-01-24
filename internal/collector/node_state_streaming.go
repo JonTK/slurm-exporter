@@ -1240,6 +1240,7 @@ func (c *NodeStateStreamingCollector) Collect(ch chan<- prometheus.Metric) {
 }
 
 func (c *NodeStateStreamingCollector) collectStreamingConfiguration(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	config, err := c.client.GetNodeStreamingConfiguration(ctx)
 	if err != nil {
 		log.Printf("Error collecting node streaming configuration: %v", err)
@@ -1260,6 +1261,7 @@ func (c *NodeStateStreamingCollector) collectStreamingConfiguration(ctx context.
 }
 
 func (c *NodeStateStreamingCollector) collectActiveStreams(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	streams, err := c.client.GetActiveNodeStreams(ctx)
 	if err != nil {
 		log.Printf("Error collecting active node streams: %v", err)
@@ -1309,6 +1311,7 @@ func (c *NodeStateStreamingCollector) collectActiveStreams(ctx context.Context, 
 }
 
 func (c *NodeStateStreamingCollector) collectStreamingMetrics(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	metrics, err := c.client.GetNodeStreamingMetrics(ctx)
 	if err != nil {
 		log.Printf("Error collecting node streaming metrics: %v", err)
@@ -1344,6 +1347,7 @@ func (c *NodeStateStreamingCollector) collectStreamingMetrics(ctx context.Contex
 }
 
 func (c *NodeStateStreamingCollector) collectStreamingHealth(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	health, err := c.client.GetNodeStreamingHealthStatus(ctx)
 	if err != nil {
 		log.Printf("Error collecting node streaming health status: %v", err)
@@ -1363,6 +1367,7 @@ func (c *NodeStateStreamingCollector) collectStreamingHealth(ctx context.Context
 }
 
 func (c *NodeStateStreamingCollector) collectEventSubscriptions(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	subscriptions, err := c.client.GetNodeEventSubscriptions(ctx)
 	if err != nil {
 		log.Printf("Error collecting node event subscriptions: %v", err)
@@ -1388,6 +1393,7 @@ func (c *NodeStateStreamingCollector) collectEventSubscriptions(ctx context.Cont
 }
 
 func (c *NodeStateStreamingCollector) collectEventFilters(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	filters, err := c.client.GetNodeEventFilters(ctx)
 	if err != nil {
 		log.Printf("Error collecting node event filters: %v", err)
@@ -1415,6 +1421,7 @@ func (c *NodeStateStreamingCollector) collectEventFilters(ctx context.Context, c
 }
 
 func (c *NodeStateStreamingCollector) collectProcessingStats(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	stats, err := c.client.GetNodeEventProcessingStats(ctx)
 	if err != nil {
 		log.Printf("Error collecting node event processing stats: %v", err)
@@ -1442,6 +1449,7 @@ func (c *NodeStateStreamingCollector) collectProcessingStats(ctx context.Context
 }
 
 func (c *NodeStateStreamingCollector) collectPerformanceMetrics(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	perfMetrics, err := c.client.GetNodeStreamingPerformanceMetrics(ctx)
 	if err != nil {
 		log.Printf("Error collecting node streaming performance metrics: %v", err)

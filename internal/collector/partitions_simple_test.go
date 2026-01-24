@@ -17,6 +17,7 @@ import (
 )
 
 func TestPartitionsSimpleCollector_Describe(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -36,6 +37,7 @@ func TestPartitionsSimpleCollector_Describe(t *testing.T) {
 }
 
 func TestPartitionsSimpleCollector_Collect_Success(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockPartitionManager := new(mocks.MockPartitionManager)
@@ -68,6 +70,7 @@ func TestPartitionsSimpleCollector_Collect_Success(t *testing.T) {
 }
 
 func TestPartitionsSimpleCollector_Collect_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -91,6 +94,7 @@ func TestPartitionsSimpleCollector_Collect_Disabled(t *testing.T) {
 }
 
 func TestPartitionsSimpleCollector_Collect_Error(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockPartitionManager := new(mocks.MockPartitionManager)
@@ -115,6 +119,7 @@ func TestPartitionsSimpleCollector_Collect_Error(t *testing.T) {
 }
 
 func TestPartitionsSimpleCollector_StateMetrics(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockPartitionManager := new(mocks.MockPartitionManager)
@@ -148,6 +153,7 @@ func TestPartitionsSimpleCollector_StateMetrics(t *testing.T) {
 }
 
 func TestPartitionsSimpleCollector_ResourceMetrics(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockPartitionManager := new(mocks.MockPartitionManager)
@@ -190,6 +196,7 @@ func TestPartitionsSimpleCollector_ResourceMetrics(t *testing.T) {
 }
 
 func TestPartitionsSimpleCollector_LimitMetrics(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockPartitionManager := new(mocks.MockPartitionManager)
@@ -222,6 +229,7 @@ func TestPartitionsSimpleCollector_LimitMetrics(t *testing.T) {
 }
 
 func TestPartitionsSimpleCollector_EmptyPartitionList(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockPartitionManager := new(mocks.MockPartitionManager)
@@ -250,6 +258,7 @@ func TestPartitionsSimpleCollector_EmptyPartitionList(t *testing.T) {
 }
 
 func TestPartitionsSimpleCollector_QOSMetrics(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockPartitionManager := new(mocks.MockPartitionManager)
@@ -277,6 +286,7 @@ func TestPartitionsSimpleCollector_QOSMetrics(t *testing.T) {
 }
 
 func TestPartitionsSimpleCollector_ActivePartitions(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockPartitionManager := new(mocks.MockPartitionManager)

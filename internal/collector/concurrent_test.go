@@ -46,7 +46,6 @@ func TestConcurrentCollector(t *testing.T) {
 	})
 
 	t.Run("ConcurrentCollection", func(t *testing.T) {
-		// Register multiple collectors
 		var collectCount int32
 
 		for i := 0; i < 5; i++ {
@@ -104,7 +103,6 @@ func TestConcurrentCollector(t *testing.T) {
 	})
 
 	t.Run("MaxConcurrency", func(t *testing.T) {
-		// Clear registry
 		for _, name := range registry.List() {
 			_ = registry.Unregister(name)
 		}
@@ -156,7 +154,6 @@ func TestConcurrentCollector(t *testing.T) {
 	})
 
 	t.Run("ErrorHandling", func(t *testing.T) {
-		// Clear registry
 		for _, name := range registry.List() {
 			_ = registry.Unregister(name)
 		}
@@ -204,7 +201,6 @@ func TestConcurrentCollector(t *testing.T) {
 	})
 
 	t.Run("ContextCancellation", func(t *testing.T) {
-		// Clear registry
 		for _, name := range registry.List() {
 			_ = registry.Unregister(name)
 		}
@@ -238,7 +234,6 @@ func TestConcurrentCollector(t *testing.T) {
 	})
 
 	t.Run("Metrics", func(t *testing.T) {
-		// Clear registry first
 		for _, name := range registry.List() {
 			_ = registry.Unregister(name)
 		}
@@ -280,7 +275,6 @@ func TestConcurrentCollector(t *testing.T) {
 }
 
 func TestCollectionOrchestrator(t *testing.T) {
-	// Create registry
 	cfg := &config.CollectorsConfig{
 		Global: config.GlobalCollectorConfig{
 			DefaultInterval: 30 * time.Second,
@@ -315,7 +309,6 @@ func TestCollectionOrchestrator(t *testing.T) {
 	})
 
 	t.Run("CollectNow", func(t *testing.T) {
-		// Register collector
 		collected := false
 		collector := &mockCollector{
 			name:    "immediate",
@@ -354,7 +347,6 @@ func TestCollectionOrchestrator(t *testing.T) {
 	})
 
 	t.Run("ScheduledCollection", func(t *testing.T) {
-		// Register collector with short interval
 		var collectCount int32
 		collector := &mockCollector{
 			name:    "scheduled",
@@ -402,6 +394,7 @@ func TestCollectionOrchestrator(t *testing.T) {
 }
 
 func TestCollectionResult(t *testing.T) {
+	t.Parallel()
 	result := &CollectionResult{
 		CollectorName: "test",
 		StartTime:     time.Now(),

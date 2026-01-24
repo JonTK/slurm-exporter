@@ -982,6 +982,7 @@ func (c *RealtimeJobStreamingCollector) Collect(ch chan<- prometheus.Metric) {
 }
 
 func (c *RealtimeJobStreamingCollector) collectStreamingConfiguration(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	config, err := c.client.GetJobStreamingConfiguration(ctx)
 	if err != nil {
 		log.Printf("Error collecting job streaming configuration: %v", err)
@@ -1002,6 +1003,7 @@ func (c *RealtimeJobStreamingCollector) collectStreamingConfiguration(ctx contex
 }
 
 func (c *RealtimeJobStreamingCollector) collectActiveStreams(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	streams, err := c.client.GetActiveJobStreams(ctx)
 	if err != nil {
 		log.Printf("Error collecting active job streams: %v", err)
@@ -1051,6 +1053,7 @@ func (c *RealtimeJobStreamingCollector) collectActiveStreams(ctx context.Context
 }
 
 func (c *RealtimeJobStreamingCollector) collectStreamingMetrics(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	metrics, err := c.client.GetJobStreamingMetrics(ctx)
 	if err != nil {
 		log.Printf("Error collecting job streaming metrics: %v", err)
@@ -1078,6 +1081,7 @@ func (c *RealtimeJobStreamingCollector) collectStreamingMetrics(ctx context.Cont
 }
 
 func (c *RealtimeJobStreamingCollector) collectStreamingHealth(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	health, err := c.client.GetStreamingHealthStatus(ctx)
 	if err != nil {
 		log.Printf("Error collecting streaming health status: %v", err)
@@ -1097,6 +1101,7 @@ func (c *RealtimeJobStreamingCollector) collectStreamingHealth(ctx context.Conte
 }
 
 func (c *RealtimeJobStreamingCollector) collectEventSubscriptions(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	subscriptions, err := c.client.GetJobEventSubscriptions(ctx)
 	if err != nil {
 		log.Printf("Error collecting job event subscriptions: %v", err)
@@ -1122,6 +1127,7 @@ func (c *RealtimeJobStreamingCollector) collectEventSubscriptions(ctx context.Co
 }
 
 func (c *RealtimeJobStreamingCollector) collectEventFilters(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	filters, err := c.client.GetJobEventFilters(ctx)
 	if err != nil {
 		log.Printf("Error collecting job event filters: %v", err)
@@ -1149,6 +1155,7 @@ func (c *RealtimeJobStreamingCollector) collectEventFilters(ctx context.Context,
 }
 
 func (c *RealtimeJobStreamingCollector) collectProcessingStats(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	stats, err := c.client.GetJobEventProcessingStats(ctx)
 	if err != nil {
 		log.Printf("Error collecting job event processing stats: %v", err)
@@ -1173,6 +1180,7 @@ func (c *RealtimeJobStreamingCollector) collectProcessingStats(ctx context.Conte
 }
 
 func (c *RealtimeJobStreamingCollector) collectPerformanceMetrics(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	perfMetrics, err := c.client.GetJobStreamingPerformanceMetrics(ctx)
 	if err != nil {
 		log.Printf("Error collecting job streaming performance metrics: %v", err)

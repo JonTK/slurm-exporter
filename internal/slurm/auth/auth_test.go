@@ -12,6 +12,7 @@ import (
 )
 
 func TestConfigureAuth(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		config  *config.AuthConfig
@@ -88,6 +89,7 @@ func TestConfigureAuth(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			provider, err := ConfigureAuth(tt.config)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ConfigureAuth() error = %v, wantErr %v", err, tt.wantErr)
@@ -106,12 +108,14 @@ func TestConfigureAuth(t *testing.T) {
 }
 
 func TestReadSecretFile(t *testing.T) {
+	t.Parallel()
 	// Create temporary directory for test files
+
 	tmpDir, err := os.MkdirTemp("", "auth-test")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer func() { _ = os.RemoveAll(tmpDir) }()
+	t.Cleanup(func() { _ = os.RemoveAll(tmpDir) })
 
 	tests := []struct {
 		name        string
@@ -163,7 +167,10 @@ func TestReadSecretFile(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel(
 			// Create test file
+			)
+
 			filepath := filepath.Join(tmpDir, tt.filename)
 			err := os.WriteFile(filepath, []byte(tt.content), tt.permissions)
 			if err != nil {
@@ -184,6 +191,7 @@ func TestReadSecretFile(t *testing.T) {
 
 	// Test non-existent file
 	t.Run("non-existent file", func(t *testing.T) {
+		t.Parallel()
 		_, err := readSecretFile("/non/existent/file", "test")
 		if err == nil {
 			t.Error("readSecretFile() expected error for non-existent file")
@@ -192,12 +200,14 @@ func TestReadSecretFile(t *testing.T) {
 }
 
 func TestConfigureAuthWithFiles(t *testing.T) {
+	t.Parallel()
 	// Create temporary directory for test files
+
 	tmpDir, err := os.MkdirTemp("", "auth-file-test")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer func() { _ = os.RemoveAll(tmpDir) }()
+	t.Cleanup(func() { _ = os.RemoveAll(tmpDir) })
 
 	// Create test files
 	tokenFile := filepath.Join(tmpDir, "jwt-token")
@@ -242,6 +252,7 @@ func TestConfigureAuthWithFiles(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			provider, err := ConfigureAuth(tt.config)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ConfigureAuth() error = %v, wantErr %v", err, tt.wantErr)
@@ -255,12 +266,14 @@ func TestConfigureAuthWithFiles(t *testing.T) {
 }
 
 func TestServiceAccountAuth(t *testing.T) {
+	t.Parallel()
 	// Create temporary directory for test files
+
 	tmpDir, err := os.MkdirTemp("", "sa-test")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer func() { _ = os.RemoveAll(tmpDir) }()
+	t.Cleanup(func() { _ = os.RemoveAll(tmpDir) })
 
 	// Create test token file
 	tokenPath := filepath.Join(tmpDir, "token")
@@ -271,6 +284,7 @@ func TestServiceAccountAuth(t *testing.T) {
 	}
 
 	t.Run("custom token path", func(t *testing.T) {
+		t.Parallel()
 		sa := NewServiceAccountAuth(tokenPath)
 		token, err := sa.GetToken()
 		if err != nil {
@@ -292,6 +306,7 @@ func TestServiceAccountAuth(t *testing.T) {
 	})
 
 	t.Run("default token path", func(t *testing.T) {
+		t.Parallel()
 		sa := NewServiceAccountAuth("")
 		// This will fail as the default path doesn't exist in test environment
 		_, err := sa.GetToken()

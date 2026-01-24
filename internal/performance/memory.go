@@ -133,7 +133,11 @@ func (mo *MemoryOptimizer) optimizeGCSettings() {
 
 // GetMetricPool returns a pooled metric slice
 func (mo *MemoryOptimizer) GetMetricPool() []prometheus.Metric {
-	return mo.objectPools["metrics"].Get().([]prometheus.Metric)[:0]
+	metrics, ok := mo.objectPools["metrics"].Get().([]prometheus.Metric)
+	if !ok {
+		return make([]prometheus.Metric, 0, 100)
+	}
+	return metrics[:0]
 }
 
 // PutMetricPool returns a metric slice to the pool
@@ -145,7 +149,11 @@ func (mo *MemoryOptimizer) PutMetricPool(metrics []prometheus.Metric) {
 
 // GetLabelPool returns a pooled label slice
 func (mo *MemoryOptimizer) GetLabelPool() []string {
-	return mo.objectPools["labels"].Get().([]string)[:0]
+	labels, ok := mo.objectPools["labels"].Get().([]string)
+	if !ok {
+		return make([]string, 0, 10)
+	}
+	return labels[:0]
 }
 
 // PutLabelPool returns a label slice to the pool
@@ -157,7 +165,10 @@ func (mo *MemoryOptimizer) PutLabelPool(labels []string) {
 
 // GetChannelPool returns a pooled metric channel
 func (mo *MemoryOptimizer) GetChannelPool() chan prometheus.Metric {
-	ch := mo.objectPools["channels"].Get().(chan prometheus.Metric)
+	ch, ok := mo.objectPools["channels"].Get().(chan prometheus.Metric)
+	if !ok {
+		return make(chan prometheus.Metric, 1000)
+	}
 	// Drain any leftover metrics
 	for len(ch) > 0 {
 		<-ch

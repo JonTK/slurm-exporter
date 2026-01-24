@@ -1659,6 +1659,7 @@ func (c *QueueStateStreamingCollector) Collect(ch chan<- prometheus.Metric) {
 }
 
 func (c *QueueStateStreamingCollector) collectStreamingConfiguration(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	config, err := c.client.GetQueueStreamingConfiguration(ctx)
 	if err != nil {
 		log.Printf("Error collecting queue streaming configuration: %v", err)
@@ -1679,6 +1680,7 @@ func (c *QueueStateStreamingCollector) collectStreamingConfiguration(ctx context
 }
 
 func (c *QueueStateStreamingCollector) collectActiveStreams(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	streams, err := c.client.GetActiveQueueStreams(ctx)
 	if err != nil {
 		log.Printf("Error collecting active queue streams: %v", err)
@@ -1728,6 +1730,7 @@ func (c *QueueStateStreamingCollector) collectActiveStreams(ctx context.Context,
 }
 
 func (c *QueueStateStreamingCollector) collectStreamingMetrics(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	metrics, err := c.client.GetQueueStreamingMetrics(ctx)
 	if err != nil {
 		log.Printf("Error collecting queue streaming metrics: %v", err)
@@ -1766,6 +1769,7 @@ func (c *QueueStateStreamingCollector) collectStreamingMetrics(ctx context.Conte
 }
 
 func (c *QueueStateStreamingCollector) collectStreamingHealth(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	health, err := c.client.GetQueueStreamingHealthStatus(ctx)
 	if err != nil {
 		log.Printf("Error collecting queue streaming health status: %v", err)
@@ -1785,6 +1789,7 @@ func (c *QueueStateStreamingCollector) collectStreamingHealth(ctx context.Contex
 }
 
 func (c *QueueStateStreamingCollector) collectEventSubscriptions(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	subscriptions, err := c.client.GetQueueEventSubscriptions(ctx)
 	if err != nil {
 		log.Printf("Error collecting queue event subscriptions: %v", err)
@@ -1810,6 +1815,7 @@ func (c *QueueStateStreamingCollector) collectEventSubscriptions(ctx context.Con
 }
 
 func (c *QueueStateStreamingCollector) collectEventFilters(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	filters, err := c.client.GetQueueEventFilters(ctx)
 	if err != nil {
 		log.Printf("Error collecting queue event filters: %v", err)
@@ -1837,6 +1843,7 @@ func (c *QueueStateStreamingCollector) collectEventFilters(ctx context.Context, 
 }
 
 func (c *QueueStateStreamingCollector) collectProcessingStats(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	stats, err := c.client.GetQueueEventProcessingStats(ctx)
 	if err != nil {
 		log.Printf("Error collecting queue event processing stats: %v", err)
@@ -1866,6 +1873,7 @@ func (c *QueueStateStreamingCollector) collectProcessingStats(ctx context.Contex
 }
 
 func (c *QueueStateStreamingCollector) collectPerformanceMetrics(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	perfMetrics, err := c.client.GetQueueStreamingPerformanceMetrics(ctx)
 	if err != nil {
 		log.Printf("Error collecting queue streaming performance metrics: %v", err)

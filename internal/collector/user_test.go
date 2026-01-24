@@ -17,7 +17,9 @@ import (
 )
 
 func TestUserCollector(t *testing.T) {
+	t.Parallel()
 	// Create test logger
+
 	logger, hook := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)
 	logEntry := logrus.NewEntry(logger)
@@ -53,18 +55,21 @@ func TestUserCollector(t *testing.T) {
 	collector := NewUserCollector(cfg, opts, client, metricDefs, clusterName)
 
 	t.Run("Name", func(t *testing.T) {
+		t.Parallel()
 		if collector.Name() != "user" {
 			t.Errorf("Expected name 'user', got '%s'", collector.Name())
 		}
 	})
 
 	t.Run("Enabled", func(t *testing.T) {
+		t.Parallel()
 		if !collector.IsEnabled() {
 			t.Error("Collector should be enabled")
 		}
 	})
 
 	t.Run("Describe", func(t *testing.T) {
+		t.Parallel()
 		descChan := make(chan *prometheus.Desc, 100)
 
 		collector.Describe(descChan)
@@ -83,6 +88,7 @@ func TestUserCollector(t *testing.T) {
 	})
 
 	t.Run("Collect", func(t *testing.T) {
+		t.Parallel()
 		hook.Reset()
 
 		ctx := context.Background()
@@ -108,6 +114,7 @@ func TestUserCollector(t *testing.T) {
 	})
 
 	t.Run("CollectUserStats", func(t *testing.T) {
+		t.Parallel()
 		hook.Reset()
 
 		ctx := context.Background()
@@ -167,6 +174,7 @@ func TestUserCollector(t *testing.T) {
 	})
 
 	t.Run("CollectAccountStats", func(t *testing.T) {
+		t.Parallel()
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 100)
 
@@ -239,7 +247,9 @@ func TestUserCollector(t *testing.T) {
 }
 
 func TestUserCollectorIntegration(t *testing.T) {
+	t.Parallel()
 	// Create a full integration test
+
 	registry := prometheus.NewRegistry()
 
 	// Create test configuration

@@ -109,7 +109,10 @@ func (nc *NodeCollector) collectNodeMetrics(ctx context.Context, ch chan<- prome
 }
 
 // collectNodeInfo collects basic node information
+//
+//nolint:unparam
 func (nc *NodeCollector) collectNodeInfo(ctx context.Context, ch chan<- prometheus.Metric) error {
+	_ = ctx
 	// Simulate node data - in real implementation this would come from SLURM API
 	// This represents what we might get from /slurm/v1/nodes
 	nodes := []struct {
@@ -202,7 +205,10 @@ func (nc *NodeCollector) collectNodeInfo(ctx context.Context, ch chan<- promethe
 }
 
 // collectNodeStates collects node state information
+//
+//nolint:unparam
 func (nc *NodeCollector) collectNodeStates(ctx context.Context, ch chan<- prometheus.Metric) error {
+	_ = ctx
 	// Simulate node state data
 	nodeStates := []struct {
 		Name  string
@@ -241,7 +247,10 @@ func (nc *NodeCollector) collectNodeStates(ctx context.Context, ch chan<- promet
 }
 
 // collectNodeUtilization collects node resource utilization
+//
+//nolint:unparam
 func (nc *NodeCollector) collectNodeUtilization(ctx context.Context, ch chan<- prometheus.Metric) error {
+	_ = ctx
 	// Simulate node utilization data
 	nodeUtilization := []struct {
 		Name            string
@@ -278,7 +287,10 @@ func (nc *NodeCollector) collectNodeUtilization(ctx context.Context, ch chan<- p
 }
 
 // collectNodeHealth collects node health and performance metrics
+//
+//nolint:unparam
 func (nc *NodeCollector) collectNodeHealth(ctx context.Context, ch chan<- prometheus.Metric) error {
+	_ = ctx
 	// Simulate node health data
 	nodeHealth := []struct {
 		Name          string

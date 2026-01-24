@@ -19,6 +19,7 @@ import (
 )
 
 func TestWCKeysCollector_Describe(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	timeout := 30 * time.Second
@@ -39,6 +40,7 @@ func TestWCKeysCollector_Describe(t *testing.T) {
 }
 
 func TestWCKeysCollector_Collect_Success(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)
@@ -95,6 +97,7 @@ func TestWCKeysCollector_Collect_Success(t *testing.T) {
 }
 
 func TestWCKeysCollector_Collect_Error(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)
@@ -126,6 +129,7 @@ func TestWCKeysCollector_Collect_Error(t *testing.T) {
 }
 
 func TestWCKeysCollector_EmptyWCKeyList(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)

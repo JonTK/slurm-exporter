@@ -90,7 +90,11 @@ func demonstrateStableDataCaching(cache *IntelligentCache, logger *logrus.Logger
 
 		// Retrieve from cache
 		if cached, found := cache.Get(jobKey); found {
-			job := cached.(*ExampleJobData)
+			job, ok := cached.(*ExampleJobData)
+			if !ok {
+				logger.Error("Failed to cast cached job data to ExampleJobData")
+				continue
+			}
 			logger.WithFields(logrus.Fields{
 				"job_id":    job.ID,
 				"state":     job.State,
@@ -189,7 +193,11 @@ func demonstrateCachedFunction(cache *IntelligentCache, logger *logrus.Logger) {
 	duration1 := time.Since(start)
 
 	if err == nil {
-		job := result1.(*ExampleJobData)
+		job, ok := result1.(*ExampleJobData)
+		if !ok {
+			logger.Error("Failed to cast first call result to ExampleJobData")
+			return
+		}
 		logger.WithFields(logrus.Fields{
 			"job_id":   job.ID,
 			"duration": duration1,
@@ -203,7 +211,11 @@ func demonstrateCachedFunction(cache *IntelligentCache, logger *logrus.Logger) {
 	duration2 := time.Since(start)
 
 	if err == nil {
-		job := result2.(*ExampleJobData)
+		job, ok := result2.(*ExampleJobData)
+		if !ok {
+			logger.Error("Failed to cast second call result to ExampleJobData")
+			return
+		}
 		logger.WithFields(logrus.Fields{
 			"job_id":   job.ID,
 			"duration": duration2,

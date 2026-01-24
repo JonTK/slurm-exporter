@@ -17,6 +17,7 @@ import (
 
 func TestCircuitBreaker(t *testing.T) {
 	t.Run("NormalOperation", func(t *testing.T) {
+		t.Parallel()
 		cb := NewCircuitBreaker("test", 3, 1*time.Second)
 
 		// Successful calls should work
@@ -34,6 +35,7 @@ func TestCircuitBreaker(t *testing.T) {
 	})
 
 	t.Run("CircuitOpensAfterFailures", func(t *testing.T) {
+		t.Parallel()
 		cb := NewCircuitBreaker("test", 3, 1*time.Second)
 
 		// Generate failures
@@ -61,6 +63,7 @@ func TestCircuitBreaker(t *testing.T) {
 	})
 
 	t.Run("CircuitTransitionsToHalfOpen", func(t *testing.T) {
+		t.Parallel()
 		cb := NewCircuitBreaker("test", 2, 100*time.Millisecond)
 
 		// Open the circuit
@@ -94,6 +97,7 @@ func TestCircuitBreaker(t *testing.T) {
 	})
 
 	t.Run("FailureInHalfOpenReturnsToOpen", func(t *testing.T) {
+		t.Parallel()
 		cb := NewCircuitBreaker("test", 2, 100*time.Millisecond)
 
 		// Open the circuit
@@ -118,6 +122,7 @@ func TestCircuitBreaker(t *testing.T) {
 	})
 
 	t.Run("ManualReset", func(t *testing.T) {
+		t.Parallel()
 		cb := NewCircuitBreaker("test", 2, 10*time.Second)
 
 		// Open the circuit
@@ -283,7 +288,6 @@ func TestDegradationManager(t *testing.T) {
 	})
 
 	t.Run("DegradationModeTracking", func(t *testing.T) {
-		// Update degradation mode
 		dm.UpdateDegradationMode()
 
 		// Check degradation mode metric
@@ -318,7 +322,6 @@ func TestDegradationManager(t *testing.T) {
 	})
 
 	t.Run("ResetAllBreakers", func(t *testing.T) {
-		// Reset all breakers
 		dm.ResetAllBreakers()
 
 		// All breakers should be closed
@@ -342,6 +345,7 @@ func TestDegradationManager(t *testing.T) {
 }
 
 func TestDegradationMetrics(t *testing.T) {
+	t.Parallel()
 	metrics := NewDegradationMetrics("test", "degradation")
 	registry := prometheus.NewRegistry()
 
@@ -367,7 +371,9 @@ func TestDegradationMetrics(t *testing.T) {
 }
 
 func TestDegradationConfig(t *testing.T) {
+	t.Parallel()
 	t.Run("ValidConfig", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.DegradationConfig{
 			Enabled:          true,
 			MaxFailures:      3,
@@ -382,6 +388,7 @@ func TestDegradationConfig(t *testing.T) {
 	})
 
 	t.Run("InvalidMaxFailures", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.DegradationConfig{
 			Enabled:      true,
 			MaxFailures:  0,
@@ -394,6 +401,7 @@ func TestDegradationConfig(t *testing.T) {
 	})
 
 	t.Run("InvalidResetTimeout", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.DegradationConfig{
 			Enabled:      true,
 			MaxFailures:  3,
@@ -406,6 +414,7 @@ func TestDegradationConfig(t *testing.T) {
 	})
 
 	t.Run("InvalidCacheTTL", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.DegradationConfig{
 			Enabled:          true,
 			MaxFailures:      3,
@@ -420,6 +429,7 @@ func TestDegradationConfig(t *testing.T) {
 	})
 
 	t.Run("DisabledConfig", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.DegradationConfig{
 			Enabled: false,
 			// Other fields can be invalid when disabled

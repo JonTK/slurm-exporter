@@ -17,6 +17,7 @@ import (
 )
 
 func TestClusterSimpleCollector_Describe(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -36,6 +37,7 @@ func TestClusterSimpleCollector_Describe(t *testing.T) {
 }
 
 func TestClusterSimpleCollector_Collect_Success(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)
@@ -90,6 +92,7 @@ func TestClusterSimpleCollector_Collect_Success(t *testing.T) {
 }
 
 func TestClusterSimpleCollector_Collect_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -113,6 +116,7 @@ func TestClusterSimpleCollector_Collect_Disabled(t *testing.T) {
 }
 
 func TestClusterSimpleCollector_Collect_Error(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)
@@ -136,6 +140,7 @@ func TestClusterSimpleCollector_Collect_Error(t *testing.T) {
 }
 
 func TestClusterSimpleCollector_Collect_StatsError(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)

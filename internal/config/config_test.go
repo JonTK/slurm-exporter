@@ -10,6 +10,7 @@ import (
 )
 
 func TestLoadDefaults(t *testing.T) {
+	t.Parallel()
 	cfg, err := Load("")
 	if err != nil {
 		t.Fatalf("Expected no error loading default config, got: %v", err)
@@ -86,6 +87,7 @@ func TestLoadDefaults(t *testing.T) {
 }
 
 func TestServerConfig(t *testing.T) {
+	t.Parallel()
 	cfg, _ := Load("test-config.yaml")
 
 	// Test timeout values
@@ -122,6 +124,7 @@ func TestServerConfig(t *testing.T) {
 }
 
 func TestSLURMConfig(t *testing.T) {
+	t.Parallel()
 	cfg, _ := Load("test-config.yaml")
 
 	// Test retry settings
@@ -149,6 +152,7 @@ func TestSLURMConfig(t *testing.T) {
 }
 
 func TestCollectorsConfig(t *testing.T) {
+	t.Parallel()
 	cfg, _ := Load("test-config.yaml")
 
 	// Test global collector settings
@@ -205,6 +209,7 @@ func TestCollectorsConfig(t *testing.T) {
 }
 
 func TestMetricsConfig(t *testing.T) {
+	t.Parallel()
 	cfg, _ := Load("test-config.yaml")
 
 	// Test metrics settings
@@ -240,7 +245,10 @@ func TestMetricsConfig(t *testing.T) {
 }
 
 func TestConfigStructures(t *testing.T) {
+	t.Parallel(
 	// Test that all config structures can be instantiated
+	)
+
 	var cfg Config
 	var serverCfg ServerConfig
 	var slurmCfg SLURMConfig
@@ -285,7 +293,10 @@ func TestConfigStructures(t *testing.T) {
 }
 
 func TestLoadFromYAMLFile(t *testing.T) {
+	t.Parallel(
 	// Create a temporary YAML config file
+	)
+
 	yamlContent := `
 server:
   address: ":9090"
@@ -376,6 +387,7 @@ metrics:
 }
 
 func TestLoadNonExistentFile(t *testing.T) {
+	t.Parallel()
 	_, err := Load("non-existent-file.yaml")
 	if err == nil {
 		t.Error("Expected error when loading non-existent file")
@@ -383,6 +395,7 @@ func TestLoadNonExistentFile(t *testing.T) {
 }
 
 func TestLoadInvalidYAML(t *testing.T) {
+	t.Parallel()
 	invalidYAML := `
 server:
   address: ":8080"
@@ -407,6 +420,7 @@ server:
 }
 
 func TestValidateServerConfig(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name   string
 		config ServerConfig
@@ -461,6 +475,7 @@ func TestValidateServerConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			err := tt.config.Validate()
 			if tt.valid && err != nil {
 				t.Errorf("Expected config to be valid, got error: %v", err)
@@ -473,6 +488,7 @@ func TestValidateServerConfig(t *testing.T) {
 }
 
 func TestValidateAuthConfig(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name   string
 		config AuthConfig
@@ -528,6 +544,7 @@ func TestValidateAuthConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			err := tt.config.Validate()
 			if tt.valid && err != nil {
 				t.Errorf("Expected config to be valid, got error: %v", err)
@@ -540,6 +557,7 @@ func TestValidateAuthConfig(t *testing.T) {
 }
 
 func TestValidateLoggingConfig(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name   string
 		config LoggingConfig
@@ -596,6 +614,7 @@ func TestValidateLoggingConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			err := tt.config.Validate()
 			if tt.valid && err != nil {
 				t.Errorf("Expected config to be valid, got error: %v", err)
@@ -608,6 +627,7 @@ func TestValidateLoggingConfig(t *testing.T) {
 }
 
 func TestValidateCollectorConfig(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name   string
 		config CollectorConfig
@@ -657,6 +677,7 @@ func TestValidateCollectorConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			err := tt.config.Validate()
 			if tt.valid && err != nil {
 				t.Errorf("Expected config to be valid, got error: %v", err)
@@ -669,6 +690,7 @@ func TestValidateCollectorConfig(t *testing.T) {
 }
 
 func TestDefault(t *testing.T) {
+	t.Parallel()
 	cfg := Default()
 	if cfg == nil {
 		t.Fatal("Expected default config to be non-nil")

@@ -18,6 +18,7 @@ import (
 )
 
 func TestClustersCollector_Describe(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	timeout := 30 * time.Second
@@ -38,6 +39,7 @@ func TestClustersCollector_Describe(t *testing.T) {
 }
 
 func TestClustersCollector_Collect_Success(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockClusterManager := new(mocks.MockClusterManager)
@@ -103,6 +105,7 @@ func TestClustersCollector_Collect_Success(t *testing.T) {
 }
 
 func TestClustersCollector_Collect_Error(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockClusterManager := new(mocks.MockClusterManager)
@@ -126,6 +129,7 @@ func TestClustersCollector_Collect_Error(t *testing.T) {
 }
 
 func TestClustersCollector_EmptyClusterList(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockClusterManager := new(mocks.MockClusterManager)
@@ -163,6 +167,7 @@ func TestClustersCollector_EmptyClusterList(t *testing.T) {
 }
 
 func TestClustersCollector_NullClustersManager(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	timeout := 30 * time.Second

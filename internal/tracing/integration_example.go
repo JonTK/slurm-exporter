@@ -138,6 +138,7 @@ func (c *ExampleCollectorWithTracing) generateJobMetrics(
 	details *ExampleJobDetails,
 	ch chan<- prometheus.Metric,
 ) {
+	_ = ch
 	// Create child span for metric generation
 	ctx, span := c.tracer.CreateChildSpan(ctx, "generate_job_metrics")
 	defer span.End()
@@ -162,6 +163,7 @@ func (c *ExampleCollectorWithTracing) generateSummaryMetrics(
 	jobs []ExampleJob,
 	ch chan<- prometheus.Metric,
 ) {
+	_ = ch
 	// Create child span for summary metrics
 	ctx, span := c.tracer.CreateChildSpan(ctx, "generate_summary_metrics")
 	defer span.End()

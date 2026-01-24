@@ -314,6 +314,7 @@ func (suite *RockyClusterTestSuite) TestCollectorMetrics() {
 // TestCollectorPerformance tests collection performance
 func (suite *RockyClusterTestSuite) TestCollectorPerformance() {
 	// Get initial metrics
+
 	perfCtx, perfCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	perfReq, err := http.NewRequestWithContext(perfCtx, http.MethodGet, suite.exporterURL+"/metrics", nil)
 	perfCancel()
@@ -496,16 +497,24 @@ func (suite *RockyClusterTestSuite) TestCollectorHealth() {
 		}
 
 		if errors, exists := slurmExporter["collection_errors"]; exists {
-			errorCount := errors.(float64)
-			suite.T().Logf("Collection errors: %v", errorCount)
-			suite.collectedStats["collection_errors"] = errorCount
+			errorCount, ok := errors.(float64)
+			if !ok {
+				suite.T().Logf("Collection errors field is not float64, got type %T", errors)
+			} else {
+				suite.T().Logf("Collection errors: %v", errorCount)
+				suite.collectedStats["collection_errors"] = errorCount
+			}
 		}
 	}
 
 	// Check memory statistics
 	if memstats, ok := vars["memstats"].(map[string]interface{}); ok {
 		if alloc, exists := memstats["Alloc"]; exists {
-			allocBytes := alloc.(float64)
+			allocBytes, ok := alloc.(float64)
+			if !ok {
+				suite.T().Logf("Alloc field is not float64, got type %T", alloc)
+				return
+			}
 			allocMB := allocBytes / 1024 / 1024
 			suite.T().Logf("Memory allocation: %.2f MB", allocMB)
 			suite.collectedStats["memory_alloc_mb"] = allocMB
@@ -519,6 +528,7 @@ func (suite *RockyClusterTestSuite) TestCollectorHealth() {
 // TestTracingIntegration tests distributed tracing features
 func (suite *RockyClusterTestSuite) TestTracingIntegration() {
 	// Test tracing status endpoint
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
 	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, suite.exporterURL+"/debug/tracing/stats", nil)
@@ -606,7 +616,10 @@ func (suite *RockyClusterTestSuite) generateTestReport() {
 
 // TestRockyClusterIntegration runs the full integration test suite
 func TestRockyClusterIntegration(t *testing.T) {
+	t.Parallel(
 	// Skip if running in CI without proper setup
+	)
+
 	if os.Getenv("SKIP_INTEGRATION_TESTS") == "true" {
 		t.Skip("Integration tests skipped")
 	}

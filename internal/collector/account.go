@@ -1855,6 +1855,7 @@ func (a *AccountCollector) collectAccountMetrics(ctx context.Context) error {
 
 // collectAccountHierarchy collects account hierarchy information
 func (a *AccountCollector) collectAccountHierarchy(ctx context.Context) error {
+	_ = ctx
 	startTime := time.Now()
 	defer func() {
 		a.metrics.AccountCollectionDuration.WithLabelValues("collect_hierarchy").Observe(time.Since(startTime).Seconds())
@@ -1955,7 +1956,10 @@ func (a *AccountCollector) updateHierarchyMetrics(hierarchy *AccountHierarchy) {
 }
 
 // Placeholder implementations for remaining collection methods
+//
+//nolint:unparam
 func (a *AccountCollector) collectAccountQuotas(ctx context.Context) error {
+	_ = ctx
 	// Simplified quota collection
 	for accountName := range a.accountHierarchy.AccountMap {
 		quota := &AccountQuota{
@@ -2003,7 +2007,10 @@ func (a *AccountCollector) updateQuotaMetrics(accountName string, quota *Account
 }
 
 // Simplified implementations for remaining methods
+//
+//nolint:unparam
 func (a *AccountCollector) collectUserAccountAssociations(ctx context.Context) error {
+	_ = ctx
 	// Simplified user-account association collection
 	for _, account := range a.accountHierarchy.AccountMap {
 		for _, userName := range account.AllUsers {
@@ -2022,7 +2029,9 @@ func (a *AccountCollector) collectUserAccountAssociations(ctx context.Context) e
 	return nil
 }
 
+//nolint:unparam
 func (a *AccountCollector) analyzeHierarchy(ctx context.Context) error {
+	_ = ctx
 	// Simplified hierarchy analysis
 	result := &HierarchyAnalysisResult{
 		AnalysisTime:       time.Now(),
@@ -2046,7 +2055,9 @@ func (a *AccountCollector) analyzeQuotas(ctx context.Context) error {
 	return nil
 }
 
+//nolint:unparam
 func (a *AccountCollector) validateAccess(ctx context.Context) error {
+	_ = ctx
 	// Simplified access validation
 	for userName, association := range a.userAccounts {
 		result := &ValidationResult{
@@ -2069,7 +2080,9 @@ func (a *AccountCollector) validateAccess(ctx context.Context) error {
 	return nil
 }
 
+//nolint:unparam
 func (a *AccountCollector) analyzeUsagePatterns(ctx context.Context) error {
+	_ = ctx
 	// Simplified usage pattern analysis
 	for accountName := range a.accountHierarchy.AccountMap {
 		a.metrics.AccountUsagePattern.WithLabelValues(accountName, "steady").Set(0.8)
@@ -2079,7 +2092,9 @@ func (a *AccountCollector) analyzeUsagePatterns(ctx context.Context) error {
 	return nil
 }
 
+//nolint:unparam
 func (a *AccountCollector) analyzeCosts(ctx context.Context) error {
+	_ = ctx
 	// Simplified cost analysis
 	for accountName := range a.accountHierarchy.AccountMap {
 		a.metrics.AccountBudgetUtilization.WithLabelValues(accountName, "monthly").Set(0.65)
@@ -2089,7 +2104,9 @@ func (a *AccountCollector) analyzeCosts(ctx context.Context) error {
 	return nil
 }
 
+//nolint:unparam
 func (a *AccountCollector) monitorQoS(ctx context.Context) error {
+	_ = ctx
 	// Simplified QoS monitoring
 	for accountName := range a.accountHierarchy.AccountMap {
 		a.metrics.QoSViolations.WithLabelValues("normal", accountName, "none", "none").Set(0)
@@ -2099,7 +2116,9 @@ func (a *AccountCollector) monitorQoS(ctx context.Context) error {
 	return nil
 }
 
+//nolint:unparam
 func (a *AccountCollector) monitorReservations(ctx context.Context) error {
+	_ = ctx
 	// Simplified reservation monitoring
 	for accountName := range a.accountHierarchy.AccountMap {
 		a.metrics.ReservationUtilization.WithLabelValues("reservation1", accountName, "cpu").Set(0.80)

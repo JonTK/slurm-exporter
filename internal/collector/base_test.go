@@ -18,6 +18,7 @@ import (
 
 func TestBaseCollector(t *testing.T) {
 	// Create test configuration
+
 	cfg := &config.CollectorConfig{
 		Enabled:        true,
 		Interval:       30 * time.Second,
@@ -54,6 +55,7 @@ func TestBaseCollector(t *testing.T) {
 
 	t.Run("EnabledState", func(t *testing.T) {
 		// Initially enabled
+
 		if !base.IsEnabled() {
 			t.Error("Collector should be initially enabled")
 		}
@@ -137,6 +139,7 @@ func TestBaseCollector(t *testing.T) {
 
 	t.Run("RetryLogic", func(t *testing.T) {
 		// Test retry conditions
+
 		if !base.ShouldRetry(0) {
 			t.Error("Should retry on first attempt")
 		}
@@ -210,6 +213,7 @@ func TestBaseCollector(t *testing.T) {
 }
 
 func TestCollectorMetrics(t *testing.T) {
+	t.Parallel()
 	metrics := NewCollectorMetrics("test", "exporter")
 	registry := prometheus.NewRegistry()
 

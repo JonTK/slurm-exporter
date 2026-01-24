@@ -346,7 +346,11 @@ func (bp *BatchProcessor) GetStats() map[string]interface{} {
 	}
 
 	for batchType, batch := range bp.batches {
-		stats["batch_types"].(map[string]interface{})[batchType] = map[string]interface{}{
+		batchTypes, ok := stats["batch_types"].(map[string]interface{})
+		if !ok {
+			continue
+		}
+		batchTypes[batchType] = map[string]interface{}{
 			"items":      len(batch.items),
 			"total_size": batch.totalSize,
 			"age":        time.Since(batch.createTime),

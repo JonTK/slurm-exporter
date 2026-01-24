@@ -16,6 +16,7 @@ import (
 )
 
 func TestNewSmartFilter_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -30,6 +31,7 @@ func TestNewSmartFilter_Disabled(t *testing.T) {
 }
 
 func TestNewSmartFilter_Enabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -52,6 +54,7 @@ func TestNewSmartFilter_Enabled(t *testing.T) {
 }
 
 func TestNewSmartFilter_InvalidConfig(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -90,6 +93,7 @@ func TestNewSmartFilter_InvalidConfig(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			filter, err := NewSmartFilter(tc.cfg, logger)
 			assert.Error(t, err)
 			assert.Nil(t, filter)
@@ -98,6 +102,7 @@ func TestNewSmartFilter_InvalidConfig(t *testing.T) {
 }
 
 func TestSmartFilter_ProcessMetrics_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -120,6 +125,7 @@ func TestSmartFilter_ProcessMetrics_Disabled(t *testing.T) {
 }
 
 func TestSmartFilter_ProcessMetrics_LearningPhase(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -134,7 +140,7 @@ func TestSmartFilter_ProcessMetrics_LearningPhase(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer func() { _ = filter.Close() }()
+	t.Cleanup(func() { _ = filter.Close() })
 
 	// Create test metrics
 	metrics := createTestMetrics()
@@ -148,6 +154,7 @@ func TestSmartFilter_ProcessMetrics_LearningPhase(t *testing.T) {
 }
 
 func TestSmartFilter_CreateMetricKey(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -162,7 +169,7 @@ func TestSmartFilter_CreateMetricKey(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer func() { _ = filter.Close() }()
+	t.Cleanup(func() { _ = filter.Close() })
 
 	testCases := []struct {
 		name     string
@@ -191,6 +198,7 @@ func TestSmartFilter_CreateMetricKey(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			key := filter.createMetricKey("test_metric", tc.metric)
 			assert.Equal(t, tc.expected, key)
 		})
@@ -198,6 +206,7 @@ func TestSmartFilter_CreateMetricKey(t *testing.T) {
 }
 
 func TestSmartFilter_ExtractValue(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -212,7 +221,7 @@ func TestSmartFilter_ExtractValue(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer func() { _ = filter.Close() }()
+	t.Cleanup(func() { _ = filter.Close() })
 
 	testCases := []struct {
 		name     string
@@ -251,6 +260,7 @@ func TestSmartFilter_ExtractValue(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			value := filter.extractValue(tc.metric)
 			assert.Equal(t, tc.expected, value)
 		})
@@ -258,6 +268,7 @@ func TestSmartFilter_ExtractValue(t *testing.T) {
 }
 
 func TestSmartFilter_CalculateStatistics(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -272,7 +283,7 @@ func TestSmartFilter_CalculateStatistics(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer func() { _ = filter.Close() }()
+	t.Cleanup(func() { _ = filter.Close() })
 
 	// Create a pattern with known values
 	pattern := &MetricPattern{
@@ -290,6 +301,7 @@ func TestSmartFilter_CalculateStatistics(t *testing.T) {
 }
 
 func TestSmartFilter_CalculateCorrelation(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -304,7 +316,7 @@ func TestSmartFilter_CalculateCorrelation(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer func() { _ = filter.Close() }()
+	t.Cleanup(func() { _ = filter.Close() })
 
 	testCases := []struct {
 		name      string
@@ -338,6 +350,7 @@ func TestSmartFilter_CalculateCorrelation(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			correlation := filter.calculateCorrelation(tc.x, tc.y)
 			assert.InDelta(t, tc.expected, correlation, tc.tolerance)
 		})
@@ -345,6 +358,7 @@ func TestSmartFilter_CalculateCorrelation(t *testing.T) {
 }
 
 func TestSmartFilter_Cache(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -359,7 +373,7 @@ func TestSmartFilter_Cache(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer func() { _ = filter.Close() }()
+	t.Cleanup(func() { _ = filter.Close() })
 
 	// Test cache operations
 	filter.cacheDecision("key1", ActionKeep)
@@ -384,6 +398,7 @@ func TestSmartFilter_Cache(t *testing.T) {
 }
 
 func TestSmartFilter_RegisterMetrics(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -398,7 +413,7 @@ func TestSmartFilter_RegisterMetrics(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer func() { _ = filter.Close() }()
+	t.Cleanup(func() { _ = filter.Close() })
 
 	registry := prometheus.NewRegistry()
 	err = filter.RegisterMetrics(registry)
@@ -416,6 +431,7 @@ func TestSmartFilter_RegisterMetrics(t *testing.T) {
 }
 
 func TestSmartFilter_GetStats(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -430,7 +446,7 @@ func TestSmartFilter_GetStats(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer func() { _ = filter.Close() }()
+	t.Cleanup(func() { _ = filter.Close() })
 
 	stats := filter.GetStats()
 	assert.Equal(t, true, stats["enabled"])
@@ -444,10 +460,13 @@ func TestSmartFilter_GetStats(t *testing.T) {
 	require.NoError(t, err)
 
 	stats = filter.GetStats()
-	assert.True(t, stats["total_patterns"].(int) > 0)
+	totalPatterns, ok := stats["total_patterns"].(int)
+	require.True(t, ok, "total_patterns should be int")
+	assert.True(t, totalPatterns > 0)
 }
 
 func TestSmartFilter_GetPatterns(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -462,7 +481,7 @@ func TestSmartFilter_GetPatterns(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer func() { _ = filter.Close() }()
+	t.Cleanup(func() { _ = filter.Close() })
 
 	// Initially no patterns
 	patterns := filter.GetPatterns()
@@ -478,6 +497,7 @@ func TestSmartFilter_GetPatterns(t *testing.T) {
 }
 
 func TestSmartFilter_FilterAction_String(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		action   FilterAction
 		expected string
@@ -490,12 +510,14 @@ func TestSmartFilter_FilterAction_String(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.expected, func(t *testing.T) {
+			t.Parallel()
 			assert.Equal(t, tc.expected, tc.action.String())
 		})
 	}
 }
 
 func TestSmartFilter_NoiseScoreCalculation(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -510,7 +532,7 @@ func TestSmartFilter_NoiseScoreCalculation(t *testing.T) {
 
 	filter, err := NewSmartFilter(cfg, logger)
 	require.NoError(t, err)
-	defer func() { _ = filter.Close() }()
+	t.Cleanup(func() { _ = filter.Close() })
 
 	testCases := []struct {
 		name        string
@@ -537,6 +559,7 @@ func TestSmartFilter_NoiseScoreCalculation(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			pattern := &MetricPattern{
 				Variance:   tc.variance,
 				ChangeRate: tc.changeRate,

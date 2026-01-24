@@ -77,6 +77,7 @@ func (sm *ShutdownManager) RemoveShutdownHook(name string) {
 
 // Start begins listening for shutdown signals
 func (sm *ShutdownManager) Start(ctx context.Context) {
+	_ = ctx
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
 

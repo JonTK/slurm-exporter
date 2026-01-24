@@ -16,6 +16,7 @@ import (
 )
 
 func TestNewClient(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		config  *config.SLURMConfig
@@ -79,6 +80,7 @@ func TestNewClient(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			client, err := NewClient(tt.config)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewClient() error = %v, wantErr %v", err, tt.wantErr)
@@ -97,6 +99,7 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestNewConnectionPool(t *testing.T) {
+	t.Parallel()
 	t.Skip("Skipping test that requires network connection - no mock SLURM server available")
 
 	cfg := &config.SLURMConfig{
@@ -138,6 +141,7 @@ func TestNewConnectionPool(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			pool, err := NewConnectionPool(cfg, tt.poolSize)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewConnectionPool() error = %v, wantErr %v", err, tt.wantErr)
@@ -162,6 +166,7 @@ func TestNewConnectionPool(t *testing.T) {
 }
 
 func TestConnectionPoolGetClient(t *testing.T) {
+	t.Parallel()
 	t.Skip("Skipping test that requires network connection - no mock SLURM server available")
 
 	cfg := &config.SLURMConfig{
@@ -203,6 +208,7 @@ func TestConnectionPoolGetClient(t *testing.T) {
 }
 
 func TestClientConnectionStatus(t *testing.T) {
+	t.Parallel()
 	t.Skip("Skipping test that requires network connection - no mock SLURM server available")
 
 	cfg := &config.SLURMConfig{
@@ -240,6 +246,7 @@ func TestClientConnectionStatus(t *testing.T) {
 }
 
 func TestClientContextCancellation(t *testing.T) {
+	t.Parallel()
 	t.Skip("Skipping test that requires network connection - no mock SLURM server available")
 
 	cfg := &config.SLURMConfig{
@@ -277,6 +284,7 @@ func TestClientContextCancellation(t *testing.T) {
 }
 
 func TestClientRateLimiting(t *testing.T) {
+	t.Parallel()
 	t.Skip("Skipping test that requires network connection - no mock SLURM server available")
 
 	cfg := &config.SLURMConfig{
@@ -317,6 +325,7 @@ func TestClientRateLimiting(t *testing.T) {
 
 // TestClientGettersAndSetters tests simple getter/setter methods
 func TestClientGettersAndSetters(t *testing.T) {
+	t.Parallel()
 	cfg := &config.SLURMConfig{
 		BaseURL:       "https://example.com:6820",
 		APIVersion:    "v0.0.42",
@@ -366,6 +375,7 @@ func TestClientGettersAndSetters(t *testing.T) {
 
 // TestConnectionPoolRoundRobin tests connection pool round-robin behavior without network
 func TestConnectionPoolRoundRobin(t *testing.T) {
+	t.Parallel()
 	cfg := &config.SLURMConfig{
 		BaseURL:       "https://example.com:6820",
 		APIVersion:    "v0.0.42",
@@ -413,6 +423,7 @@ func TestConnectionPoolRoundRobin(t *testing.T) {
 
 // TestConnectionPoolDefaultSize tests default pool size
 func TestConnectionPoolDefaultSize(t *testing.T) {
+	t.Parallel()
 	cfg := &config.SLURMConfig{
 		BaseURL:       "https://example.com:6820",
 		APIVersion:    "v0.0.42",
@@ -452,6 +463,7 @@ func TestConnectionPoolDefaultSize(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			pool, err := NewConnectionPool(cfg, tt.poolSize)
 			if err != nil {
 				t.Fatalf("NewConnectionPool() error = %v", err)
@@ -466,6 +478,7 @@ func TestConnectionPoolDefaultSize(t *testing.T) {
 
 // TestClientClose tests the Close method
 func TestClientClose(t *testing.T) {
+	t.Parallel()
 	cfg := &config.SLURMConfig{
 		BaseURL:       "https://example.com:6820",
 		APIVersion:    "v0.0.42",
@@ -499,11 +512,13 @@ func TestClientClose(t *testing.T) {
 
 // TestClientRetryLogic tests the retry mechanism
 func TestClientRetryLogic(t *testing.T) {
+	t.Parallel()
 	t.Skip("Skipping - HTTP mock approach not compatible with slurm-client library parsing")
 }
 
 // TestClientTimeout tests timeout handling
 func TestClientTimeout(t *testing.T) {
+	t.Parallel()
 	slowServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(5 * time.Second)
 		w.WriteHeader(http.StatusOK)
@@ -540,6 +555,7 @@ func TestClientTimeout(t *testing.T) {
 
 // TestClientErrorPropagation tests error handling and propagation
 func TestClientErrorPropagation(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name          string
 		responseCode  int
@@ -565,6 +581,7 @@ func TestClientErrorPropagation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if r.URL.Path == "/slurm/v0.0.42/ping" {
 					w.WriteHeader(http.StatusOK)
@@ -614,21 +631,25 @@ func TestClientErrorPropagation(t *testing.T) {
 
 // TestClientConnectionStatusUpdate tests connection status updates
 func TestClientConnectionStatusUpdate(t *testing.T) {
+	t.Parallel()
 	t.Skip("Skipping - HTTP mock approach not compatible with slurm-client library parsing")
 }
 
 // TestClientMultipleConcurrentRequests tests concurrent request handling
 func TestClientMultipleConcurrentRequests(t *testing.T) {
+	t.Parallel()
 	t.Skip("Skipping - HTTP mock approach not compatible with slurm-client library parsing")
 }
 
 // TestClientRateLimitingEnforcement tests rate limiting behavior
 func TestClientRateLimitingEnforcement(t *testing.T) {
+	t.Parallel()
 	t.Skip("Skipping - HTTP mock approach not compatible with slurm-client library parsing")
 }
 
 // TestClientContextCancellationPropagation tests context cancellation
 func TestClientContextCancellationPropagation(t *testing.T) {
+	t.Parallel()
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/slurm/v0.0.42/ping" {
 			w.WriteHeader(http.StatusOK)
@@ -677,16 +698,19 @@ func TestClientContextCancellationPropagation(t *testing.T) {
 
 // TestClientNilResultHandling tests handling of nil API responses
 func TestClientNilResultHandling(t *testing.T) {
+	t.Parallel()
 	t.Skip("Skipping - HTTP mock approach not compatible with slurm-client library parsing")
 }
 
 // TestClientRetryWithExponentialBackoff tests exponential backoff in retries
 func TestClientRetryWithExponentialBackoff(t *testing.T) {
+	t.Parallel()
 	t.Skip("Skipping - HTTP mock approach not compatible with slurm-client library parsing")
 }
 
 // TestClientNewClientWithAdapters tests client creation with adapters enabled/disabled
 func TestClientNewClientWithAdapters(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name        string
 		useAdapters bool
@@ -715,6 +739,7 @@ func TestClientNewClientWithAdapters(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			cfg := &config.SLURMConfig{
 				BaseURL:       "https://example.com:6820",
 				APIVersion:    tt.apiVersion,
@@ -750,6 +775,7 @@ func TestClientNewClientWithAdapters(t *testing.T) {
 
 // TestClientRetryCount tests retry count management
 func TestClientRetryCount(t *testing.T) {
+	t.Parallel()
 	cfg := &config.SLURMConfig{
 		BaseURL:       "https://example.com:6820",
 		APIVersion:    "v0.0.42",
@@ -785,6 +811,7 @@ func TestClientRetryCount(t *testing.T) {
 
 // TestClientConnectionError tests connection error handling
 func TestClientConnectionError(t *testing.T) {
+	t.Parallel()
 	cfg := &config.SLURMConfig{
 		BaseURL:       "http://localhost:99999",
 		APIVersion:    "v0.0.42",
@@ -819,6 +846,7 @@ func TestClientConnectionError(t *testing.T) {
 
 // TestClientRateLimitConfig tests rate limiting configuration
 func TestClientRateLimitConfig(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name        string
 		rateLimit   config.RateLimitConfig
@@ -865,6 +893,7 @@ func TestClientRateLimitConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			cfg := &config.SLURMConfig{
 				BaseURL:       "https://example.com:6820",
 				APIVersion:    "v0.0.42",
@@ -891,6 +920,7 @@ func TestClientRateLimitConfig(t *testing.T) {
 
 // TestClientRetryConfiguration tests retry configuration
 func TestClientRetryConfiguration(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name          string
 		retryAttempts int
@@ -937,6 +967,7 @@ func TestClientRetryConfiguration(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			cfg := &config.SLURMConfig{
 				BaseURL:       "https://example.com:6820",
 				APIVersion:    "v0.0.42",
@@ -966,6 +997,7 @@ func TestClientRetryConfiguration(t *testing.T) {
 
 // TestClientTimeoutConfiguration tests timeout configuration
 func TestClientTimeoutConfiguration(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		timeout time.Duration
@@ -1000,6 +1032,7 @@ func TestClientTimeoutConfiguration(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			cfg := &config.SLURMConfig{
 				BaseURL:       "https://example.com:6820",
 				APIVersion:    "v0.0.42",
@@ -1029,6 +1062,7 @@ func TestClientTimeoutConfiguration(t *testing.T) {
 
 // TestConnectionPoolEdgeCases tests connection pool edge cases
 func TestConnectionPoolEdgeCases(t *testing.T) {
+	t.Parallel()
 	cfg := &config.SLURMConfig{
 		BaseURL:       "https://example.com:6820",
 		APIVersion:    "v0.0.42",
@@ -1045,6 +1079,7 @@ func TestConnectionPoolEdgeCases(t *testing.T) {
 	}
 
 	t.Run("very large pool size", func(t *testing.T) {
+		t.Parallel()
 		pool, err := NewConnectionPool(cfg, 100)
 		if err != nil {
 			t.Fatalf("NewConnectionPool() error = %v", err)
@@ -1062,6 +1097,7 @@ func TestConnectionPoolEdgeCases(t *testing.T) {
 	})
 
 	t.Run("pool of size one", func(t *testing.T) {
+		t.Parallel()
 		pool, err := NewConnectionPool(cfg, 1)
 		if err != nil {
 			t.Fatalf("NewConnectionPool() error = %v", err)
@@ -1080,6 +1116,7 @@ func TestConnectionPoolEdgeCases(t *testing.T) {
 
 // TestClientAPIVersionConfiguration tests API version configuration
 func TestClientAPIVersionConfiguration(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name       string
 		apiVersion string
@@ -1109,6 +1146,7 @@ func TestClientAPIVersionConfiguration(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			cfg := &config.SLURMConfig{
 				BaseURL:       "https://example.com:6820",
 				APIVersion:    tt.apiVersion,
@@ -1138,6 +1176,7 @@ func TestClientAPIVersionConfiguration(t *testing.T) {
 
 // TestClientAuthConfiguration tests authentication configuration
 func TestClientAuthConfiguration(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		auth    config.AuthConfig
@@ -1185,6 +1224,7 @@ func TestClientAuthConfiguration(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			cfg := &config.SLURMConfig{
 				BaseURL:       "https://example.com:6820",
 				APIVersion:    "v0.0.42",
@@ -1212,6 +1252,7 @@ func TestClientAuthConfiguration(t *testing.T) {
 
 // TestClientBaseURLConfiguration tests base URL configuration
 func TestClientBaseURLConfiguration(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		baseURL string
@@ -1251,6 +1292,7 @@ func TestClientBaseURLConfiguration(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			cfg := &config.SLURMConfig{
 				BaseURL:       tt.baseURL,
 				APIVersion:    "v0.0.42",
@@ -1280,20 +1322,22 @@ func TestClientBaseURLConfiguration(t *testing.T) {
 
 // TestClientTestConnection tests the TestConnection method
 func TestClientTestConnection(t *testing.T) {
+	t.Parallel()
 	successServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		// Return a proper SLURM API ping response structure
 		w.Write([]byte(`{"meta":{"plugin":{"type":"accounting_storage","name":"slurm_mysql"}}}`))
 	}))
-	defer successServer.Close()
+	t.Cleanup(successServer.Close)
 
 	failServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
-	defer failServer.Close()
+	t.Cleanup(failServer.Close)
 
 	t.Run("successful connection test", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.SLURMConfig{
 			BaseURL:       successServer.URL,
 			APIVersion:    "v0.0.42",
@@ -1323,6 +1367,7 @@ func TestClientTestConnection(t *testing.T) {
 	})
 
 	t.Run("failed connection test", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.SLURMConfig{
 			BaseURL:       failServer.URL,
 			APIVersion:    "v0.0.42",
@@ -1352,6 +1397,7 @@ func TestClientTestConnection(t *testing.T) {
 	})
 
 	t.Run("test connection with cancelled context", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.SLURMConfig{
 			BaseURL:       "https://example.com:6820",
 			APIVersion:    "v0.0.42",

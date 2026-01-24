@@ -2092,6 +2092,7 @@ func (c *PartitionResourceStreamingCollector) Collect(ch chan<- prometheus.Metri
 }
 
 func (c *PartitionResourceStreamingCollector) collectStreamingConfiguration(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	config, err := c.client.GetPartitionStreamingConfiguration(ctx)
 	if err != nil {
 		log.Printf("Error collecting partition streaming configuration: %v", err)
@@ -2112,6 +2113,7 @@ func (c *PartitionResourceStreamingCollector) collectStreamingConfiguration(ctx 
 }
 
 func (c *PartitionResourceStreamingCollector) collectActiveStreams(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	streams, err := c.client.GetActivePartitionStreams(ctx)
 	if err != nil {
 		log.Printf("Error collecting active partition streams: %v", err)
@@ -2161,6 +2163,7 @@ func (c *PartitionResourceStreamingCollector) collectActiveStreams(ctx context.C
 }
 
 func (c *PartitionResourceStreamingCollector) collectStreamingMetrics(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	metrics, err := c.client.GetPartitionStreamingMetrics(ctx)
 	if err != nil {
 		log.Printf("Error collecting partition streaming metrics: %v", err)
@@ -2200,6 +2203,7 @@ func (c *PartitionResourceStreamingCollector) collectStreamingMetrics(ctx contex
 }
 
 func (c *PartitionResourceStreamingCollector) collectStreamingHealth(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	health, err := c.client.GetPartitionStreamingHealthStatus(ctx)
 	if err != nil {
 		log.Printf("Error collecting partition streaming health status: %v", err)
@@ -2219,6 +2223,7 @@ func (c *PartitionResourceStreamingCollector) collectStreamingHealth(ctx context
 }
 
 func (c *PartitionResourceStreamingCollector) collectEventSubscriptions(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	subscriptions, err := c.client.GetPartitionEventSubscriptions(ctx)
 	if err != nil {
 		log.Printf("Error collecting partition event subscriptions: %v", err)
@@ -2244,6 +2249,7 @@ func (c *PartitionResourceStreamingCollector) collectEventSubscriptions(ctx cont
 }
 
 func (c *PartitionResourceStreamingCollector) collectEventFilters(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	filters, err := c.client.GetPartitionEventFilters(ctx)
 	if err != nil {
 		log.Printf("Error collecting partition event filters: %v", err)
@@ -2271,6 +2277,7 @@ func (c *PartitionResourceStreamingCollector) collectEventFilters(ctx context.Co
 }
 
 func (c *PartitionResourceStreamingCollector) collectProcessingStats(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	stats, err := c.client.GetPartitionEventProcessingStats(ctx)
 	if err != nil {
 		log.Printf("Error collecting partition event processing stats: %v", err)
@@ -2301,6 +2308,7 @@ func (c *PartitionResourceStreamingCollector) collectProcessingStats(ctx context
 }
 
 func (c *PartitionResourceStreamingCollector) collectPerformanceMetrics(ctx context.Context, ch chan<- prometheus.Metric) {
+	_ = ch
 	perfMetrics, err := c.client.GetPartitionStreamingPerformanceMetrics(ctx)
 	if err != nil {
 		log.Printf("Error collecting partition streaming performance metrics: %v", err)

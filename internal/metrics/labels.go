@@ -283,6 +283,7 @@ func (lm *LabelManager) isValueAllowed(value string, allowedValues []string) boo
 
 // checkCardinality verifies that adding this label value won't exceed cardinality limits
 func (lm *LabelManager) checkCardinality(labelName, labelValue string) error {
+	_ = labelValue
 	limit, exists := lm.cardinalityLimits[labelName]
 	if !exists {
 		return nil

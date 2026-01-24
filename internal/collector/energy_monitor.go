@@ -638,7 +638,10 @@ func (e *EnergyMonitor) collectEnergyMetrics(ctx context.Context) error {
 }
 
 // processJobEnergyMetrics processes energy metrics for a single job
+//
+//nolint:unparam
 func (e *EnergyMonitor) processJobEnergyMetrics(ctx context.Context, job *slurm.Job) error {
+	_ = ctx
 	// Calculate energy consumption for the job
 	energyData := e.calculateJobEnergyConsumption(job)
 
@@ -903,6 +906,7 @@ func (e *EnergyMonitor) calculateEnergyPerTaskUnit(job *slurm.Job, totalEnergyWh
 
 // calculateEnergyWaste calculates wasted energy due to inefficiency
 func (e *EnergyMonitor) calculateEnergyWaste(job *slurm.Job, totalEnergyWh, powerEfficiency float64) float64 {
+	_ = job
 	// Energy waste = total energy × (1 - efficiency)
 	wasteRatio := 1.0 - powerEfficiency
 	return totalEnergyWh * wasteRatio

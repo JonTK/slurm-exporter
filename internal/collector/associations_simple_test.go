@@ -17,6 +17,7 @@ import (
 )
 
 func TestAssociationsSimpleCollector_Describe(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -36,6 +37,7 @@ func TestAssociationsSimpleCollector_Describe(t *testing.T) {
 }
 
 func TestAssociationsSimpleCollector_Collect_Success(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockAssociationManager := new(mocks.MockAssociationManager)
@@ -94,6 +96,7 @@ func TestAssociationsSimpleCollector_Collect_Success(t *testing.T) {
 }
 
 func TestAssociationsSimpleCollector_Collect_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -117,6 +120,7 @@ func TestAssociationsSimpleCollector_Collect_Disabled(t *testing.T) {
 }
 
 func TestAssociationsSimpleCollector_Collect_Error(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockAssociationManager := new(mocks.MockAssociationManager)
@@ -140,6 +144,7 @@ func TestAssociationsSimpleCollector_Collect_Error(t *testing.T) {
 }
 
 func TestAssociationsSimpleCollector_EmptyAssociationList(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockAssociationManager := new(mocks.MockAssociationManager)

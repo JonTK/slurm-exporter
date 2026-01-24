@@ -225,6 +225,7 @@ func TestProfiledCollectorManager(t *testing.T) {
 
 	t.Run("SetProfilingEnabledAll", func(t *testing.T) {
 		// Wrap multiple collectors
+
 		for i := 0; i < 3; i++ {
 			mock := &profiledMockCollector{
 				name:    fmt.Sprintf("collector_%d", i),
@@ -261,7 +262,8 @@ func TestProfiledCollectorManager(t *testing.T) {
 			}
 		}()
 
-		pc := wrapped.(*ProfiledCollector)
+		pc, ok := wrapped.(*ProfiledCollector)
+		require.True(t, ok, "wrapped collector should be a ProfiledCollector")
 		err = pc.Collect(context.Background(), ch)
 		close(ch) // Close channel to allow goroutine to exit
 		require.NoError(t, err)

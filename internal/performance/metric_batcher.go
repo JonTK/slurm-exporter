@@ -168,7 +168,11 @@ func (mb *MetricBatcher) processCounterBatch(ctx context.Context, items []BatchI
 	// Group by metric name
 	grouped := make(map[string][]*MetricItem)
 	for _, item := range items {
-		metric := item.(*MetricItem)
+		metric, ok := item.(*MetricItem)
+		if !ok {
+			mb.logger.Warn("Item is not a MetricItem, skipping")
+			continue
+		}
 		grouped[metric.metricName] = append(grouped[metric.metricName], metric)
 	}
 
@@ -200,7 +204,11 @@ func (mb *MetricBatcher) processGaugeBatch(ctx context.Context, items []BatchIte
 	latest := make(map[string]*MetricItem)
 
 	for _, item := range items {
-		metric := item.(*MetricItem)
+		metric, ok := item.(*MetricItem)
+		if !ok {
+			mb.logger.Warn("Item is not a MetricItem, skipping")
+			continue
+		}
 		key := metric.Key()
 
 		existing, exists := latest[key]
@@ -229,7 +237,11 @@ func (mb *MetricBatcher) processHistogramBatch(ctx context.Context, items []Batc
 	observations := make(map[string][]float64)
 
 	for _, item := range items {
-		metric := item.(*MetricItem)
+		metric, ok := item.(*MetricItem)
+		if !ok {
+			mb.logger.Warn("Item is not a MetricItem, skipping")
+			continue
+		}
 		key := metric.Key()
 		observations[key] = append(observations[key], metric.value)
 	}
@@ -257,7 +269,11 @@ func (mb *MetricBatcher) processSummaryBatch(ctx context.Context, items []BatchI
 	observations := make(map[string][]float64)
 
 	for _, item := range items {
-		metric := item.(*MetricItem)
+		metric, ok := item.(*MetricItem)
+		if !ok {
+			mb.logger.Warn("Item is not a MetricItem, skipping")
+			continue
+		}
 		key := metric.Key()
 		observations[key] = append(observations[key], metric.value)
 	}

@@ -241,6 +241,7 @@ slurm:
 }
 
 func TestWatcher_NonExistentFile(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	handler := &MockReloadHandler{}
 

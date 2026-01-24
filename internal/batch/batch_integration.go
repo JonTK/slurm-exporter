@@ -183,6 +183,7 @@ func (bc *BatchedCollector) processBatchItems() {
 
 // processJobBatch processes a batch of jobs
 func (bc *BatchedCollector) processJobBatch(ctx context.Context, jobs []*slurm.Job) error {
+	_ = ctx
 	bc.logger.WithField("count", len(jobs)).Debug("Processing job batch")
 
 	// Group jobs by state for efficient metric creation
@@ -224,6 +225,7 @@ func (bc *BatchedCollector) processJobBatch(ctx context.Context, jobs []*slurm.J
 
 // processNodeBatch processes a batch of nodes
 func (bc *BatchedCollector) processNodeBatch(ctx context.Context, nodes []*slurm.Node) error {
+	_ = ctx
 	bc.logger.WithField("count", len(nodes)).Debug("Processing node batch")
 
 	// Group nodes by state
@@ -256,6 +258,7 @@ func (bc *BatchedCollector) processNodeBatch(ctx context.Context, nodes []*slurm
 
 // processPartitionBatch processes a batch of partitions
 func (bc *BatchedCollector) processPartitionBatch(ctx context.Context, partitions []*slurm.Partition) error {
+	_ = ctx
 	bc.logger.WithField("count", len(partitions)).Debug("Processing partition batch")
 
 	for _, partition := range partitions {
