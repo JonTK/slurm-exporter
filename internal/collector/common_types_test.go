@@ -9,7 +9,6 @@ import (
 )
 
 func TestAccountHierarchy(t *testing.T) {
-	t.Parallel()
 	t.Run("EmptyHierarchy", func(t *testing.T) {
 		t.Parallel()
 		h := &AccountHierarchy{
@@ -91,7 +90,6 @@ func TestAccountHierarchy(t *testing.T) {
 }
 
 func TestAccountNode(t *testing.T) {
-	t.Parallel()
 	t.Run("BasicNode", func(t *testing.T) {
 		t.Parallel()
 		node := &AccountNode{
@@ -223,7 +221,6 @@ func TestAccountNode(t *testing.T) {
 }
 
 func TestAccountUsageInfo(t *testing.T) {
-	t.Parallel()
 	t.Run("BasicUsage", func(t *testing.T) {
 		t.Parallel()
 		usage := &AccountUsageInfo{
@@ -271,7 +268,6 @@ func TestAccountUsageInfo(t *testing.T) {
 }
 
 func TestQuotaViolation(t *testing.T) {
-	t.Parallel()
 	t.Run("BasicViolation", func(t *testing.T) {
 		t.Parallel()
 		now := time.Now()
@@ -357,7 +353,6 @@ func TestQuotaViolation(t *testing.T) {
 }
 
 func TestQuotaRecommendation(t *testing.T) {
-	t.Parallel()
 	t.Run("IncreaseQuotaRecommendation", func(t *testing.T) {
 		t.Parallel()
 		rec := &QuotaRecommendation{
@@ -431,7 +426,6 @@ func TestQuotaRecommendation(t *testing.T) {
 }
 
 func TestOptimizationOpportunity(t *testing.T) {
-	t.Parallel()
 	t.Run("JobSizeOptimization", func(t *testing.T) {
 		t.Parallel()
 		opp := &OptimizationOpportunity{
@@ -471,7 +465,6 @@ func TestOptimizationOpportunity(t *testing.T) {
 }
 
 func TestEfficiencyMetrics(t *testing.T) {
-	t.Parallel()
 	t.Run("BasicMetrics", func(t *testing.T) {
 		t.Parallel()
 		metrics := &EfficiencyMetrics{

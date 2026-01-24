@@ -16,7 +16,6 @@ import (
 )
 
 func TestCircuitBreaker(t *testing.T) {
-	t.Parallel()
 	t.Run("NormalOperation", func(t *testing.T) {
 		t.Parallel()
 		cb := NewCircuitBreaker("test", 3, 1*time.Second)

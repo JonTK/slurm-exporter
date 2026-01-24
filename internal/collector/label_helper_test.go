@@ -14,14 +14,12 @@ import (
 )
 
 func TestLabelHelper(t *testing.T) {
-	t.Parallel()
 	logger, _ := test.NewNullLogger()
 	logEntry := logrus.NewEntry(logger)
 	labelManager := metrics.NewLabelManager()
 	labelHelper := NewLabelHelper(labelManager, logEntry)
 
 	t.Run("ValidateAndBuildMetric", func(t *testing.T) {
-		t.Parallel()
 		desc := prometheus.NewDesc(
 			"test_metric",
 			"Test metric",
@@ -46,7 +44,6 @@ func TestLabelHelper(t *testing.T) {
 	})
 
 	t.Run("ValidateAndBuildMetricLabelMismatch", func(t *testing.T) {
-		t.Parallel()
 		desc := prometheus.NewDesc(
 			"test_metric",
 			"Test metric",
@@ -69,12 +66,10 @@ func TestLabelHelper(t *testing.T) {
 }
 
 func TestStandardLabelSets(t *testing.T) {
-	t.Parallel()
 	labelManager := metrics.NewLabelManager()
 	sls := NewStandardLabelSets(labelManager)
 
 	t.Run("ClusterLabels", func(t *testing.T) {
-		t.Parallel()
 		labels, err := sls.ClusterLabels("test-cluster")
 		if err != nil {
 			t.Errorf("ClusterLabels failed: %v", err)
@@ -85,7 +80,6 @@ func TestStandardLabelSets(t *testing.T) {
 	})
 
 	t.Run("NodeLabels", func(t *testing.T) {
-		t.Parallel()
 		labels, err := sls.NodeLabels("test-cluster", "node01")
 		if err != nil {
 			t.Errorf("NodeLabels failed: %v", err)
@@ -99,7 +93,6 @@ func TestStandardLabelSets(t *testing.T) {
 	})
 
 	t.Run("JobLabels", func(t *testing.T) {
-		t.Parallel()
 		labels, err := sls.JobLabels("test-cluster", "12345", "alice", "ml_team", "compute")
 		if err != nil {
 			t.Errorf("JobLabels failed: %v", err)
@@ -119,7 +112,6 @@ func TestStandardLabelSets(t *testing.T) {
 	})
 
 	t.Run("PartitionLabels", func(t *testing.T) {
-		t.Parallel()
 		labels, err := sls.PartitionLabels("test-cluster", "gpu")
 		if err != nil {
 			t.Errorf("PartitionLabels failed: %v", err)
@@ -130,7 +122,6 @@ func TestStandardLabelSets(t *testing.T) {
 	})
 
 	t.Run("UserLabels", func(t *testing.T) {
-		t.Parallel()
 		labels, err := sls.UserLabels("test-cluster", "bob", "physics")
 		if err != nil {
 			t.Errorf("UserLabels failed: %v", err)
@@ -144,7 +135,6 @@ func TestStandardLabelSets(t *testing.T) {
 	})
 
 	t.Run("StateLabels", func(t *testing.T) {
-		t.Parallel()
 		labels, err := sls.StateLabels("test-cluster", "job123", "running")
 		if err != nil {
 			t.Errorf("StateLabels failed: %v", err)
@@ -156,11 +146,9 @@ func TestStandardLabelSets(t *testing.T) {
 }
 
 func TestLabelSetBuilder(t *testing.T) {
-	t.Parallel()
 	labelManager := metrics.NewLabelManager()
 
 	t.Run("FluentInterface", func(t *testing.T) {
-		t.Parallel()
 		builder := NewLabelSetBuilder(labelManager)
 
 		labels, err := builder.
@@ -195,7 +183,6 @@ func TestLabelSetBuilder(t *testing.T) {
 	})
 
 	t.Run("WithJob", func(t *testing.T) {
-		t.Parallel()
 		builder := NewLabelSetBuilder(labelManager)
 
 		labels, err := builder.
@@ -222,7 +209,6 @@ func TestLabelSetBuilder(t *testing.T) {
 	})
 
 	t.Run("WithCustom", func(t *testing.T) {
-		t.Parallel()
 		builder := NewLabelSetBuilder(labelManager)
 
 		labels, err := builder.
@@ -240,7 +226,6 @@ func TestLabelSetBuilder(t *testing.T) {
 	})
 
 	t.Run("BuildSlice", func(t *testing.T) {
-		t.Parallel()
 		builder := NewLabelSetBuilder(labelManager)
 
 		names, values, err := builder.

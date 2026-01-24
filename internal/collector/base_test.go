@@ -17,7 +17,6 @@ import (
 )
 
 func TestBaseCollector(t *testing.T) {
-	t.Parallel()
 	// Create test configuration
 
 	cfg := &config.CollectorConfig{
@@ -49,14 +48,12 @@ func TestBaseCollector(t *testing.T) {
 	base := NewBaseCollector("test_collector", cfg, opts, client, metrics, nil)
 
 	t.Run("Name", func(t *testing.T) {
-		t.Parallel()
 		if base.Name() != "test_collector" {
 			t.Errorf("Expected name 'test_collector', got '%s'", base.Name())
 		}
 	})
 
 	t.Run("EnabledState", func(t *testing.T) {
-		t.Parallel()
 		// Initially enabled
 
 		if !base.IsEnabled() {
@@ -77,7 +74,6 @@ func TestBaseCollector(t *testing.T) {
 	})
 
 	t.Run("State", func(t *testing.T) {
-		t.Parallel()
 		state := base.GetState()
 		if state.Name != "test_collector" {
 			t.Errorf("State name mismatch: %s", state.Name)
@@ -102,7 +98,6 @@ func TestBaseCollector(t *testing.T) {
 	})
 
 	t.Run("CollectWithMetrics", func(t *testing.T) {
-		t.Parallel()
 		ch := make(chan prometheus.Metric, 100)
 		ctx := context.Background()
 
@@ -143,7 +138,6 @@ func TestBaseCollector(t *testing.T) {
 	})
 
 	t.Run("RetryLogic", func(t *testing.T) {
-		t.Parallel()
 		// Test retry conditions
 
 		if !base.ShouldRetry(0) {
@@ -174,7 +168,6 @@ func TestBaseCollector(t *testing.T) {
 	})
 
 	t.Run("ErrorHandling", func(t *testing.T) {
-		t.Parallel()
 		testErr := errors.New("test error")
 
 		// Test error wrapping
@@ -195,7 +188,6 @@ func TestBaseCollector(t *testing.T) {
 	})
 
 	t.Run("MetricBuilding", func(t *testing.T) {
-		t.Parallel()
 		desc := prometheus.NewDesc(
 			"test_metric",
 			"Test metric",
