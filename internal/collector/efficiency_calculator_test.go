@@ -14,10 +14,6 @@ func newTestCalculator() *EfficiencyCalculator {
 	return NewEfficiencyCalculator(slog.New(slog.NewTextHandler(os.Stdout, nil)), nil)
 }
 
-func newTestCalculatorWithConfig(config *EfficiencyConfig) *EfficiencyCalculator {
-	return NewEfficiencyCalculator(slog.New(slog.NewTextHandler(os.Stdout, nil)), config)
-}
-
 func TestNewEfficiencyCalculator(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
