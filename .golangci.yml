@@ -428,7 +428,7 @@ linters:
           - paralleltest
           - tparallel
         path: _test\.go
-        text: '(TestEnvOverrides|TestEnvOverridesPrecedence|TestApplyEnvOverrides|TestInvalidEnvOverrides|TestRegistry|TestConcurrentCollector|TestDegradationManager|TestDegradedRegistry|TestLoggingCollector|TestDimensionalAnalysisReporter|TestLoggerMethods)'
+        text: '(TestEnvOverrides|TestEnvOverridesPrecedence|TestApplyEnvOverrides|TestInvalidEnvOverrides|TestRegistry|TestConcurrentCollector|TestDegradationManager|TestDegradedRegistry|TestLoggingCollector|TestCollectorLogger|TestStructuredLogger|TestDimensionalAnalysisReporter|TestLoggerMethods)'
       # Server middleware and utilities have timeout and size constants
       - linters:
           - mnd
