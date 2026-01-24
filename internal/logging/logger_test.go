@@ -243,7 +243,6 @@ func TestLoggerMethods(t *testing.T) {
 	logger.SetOutput(&buf)
 
 	t.Run("WithComponent", func(t *testing.T) {
-		t.Parallel()
 		buf.Reset()
 		logger.WithComponent("test-component").Info("test message")
 
@@ -258,7 +257,6 @@ func TestLoggerMethods(t *testing.T) {
 	})
 
 	t.Run("WithCollector", func(t *testing.T) {
-		t.Parallel()
 		buf.Reset()
 		logger.WithCollector("cluster-collector").Info("test message")
 
@@ -273,7 +271,6 @@ func TestLoggerMethods(t *testing.T) {
 	})
 
 	t.Run("WithRequest", func(t *testing.T) {
-		t.Parallel()
 		buf.Reset()
 		logger.WithRequest("GET", "/metrics", "prometheus/1.0").Info("test message")
 
@@ -296,7 +293,6 @@ func TestLoggerMethods(t *testing.T) {
 	})
 
 	t.Run("WithError", func(t *testing.T) {
-		t.Parallel()
 		buf.Reset()
 		testErr := fmt.Errorf("test error")
 		logger.WithError(testErr).Error("error occurred")
@@ -312,7 +308,6 @@ func TestLoggerMethods(t *testing.T) {
 	})
 
 	t.Run("WithDuration", func(t *testing.T) {
-		t.Parallel()
 		buf.Reset()
 		duration := 150 * time.Millisecond
 		logger.WithDuration(duration).Info("operation completed")
