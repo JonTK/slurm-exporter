@@ -882,6 +882,11 @@ func (s *SLURMConfig) Validate() error {
 		return err
 	}
 
+	// Apply default API version if empty
+	if s.APIVersion == "" {
+		s.APIVersion = "v0.0.43"
+	}
+
 	if err := validateAPIVersion(s.APIVersion); err != nil {
 		return fmt.Errorf("slurm.api_version: %w", err)
 	}
@@ -1769,6 +1774,12 @@ func validateURL(url, field string) error {
 // validateAPIVersion validates that the SLURM API version is supported
 func validateAPIVersion(version string) error {
 	supportedVersions := []string{"v0.0.40", "v0.0.41", "v0.0.42", "v0.0.43"}
+
+	// Allow empty version - will use default
+	if version == "" {
+		return nil
+	}
+
 	for _, v := range supportedVersions {
 		if version == v {
 			return nil

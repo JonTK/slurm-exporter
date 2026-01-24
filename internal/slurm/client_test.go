@@ -705,7 +705,7 @@ func TestClientNewClientWithAdapters(t *testing.T) {
 			name:        "adapters enabled without version",
 			useAdapters: true,
 			apiVersion:  "",
-			wantErr:     true,
+			wantErr:     false,
 		},
 		{
 			name:        "adapters disabled with version",
@@ -1105,7 +1105,7 @@ func TestClientAPIVersionConfiguration(t *testing.T) {
 		{
 			name:       "invalid version format",
 			apiVersion: "invalid",
-			wantErr:    false,
+			wantErr:    true,
 		},
 	}
 
@@ -1283,8 +1283,10 @@ func TestClientBaseURLConfiguration(t *testing.T) {
 // TestClientTestConnection tests the TestConnection method
 func TestClientTestConnection(t *testing.T) {
 	successServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{}`))
+		// Return a proper SLURM API ping response structure
+		w.Write([]byte(`{"meta":{"plugin":{"type":"accounting_storage","name":"slurm_mysql"}}}`))
 	}))
 	defer successServer.Close()
 
