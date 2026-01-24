@@ -716,10 +716,7 @@ func TestDefault(t *testing.T) {
 }
 
 func TestEnvOverrides(t *testing.T) {
-	t.Parallel(
 	// Set environment variables
-	)
-
 	envVars := map[string]string{
 		"SLURM_EXPORTER_SERVER_ADDRESS":           ":9999",
 		"SLURM_EXPORTER_SERVER_METRICS_PATH":      "/custom/metrics",
@@ -792,10 +789,7 @@ func TestEnvOverrides(t *testing.T) {
 }
 
 func TestEnvOverridesPrecedence(t *testing.T) {
-	t.Parallel(
 	// Create a YAML config file
-	)
-
 	yamlContent := `
 server:
   address: ":8888"
@@ -906,7 +900,6 @@ func TestInvalidEnvOverrides(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			_ = os.Setenv(tt.envVar, tt.value)
 			defer func() { _ = os.Unsetenv(tt.envVar) }()
 
@@ -919,7 +912,6 @@ func TestInvalidEnvOverrides(t *testing.T) {
 }
 
 func TestApplyEnvOverrides(t *testing.T) {
-	t.Parallel()
 	cfg := Default()
 
 	// Test that ApplyEnvOverrides doesn't fail on default config
