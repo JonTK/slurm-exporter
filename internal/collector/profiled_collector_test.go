@@ -234,9 +234,8 @@ func TestProfiledCollectorManager(t *testing.T) {
 	})
 
 	t.Run("SetProfilingEnabledAll", func(t *testing.T) {
-		t.Parallel(
+		t.Parallel()
 		// Wrap multiple collectors
-		)
 
 		for i := 0; i < 3; i++ {
 			mock := &profiledMockCollector{
