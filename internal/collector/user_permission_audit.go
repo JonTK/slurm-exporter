@@ -1495,7 +1495,7 @@ func (c *UserPermissionAuditCollector) Collect(ch chan<- prometheus.Metric) {
 }
 
 func (c *UserPermissionAuditCollector) collectPermissionMetrics(ctx context.Context, user string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	permissions, err := c.client.GetUserPermissions(ctx, user)
 	if err != nil {
 		log.Printf("Error collecting permissions for user %s: %v", user, err)
@@ -1563,7 +1563,7 @@ func (c *UserPermissionAuditCollector) collectPermissionMetrics(ctx context.Cont
 }
 
 func (c *UserPermissionAuditCollector) collectAuditMetrics(ctx context.Context, user string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	endTime := time.Now()
 	startTime := endTime.Add(-24 * time.Hour)
 	auditEntries, err := c.client.GetUserAccessAuditLog(ctx, user, startTime, endTime)
@@ -1611,7 +1611,7 @@ func (c *UserPermissionAuditCollector) collectAuditMetrics(ctx context.Context, 
 }
 
 func (c *UserPermissionAuditCollector) collectAccessPatterns(ctx context.Context, user string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	patterns, err := c.client.GetUserAccessPatterns(ctx, user)
 	if err != nil {
 		log.Printf("Error collecting access patterns for user %s: %v", user, err)
@@ -1631,7 +1631,7 @@ func (c *UserPermissionAuditCollector) collectAccessPatterns(ctx context.Context
 }
 
 func (c *UserPermissionAuditCollector) collectPermissionHistory(ctx context.Context, user string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	endTime := time.Now()
 	startTime := endTime.Add(-30 * 24 * time.Hour)
 	history, err := c.client.GetUserPermissionHistory(ctx, user, startTime, endTime)
@@ -1704,7 +1704,7 @@ func (c *UserPermissionAuditCollector) collectPermissionHistory(ctx context.Cont
 }
 
 func (c *UserPermissionAuditCollector) collectViolationMetrics(ctx context.Context, user string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	violations, err := c.client.GetUserAccessViolations(ctx, user)
 	if err != nil {
 		log.Printf("Error collecting violations for user %s: %v", user, err)
@@ -1781,7 +1781,7 @@ func (c *UserPermissionAuditCollector) collectViolationMetrics(ctx context.Conte
 }
 
 func (c *UserPermissionAuditCollector) collectSessionMetrics(ctx context.Context, user string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	sessionAudit, err := c.client.GetUserSessionAudit(ctx, user)
 	if err != nil {
 		log.Printf("Error collecting session audit for user %s: %v", user, err)
@@ -1798,7 +1798,7 @@ func (c *UserPermissionAuditCollector) collectSessionMetrics(ctx context.Context
 }
 
 func (c *UserPermissionAuditCollector) collectComplianceMetrics(ctx context.Context, user string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	compliance, err := c.client.GetUserComplianceStatus(ctx, user)
 	if err != nil {
 		log.Printf("Error collecting compliance status for user %s: %v", user, err)
@@ -1836,7 +1836,7 @@ func (c *UserPermissionAuditCollector) collectComplianceMetrics(ctx context.Cont
 }
 
 func (c *UserPermissionAuditCollector) collectSecurityEvents(ctx context.Context, user string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	events, err := c.client.GetUserSecurityEvents(ctx, user)
 	if err != nil {
 		log.Printf("Error collecting security events for user %s: %v", user, err)
@@ -1932,7 +1932,7 @@ func (c *UserPermissionAuditCollector) collectSecurityEvents(ctx context.Context
 }
 
 func (c *UserPermissionAuditCollector) collectRoleMetrics(ctx context.Context, user string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	roles, err := c.client.GetUserRoleAssignments(ctx, user)
 	if err != nil {
 		log.Printf("Error collecting role assignments for user %s: %v", user, err)
@@ -2004,7 +2004,7 @@ func (c *UserPermissionAuditCollector) collectRoleMetrics(ctx context.Context, u
 }
 
 func (c *UserPermissionAuditCollector) collectEscalationMetrics(ctx context.Context, user string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	escalations, err := c.client.GetUserPrivilegeEscalations(ctx, user)
 	if err != nil {
 		log.Printf("Error collecting privilege escalations for user %s: %v", user, err)
@@ -2069,7 +2069,7 @@ func (c *UserPermissionAuditCollector) collectEscalationMetrics(ctx context.Cont
 }
 
 func (c *UserPermissionAuditCollector) collectDataAccessMetrics(ctx context.Context, user string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	dataAccess, err := c.client.GetUserDataAccess(ctx, user)
 	if err != nil {
 		log.Printf("Error collecting data access for user %s: %v", user, err)
@@ -2129,7 +2129,7 @@ func (c *UserPermissionAuditCollector) collectDataAccessMetrics(ctx context.Cont
 }
 
 func (c *UserPermissionAuditCollector) collectAccountAssociationMetrics(ctx context.Context, user string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	associations, err := c.client.GetUserAccountAssociations(ctx, user)
 	if err != nil {
 		log.Printf("Error collecting account associations for user %s: %v", user, err)
@@ -2177,7 +2177,7 @@ func (c *UserPermissionAuditCollector) collectAccountAssociationMetrics(ctx cont
 }
 
 func (c *UserPermissionAuditCollector) collectAuthenticationMetrics(ctx context.Context, user string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	events, err := c.client.GetUserAuthenticationEvents(ctx, user)
 	if err != nil {
 		log.Printf("Error collecting authentication events for user %s: %v", user, err)
@@ -2224,7 +2224,7 @@ func (c *UserPermissionAuditCollector) collectAuthenticationMetrics(ctx context.
 }
 
 func (c *UserPermissionAuditCollector) collectResourceAccessMetrics(ctx context.Context, user string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	resourceAccess, err := c.client.GetUserResourceAccess(ctx, user)
 	if err != nil {
 		log.Printf("Error collecting resource access for user %s: %v", user, err)

@@ -1467,9 +1467,10 @@ func (f *FairShareCollector) updateUserFairShareMetrics(fairShare *UserFairShare
 }
 
 // Placeholder implementations for remaining methods
+//
 //nolint:unparam
 func (f *FairShareCollector) collectAccountHierarchy(ctx context.Context) error {
- _ = ctx
+	_ = ctx
 	// Simplified account hierarchy collection
 	f.metrics.AccountHierarchyDepth.WithLabelValues("root").Set(3)
 	f.metrics.AccountUserCount.WithLabelValues("root", "", "total").Set(float64(len(f.userFairShares)))
@@ -1548,7 +1549,7 @@ func (f *FairShareCollector) updateJobPriorityMetrics(job *slurm.Job, priority *
 
 //nolint:unparam
 func (f *FairShareCollector) analyzeViolations(ctx context.Context) error {
- _ = ctx
+	_ = ctx
 	// Simplified violation analysis
 	f.violationDetector.analyzeViolations(f.userFairShares)
 	return nil
@@ -1556,7 +1557,7 @@ func (f *FairShareCollector) analyzeViolations(ctx context.Context) error {
 
 //nolint:unparam
 func (f *FairShareCollector) analyzePolicyEffectiveness(ctx context.Context) error {
- _ = ctx
+	_ = ctx
 	// Simplified policy effectiveness analysis
 	f.policyAnalyzer.analyzePolicyEffectiveness(f.userFairShares)
 	f.updatePolicyMetrics()
@@ -1580,7 +1581,7 @@ func (f *FairShareCollector) analyzeTrends(ctx context.Context) error {
 
 //nolint:unparam
 func (f *FairShareCollector) analyzeQueues(ctx context.Context) error {
- _ = ctx
+	_ = ctx
 	// Simplified queue analysis
 	f.metrics.QueueLength.WithLabelValues("normal", "normal").Set(10)
 	f.metrics.QueueAverageWaitTime.WithLabelValues("normal", "normal").Set(1800) // 30 minutes
@@ -1591,7 +1592,7 @@ func (f *FairShareCollector) analyzeQueues(ctx context.Context) error {
 
 //nolint:unparam
 func (f *FairShareCollector) analyzeUserBehavior(ctx context.Context) error {
- _ = ctx
+	_ = ctx
 	// Simplified user behavior analysis
 	for userKey, fairShare := range f.userFairShares {
 		f.metrics.UserBehaviorScore.WithLabelValues(fairShare.UserName, fairShare.Account).Set(0.8)

@@ -1465,7 +1465,7 @@ func (c *AccountPerformanceBenchmarkCollector) Collect(ch chan<- prometheus.Metr
 }
 
 func (c *AccountPerformanceBenchmarkCollector) collectPerformanceMetrics(ctx context.Context, account string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	metrics, err := c.client.GetAccountPerformanceMetrics(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting performance metrics for account %s: %v", account, err)
@@ -1512,7 +1512,7 @@ func (c *AccountPerformanceBenchmarkCollector) collectPerformanceMetrics(ctx con
 }
 
 func (c *AccountPerformanceBenchmarkCollector) collectBenchmarkResults(ctx context.Context, account string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	results, err := c.client.GetAccountBenchmarkResults(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting benchmark results for account %s: %v", account, err)
@@ -1531,7 +1531,7 @@ func (c *AccountPerformanceBenchmarkCollector) collectBenchmarkResults(ctx conte
 }
 
 func (c *AccountPerformanceBenchmarkCollector) collectPerformanceComparisons(ctx context.Context, account string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	comparisons, err := c.client.GetAccountPerformanceComparisons(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting performance comparisons for account %s: %v", account, err)
@@ -1550,7 +1550,7 @@ func (c *AccountPerformanceBenchmarkCollector) collectPerformanceComparisons(ctx
 }
 
 func (c *AccountPerformanceBenchmarkCollector) collectPerformanceTrends(ctx context.Context, account string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	trends, err := c.client.GetAccountPerformanceTrends(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting performance trends for account %s: %v", account, err)
@@ -1567,7 +1567,7 @@ func (c *AccountPerformanceBenchmarkCollector) collectPerformanceTrends(ctx cont
 }
 
 func (c *AccountPerformanceBenchmarkCollector) collectEfficiencyAnalysis(ctx context.Context, account string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	efficiency, err := c.client.GetAccountEfficiencyAnalysis(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting efficiency analysis for account %s: %v", account, err)
@@ -1587,7 +1587,7 @@ func (c *AccountPerformanceBenchmarkCollector) collectEfficiencyAnalysis(ctx con
 }
 
 func (c *AccountPerformanceBenchmarkCollector) collectResourceUtilization(ctx context.Context, account string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	_, err := c.client.GetAccountResourceUtilization(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting resource utilization for account %s: %v", account, err)
@@ -1596,7 +1596,7 @@ func (c *AccountPerformanceBenchmarkCollector) collectResourceUtilization(ctx co
 }
 
 func (c *AccountPerformanceBenchmarkCollector) collectWorkloadCharacteristics(ctx context.Context, account string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	workload, err := c.client.GetAccountWorkloadCharacteristics(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting workload characteristics for account %s: %v", account, err)
@@ -1615,7 +1615,7 @@ func (c *AccountPerformanceBenchmarkCollector) collectWorkloadCharacteristics(ct
 }
 
 func (c *AccountPerformanceBenchmarkCollector) collectSLACompliance(ctx context.Context, account string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	sla, err := c.client.GetAccountSLACompliance(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting SLA compliance for account %s: %v", account, err)
@@ -1639,7 +1639,7 @@ func (c *AccountPerformanceBenchmarkCollector) collectSLACompliance(ctx context.
 }
 
 func (c *AccountPerformanceBenchmarkCollector) collectPerformanceOptimization(ctx context.Context, account string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	optimizations, err := c.client.GetAccountPerformanceOptimization(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting performance optimization for account %s: %v", account, err)
@@ -1676,7 +1676,7 @@ func (c *AccountPerformanceBenchmarkCollector) collectPerformanceOptimization(ct
 }
 
 func (c *AccountPerformanceBenchmarkCollector) collectCapacityPredictions(ctx context.Context, account string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	predictions, err := c.client.GetAccountCapacityPredictions(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting capacity predictions for account %s: %v", account, err)
@@ -1711,7 +1711,7 @@ func (c *AccountPerformanceBenchmarkCollector) collectCapacityPredictions(ctx co
 }
 
 func (c *AccountPerformanceBenchmarkCollector) collectPerformanceAlerts(ctx context.Context, account string, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	alerts, err := c.client.GetAccountPerformanceAlerts(ctx, account)
 	if err != nil {
 		log.Printf("Error collecting performance alerts for account %s: %v", account, err)
@@ -1772,7 +1772,7 @@ func (c *AccountPerformanceBenchmarkCollector) collectPerformanceAlerts(ctx cont
 }
 
 func (c *AccountPerformanceBenchmarkCollector) collectSystemOverview(ctx context.Context, ch chan<- prometheus.Metric) {
- _ = ch
+	_ = ch
 	overview, err := c.client.GetSystemPerformanceOverview(ctx)
 	if err != nil {
 		log.Printf("Error collecting system performance overview: %v", err)

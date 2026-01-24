@@ -1265,7 +1265,7 @@ func (c *FairShareTrendReportingCollector) collectReportingMetrics(ctx context.C
 }
 
 func (c *FairShareTrendReportingCollector) collectSystemHealthMetrics(ctx context.Context) {
- _ = ctx
+	_ = ctx
 	// Data collection and processing latency
 	c.dataCollectionLatency.WithLabelValues("slurm_api").Observe(0.15)      // Mock 150ms
 	c.dataProcessingLatency.WithLabelValues("trend_analysis").Observe(0.35) // Mock 350ms

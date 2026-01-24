@@ -1956,6 +1956,7 @@ func (a *AccountCollector) updateHierarchyMetrics(hierarchy *AccountHierarchy) {
 }
 
 // Placeholder implementations for remaining collection methods
+//
 //nolint:unparam
 func (a *AccountCollector) collectAccountQuotas(ctx context.Context) error {
 	_ = ctx
@@ -2006,6 +2007,7 @@ func (a *AccountCollector) updateQuotaMetrics(accountName string, quota *Account
 }
 
 // Simplified implementations for remaining methods
+//
 //nolint:unparam
 func (a *AccountCollector) collectUserAccountAssociations(ctx context.Context) error {
 	_ = ctx

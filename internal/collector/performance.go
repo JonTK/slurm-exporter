@@ -95,9 +95,10 @@ func (pc *PerformanceCollector) collectPerformanceMetrics(ctx context.Context, c
 }
 
 // collectThroughputMetrics collects system throughput metrics
+//
 //nolint:unparam
 func (pc *PerformanceCollector) collectThroughputMetrics(ctx context.Context, ch chan<- prometheus.Metric) error {
- _ = ctx
+	_ = ctx
 	// Simulate throughput data - in real implementation this would come from SLURM API
 	// This represents jobs completed/submitted per hour, CPU hours delivered, etc.
 	throughputData := []struct {
@@ -184,9 +185,10 @@ func (pc *PerformanceCollector) collectThroughputMetrics(ctx context.Context, ch
 }
 
 // collectEfficiencyMetrics collects system efficiency metrics
+//
 //nolint:unparam
 func (pc *PerformanceCollector) collectEfficiencyMetrics(ctx context.Context, ch chan<- prometheus.Metric) error {
- _ = ctx
+	_ = ctx
 	// Simulate efficiency data
 	efficiencyData := []struct {
 		EfficiencyType string
@@ -307,9 +309,10 @@ func (pc *PerformanceCollector) collectEfficiencyMetrics(ctx context.Context, ch
 }
 
 // collectQueueMetrics collects queue analysis metrics
+//
 //nolint:unparam
 func (pc *PerformanceCollector) collectQueueMetrics(ctx context.Context, ch chan<- prometheus.Metric) error {
- _ = ctx
+	_ = ctx
 	// Simulate queue analysis data
 	queueData := []struct {
 		PartitionName   string

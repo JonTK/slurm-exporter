@@ -707,7 +707,7 @@ func (c *AccountQuotaCollector) Collect(ch chan<- prometheus.Metric) {
 }
 
 func (c *AccountQuotaCollector) collectAccountQuota(ctx context.Context, quota *AccountQuotas) {
- _ = ctx
+	_ = ctx
 	// CPU Quotas
 	if quota.CPUMinutes != nil {
 		c.accountQuotaLimit.WithLabelValues(quota.AccountName, "cpu", "minutes").Set(quota.CPUMinutes.Limit)

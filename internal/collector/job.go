@@ -124,9 +124,10 @@ func (jc *JobCollector) sendJobInfoMetric(ch chan<- prometheus.Metric, jobID, jo
 }
 
 // collectActiveJobs collects metrics for individual active jobs
+//
 //nolint:unparam
 func (jc *JobCollector) collectActiveJobs(ctx context.Context, ch chan<- prometheus.Metric) error {
- _ = ctx
+	_ = ctx
 	// Simulate active job data - in real implementation this would come from SLURM API
 	// This represents what we might get from /slurm/v1/jobs
 	activeJobs := []struct {
@@ -242,6 +243,7 @@ func (jc *JobCollector) collectActiveJobs(ctx context.Context, ch chan<- prometh
 }
 
 // collectJobQueueStats collects queue time statistics
+//
 //nolint:unparam
 func (jc *JobCollector) collectJobQueueStats(ctx context.Context, ch chan<- prometheus.Metric) error {
 	_ = ctx
@@ -289,9 +291,10 @@ func (jc *JobCollector) collectJobQueueStats(ctx context.Context, ch chan<- prom
 }
 
 // collectJobStatesSummary collects job states summary
+//
 //nolint:unparam
 func (jc *JobCollector) collectJobStatesSummary(ctx context.Context, ch chan<- prometheus.Metric) error {
- _ = ctx
+	_ = ctx
 	// Simulate job states summary
 	jobStates := map[string]int{
 		"pending":    45,
