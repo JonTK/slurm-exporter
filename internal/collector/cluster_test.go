@@ -17,7 +17,6 @@ import (
 )
 
 func TestClusterCollector(t *testing.T) {
-	t.Parallel()
 	// Create test logger
 
 	logger, hook := test.NewNullLogger()
@@ -55,21 +54,18 @@ func TestClusterCollector(t *testing.T) {
 	collector := NewClusterCollector(cfg, opts, client, metricDefs, clusterName)
 
 	t.Run("Name", func(t *testing.T) {
-		t.Parallel()
 		if collector.Name() != "cluster" {
 			t.Errorf("Expected name 'cluster', got '%s'", collector.Name())
 		}
 	})
 
 	t.Run("Enabled", func(t *testing.T) {
-		t.Parallel()
 		if !collector.IsEnabled() {
 			t.Error("Collector should be enabled")
 		}
 	})
 
 	t.Run("Describe", func(t *testing.T) {
-		t.Parallel()
 		descChan := make(chan *prometheus.Desc, 100)
 
 		collector.Describe(descChan)
@@ -88,7 +84,6 @@ func TestClusterCollector(t *testing.T) {
 	})
 
 	t.Run("Collect", func(t *testing.T) {
-		t.Parallel()
 		hook.Reset()
 
 		ctx := context.Background()
@@ -116,7 +111,6 @@ func TestClusterCollector(t *testing.T) {
 	})
 
 	t.Run("CollectClusterInfo", func(t *testing.T) {
-		t.Parallel()
 		hook.Reset()
 
 		ctx := context.Background()
@@ -149,7 +143,6 @@ func TestClusterCollector(t *testing.T) {
 	})
 
 	t.Run("CollectNodeSummary", func(t *testing.T) {
-		t.Parallel()
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 20)
 
@@ -197,7 +190,6 @@ func TestClusterCollector(t *testing.T) {
 	})
 
 	t.Run("CollectJobSummary", func(t *testing.T) {
-		t.Parallel()
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 10)
 
@@ -238,7 +230,6 @@ func TestClusterCollector(t *testing.T) {
 	})
 
 	t.Run("CollectPartitionSummary", func(t *testing.T) {
-		t.Parallel()
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 5)
 
@@ -269,7 +260,6 @@ func TestClusterCollector(t *testing.T) {
 }
 
 func TestClusterCollectorIntegration(t *testing.T) {
-	t.Parallel()
 	// Create a full integration test with registry
 
 	registry := prometheus.NewRegistry()

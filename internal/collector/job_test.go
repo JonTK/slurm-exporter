@@ -17,7 +17,6 @@ import (
 )
 
 func TestJobCollector(t *testing.T) {
-	t.Parallel()
 	// Create test logger
 
 	logger, hook := test.NewNullLogger()
@@ -55,21 +54,18 @@ func TestJobCollector(t *testing.T) {
 	collector := NewJobCollector(cfg, opts, client, metricDefs, clusterName)
 
 	t.Run("Name", func(t *testing.T) {
-		t.Parallel()
 		if collector.Name() != "job" {
 			t.Errorf("Expected name 'job', got '%s'", collector.Name())
 		}
 	})
 
 	t.Run("Enabled", func(t *testing.T) {
-		t.Parallel()
 		if !collector.IsEnabled() {
 			t.Error("Collector should be enabled")
 		}
 	})
 
 	t.Run("Describe", func(t *testing.T) {
-		t.Parallel()
 		descChan := make(chan *prometheus.Desc, 100)
 
 		collector.Describe(descChan)
@@ -88,7 +84,6 @@ func TestJobCollector(t *testing.T) {
 	})
 
 	t.Run("Collect", func(t *testing.T) {
-		t.Parallel()
 		hook.Reset()
 
 		ctx := context.Background()
@@ -114,7 +109,6 @@ func TestJobCollector(t *testing.T) {
 	})
 
 	t.Run("CollectActiveJobs", func(t *testing.T) {
-		t.Parallel()
 		hook.Reset()
 
 		ctx := context.Background()
@@ -174,7 +168,6 @@ func TestJobCollector(t *testing.T) {
 	})
 
 	t.Run("CollectJobQueueStats", func(t *testing.T) {
-		t.Parallel()
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 50)
 
@@ -191,7 +184,6 @@ func TestJobCollector(t *testing.T) {
 	})
 
 	t.Run("CollectJobStatesSummary", func(t *testing.T) {
-		t.Parallel()
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 20)
 
@@ -222,7 +214,6 @@ func TestJobCollector(t *testing.T) {
 }
 
 func TestJobCollectorUtilities(t *testing.T) {
-	t.Parallel()
 	// Create test configuration for collector
 
 	cfg := &config.CollectorConfig{
@@ -242,7 +233,6 @@ func TestJobCollectorUtilities(t *testing.T) {
 	collector := NewJobCollector(cfg, opts, client, metricDefs, "test-cluster")
 
 	t.Run("ParseJobState", func(t *testing.T) {
-		t.Parallel()
 		testCases := []struct {
 			input    string
 			expected string
@@ -282,7 +272,6 @@ func TestJobCollectorUtilities(t *testing.T) {
 }
 
 func TestJobCollectorIntegration(t *testing.T) {
-	t.Parallel()
 	// Create a full integration test
 
 	registry := prometheus.NewRegistry()

@@ -17,7 +17,6 @@ import (
 )
 
 func TestNodeCollector(t *testing.T) {
-	t.Parallel()
 	// Create test logger
 
 	logger, hook := test.NewNullLogger()
@@ -55,21 +54,18 @@ func TestNodeCollector(t *testing.T) {
 	collector := NewNodeCollector(cfg, opts, client, metricDefs, clusterName)
 
 	t.Run("Name", func(t *testing.T) {
-		t.Parallel()
 		if collector.Name() != "node" {
 			t.Errorf("Expected name 'node', got '%s'", collector.Name())
 		}
 	})
 
 	t.Run("Enabled", func(t *testing.T) {
-		t.Parallel()
 		if !collector.IsEnabled() {
 			t.Error("Collector should be enabled")
 		}
 	})
 
 	t.Run("Describe", func(t *testing.T) {
-		t.Parallel()
 		descChan := make(chan *prometheus.Desc, 100)
 
 		collector.Describe(descChan)
@@ -88,7 +84,6 @@ func TestNodeCollector(t *testing.T) {
 	})
 
 	t.Run("Collect", func(t *testing.T) {
-		t.Parallel()
 		hook.Reset()
 
 		ctx := context.Background()
@@ -114,7 +109,6 @@ func TestNodeCollector(t *testing.T) {
 	})
 
 	t.Run("CollectNodeInfo", func(t *testing.T) {
-		t.Parallel()
 		hook.Reset()
 
 		ctx := context.Background()
@@ -174,7 +168,6 @@ func TestNodeCollector(t *testing.T) {
 	})
 
 	t.Run("CollectNodeStates", func(t *testing.T) {
-		t.Parallel()
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 50)
 
@@ -205,7 +198,6 @@ func TestNodeCollector(t *testing.T) {
 	})
 
 	t.Run("CollectNodeUtilization", func(t *testing.T) {
-		t.Parallel()
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 20)
 
@@ -247,7 +239,6 @@ func TestNodeCollector(t *testing.T) {
 	})
 
 	t.Run("CollectNodeHealth", func(t *testing.T) {
-		t.Parallel()
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 100)
 
@@ -311,7 +302,6 @@ func TestNodeCollector(t *testing.T) {
 }
 
 func TestNodeCollectorIntegration(t *testing.T) {
-	t.Parallel()
 	// Create a full integration test
 
 	registry := prometheus.NewRegistry()
