@@ -15,12 +15,16 @@ import (
 )
 
 func TestLoggingCollector(t *testing.T) {
+	t.Parallel(
 	// Create test logger with hook to capture logs
+	)
+
 	logger, hook := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)
 	logEntry := logrus.NewEntry(logger)
 
 	t.Run("SuccessfulCollection", func(t *testing.T) {
+		t.Parallel()
 		hook.Reset()
 
 		// Create mock collector
@@ -83,6 +87,7 @@ func TestLoggingCollector(t *testing.T) {
 	})
 
 	t.Run("FailedCollection", func(t *testing.T) {
+		t.Parallel()
 		hook.Reset()
 
 		// Create failing mock collector
@@ -132,6 +137,7 @@ func TestLoggingCollector(t *testing.T) {
 	})
 
 	t.Run("DisabledCollector", func(t *testing.T) {
+		t.Parallel()
 		hook.Reset()
 
 		// Create disabled mock collector
@@ -170,6 +176,7 @@ func TestLoggingCollector(t *testing.T) {
 	})
 
 	t.Run("SetEnabled", func(t *testing.T) {
+		t.Parallel()
 		hook.Reset()
 
 		mockCollector := &mockCollector{
@@ -204,6 +211,7 @@ func TestLoggingCollector(t *testing.T) {
 	})
 
 	t.Run("Describe", func(t *testing.T) {
+		t.Parallel()
 		hook.Reset()
 
 		mockCollector := &mockCollector{
@@ -246,6 +254,7 @@ func TestLoggingCollector(t *testing.T) {
 }
 
 func TestCollectorLogger(t *testing.T) {
+	t.Parallel()
 	logger, hook := test.NewNullLogger()
 	logger.SetLevel(logrus.TraceLevel)
 	logEntry := logrus.NewEntry(logger)
@@ -253,6 +262,7 @@ func TestCollectorLogger(t *testing.T) {
 	collectorLogger := NewCollectorLogger(logEntry)
 
 	t.Run("LogCollection", func(t *testing.T) {
+		t.Parallel()
 		hook.Reset()
 
 		fields := logrus.Fields{
@@ -280,6 +290,7 @@ func TestCollectorLogger(t *testing.T) {
 	})
 
 	t.Run("LogError", func(t *testing.T) {
+		t.Parallel()
 		hook.Reset()
 
 		testErr := errors.New("test error")
@@ -307,6 +318,7 @@ func TestCollectorLogger(t *testing.T) {
 	})
 
 	t.Run("LogMetric", func(t *testing.T) {
+		t.Parallel()
 		hook.Reset()
 
 		labels := map[string]string{
@@ -337,6 +349,7 @@ func TestCollectorLogger(t *testing.T) {
 	})
 
 	t.Run("LogPerformance", func(t *testing.T) {
+		t.Parallel()
 		hook.Reset()
 
 		duration := 150 * time.Millisecond
@@ -364,12 +377,14 @@ func TestCollectorLogger(t *testing.T) {
 }
 
 func TestStructuredLogger(t *testing.T) {
+	t.Parallel()
 	logger, hook := test.NewNullLogger()
 	logEntry := logrus.NewEntry(logger)
 
 	structuredLogger := NewStructuredLogger(logEntry)
 
 	t.Run("WithCollector", func(t *testing.T) {
+		t.Parallel()
 		entry := structuredLogger.WithCollector("test_collector")
 		if entry.Data["collector"] != "test_collector" {
 			t.Errorf("Expected collector 'test_collector', got '%v'", entry.Data["collector"])
@@ -377,6 +392,7 @@ func TestStructuredLogger(t *testing.T) {
 	})
 
 	t.Run("WithOperation", func(t *testing.T) {
+		t.Parallel()
 		entry := structuredLogger.WithOperation("collect")
 		if entry.Data["operation"] != "collect" {
 			t.Errorf("Expected operation 'collect', got '%v'", entry.Data["operation"])
@@ -384,6 +400,7 @@ func TestStructuredLogger(t *testing.T) {
 	})
 
 	t.Run("WithDuration", func(t *testing.T) {
+		t.Parallel()
 		duration := 100 * time.Millisecond
 		entry := structuredLogger.WithDuration(duration)
 		if entry.Data["duration_ms"] != int64(100) {
@@ -392,7 +409,10 @@ func TestStructuredLogger(t *testing.T) {
 	})
 
 	t.Run("WithError", func(t *testing.T) {
+		t.Parallel(
 		// Test with regular error
+		)
+
 		regularErr := errors.New("regular error")
 		entry := structuredLogger.WithError(regularErr)
 		if entry.Data["error"] != regularErr {
@@ -417,8 +437,12 @@ func TestStructuredLogger(t *testing.T) {
 	})
 
 	t.Run("WithContext", func(t *testing.T) {
+		t.Parallel(
 		// Test with context containing request ID
+		//
 		//lint:ignore SA1029 test validates logger extracts string keys from context
+		)
+
 		ctx := context.WithValue(context.Background(), "request_id", "req-123")
 		entry := structuredLogger.WithContext(ctx)
 		if entry.Data["request_id"] != "req-123" {
@@ -426,6 +450,7 @@ func TestStructuredLogger(t *testing.T) {
 		}
 
 		// Test with context containing trace ID
+		//
 		//lint:ignore SA1029 test validates logger extracts string keys from context
 		ctx = context.WithValue(ctx, "trace_id", "trace-456")
 		entry = structuredLogger.WithContext(ctx)
@@ -435,6 +460,7 @@ func TestStructuredLogger(t *testing.T) {
 	})
 
 	t.Run("LogEntry", func(t *testing.T) {
+		t.Parallel()
 		hook.Reset()
 
 		entry := structuredLogger.LogEntry("test_collector", "collect")

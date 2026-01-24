@@ -19,7 +19,9 @@ import (
 )
 
 func TestNewLogger(t *testing.T) {
+	t.Parallel()
 	t.Run("WithValidConfig", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.LoggingConfig{
 			Level:  "info",
 			Format: "json",
@@ -45,6 +47,7 @@ func TestNewLogger(t *testing.T) {
 	})
 
 	t.Run("WithNilConfig", func(t *testing.T) {
+		t.Parallel()
 		logger, err := NewLogger(nil)
 		if err != nil {
 			t.Fatalf("Expected no error, got %v", err)
@@ -60,6 +63,7 @@ func TestNewLogger(t *testing.T) {
 	})
 
 	t.Run("WithInvalidLevel", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.LoggingConfig{
 			Level:  "invalid",
 			Format: "json",
@@ -73,6 +77,7 @@ func TestNewLogger(t *testing.T) {
 	})
 
 	t.Run("WithTextFormatter", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.LoggingConfig{
 			Level:  "debug",
 			Format: "text",
@@ -94,6 +99,7 @@ func TestNewLogger(t *testing.T) {
 	})
 
 	t.Run("WithConstantFields", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.LoggingConfig{
 			Level:  "info",
 			Format: "json",
@@ -131,14 +137,17 @@ func TestNewLogger(t *testing.T) {
 }
 
 func TestLoggerFileOutput(t *testing.T) {
+	t.Parallel()
 	// Create temporary directory for test files
+
 	tmpDir, err := os.MkdirTemp("", "logger_test")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer func() { _ = os.RemoveAll(tmpDir) }()
+	t.Cleanup(func() { _ = os.RemoveAll(tmpDir) })
 
 	t.Run("WithValidFile", func(t *testing.T) {
+		t.Parallel()
 		logFile := filepath.Join(tmpDir, "test.log")
 		cfg := &config.LoggingConfig{
 			Level:      "info",
@@ -180,6 +189,7 @@ func TestLoggerFileOutput(t *testing.T) {
 	})
 
 	t.Run("WithFileOutputNoPath", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.LoggingConfig{
 			Level:  "info",
 			Format: "json",
@@ -194,6 +204,7 @@ func TestLoggerFileOutput(t *testing.T) {
 	})
 
 	t.Run("WithNestedDirectory", func(t *testing.T) {
+		t.Parallel()
 		logFile := filepath.Join(tmpDir, "nested", "dir", "test.log")
 		cfg := &config.LoggingConfig{
 			Level:  "info",
@@ -217,6 +228,7 @@ func TestLoggerFileOutput(t *testing.T) {
 }
 
 func TestLoggerMethods(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	cfg := &config.LoggingConfig{
 		Level:        "debug",
@@ -232,6 +244,7 @@ func TestLoggerMethods(t *testing.T) {
 	logger.SetOutput(&buf)
 
 	t.Run("WithComponent", func(t *testing.T) {
+		t.Parallel()
 		buf.Reset()
 		logger.WithComponent("test-component").Info("test message")
 
@@ -246,6 +259,7 @@ func TestLoggerMethods(t *testing.T) {
 	})
 
 	t.Run("WithCollector", func(t *testing.T) {
+		t.Parallel()
 		buf.Reset()
 		logger.WithCollector("cluster-collector").Info("test message")
 
@@ -260,6 +274,7 @@ func TestLoggerMethods(t *testing.T) {
 	})
 
 	t.Run("WithRequest", func(t *testing.T) {
+		t.Parallel()
 		buf.Reset()
 		logger.WithRequest("GET", "/metrics", "prometheus/1.0").Info("test message")
 
@@ -282,6 +297,7 @@ func TestLoggerMethods(t *testing.T) {
 	})
 
 	t.Run("WithError", func(t *testing.T) {
+		t.Parallel()
 		buf.Reset()
 		testErr := fmt.Errorf("test error")
 		logger.WithError(testErr).Error("error occurred")
@@ -297,6 +313,7 @@ func TestLoggerMethods(t *testing.T) {
 	})
 
 	t.Run("WithDuration", func(t *testing.T) {
+		t.Parallel()
 		buf.Reset()
 		duration := 150 * time.Millisecond
 		logger.WithDuration(duration).Info("operation completed")
@@ -312,6 +329,7 @@ func TestLoggerMethods(t *testing.T) {
 	})
 
 	t.Run("IsHTTPSuppressed", func(t *testing.T) {
+		t.Parallel()
 		if !logger.IsHTTPSuppressed() {
 			t.Error("Expected HTTP suppression to be true")
 		}
@@ -334,6 +352,7 @@ func TestLoggerMethods(t *testing.T) {
 	})
 
 	t.Run("SetLevel", func(t *testing.T) {
+		t.Parallel()
 		logger.SetLevel(logrus.ErrorLevel)
 		if logger.GetLevel() != logrus.ErrorLevel {
 			t.Errorf("Expected log level Error, got %v", logger.GetLevel())
@@ -342,6 +361,7 @@ func TestLoggerMethods(t *testing.T) {
 }
 
 func TestLogLevels(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		configLevel string
 		logrusLevel logrus.Level
@@ -354,6 +374,7 @@ func TestLogLevels(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Level_%s", tc.configLevel), func(t *testing.T) {
+			t.Parallel()
 			cfg := &config.LoggingConfig{
 				Level:  tc.configLevel,
 				Format: "json",
@@ -373,6 +394,7 @@ func TestLogLevels(t *testing.T) {
 }
 
 func TestLogFormats(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		format       string
 		expectedType interface{}
@@ -385,6 +407,7 @@ func TestLogFormats(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Format_%s", tc.format), func(t *testing.T) {
+			t.Parallel()
 			cfg := &config.LoggingConfig{
 				Level:  "info",
 				Format: tc.format,
@@ -419,7 +442,9 @@ func TestLogFormats(t *testing.T) {
 }
 
 func TestClose(t *testing.T) {
+	t.Parallel()
 	t.Run("FileOutput", func(t *testing.T) {
+		t.Parallel()
 		tmpDir, err := os.MkdirTemp("", "logger_close_test")
 		if err != nil {
 			t.Fatalf("Failed to create temp dir: %v", err)
@@ -447,6 +472,7 @@ func TestClose(t *testing.T) {
 	})
 
 	t.Run("StdoutOutput", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.LoggingConfig{
 			Level:  "info",
 			Format: "json",

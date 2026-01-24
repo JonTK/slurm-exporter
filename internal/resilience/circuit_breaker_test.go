@@ -16,6 +16,7 @@ import (
 )
 
 func TestCircuitBreaker_Basic(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel) // Reduce noise in tests
 
@@ -41,6 +42,7 @@ func TestCircuitBreaker_Basic(t *testing.T) {
 }
 
 func TestCircuitBreaker_FailureThreshold(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -81,6 +83,7 @@ func TestCircuitBreaker_FailureThreshold(t *testing.T) {
 }
 
 func TestCircuitBreaker_Recovery(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -113,6 +116,7 @@ func TestCircuitBreaker_Recovery(t *testing.T) {
 }
 
 func TestCircuitBreaker_HalfOpenFailure(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -144,6 +148,7 @@ func TestCircuitBreaker_HalfOpenFailure(t *testing.T) {
 }
 
 func TestCircuitBreaker_HalfOpenCapacity(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -179,6 +184,7 @@ func TestCircuitBreaker_HalfOpenCapacity(t *testing.T) {
 }
 
 func TestCircuitBreaker_CallWithContext(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -210,6 +216,7 @@ func TestCircuitBreaker_CallWithContext(t *testing.T) {
 }
 
 func TestCircuitBreaker_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -237,6 +244,7 @@ func TestCircuitBreaker_Disabled(t *testing.T) {
 }
 
 func TestCircuitBreaker_Reset(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -270,6 +278,7 @@ func TestCircuitBreaker_Reset(t *testing.T) {
 }
 
 func TestCircuitBreaker_Status(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -295,6 +304,7 @@ func TestCircuitBreaker_Status(t *testing.T) {
 }
 
 func TestCircuitBreakerManager(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -352,6 +362,7 @@ func TestCircuitBreakerManager(t *testing.T) {
 }
 
 func TestCircuitBreakerManager_HealthCheck(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -389,6 +400,7 @@ func TestCircuitBreakerManager_HealthCheck(t *testing.T) {
 }
 
 func TestState_String(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, "closed", StateClosed.String())
 	assert.Equal(t, "open", StateOpen.String())
 	assert.Equal(t, "half-open", StateHalfOpen.String())
@@ -396,6 +408,7 @@ func TestState_String(t *testing.T) {
 }
 
 func TestStatus_TimeUntilRetry(t *testing.T) {
+	t.Parallel()
 	now := time.Now()
 
 	// Closed state - no wait time

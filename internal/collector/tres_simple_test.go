@@ -19,6 +19,7 @@ import (
 )
 
 func TestTRESCollector_Describe(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	timeout := 30 * time.Second
@@ -39,6 +40,7 @@ func TestTRESCollector_Describe(t *testing.T) {
 }
 
 func TestTRESCollector_Collect_Success(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)
@@ -129,6 +131,7 @@ func TestTRESCollector_Collect_Success(t *testing.T) {
 }
 
 func TestTRESCollector_Collect_Error(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)
@@ -157,6 +160,7 @@ func TestTRESCollector_Collect_Error(t *testing.T) {
 }
 
 func TestTRESCollector_EmptyTRESList(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)

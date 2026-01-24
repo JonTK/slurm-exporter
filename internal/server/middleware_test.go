@@ -46,6 +46,7 @@ func createTestServer() *Server {
 }
 
 func TestLoggingMiddleware(t *testing.T) {
+	t.Parallel()
 	server := createTestServer()
 
 	// Capture log output
@@ -111,6 +112,7 @@ func TestLoggingMiddleware(t *testing.T) {
 }
 
 func TestHeadersMiddleware(t *testing.T) {
+	t.Parallel()
 	server := createTestServer()
 
 	// Create a test handler
@@ -123,6 +125,7 @@ func TestHeadersMiddleware(t *testing.T) {
 	handler := server.HeadersMiddleware(testHandler)
 
 	t.Run("StandardHeaders", func(t *testing.T) {
+		t.Parallel()
 		req := httptest.NewRequest(http.MethodGet, "/test", nil)
 		w := httptest.NewRecorder()
 
@@ -144,6 +147,7 @@ func TestHeadersMiddleware(t *testing.T) {
 	})
 
 	t.Run("MetricsEndpointHeaders", func(t *testing.T) {
+		t.Parallel()
 		req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
 		w := httptest.NewRecorder()
 
@@ -157,6 +161,7 @@ func TestHeadersMiddleware(t *testing.T) {
 }
 
 func TestRecoveryMiddleware(t *testing.T) {
+	t.Parallel()
 	server := createTestServer()
 
 	// Capture log output
@@ -200,6 +205,7 @@ func TestRecoveryMiddleware(t *testing.T) {
 }
 
 func TestCombinedMiddleware(t *testing.T) {
+	t.Parallel()
 	server := createTestServer()
 
 	// Capture log output
@@ -243,6 +249,7 @@ func TestCombinedMiddleware(t *testing.T) {
 }
 
 func TestMetricsMiddleware(t *testing.T) {
+	t.Parallel()
 	server := createTestServer()
 
 	// Create a test handler
@@ -296,7 +303,9 @@ func TestMetricsMiddleware(t *testing.T) {
 }
 
 func TestBasicAuthMiddleware(t *testing.T) {
+	t.Parallel()
 	t.Run("BasicAuthDisabled", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.Config{
 			Server: config.ServerConfig{
 				MetricsPath: "/metrics",
@@ -328,6 +337,7 @@ func TestBasicAuthMiddleware(t *testing.T) {
 	})
 
 	t.Run("BasicAuthEnabledNonMetricsEndpoint", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.Config{
 			Server: config.ServerConfig{
 				MetricsPath: "/metrics",
@@ -362,6 +372,7 @@ func TestBasicAuthMiddleware(t *testing.T) {
 	})
 
 	t.Run("BasicAuthEnabledNoCredentials", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.Config{
 			Server: config.ServerConfig{
 				MetricsPath: "/metrics",
@@ -399,6 +410,7 @@ func TestBasicAuthMiddleware(t *testing.T) {
 	})
 
 	t.Run("BasicAuthEnabledInvalidCredentials", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.Config{
 			Server: config.ServerConfig{
 				MetricsPath: "/metrics",
@@ -433,6 +445,7 @@ func TestBasicAuthMiddleware(t *testing.T) {
 	})
 
 	t.Run("BasicAuthEnabledValidCredentials", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.Config{
 			Server: config.ServerConfig{
 				MetricsPath: "/metrics",
@@ -472,10 +485,14 @@ func TestBasicAuthMiddleware(t *testing.T) {
 }
 
 func TestTimeoutMiddleware(t *testing.T) {
+	t.Parallel()
 	server := createTestServer()
 
 	t.Run("NormalRequest", func(t *testing.T) {
+		t.Parallel(
 		// Create a test handler that completes quickly
+		)
+
 		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write([]byte("success"))
@@ -499,7 +516,10 @@ func TestTimeoutMiddleware(t *testing.T) {
 	})
 
 	t.Run("TimeoutRequest", func(t *testing.T) {
+		t.Parallel(
 		// Create a test handler that takes longer than timeout
+		)
+
 		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Sleep longer than health endpoint timeout (5s)
 			time.Sleep(6 * time.Second)
@@ -532,7 +552,10 @@ func TestTimeoutMiddleware(t *testing.T) {
 	})
 
 	t.Run("MetricsEndpointTimeout", func(t *testing.T) {
+		t.Parallel(
 		// Test that metrics endpoint gets longer timeout
+		)
+
 		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Sleep for a time that would exceed health timeout but not metrics timeout
 			time.Sleep(8 * time.Second)
@@ -560,6 +583,7 @@ func TestTimeoutMiddleware(t *testing.T) {
 	})
 
 	t.Run("CancelledContext", func(t *testing.T) {
+		t.Parallel()
 		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Handler should not be reached due to cancelled context
 			w.WriteHeader(http.StatusOK)
@@ -584,6 +608,7 @@ func TestTimeoutMiddleware(t *testing.T) {
 }
 
 func TestResponseWriter(t *testing.T) {
+	t.Parallel()
 	w := httptest.NewRecorder()
 	rw := &responseWriter{ResponseWriter: w}
 

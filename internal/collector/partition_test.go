@@ -17,7 +17,10 @@ import (
 )
 
 func TestPartitionCollector(t *testing.T) {
+	t.Parallel(
 	// Create test logger
+	)
+
 	logger, hook := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)
 	logEntry := logrus.NewEntry(logger)
@@ -53,18 +56,21 @@ func TestPartitionCollector(t *testing.T) {
 	collector := NewPartitionCollector(cfg, opts, client, metricDefs, clusterName)
 
 	t.Run("Name", func(t *testing.T) {
+		t.Parallel()
 		if collector.Name() != "partition" {
 			t.Errorf("Expected name 'partition', got '%s'", collector.Name())
 		}
 	})
 
 	t.Run("Enabled", func(t *testing.T) {
+		t.Parallel()
 		if !collector.IsEnabled() {
 			t.Error("Collector should be enabled")
 		}
 	})
 
 	t.Run("Describe", func(t *testing.T) {
+		t.Parallel()
 		descChan := make(chan *prometheus.Desc, 100)
 
 		collector.Describe(descChan)
@@ -83,6 +89,7 @@ func TestPartitionCollector(t *testing.T) {
 	})
 
 	t.Run("Collect", func(t *testing.T) {
+		t.Parallel()
 		hook.Reset()
 
 		ctx := context.Background()
@@ -108,6 +115,7 @@ func TestPartitionCollector(t *testing.T) {
 	})
 
 	t.Run("CollectPartitionInfo", func(t *testing.T) {
+		t.Parallel()
 		hook.Reset()
 
 		ctx := context.Background()
@@ -174,6 +182,7 @@ func TestPartitionCollector(t *testing.T) {
 	})
 
 	t.Run("CollectPartitionUtilization", func(t *testing.T) {
+		t.Parallel()
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 50)
 
@@ -229,6 +238,7 @@ func TestPartitionCollector(t *testing.T) {
 	})
 
 	t.Run("CollectPartitionPolicies", func(t *testing.T) {
+		t.Parallel()
 		ctx := context.Background()
 		metricChan := make(chan prometheus.Metric, 20)
 
@@ -278,7 +288,9 @@ func TestPartitionCollector(t *testing.T) {
 }
 
 func TestPartitionCollectorDataTypes(t *testing.T) {
+	t.Parallel()
 	t.Run("PartitionInfo", func(t *testing.T) {
+		t.Parallel()
 		partition := &PartitionInfo{
 			Name:        "test_partition",
 			State:       "UP",
@@ -316,6 +328,7 @@ func TestPartitionCollectorDataTypes(t *testing.T) {
 	})
 
 	t.Run("PartitionLimits", func(t *testing.T) {
+		t.Parallel()
 		limits := &PartitionLimits{
 			MaxTime:         48 * time.Hour,
 			DefaultTime:     8 * time.Hour,
@@ -338,6 +351,7 @@ func TestPartitionCollectorDataTypes(t *testing.T) {
 	})
 
 	t.Run("PartitionPolicies", func(t *testing.T) {
+		t.Parallel()
 		policies := &PartitionPolicies{
 			PreemptMode:       "REQUEUE",
 			OversubscribeMode: "NO",
@@ -359,7 +373,10 @@ func TestPartitionCollectorDataTypes(t *testing.T) {
 }
 
 func TestPartitionCollectorIntegration(t *testing.T) {
+	t.Parallel(
 	// Create a full integration test
+	)
+
 	registry := prometheus.NewRegistry()
 
 	// Create test configuration

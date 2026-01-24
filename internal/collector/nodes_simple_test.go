@@ -17,6 +17,7 @@ import (
 )
 
 func TestNodesSimpleCollector_Describe(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -36,6 +37,7 @@ func TestNodesSimpleCollector_Describe(t *testing.T) {
 }
 
 func TestNodesSimpleCollector_Collect_Success(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockNodeManager := new(mocks.MockNodeManager)
@@ -68,6 +70,7 @@ func TestNodesSimpleCollector_Collect_Success(t *testing.T) {
 }
 
 func TestNodesSimpleCollector_Collect_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -91,6 +94,7 @@ func TestNodesSimpleCollector_Collect_Disabled(t *testing.T) {
 }
 
 func TestNodesSimpleCollector_Collect_Error(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockNodeManager := new(mocks.MockNodeManager)
@@ -115,6 +119,7 @@ func TestNodesSimpleCollector_Collect_Error(t *testing.T) {
 }
 
 func TestNodesSimpleCollector_CustomLabels(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockNodeManager := new(mocks.MockNodeManager)
@@ -150,6 +155,7 @@ func TestNodesSimpleCollector_CustomLabels(t *testing.T) {
 }
 
 func TestNodesSimpleCollector_EmptyNodeList(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockNodeManager := new(mocks.MockNodeManager)
@@ -178,6 +184,7 @@ func TestNodesSimpleCollector_EmptyNodeList(t *testing.T) {
 }
 
 func TestNodesSimpleCollector_StateDistribution(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockNodeManager := new(mocks.MockNodeManager)
@@ -210,6 +217,7 @@ func TestNodesSimpleCollector_StateDistribution(t *testing.T) {
 }
 
 func TestNodesSimpleCollector_ResourceMetrics(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockNodeManager := new(mocks.MockNodeManager)

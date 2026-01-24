@@ -19,6 +19,7 @@ import (
 )
 
 func TestDiagnosticsCollector_Describe(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	timeout := 30 * time.Second
@@ -39,6 +40,7 @@ func TestDiagnosticsCollector_Describe(t *testing.T) {
 }
 
 func TestDiagnosticsCollector_Collect_Success(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)
@@ -113,6 +115,7 @@ func TestDiagnosticsCollector_Collect_Success(t *testing.T) {
 }
 
 func TestDiagnosticsCollector_Collect_Error(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)

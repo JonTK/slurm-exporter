@@ -47,6 +47,7 @@ func (m *profiledMockCollector) SetEnabled(enabled bool) {
 }
 
 func TestProfiledCollector(t *testing.T) {
+	t.Parallel()
 	logger := logrus.NewEntry(logrus.New())
 
 	profilerConfig := performance.ProfilerConfig{
@@ -64,6 +65,7 @@ func TestProfiledCollector(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("NewProfiledCollector", func(t *testing.T) {
+		t.Parallel()
 		mock := &profiledMockCollector{
 			name:    "test_collector",
 			enabled: true,
@@ -77,11 +79,13 @@ func TestProfiledCollector(t *testing.T) {
 	})
 
 	t.Run("NilCollector", func(t *testing.T) {
+		t.Parallel()
 		_, err := NewProfiledCollector(nil, profiler, logger)
 		assert.Error(t, err)
 	})
 
 	t.Run("Collect", func(t *testing.T) {
+		t.Parallel()
 		collectCalled := false
 		mock := &profiledMockCollector{
 			name:    "test_collector",
@@ -113,6 +117,7 @@ func TestProfiledCollector(t *testing.T) {
 	})
 
 	t.Run("CollectWithError", func(t *testing.T) {
+		t.Parallel()
 		testErr := fmt.Errorf("test error")
 		mock := &profiledMockCollector{
 			name:    "error_collector",
@@ -131,6 +136,7 @@ func TestProfiledCollector(t *testing.T) {
 	})
 
 	t.Run("SlowCollection", func(t *testing.T) {
+		t.Parallel()
 		mock := &profiledMockCollector{
 			name:    "slow_collector",
 			enabled: true,
@@ -152,6 +158,7 @@ func TestProfiledCollector(t *testing.T) {
 	})
 
 	t.Run("ProfilingDisabled", func(t *testing.T) {
+		t.Parallel()
 		mock := &profiledMockCollector{
 			name:    "test_collector",
 			enabled: true,
@@ -174,6 +181,7 @@ func TestProfiledCollector(t *testing.T) {
 }
 
 func TestProfiledCollectorManager(t *testing.T) {
+	t.Parallel()
 	logger := logrus.NewEntry(logrus.New())
 
 	profilerConfig := performance.ProfilerConfig{
@@ -189,6 +197,7 @@ func TestProfiledCollectorManager(t *testing.T) {
 	pcm := NewProfiledCollectorManager(profiler, logger)
 
 	t.Run("WrapCollector", func(t *testing.T) {
+		t.Parallel()
 		mock := &profiledMockCollector{
 			name:    "test_collector",
 			enabled: true,
@@ -206,6 +215,7 @@ func TestProfiledCollectorManager(t *testing.T) {
 	})
 
 	t.Run("SetProfilingEnabled", func(t *testing.T) {
+		t.Parallel()
 		mock := &profiledMockCollector{
 			name:    "toggle_collector",
 			enabled: true,
@@ -224,7 +234,10 @@ func TestProfiledCollectorManager(t *testing.T) {
 	})
 
 	t.Run("SetProfilingEnabledAll", func(t *testing.T) {
+		t.Parallel(
 		// Wrap multiple collectors
+		)
+
 		for i := 0; i < 3; i++ {
 			mock := &profiledMockCollector{
 				name:    fmt.Sprintf("collector_%d", i),
@@ -242,6 +255,7 @@ func TestProfiledCollectorManager(t *testing.T) {
 	})
 
 	t.Run("GetCollectorProfiles", func(t *testing.T) {
+		t.Parallel()
 		mock := &profiledMockCollector{
 			name:    "profile_test",
 			enabled: true,
@@ -279,12 +293,14 @@ func TestProfiledCollectorManager(t *testing.T) {
 	})
 
 	t.Run("GetAllProfiles", func(t *testing.T) {
+		t.Parallel()
 		allProfiles, err := pcm.GetAllProfiles()
 		require.NoError(t, err)
 		assert.NotNil(t, allProfiles)
 	})
 
 	t.Run("GetStats", func(t *testing.T) {
+		t.Parallel()
 		stats := pcm.GetStats()
 		assert.NotNil(t, stats["total_collectors"])
 		assert.NotNil(t, stats["collectors"])

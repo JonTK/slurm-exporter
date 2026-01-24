@@ -16,7 +16,10 @@ import (
 )
 
 func TestConcurrentCollector(t *testing.T) {
+	t.Parallel(
 	// Create registry
+	)
+
 	cfg := &config.CollectorsConfig{
 		Global: config.GlobalCollectorConfig{
 			DefaultInterval: 30 * time.Second,
@@ -35,6 +38,7 @@ func TestConcurrentCollector(t *testing.T) {
 	cc := NewConcurrentCollector(registry, 3)
 
 	t.Run("EmptyRegistry", func(t *testing.T) {
+		t.Parallel()
 		ctx := context.Background()
 		results, err := cc.CollectAll(ctx)
 		if err != nil {
@@ -46,7 +50,10 @@ func TestConcurrentCollector(t *testing.T) {
 	})
 
 	t.Run("ConcurrentCollection", func(t *testing.T) {
+		t.Parallel(
 		// Register multiple collectors
+		)
+
 		var collectCount int32
 
 		for i := 0; i < 5; i++ {
@@ -104,7 +111,10 @@ func TestConcurrentCollector(t *testing.T) {
 	})
 
 	t.Run("MaxConcurrency", func(t *testing.T) {
+		t.Parallel(
 		// Clear registry
+		)
+
 		for _, name := range registry.List() {
 			_ = registry.Unregister(name)
 		}
@@ -156,7 +166,10 @@ func TestConcurrentCollector(t *testing.T) {
 	})
 
 	t.Run("ErrorHandling", func(t *testing.T) {
+		t.Parallel(
 		// Clear registry
+		)
+
 		for _, name := range registry.List() {
 			_ = registry.Unregister(name)
 		}
@@ -204,7 +217,10 @@ func TestConcurrentCollector(t *testing.T) {
 	})
 
 	t.Run("ContextCancellation", func(t *testing.T) {
+		t.Parallel(
 		// Clear registry
+		)
+
 		for _, name := range registry.List() {
 			_ = registry.Unregister(name)
 		}
@@ -238,7 +254,10 @@ func TestConcurrentCollector(t *testing.T) {
 	})
 
 	t.Run("Metrics", func(t *testing.T) {
+		t.Parallel(
 		// Clear registry first
+		)
+
 		for _, name := range registry.List() {
 			_ = registry.Unregister(name)
 		}
@@ -280,7 +299,10 @@ func TestConcurrentCollector(t *testing.T) {
 }
 
 func TestCollectionOrchestrator(t *testing.T) {
+	t.Parallel(
 	// Create registry
+	)
+
 	cfg := &config.CollectorsConfig{
 		Global: config.GlobalCollectorConfig{
 			DefaultInterval: 30 * time.Second,
@@ -299,6 +321,7 @@ func TestCollectionOrchestrator(t *testing.T) {
 	orchestrator := NewCollectionOrchestrator(registry, 3)
 
 	t.Run("SetInterval", func(t *testing.T) {
+		t.Parallel()
 		orchestrator.SetCollectorInterval("test", 100*time.Millisecond)
 
 		// Verify interval was set
@@ -315,7 +338,10 @@ func TestCollectionOrchestrator(t *testing.T) {
 	})
 
 	t.Run("CollectNow", func(t *testing.T) {
+		t.Parallel(
 		// Register collector
+		)
+
 		collected := false
 		collector := &mockCollector{
 			name:    "immediate",
@@ -354,7 +380,10 @@ func TestCollectionOrchestrator(t *testing.T) {
 	})
 
 	t.Run("ScheduledCollection", func(t *testing.T) {
+		t.Parallel(
 		// Register collector with short interval
+		)
+
 		var collectCount int32
 		collector := &mockCollector{
 			name:    "scheduled",
@@ -402,6 +431,7 @@ func TestCollectionOrchestrator(t *testing.T) {
 }
 
 func TestCollectionResult(t *testing.T) {
+	t.Parallel()
 	result := &CollectionResult{
 		CollectorName: "test",
 		StartTime:     time.Now(),

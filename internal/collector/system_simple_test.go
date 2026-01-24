@@ -17,6 +17,7 @@ import (
 )
 
 func TestSystemSimpleCollector_Describe(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -36,6 +37,7 @@ func TestSystemSimpleCollector_Describe(t *testing.T) {
 }
 
 func TestSystemSimpleCollector_Collect_Success(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)
@@ -78,6 +80,7 @@ func TestSystemSimpleCollector_Collect_Success(t *testing.T) {
 }
 
 func TestSystemSimpleCollector_Collect_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 

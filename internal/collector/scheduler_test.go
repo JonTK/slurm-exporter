@@ -46,7 +46,10 @@ func (m *mockCollector) Collect(ctx context.Context, ch chan<- prometheus.Metric
 }
 
 func TestScheduler(t *testing.T) {
+	t.Parallel(
 	// Create test configuration
+	)
+
 	cfg := &config.CollectorsConfig{
 		Global: config.GlobalCollectorConfig{
 			DefaultInterval: 100 * time.Millisecond,
@@ -113,6 +116,7 @@ func TestScheduler(t *testing.T) {
 	}
 
 	t.Run("InitializeSchedules", func(t *testing.T) {
+		t.Parallel()
 		err := scheduler.InitializeSchedules()
 		if err != nil {
 			t.Errorf("Failed to initialize schedules: %v", err)
@@ -146,7 +150,10 @@ func TestScheduler(t *testing.T) {
 	})
 
 	t.Run("ScheduledCollection", func(t *testing.T) {
+		t.Parallel(
 		// Ensure schedules are initialized
+		)
+
 		if len(scheduler.schedules) == 0 {
 			_ = scheduler.InitializeSchedules()
 		}
@@ -181,7 +188,10 @@ func TestScheduler(t *testing.T) {
 	})
 
 	t.Run("UpdateSchedule", func(t *testing.T) {
+		t.Parallel(
 		// Create new registry and scheduler for this test
+		)
+
 		promRegistry2 := prometheus.NewRegistry()
 		registry2, _ := NewRegistry(cfg, promRegistry2)
 		scheduler2, err := NewScheduler(registry2, cfg)
@@ -216,7 +226,10 @@ func TestScheduler(t *testing.T) {
 	})
 
 	t.Run("EnableDisableSchedule", func(t *testing.T) {
+		t.Parallel(
 		// Create new registry and scheduler for this test
+		)
+
 		promRegistry3 := prometheus.NewRegistry()
 		registry3, _ := NewRegistry(cfg, promRegistry3)
 		scheduler3, err := NewScheduler(registry3, cfg)
@@ -261,7 +274,10 @@ func TestScheduler(t *testing.T) {
 	})
 
 	t.Run("ScheduleStats", func(t *testing.T) {
+		t.Parallel(
 		// Create new registry and scheduler for this test
+		)
+
 		promRegistry4 := prometheus.NewRegistry()
 		registry4, _ := NewRegistry(cfg, promRegistry4)
 		scheduler4, err := NewScheduler(registry4, cfg)
@@ -302,7 +318,10 @@ func TestScheduler(t *testing.T) {
 }
 
 func TestSchedulerErrorHandling(t *testing.T) {
+	t.Parallel(
 	// Create test configuration
+	)
+
 	cfg := &config.CollectorsConfig{
 		Global: config.GlobalCollectorConfig{
 			DefaultInterval: 50 * time.Millisecond,
@@ -372,7 +391,10 @@ func TestSchedulerErrorHandling(t *testing.T) {
 }
 
 func TestScheduleHealthCheck(t *testing.T) {
+	t.Parallel(
 	// Create test configuration
+	)
+
 	cfg := &config.CollectorsConfig{
 		Global: config.GlobalCollectorConfig{
 			DefaultInterval: 50 * time.Millisecond,
@@ -424,6 +446,7 @@ func TestScheduleHealthCheck(t *testing.T) {
 }
 
 func TestSchedulerMetrics(t *testing.T) {
+	t.Parallel()
 	metrics := NewSchedulerMetrics("test", "scheduler")
 	registry := prometheus.NewRegistry()
 

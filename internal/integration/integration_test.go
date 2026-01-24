@@ -24,6 +24,7 @@ import (
 
 // TestFullCollectorIntegration tests the complete flow from SLURM client to Prometheus metrics
 func TestFullCollectorIntegration(t *testing.T) {
+	t.Parallel()
 	t.Skip("TODO: Implement dependency injection for SLURM client in collector registry")
 
 	_ = testutil.GetTestLogger() // Use logger to avoid unused variable error
@@ -102,6 +103,7 @@ func TestFullCollectorIntegration(t *testing.T) {
 
 // TestHTTPMetricsEndpoint tests the complete HTTP metrics endpoint
 func TestHTTPMetricsEndpoint(t *testing.T) {
+	t.Parallel()
 	t.Skip("TODO: Implement dependency injection for SLURM client in collector registry")
 
 	_ = testutil.GetTestLogger() // Use logger to avoid unused variable error
@@ -150,6 +152,7 @@ func TestHTTPMetricsEndpoint(t *testing.T) {
 
 // TestCollectorFiltering tests metric filtering functionality
 func TestCollectorFiltering(t *testing.T) {
+	t.Parallel()
 	t.Skip("TODO: Implement dependency injection for SLURM client in collector registry")
 
 	_ = testutil.GetTestLogger() // Use logger to avoid unused variable error
@@ -196,6 +199,7 @@ func TestCollectorFiltering(t *testing.T) {
 
 // TestCollectorCustomLabels tests custom labels functionality
 func TestCollectorCustomLabels(t *testing.T) {
+	t.Parallel()
 	t.Skip("TODO: Implement dependency injection for SLURM client in collector registry")
 
 	_ = testutil.GetTestLogger() // Use logger to avoid unused variable error
@@ -242,6 +246,7 @@ func TestCollectorCustomLabels(t *testing.T) {
 
 // TestCollectorTimeout tests timeout handling
 func TestCollectorTimeout(t *testing.T) {
+	t.Parallel()
 	t.Skip("TODO: Implement dependency injection for SLURM client in collector registry")
 
 	_ = testutil.GetTestLogger() // Use logger to avoid unused variable error
@@ -284,6 +289,7 @@ func TestCollectorTimeout(t *testing.T) {
 
 // TestPerformanceMonitoringIntegration tests performance monitoring
 func TestPerformanceMonitoringIntegration(t *testing.T) {
+	t.Parallel()
 	t.Skip("TODO: Implement dependency injection for SLURM client in collector registry")
 
 	_ = testutil.GetTestLogger() // Use logger to avoid unused variable error
@@ -336,6 +342,7 @@ func TestPerformanceMonitoringIntegration(t *testing.T) {
 
 // TestCardinalityLimiting tests cardinality management
 func TestCardinalityLimiting(t *testing.T) {
+	t.Parallel()
 	t.Skip("TODO: Implement dependency injection for SLURM client in collector registry")
 
 	_ = testutil.GetTestLogger() // Use logger to avoid unused variable error

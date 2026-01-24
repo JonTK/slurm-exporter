@@ -15,10 +15,12 @@ import (
 )
 
 func TestCardinalityManager(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel) // Reduce test noise
 
 	t.Run("NewCardinalityManager", func(t *testing.T) {
+		t.Parallel()
 		cm := NewCardinalityManager(logger)
 		if cm == nil {
 			t.Fatal("Expected non-nil CardinalityManager")
@@ -32,6 +34,7 @@ func TestCardinalityManager(t *testing.T) {
 	})
 
 	t.Run("SetLimit", func(t *testing.T) {
+		t.Parallel()
 		cm := NewCardinalityManager(logger)
 
 		limit := CardinalityLimit{
@@ -57,6 +60,7 @@ func TestCardinalityManager(t *testing.T) {
 	})
 
 	t.Run("ShouldCollectMetric", func(t *testing.T) {
+		t.Parallel()
 		cm := NewCardinalityManager(logger)
 
 		// Test with no limits configured
@@ -88,6 +92,7 @@ func TestCardinalityManager(t *testing.T) {
 	})
 
 	t.Run("SamplingLogic", func(t *testing.T) {
+		t.Parallel()
 		cm := NewCardinalityManager(logger)
 
 		// Configure sampling
@@ -109,6 +114,7 @@ func TestCardinalityManager(t *testing.T) {
 	})
 
 	t.Run("PatternMatching", func(t *testing.T) {
+		t.Parallel()
 		cm := NewCardinalityManager(logger)
 
 		testCases := []struct {
@@ -134,6 +140,7 @@ func TestCardinalityManager(t *testing.T) {
 	})
 
 	t.Run("UsageTracking", func(t *testing.T) {
+		t.Parallel()
 		cm := NewCardinalityManager(logger)
 
 		labels1 := map[string]string{"label1": "value1", "label2": "value2"}
@@ -159,6 +166,7 @@ func TestCardinalityManager(t *testing.T) {
 	})
 
 	t.Run("HashConsistency", func(t *testing.T) {
+		t.Parallel()
 		cm := NewCardinalityManager(logger)
 
 		labels1 := map[string]string{"a": "1", "b": "2"}
@@ -181,6 +189,7 @@ func TestCardinalityManager(t *testing.T) {
 	})
 
 	t.Run("GetCardinalityReport", func(t *testing.T) {
+		t.Parallel()
 		cm := NewCardinalityManager(logger)
 
 		// Add some test metrics
@@ -209,6 +218,7 @@ func TestCardinalityManager(t *testing.T) {
 	})
 
 	t.Run("ViolationDetection", func(t *testing.T) {
+		t.Parallel()
 		cm := NewCardinalityManager(logger)
 
 		// Configure a low limit
@@ -257,6 +267,7 @@ func TestCardinalityManager(t *testing.T) {
 	})
 
 	t.Run("RecommendationGeneration", func(t *testing.T) {
+		t.Parallel()
 		cm := NewCardinalityManager(logger)
 
 		// Add high-cardinality metric without limits
@@ -314,6 +325,7 @@ func TestCardinalityManager(t *testing.T) {
 	})
 
 	t.Run("RegisterMetrics", func(t *testing.T) {
+		t.Parallel()
 		cm := NewCardinalityManager(logger)
 		registry := prometheus.NewRegistry()
 
@@ -351,6 +363,7 @@ func TestCardinalityManager(t *testing.T) {
 	})
 
 	t.Run("MonitoringStart", func(t *testing.T) {
+		t.Parallel()
 		cm := NewCardinalityManager(logger)
 		cm.checkInterval = 10 * time.Millisecond // Fast for testing
 
@@ -364,6 +377,7 @@ func TestCardinalityManager(t *testing.T) {
 	})
 
 	t.Run("DefaultLimitsConfiguration", func(t *testing.T) {
+		t.Parallel()
 		cm := NewCardinalityManager(logger)
 
 		// Test that default limits are properly configured
@@ -399,6 +413,7 @@ func TestCardinalityManager(t *testing.T) {
 	})
 
 	t.Run("LabelValueLimits", func(t *testing.T) {
+		t.Parallel()
 		cm := NewCardinalityManager(logger)
 
 		// Configure label-specific limits
@@ -434,12 +449,16 @@ func TestCardinalityManager(t *testing.T) {
 }
 
 func TestCardinalityLimitPriorities(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel)
 	cm := NewCardinalityManager(logger)
 
 	t.Run("PriorityEnforcement", func(t *testing.T) {
+		t.Parallel(
 		// Test that different priorities are handled correctly
+		)
+
 		priorities := []Priority{
 			PriorityLow,
 			PriorityMedium,
@@ -468,11 +487,13 @@ func TestCardinalityLimitPriorities(t *testing.T) {
 }
 
 func TestFilterStrategies(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel)
 	cm := NewCardinalityManager(logger)
 
 	t.Run("FilterConfiguration", func(t *testing.T) {
+		t.Parallel()
 		filter := CardinalityFilter{
 			Strategy:   FilterStrategySample,
 			SampleRate: 0.5,
@@ -499,6 +520,7 @@ func TestFilterStrategies(t *testing.T) {
 	})
 
 	t.Run("FilterStrategiesEnum", func(t *testing.T) {
+		t.Parallel()
 		strategies := []FilterStrategy{
 			FilterStrategySample,
 			FilterStrategyDrop,
@@ -515,12 +537,16 @@ func TestFilterStrategies(t *testing.T) {
 }
 
 func TestCardinalityReport(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel)
 	cm := NewCardinalityManager(logger)
 
 	t.Run("ReportStructure", func(t *testing.T) {
+		t.Parallel(
 		// Add test data
+		)
+
 		cm.ShouldCollectMetric("metric_a", map[string]string{"id": "1"})
 		cm.ShouldCollectMetric("metric_a", map[string]string{"id": "2"})
 		cm.ShouldCollectMetric("metric_b", map[string]string{"id": "1"})
@@ -552,7 +578,10 @@ func TestCardinalityReport(t *testing.T) {
 	})
 
 	t.Run("ReportSorting", func(t *testing.T) {
+		t.Parallel(
 		// Clear previous usage
+		)
+
 		cm.usage = make(map[string]*CardinalityUsage)
 
 		// Add metrics with different cardinalities

@@ -10,6 +10,7 @@ import (
 )
 
 func TestGet(t *testing.T) {
+	t.Parallel()
 	info := Get()
 
 	// Check that fields are populated
@@ -39,6 +40,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
+	t.Parallel()
 	info := Get()
 	result := info.String()
 
@@ -59,6 +61,7 @@ func TestString(t *testing.T) {
 }
 
 func TestShort(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		version  string
@@ -83,7 +86,10 @@ func TestShort(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel(
 			// Temporarily set the version
+			)
+
 			originalVersion := Version
 			Version = tt.version
 			defer func() { Version = originalVersion }()
@@ -99,6 +105,7 @@ func TestShort(t *testing.T) {
 }
 
 func TestInfoStructure(t *testing.T) {
+	t.Parallel()
 	info := Get()
 
 	// Verify all fields are accessible

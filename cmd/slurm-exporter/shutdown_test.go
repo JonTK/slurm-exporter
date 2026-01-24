@@ -25,6 +25,7 @@ func createTestShutdownManager() *ShutdownManager {
 }
 
 func TestNewShutdownManager(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	timeout := 10 * time.Second
 
@@ -56,6 +57,7 @@ func TestNewShutdownManager(t *testing.T) {
 }
 
 func TestAddShutdownHook(t *testing.T) {
+	t.Parallel()
 	sm := createTestShutdownManager()
 
 	var executed bool
@@ -107,6 +109,7 @@ func TestAddShutdownHook(t *testing.T) {
 }
 
 func TestRemoveShutdownHook(t *testing.T) {
+	t.Parallel()
 	sm := createTestShutdownManager()
 
 	// Add multiple hooks
@@ -145,6 +148,7 @@ func TestRemoveShutdownHook(t *testing.T) {
 }
 
 func TestShutdownHookExecution(t *testing.T) {
+	t.Parallel()
 	sm := createTestShutdownManager()
 
 	var executionOrder []string
@@ -182,6 +186,7 @@ func TestShutdownHookExecution(t *testing.T) {
 }
 
 func TestShutdownHookError(t *testing.T) {
+	t.Parallel()
 	sm := createTestShutdownManager()
 
 	// Add hooks with one that fails
@@ -203,7 +208,10 @@ func TestShutdownHookError(t *testing.T) {
 }
 
 func TestShutdownHookTimeout(t *testing.T) {
+	t.Parallel(
 	// Create manager with short timeout
+	)
+
 	logger := logrus.New()
 	logger.SetLevel(logrus.ErrorLevel)
 	sm := NewShutdownManager(logger, 100*time.Millisecond)
@@ -235,6 +243,7 @@ func TestShutdownHookTimeout(t *testing.T) {
 }
 
 func TestShutdownHookPanic(t *testing.T) {
+	t.Parallel()
 	sm := createTestShutdownManager()
 
 	// Add hook that panics
@@ -256,7 +265,10 @@ func TestShutdownHookPanic(t *testing.T) {
 }
 
 func TestSignalHandling(t *testing.T) {
+	t.Parallel(
 	// Skip on Windows - SIGUSR1 is Unix-only
+	)
+
 	if runtime.GOOS == "windows" {
 		t.Skip("Skipping signal handling test on Windows - SIGUSR1 not available")
 	}
@@ -286,6 +298,7 @@ func TestSignalHandling(t *testing.T) {
 }
 
 func TestIsShuttingDown(t *testing.T) {
+	t.Parallel()
 	sm := createTestShutdownManager()
 
 	// Initially should not be shutting down
@@ -302,6 +315,7 @@ func TestIsShuttingDown(t *testing.T) {
 }
 
 func TestConcurrentAccess(t *testing.T) {
+	t.Parallel()
 	sm := createTestShutdownManager()
 
 	var wg sync.WaitGroup

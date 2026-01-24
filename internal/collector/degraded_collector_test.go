@@ -15,7 +15,10 @@ import (
 )
 
 func TestDegradedCollector(t *testing.T) {
+	t.Parallel(
 	// Create degradation config
+	)
+
 	degradationConfig := &config.DegradationConfig{
 		Enabled:          true,
 		MaxFailures:      2,
@@ -31,7 +34,10 @@ func TestDegradedCollector(t *testing.T) {
 	}
 
 	t.Run("SuccessfulCollection", func(t *testing.T) {
+		t.Parallel(
 		// Create mock collector
+		)
+
 		mockCollector := &mockCollector{
 			name:    "test",
 			enabled: true,
@@ -72,7 +78,10 @@ func TestDegradedCollector(t *testing.T) {
 	})
 
 	t.Run("FailureWithCaching", func(t *testing.T) {
+		t.Parallel(
 		// Create mock collector that caches then fails
+		)
+
 		var callCount int
 		mockCollector := &mockCollector{
 			name:    "failing_test",
@@ -134,6 +143,7 @@ func TestDegradedCollector(t *testing.T) {
 	})
 
 	t.Run("InterfaceMethods", func(t *testing.T) {
+		t.Parallel()
 		mockCollector := &mockCollector{
 			name:    "interface_test",
 			enabled: true,
@@ -175,7 +185,10 @@ func TestDegradedCollector(t *testing.T) {
 }
 
 func TestDegradedRegistry(t *testing.T) {
+	t.Parallel(
 	// Create test configuration
+	)
+
 	cfg := &config.CollectorsConfig{
 		Global: config.GlobalCollectorConfig{
 			DefaultInterval:     30 * time.Second,
@@ -206,6 +219,7 @@ func TestDegradedRegistry(t *testing.T) {
 	}
 
 	t.Run("RegisterAndGet", func(t *testing.T) {
+		t.Parallel()
 		mockCollector := &mockCollector{
 			name:    "test_collector",
 			enabled: true,
@@ -234,6 +248,7 @@ func TestDegradedRegistry(t *testing.T) {
 	})
 
 	t.Run("List", func(t *testing.T) {
+		t.Parallel()
 		collectors := registry.List()
 		found := false
 		for _, name := range collectors {
@@ -248,6 +263,7 @@ func TestDegradedRegistry(t *testing.T) {
 	})
 
 	t.Run("Unregister", func(t *testing.T) {
+		t.Parallel()
 		err := registry.Unregister("test_collector")
 		if err != nil {
 			t.Errorf("Failed to unregister collector: %v", err)
@@ -260,7 +276,10 @@ func TestDegradedRegistry(t *testing.T) {
 	})
 
 	t.Run("DegradationManagement", func(t *testing.T) {
+		t.Parallel(
 		// Test degradation manager access
+		)
+
 		dm := registry.GetDegradationManager()
 		if dm == nil {
 			t.Error("Expected degradation manager to be available")
@@ -280,6 +299,7 @@ func TestDegradedRegistry(t *testing.T) {
 	})
 
 	t.Run("PrometheusCollector", func(t *testing.T) {
+		t.Parallel()
 		collector := registry.PrometheusCollector()
 		if collector == nil {
 			t.Error("Expected Prometheus collector to be available")
@@ -287,7 +307,10 @@ func TestDegradedRegistry(t *testing.T) {
 	})
 
 	t.Run("CollectAll", func(t *testing.T) {
+		t.Parallel(
 		// Register a test collector
+		)
+
 		mockCollector := &mockCollector{
 			name:    "collect_all_test",
 			enabled: true,
@@ -338,7 +361,10 @@ func TestDegradedRegistry(t *testing.T) {
 }
 
 func TestDegradedRegistryWithDisabledDegradation(t *testing.T) {
+	t.Parallel(
 	// Create config with degradation disabled
+	)
+
 	cfg := &config.CollectorsConfig{
 		Global: config.GlobalCollectorConfig{
 			DefaultInterval:     30 * time.Second,

@@ -17,6 +17,7 @@ import (
 )
 
 func TestQoSCollector_Describe(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -36,6 +37,7 @@ func TestQoSCollector_Describe(t *testing.T) {
 }
 
 func TestQoSCollector_Collect_Success(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockQoSManager := new(mocks.MockQoSManager)
@@ -93,6 +95,7 @@ func TestQoSCollector_Collect_Success(t *testing.T) {
 }
 
 func TestQoSCollector_Collect_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -116,6 +119,7 @@ func TestQoSCollector_Collect_Disabled(t *testing.T) {
 }
 
 func TestQoSCollector_Collect_Error(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockQoSManager := new(mocks.MockQoSManager)
@@ -139,6 +143,7 @@ func TestQoSCollector_Collect_Error(t *testing.T) {
 }
 
 func TestQoSCollector_EmptyQoSList(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockQoSManager := new(mocks.MockQoSManager)
