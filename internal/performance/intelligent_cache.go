@@ -225,7 +225,7 @@ func (c *IntelligentCache) Set(key string, value interface{}) {
 
 // calculateTTL determines the optimal TTL for a cache entry using adaptive logic
 func (c *IntelligentCache) calculateTTL(key string, value interface{}) time.Duration {
- _ = value
+	_ = value
 	// Start with base TTL
 	ttl := c.config.BaseTTL
 

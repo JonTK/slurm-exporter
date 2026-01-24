@@ -491,7 +491,7 @@ func (b *BottleneckAnalyzer) identifyPrimaryBottleneck(data *ResourceUtilization
 
 // identifySecondaryBottlenecks identifies secondary bottlenecks
 func (b *BottleneckAnalyzer) identifySecondaryBottlenecks(data *ResourceUtilizationData, efficiency *EfficiencyMetrics, primary string) []string {
- _ = data
+	_ = data
 	secondary := []string{}
 
 	if primary != "cpu" && efficiency.CPUEfficiency < 0.6 {
@@ -674,7 +674,7 @@ func (b *BottleneckAnalyzer) detectPerformanceIssues(data *ResourceUtilizationDa
 
 // identifyOptimizationOpportunities identifies optimization opportunities
 func (b *BottleneckAnalyzer) identifyOptimizationOpportunities(data *ResourceUtilizationData, efficiency *EfficiencyMetrics, issues []PerformanceIssue) []OptimizationOpportunity {
- _ = issues
+	_ = issues
 	opportunities := []OptimizationOpportunity{}
 
 	// Resource reduction opportunities

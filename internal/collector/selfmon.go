@@ -103,9 +103,10 @@ func (smc *SelfMonitoringCollector) collectSelfMonitoringMetrics(ctx context.Con
 }
 
 // collectRuntimeMetrics collects exporter runtime and health metrics
+//
 //nolint:unparam
 func (smc *SelfMonitoringCollector) collectRuntimeMetrics(ctx context.Context, ch chan<- prometheus.Metric) error {
- _ = ctx
+	_ = ctx
 	// Exporter uptime and health
 	smc.SendMetric(ch, smc.BuildMetric(
 		smc.metrics.CollectorUp.WithLabelValues("exporter").Desc(),
@@ -224,6 +225,7 @@ func (smc *SelfMonitoringCollector) collectRuntimeMetrics(ctx context.Context, c
 }
 
 // collectPerformanceMetrics collects collection performance metrics
+//
 //nolint:unparam
 func (smc *SelfMonitoringCollector) collectPerformanceMetrics(ctx context.Context, ch chan<- prometheus.Metric) error {
 	_ = ctx
@@ -300,6 +302,7 @@ func (smc *SelfMonitoringCollector) collectPerformanceMetrics(ctx context.Contex
 }
 
 // collectAPIMetrics collects SLURM API interaction metrics
+//
 //nolint:unparam
 func (smc *SelfMonitoringCollector) collectAPIMetrics(ctx context.Context, ch chan<- prometheus.Metric) error {
 	_ = ctx
@@ -364,6 +367,7 @@ func (smc *SelfMonitoringCollector) collectAPIMetrics(ctx context.Context, ch ch
 }
 
 // collectCacheMetrics collects cache performance metrics
+//
 //nolint:unparam
 func (smc *SelfMonitoringCollector) collectCacheMetrics(ctx context.Context, ch chan<- prometheus.Metric) error {
 	_ = ctx

@@ -589,7 +589,7 @@ func (erh *ErrorRecoveryHandler) HandleError(ctx context.Context, err *Collectio
 
 // handleConnectionError implements connection error recovery
 func (erh *ErrorRecoveryHandler) handleConnectionError(ctx context.Context, err *CollectionError) error {
- _ = ctx
+	_ = ctx
 	erh.logger.WithField("collector", err.Collector).
 		Info("Attempting connection error recovery")
 
@@ -600,7 +600,7 @@ func (erh *ErrorRecoveryHandler) handleConnectionError(ctx context.Context, err 
 
 // handleTimeoutError implements timeout error recovery
 func (erh *ErrorRecoveryHandler) handleTimeoutError(ctx context.Context, err *CollectionError) error {
- _ = ctx
+	_ = ctx
 	erh.logger.WithField("collector", err.Collector).
 		Info("Attempting timeout error recovery")
 
@@ -633,7 +633,7 @@ func (erh *ErrorRecoveryHandler) handleRateLimitError(ctx context.Context, err *
 
 // handleAuthError implements auth error recovery
 func (erh *ErrorRecoveryHandler) handleAuthError(ctx context.Context, err *CollectionError) error {
- _ = ctx
+	_ = ctx
 	erh.logger.WithField("collector", err.Collector).
 		Error("Authentication error requires manual intervention")
 

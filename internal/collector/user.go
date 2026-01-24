@@ -92,9 +92,10 @@ func (uc *UserCollector) collectUserMetrics(ctx context.Context, ch chan<- prome
 }
 
 // collectUserStats collects user-level statistics
+//
 //nolint:unparam
 func (uc *UserCollector) collectUserStats(ctx context.Context, ch chan<- prometheus.Metric) error {
- _ = ctx
+	_ = ctx
 	// Simulate user statistics - in real implementation this would come from SLURM API
 	// This represents aggregated data from jobs by user
 	userStats := []struct {
@@ -205,9 +206,10 @@ func (uc *UserCollector) collectUserStats(ctx context.Context, ch chan<- prometh
 }
 
 // collectAccountStats collects account-level information and usage
+//
 //nolint:unparam
 func (uc *UserCollector) collectAccountStats(ctx context.Context, ch chan<- prometheus.Metric) error {
- _ = ctx
+	_ = ctx
 	accountStats := getTestAccountStats()
 
 	for _, account := range accountStats {

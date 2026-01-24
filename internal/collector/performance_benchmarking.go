@@ -1161,7 +1161,7 @@ func (p *PerformanceBenchmarkingCollector) collectJobBenchmarks(ctx context.Cont
 
 // collectUserBenchmarks collects user performance benchmarks
 func (p *PerformanceBenchmarkingCollector) collectUserBenchmarks(ctx context.Context) error {
- _ = ctx
+	_ = ctx
 	startTime := time.Now()
 	defer func() {
 		p.metrics.BenchmarkingDuration.WithLabelValues("collect_user_benchmarks", "user").Observe(time.Since(startTime).Seconds())
@@ -1309,7 +1309,7 @@ func (p *PerformanceBenchmarkingCollector) createNodePerformanceProfile(node *sl
 */
 
 func (p *PerformanceBenchmarkingCollector) createClusterPerformanceSnapshot(ctx context.Context) *ClusterPerformanceSnapshot {
- _ = ctx
+	_ = ctx
 	return &ClusterPerformanceSnapshot{
 		ClusterName:       "default",
 		Timestamp:         time.Now(),
@@ -1334,7 +1334,7 @@ func (p *PerformanceBenchmarkingCollector) calculateJobPerformanceScore(snapshot
 */
 
 func (p *PerformanceBenchmarkingCollector) calculateUserPerformanceScore(profile *UserPerformanceProfile) float64 {
- _ = profile
+	_ = profile
 	return 80.0 + 15.0*math.Cos(float64(time.Now().Unix()))
 }
 
@@ -1345,7 +1345,7 @@ func (p *PerformanceBenchmarkingCollector) calculateNodePerformanceScore(profile
 */
 
 func (p *PerformanceBenchmarkingCollector) calculateClusterPerformanceScore(snapshot *ClusterPerformanceSnapshot) float64 {
- _ = snapshot
+	_ = snapshot
 	return 87.0 + 10.0*math.Cos(float64(time.Now().Unix())*1.5)
 }
 
@@ -1395,9 +1395,10 @@ func (p *PerformanceBenchmarkingCollector) updateClusterPerformanceMetrics(snaps
 }
 
 // Simplified methods for major operations
+//
 //nolint:unparam
 func (p *PerformanceBenchmarkingCollector) performComparisons(ctx context.Context) error {
- _ = ctx
+	_ = ctx
 	p.metrics.PerformanceComparisons.WithLabelValues("job_comparison", "job", "completed").Inc()
 	return nil
 }
@@ -1414,7 +1415,7 @@ func (p *PerformanceBenchmarkingCollector) analyzeTrends(ctx context.Context) er
 
 //nolint:unparam
 func (p *PerformanceBenchmarkingCollector) generateRecommendations(ctx context.Context) error {
- _ = ctx
+	_ = ctx
 	// Simplified recommendation generation
 	p.metrics.RecommendationsGenerated.WithLabelValues("job", "resource_optimization", "medium").Inc()
 	return nil

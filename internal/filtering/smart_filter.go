@@ -322,7 +322,7 @@ func (sf *SmartFilter) processMetricFamily(ctx context.Context, collector string
 
 // shouldKeepMetric determines if a metric should be kept or filtered
 func (sf *SmartFilter) shouldKeepMetric(ctx context.Context, collector, metricName string, metric *dto.Metric) bool {
- _ = ctx
+	_ = ctx
 	// Create unique key for this metric
 	key := sf.createMetricKey(metricName, metric)
 
@@ -586,7 +586,7 @@ func (sf *SmartFilter) calculateCorrelation(x, y []float64) float64 {
 
 // makeFilterDecision makes a filtering decision for a pattern
 func (sf *SmartFilter) makeFilterDecision(pattern *MetricPattern, collector string) FilterAction {
- _ = collector
+	_ = collector
 	// During learning phase, keep everything
 	if sf.learningPhase {
 		return ActionKeep
