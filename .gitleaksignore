@@ -1,0 +1,28 @@
+# GitLeaks Ignore File
+# This file excludes known false positives from secret detection
+# Test fixtures and example credentials used in documentation and tests
+
+# Test files with mock JWT tokens
+test/integration/mock-cluster-config.yaml:jwt:10
+test/integration/rocky-cluster-config.yaml:jwt:10
+test/integration/docker-compose.mock.yml:jwt:14
+test/integration/docker-compose.mock.yml:jwt:30
+test/integration/mock-slurm-server.py:jwt:21
+test/integration/mock-slurm-server.py:jwt:437
+test/integration/validate-tests.sh:jwt:46
+
+# Documentation examples (placeholder credentials for reference)
+website/docs/api/index.md:curl-auth-user:42
+website/docs/api/index.md:curl-auth-user:102
+docs/troubleshooting.md:curl-auth-header:257
+docs/troubleshooting.md:curl-auth-header:266
+docs/configuration.md:generic-api-key:291
+docs/installation.md:generic-api-key:605
+
+# Example Kubernetes secret manifests
+kubernetes/secret-example.yaml:kubernetes-secret-yaml:24
+kubernetes/secret-example.yaml:generic-api-key:35
+k8s/secrets.yaml:kubernetes-secret-yaml:38
+k8s/secrets.yaml:kubernetes-secret-yaml:54
+k8s/secrets.yaml:generic-api-key:49
+k8s/secrets.yaml:generic-api-key:65
