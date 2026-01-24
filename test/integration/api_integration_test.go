@@ -76,11 +76,15 @@ func (s *APIIntegrationTestSuite) TearDownSuite() {
 }
 
 func TestAPIIntegrationTestSuite(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, new(APIIntegrationTestSuite))
 }
 
 func (s *APIIntegrationTestSuite) TestFullCollection() {
+	t.Parallel(
 	// Submit test jobs
+	)
+
 	jobIDs := s.submitTestJobs(10)
 	defer s.cleanupJobs(jobIDs)
 
@@ -114,7 +118,10 @@ func (s *APIIntegrationTestSuite) TestFullCollection() {
 }
 
 func (s *APIIntegrationTestSuite) TestConnectionRecovery() {
+	t.Parallel(
 	// Test connection recovery after API downtime
+	)
+
 	ctx := context.Background()
 
 	// Verify initial connection works
@@ -140,7 +147,10 @@ func (s *APIIntegrationTestSuite) TestConnectionRecovery() {
 }
 
 func (s *APIIntegrationTestSuite) TestAPIAuthentication() {
+	t.Parallel(
 	// Test different authentication methods
+	)
+
 	testCases := []struct {
 		name      string
 		auth      slurm.AuthProvider
@@ -197,7 +207,10 @@ func (s *APIIntegrationTestSuite) TestAPIAuthentication() {
 }
 
 func (s *APIIntegrationTestSuite) TestAPIVersionCompatibility() {
+	t.Parallel(
 	// Test compatibility with different API versions
+	)
+
 	versions := []string{"v0.0.39", "v0.0.40", "v0.0.41", "v0.0.42", "v0.0.43"}
 
 	for _, version := range versions {
@@ -220,7 +233,10 @@ func (s *APIIntegrationTestSuite) TestAPIVersionCompatibility() {
 }
 
 func (s *APIIntegrationTestSuite) TestHighVolumeData() {
+	t.Parallel(
 	// Test handling of high volume data
+	)
+
 	const jobCount = 1000
 
 	// Submit many jobs
@@ -248,7 +264,10 @@ func (s *APIIntegrationTestSuite) TestHighVolumeData() {
 }
 
 func (s *APIIntegrationTestSuite) TestConcurrentRequests() {
+	t.Parallel(
 	// Test concurrent API requests
+	)
+
 	const concurrency = 10
 
 	errCh := make(chan error, concurrency)
@@ -272,7 +291,10 @@ func (s *APIIntegrationTestSuite) TestConcurrentRequests() {
 }
 
 func (s *APIIntegrationTestSuite) TestAPIRateLimiting() {
+	t.Parallel(
 	// Test API rate limiting behavior
+	)
+
 	const requestCount = 50
 
 	start := time.Now()

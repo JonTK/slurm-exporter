@@ -225,6 +225,7 @@ func TestProfiledCollectorManager(t *testing.T) {
 
 	t.Run("SetProfilingEnabledAll", func(t *testing.T) {
 		// Wrap multiple collectors
+
 		for i := 0; i < 3; i++ {
 			mock := &profiledMockCollector{
 				name:    fmt.Sprintf("collector_%d", i),

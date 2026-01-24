@@ -19,6 +19,7 @@ import (
 )
 
 func TestSharesCollector_Describe(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	timeout := 30 * time.Second
@@ -39,6 +40,7 @@ func TestSharesCollector_Describe(t *testing.T) {
 }
 
 func TestSharesCollector_Collect_Success(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)
@@ -101,6 +103,7 @@ func TestSharesCollector_Collect_Success(t *testing.T) {
 }
 
 func TestSharesCollector_Collect_Error(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	timeout := 30 * time.Second
@@ -121,6 +124,7 @@ func TestSharesCollector_Collect_Error(t *testing.T) {
 }
 
 func TestSharesCollector_EmptySharesList(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)

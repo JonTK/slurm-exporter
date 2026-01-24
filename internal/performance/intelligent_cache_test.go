@@ -16,6 +16,7 @@ import (
 )
 
 func TestNewIntelligentCache(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -47,6 +48,7 @@ func TestNewIntelligentCache(t *testing.T) {
 }
 
 func TestIntelligentCache_BasicOperations(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -80,6 +82,7 @@ func TestIntelligentCache_BasicOperations(t *testing.T) {
 }
 
 func TestIntelligentCache_AdaptiveTTL(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -146,6 +149,7 @@ func TestIntelligentCache_AdaptiveTTL(t *testing.T) {
 }
 
 func TestIntelligentCache_StabilityScore(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -197,6 +201,7 @@ func TestIntelligentCache_StabilityScore(t *testing.T) {
 }
 
 func TestIntelligentCache_ChangeDetection(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -229,6 +234,7 @@ func TestIntelligentCache_ChangeDetection(t *testing.T) {
 }
 
 func TestIntelligentCache_SizeEstimation(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -256,6 +262,7 @@ func TestIntelligentCache_SizeEstimation(t *testing.T) {
 }
 
 func TestIntelligentCache_LRUEviction(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -301,6 +308,7 @@ func TestIntelligentCache_LRUEviction(t *testing.T) {
 }
 
 func TestIntelligentCache_TTLExpiration(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -332,6 +340,7 @@ func TestIntelligentCache_TTLExpiration(t *testing.T) {
 }
 
 func TestIntelligentCache_CachedFunction(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -373,6 +382,7 @@ func TestIntelligentCache_CachedFunction(t *testing.T) {
 }
 
 func TestIntelligentCache_GetStats(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -414,6 +424,7 @@ func TestIntelligentCache_GetStats(t *testing.T) {
 }
 
 func TestIntelligentCache_GetTopEntries(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -452,6 +463,7 @@ func TestIntelligentCache_GetTopEntries(t *testing.T) {
 }
 
 func TestIntelligentCache_Clear(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 

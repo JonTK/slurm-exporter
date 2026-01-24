@@ -16,6 +16,7 @@ import (
 )
 
 func TestNewCollectorScheduler_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -30,6 +31,7 @@ func TestNewCollectorScheduler_Disabled(t *testing.T) {
 }
 
 func TestNewCollectorScheduler_Enabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -98,6 +100,7 @@ func TestNewCollectorScheduler_InvalidConfig(t *testing.T) {
 }
 
 func TestCollectorScheduler_RegisterCollector(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -125,6 +128,7 @@ func TestCollectorScheduler_RegisterCollector(t *testing.T) {
 }
 
 func TestCollectorScheduler_GetCollectionInterval_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -141,6 +145,7 @@ func TestCollectorScheduler_GetCollectionInterval_Disabled(t *testing.T) {
 }
 
 func TestCollectorScheduler_UpdateActivity(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -247,6 +252,7 @@ func TestCollectorScheduler_ActivityScoreCalculation(t *testing.T) {
 }
 
 func TestCollectorScheduler_IntervalAdaptation(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -292,6 +298,7 @@ func TestCollectorScheduler_IntervalAdaptation(t *testing.T) {
 }
 
 func TestCollectorScheduler_RecordCollection(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -319,6 +326,7 @@ func TestCollectorScheduler_RecordCollection(t *testing.T) {
 }
 
 func TestCollectorScheduler_GetStats(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -349,6 +357,7 @@ func TestCollectorScheduler_GetStats(t *testing.T) {
 }
 
 func TestCollectorScheduler_RegisterMetrics(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -383,6 +392,7 @@ func TestCollectorScheduler_RegisterMetrics(t *testing.T) {
 }
 
 func TestCollectorScheduler_RegisterMetrics_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -472,6 +482,7 @@ func TestCollectorScheduler_CompareValues(t *testing.T) {
 }
 
 func TestCollectorScheduler_TimeBasedScore(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 

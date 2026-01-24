@@ -18,6 +18,7 @@ import (
 
 func TestPartitionCollector(t *testing.T) {
 	// Create test logger
+
 	logger, hook := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)
 	logEntry := logrus.NewEntry(logger)
@@ -360,6 +361,7 @@ func TestPartitionCollectorDataTypes(t *testing.T) {
 
 func TestPartitionCollectorIntegration(t *testing.T) {
 	// Create a full integration test
+
 	registry := prometheus.NewRegistry()
 
 	// Create test configuration

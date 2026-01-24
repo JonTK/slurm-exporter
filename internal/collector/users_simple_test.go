@@ -17,6 +17,7 @@ import (
 )
 
 func TestUsersSimpleCollector_Describe(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -36,6 +37,7 @@ func TestUsersSimpleCollector_Describe(t *testing.T) {
 }
 
 func TestUsersSimpleCollector_Collect_Success(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockUserManager := new(mocks.MockUserManager)
@@ -91,6 +93,7 @@ func TestUsersSimpleCollector_Collect_Success(t *testing.T) {
 }
 
 func TestUsersSimpleCollector_Collect_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -114,6 +117,7 @@ func TestUsersSimpleCollector_Collect_Disabled(t *testing.T) {
 }
 
 func TestUsersSimpleCollector_Collect_Error(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockUserManager := new(mocks.MockUserManager)
@@ -137,6 +141,7 @@ func TestUsersSimpleCollector_Collect_Error(t *testing.T) {
 }
 
 func TestUsersSimpleCollector_EmptyUserList(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockUserManager := new(mocks.MockUserManager)

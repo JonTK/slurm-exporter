@@ -15,9 +15,11 @@ func newTestCalculator() *EfficiencyCalculator {
 }
 
 func TestNewEfficiencyCalculator(t *testing.T) {
+	t.Parallel()
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 	t.Run("WithConfig", func(t *testing.T) {
+		t.Parallel()
 		config := &EfficiencyConfig{
 			CPUIdleThreshold:     0.1,
 			CPUOptimalThreshold:  0.8,
@@ -39,6 +41,7 @@ func TestNewEfficiencyCalculator(t *testing.T) {
 	})
 
 	t.Run("DefaultConfig", func(t *testing.T) {
+		t.Parallel()
 		calc := newTestCalculator()
 
 		if calc.config.MinEfficiencyScore != 0.0 {
@@ -54,7 +57,9 @@ func TestNewEfficiencyCalculator(t *testing.T) {
 }
 
 func TestCalculateEfficiency(t *testing.T) {
+	t.Parallel()
 	t.Run("NilData", func(t *testing.T) {
+		t.Parallel()
 		calc := newTestCalculator()
 		_, err := calc.CalculateEfficiency(nil)
 
@@ -64,6 +69,7 @@ func TestCalculateEfficiency(t *testing.T) {
 	})
 
 	t.Run("ValidData", func(t *testing.T) {
+		t.Parallel()
 		calc := newTestCalculator()
 		data := &ResourceUtilizationData{
 			CPURequested:    10.0,
@@ -103,6 +109,7 @@ func TestCalculateEfficiency(t *testing.T) {
 	})
 
 	t.Run("NoIOActivity", func(t *testing.T) {
+		t.Parallel()
 		calc := newTestCalculator()
 		data := &ResourceUtilizationData{
 			CPUAllocated:    10.0,
@@ -129,9 +136,11 @@ func TestCalculateEfficiency(t *testing.T) {
 }
 
 func TestCalculateCPUEfficiency(t *testing.T) {
+	t.Parallel()
 	calc := newTestCalculator()
 
 	t.Run("ZeroAllocated", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			CPUAllocated: 0.0,
 			WallTime:     100.0,
@@ -145,6 +154,7 @@ func TestCalculateCPUEfficiency(t *testing.T) {
 	})
 
 	t.Run("ZeroWallTime", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			CPUAllocated: 10.0,
 			WallTime:     0.0,
@@ -158,6 +168,7 @@ func TestCalculateCPUEfficiency(t *testing.T) {
 	})
 
 	t.Run("OptimalUsage", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			CPUAllocated: 10.0,
 			CPUUsed:      8.0,
@@ -176,6 +187,7 @@ func TestCalculateCPUEfficiency(t *testing.T) {
 	})
 
 	t.Run("LowUsage", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			CPUAllocated: 10.0,
 			CPUUsed:      1.0,
@@ -192,9 +204,11 @@ func TestCalculateCPUEfficiency(t *testing.T) {
 }
 
 func TestCalculateMemoryEfficiency(t *testing.T) {
+	t.Parallel()
 	calc := newTestCalculator()
 
 	t.Run("ZeroAllocated", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			MemoryAllocated: 0,
 		}
@@ -207,6 +221,7 @@ func TestCalculateMemoryEfficiency(t *testing.T) {
 	})
 
 	t.Run("OptimalUsage", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			MemoryAllocated: 10 * 1024 * 1024 * 1024,
 			MemoryUsed:      9 * 1024 * 1024 * 1024,
@@ -221,6 +236,7 @@ func TestCalculateMemoryEfficiency(t *testing.T) {
 	})
 
 	t.Run("HighWaste", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			MemoryAllocated: 10 * 1024 * 1024 * 1024,
 			MemoryUsed:      2 * 1024 * 1024 * 1024,
@@ -236,9 +252,11 @@ func TestCalculateMemoryEfficiency(t *testing.T) {
 }
 
 func TestCalculateIOEfficiency(t *testing.T) {
+	t.Parallel()
 	calc := newTestCalculator()
 
 	t.Run("NoIOActivity", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			WallTime:     100.0,
 			IOReadBytes:  0,
@@ -255,6 +273,7 @@ func TestCalculateIOEfficiency(t *testing.T) {
 	})
 
 	t.Run("ZeroWallTime", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			WallTime:     0.0,
 			IOReadBytes:  1000,
@@ -269,6 +288,7 @@ func TestCalculateIOEfficiency(t *testing.T) {
 	})
 
 	t.Run("OptimalIO", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			WallTime:     100.0,
 			IOReadBytes:  10 * 1024 * 1024 * 1024, // 10GB
@@ -287,9 +307,11 @@ func TestCalculateIOEfficiency(t *testing.T) {
 }
 
 func TestCalculateNetworkEfficiency(t *testing.T) {
+	t.Parallel()
 	calc := newTestCalculator()
 
 	t.Run("NoNetworkActivity", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			WallTime:         100.0,
 			NetworkRxBytes:   0,
@@ -306,6 +328,7 @@ func TestCalculateNetworkEfficiency(t *testing.T) {
 	})
 
 	t.Run("OptimalNetwork", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			WallTime:         100.0,
 			NetworkRxBytes:   5 * 1024 * 1024 * 1024, // 5GB
@@ -323,6 +346,7 @@ func TestCalculateNetworkEfficiency(t *testing.T) {
 }
 
 func TestCalculateResourceEfficiency(t *testing.T) {
+	t.Parallel()
 	calc := newTestCalculator()
 
 	testCases := []struct {
@@ -339,6 +363,7 @@ func TestCalculateResourceEfficiency(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			efficiency := calc.calculateResourceEfficiency(tc.cpuEff, tc.memEff)
 
 			if efficiency < tc.min || efficiency > tc.max {
@@ -350,6 +375,7 @@ func TestCalculateResourceEfficiency(t *testing.T) {
 }
 
 func TestCalculateThroughputEfficiency(t *testing.T) {
+	t.Parallel()
 	calc := newTestCalculator()
 
 	testCases := []struct {
@@ -366,6 +392,7 @@ func TestCalculateThroughputEfficiency(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			efficiency := calc.calculateThroughputEfficiency(tc.ioEff, tc.netEff)
 
 			if efficiency < tc.min || efficiency > tc.max {
@@ -377,9 +404,11 @@ func TestCalculateThroughputEfficiency(t *testing.T) {
 }
 
 func TestCalculateWasteRatio(t *testing.T) {
+	t.Parallel()
 	calc := newTestCalculator()
 
 	t.Run("NoWaste", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			CPUAllocated:    10.0,
 			CPUUsed:         10.0,
@@ -395,6 +424,7 @@ func TestCalculateWasteRatio(t *testing.T) {
 	})
 
 	t.Run("HighWaste", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			CPUAllocated:    10.0,
 			CPUUsed:         2.0,
@@ -410,6 +440,7 @@ func TestCalculateWasteRatio(t *testing.T) {
 	})
 
 	t.Run("ZeroAllocated", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			CPUAllocated:    0.0,
 			MemoryAllocated: 0,
@@ -424,6 +455,7 @@ func TestCalculateWasteRatio(t *testing.T) {
 }
 
 func TestDetermineEfficiencyGrade(t *testing.T) {
+	t.Parallel()
 	calc := newTestCalculator()
 
 	testCases := []struct {
@@ -445,6 +477,7 @@ func TestDetermineEfficiencyGrade(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run("Score_"+formatFloat(tc.score), func(t *testing.T) {
+			t.Parallel()
 			grade := calc.determineEfficiencyGrade(tc.score)
 
 			if grade != tc.expected {
@@ -456,6 +489,7 @@ func TestDetermineEfficiencyGrade(t *testing.T) {
 }
 
 func TestDetermineEfficiencyCategory(t *testing.T) {
+	t.Parallel()
 	calc := newTestCalculator()
 
 	testCases := []struct {
@@ -476,6 +510,7 @@ func TestDetermineEfficiencyCategory(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run("Score_"+formatFloat(tc.score), func(t *testing.T) {
+			t.Parallel()
 			category := calc.determineEfficiencyCategory(tc.score)
 
 			if category != tc.expected {
@@ -487,9 +522,11 @@ func TestDetermineEfficiencyCategory(t *testing.T) {
 }
 
 func TestGenerateRecommendations(t *testing.T) {
+	t.Parallel()
 	calc := newTestCalculator()
 
 	t.Run("GoodEfficiency", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			CPUAllocated:    10.0,
 			CPUUsed:         8.0,
@@ -511,6 +548,7 @@ func TestGenerateRecommendations(t *testing.T) {
 	})
 
 	t.Run("PoorCPUEfficiency", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			CPUAllocated: 10.0,
 			CPUUsed:      1.0,
@@ -527,6 +565,7 @@ func TestGenerateRecommendations(t *testing.T) {
 	})
 
 	t.Run("PoorMemoryEfficiency", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			MemoryAllocated: 10 * 1024 * 1024 * 1024,
 			MemoryUsed:      1 * 1024 * 1024 * 1024,
@@ -543,6 +582,7 @@ func TestGenerateRecommendations(t *testing.T) {
 	})
 
 	t.Run("HighIOWait", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			WallTime:   100.0,
 			IOWaitTime: 50.0,
@@ -560,6 +600,7 @@ func TestGenerateRecommendations(t *testing.T) {
 }
 
 func TestClampEfficiency(t *testing.T) {
+	t.Parallel()
 	calc := NewEfficiencyCalculator(nil, &EfficiencyConfig{
 		MinEfficiencyScore: 0.1,
 		MaxEfficiencyScore: 0.9,
@@ -581,6 +622,7 @@ func TestClampEfficiency(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			result := calc.clampEfficiency(tc.input)
 
 			if result != tc.expected {
@@ -592,6 +634,7 @@ func TestClampEfficiency(t *testing.T) {
 }
 
 func TestCalculateUtilizationScore(t *testing.T) {
+	t.Parallel()
 	calc := NewEfficiencyCalculator(nil, &EfficiencyConfig{
 		CPUIdleThreshold:    0.1,
 		CPUOptimalThreshold: 0.8,
@@ -613,6 +656,7 @@ func TestCalculateUtilizationScore(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			score := calc.calculateUtilizationScore(tc.utilization)
 
 			if score < tc.minScore || score > tc.maxScore {
@@ -624,11 +668,13 @@ func TestCalculateUtilizationScore(t *testing.T) {
 }
 
 func TestCalculateOptimalityScore(t *testing.T) {
+	t.Parallel()
 	calc := NewEfficiencyCalculator(nil, &EfficiencyConfig{
 		OptimalUtilization: 0.8,
 	})
 
 	t.Run("OptimalCPU", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			CPUAllocated: 10.0,
 			CPUUsed:      8.0,
@@ -642,6 +688,7 @@ func TestCalculateOptimalityScore(t *testing.T) {
 	})
 
 	t.Run("SuboptimalCPU", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			CPUAllocated: 10.0,
 			CPUUsed:      2.0,
@@ -655,6 +702,7 @@ func TestCalculateOptimalityScore(t *testing.T) {
 	})
 
 	t.Run("NoAllocation", func(t *testing.T) {
+		t.Parallel()
 		data := &ResourceUtilizationData{
 			CPUAllocated:    0.0,
 			MemoryAllocated: 0,
@@ -669,11 +717,13 @@ func TestCalculateOptimalityScore(t *testing.T) {
 }
 
 func TestCalculateImprovementPotential(t *testing.T) {
+	t.Parallel()
 	calc := NewEfficiencyCalculator(nil, &EfficiencyConfig{
 		MaxEfficiencyScore: 1.0,
 	})
 
 	t.Run("HighPotential", func(t *testing.T) {
+		t.Parallel()
 		metrics := &EfficiencyMetrics{
 			OverallEfficiency: 0.3,
 			WasteRatio:        0.7,
@@ -688,6 +738,7 @@ func TestCalculateImprovementPotential(t *testing.T) {
 	})
 
 	t.Run("LowPotential", func(t *testing.T) {
+		t.Parallel()
 		metrics := &EfficiencyMetrics{
 			OverallEfficiency: 0.9,
 			WasteRatio:        0.05,

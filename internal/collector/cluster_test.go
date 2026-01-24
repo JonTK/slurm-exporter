@@ -18,6 +18,7 @@ import (
 
 func TestClusterCollector(t *testing.T) {
 	// Create test logger
+
 	logger, hook := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)
 	logEntry := logrus.NewEntry(logger)
@@ -260,6 +261,7 @@ func TestClusterCollector(t *testing.T) {
 
 func TestClusterCollectorIntegration(t *testing.T) {
 	// Create a full integration test with registry
+
 	registry := prometheus.NewRegistry()
 
 	// Create test configuration

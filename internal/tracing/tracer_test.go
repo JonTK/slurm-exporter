@@ -18,6 +18,7 @@ import (
 )
 
 func TestNewCollectionTracer_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel) // Reduce noise
 
@@ -34,6 +35,7 @@ func TestNewCollectionTracer_Disabled(t *testing.T) {
 }
 
 func TestNewCollectionTracer_Enabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -57,6 +59,7 @@ func TestNewCollectionTracer_Enabled(t *testing.T) {
 }
 
 func TestCollectionTracer_TraceCollection_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -76,6 +79,7 @@ func TestCollectionTracer_TraceCollection_Disabled(t *testing.T) {
 }
 
 func TestCollectionTracer_TraceCollection_Enabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -106,6 +110,7 @@ func TestCollectionTracer_TraceCollection_Enabled(t *testing.T) {
 }
 
 func TestCollectionTracer_TraceAPICall_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -125,6 +130,7 @@ func TestCollectionTracer_TraceAPICall_Disabled(t *testing.T) {
 }
 
 func TestCollectionTracer_TraceAPICall_Enabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -156,6 +162,7 @@ func TestCollectionTracer_TraceAPICall_Enabled(t *testing.T) {
 }
 
 func TestCollectionTracer_TraceMetricGeneration(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -181,6 +188,7 @@ func TestCollectionTracer_TraceMetricGeneration(t *testing.T) {
 }
 
 func TestCollectionTracer_EnableDetailedTrace(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -213,6 +221,7 @@ func TestCollectionTracer_EnableDetailedTrace(t *testing.T) {
 }
 
 func TestCollectionTracer_EnableDetailedTrace_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -226,6 +235,7 @@ func TestCollectionTracer_EnableDetailedTrace_Disabled(t *testing.T) {
 }
 
 func TestCollectionTracer_AddSpanAttribute(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -256,6 +266,7 @@ func TestCollectionTracer_AddSpanAttribute(t *testing.T) {
 }
 
 func TestCollectionTracer_AddSpanAttribute_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -268,6 +279,7 @@ func TestCollectionTracer_AddSpanAttribute_Disabled(t *testing.T) {
 }
 
 func TestCollectionTracer_RecordError(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -295,6 +307,7 @@ func TestCollectionTracer_RecordError(t *testing.T) {
 }
 
 func TestCollectionTracer_GetTraceAndSpanID(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -329,6 +342,7 @@ func TestCollectionTracer_GetTraceAndSpanID(t *testing.T) {
 }
 
 func TestCollectionTracer_GetTraceAndSpanID_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -342,6 +356,7 @@ func TestCollectionTracer_GetTraceAndSpanID_Disabled(t *testing.T) {
 }
 
 func TestCollectionTracer_CreateChildSpan(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -375,6 +390,7 @@ func TestCollectionTracer_CreateChildSpan(t *testing.T) {
 }
 
 func TestCollectionTracer_GetStats(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 
@@ -406,6 +422,7 @@ func TestCollectionTracer_GetStats(t *testing.T) {
 }
 
 func TestCollectionTracer_GetConfig(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.WarnLevel)
 

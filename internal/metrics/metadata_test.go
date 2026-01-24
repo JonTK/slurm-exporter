@@ -9,8 +9,12 @@ import (
 )
 
 func TestMetricMetadata(t *testing.T) {
+	t.Parallel()
 	t.Run("GetMetricMetadata", func(t *testing.T) {
+		t.Parallel(
 		// Test existing metric
+		)
+
 		metadata, exists := GetMetricMetadata("slurm_cluster_info")
 		if !exists {
 			t.Error("Expected slurm_cluster_info to exist in registry")
@@ -33,6 +37,7 @@ func TestMetricMetadata(t *testing.T) {
 	})
 
 	t.Run("GetMetricsByCategory", func(t *testing.T) {
+		t.Parallel()
 		clusterMetrics := GetMetricsByCategory(CategoryCluster)
 		if len(clusterMetrics) == 0 {
 			t.Error("Expected at least one cluster metric")
@@ -53,6 +58,7 @@ func TestMetricMetadata(t *testing.T) {
 	})
 
 	t.Run("GetMetricsByStability", func(t *testing.T) {
+		t.Parallel()
 		stableMetrics := GetMetricsByStability(StabilityStable)
 		if len(stableMetrics) == 0 {
 			t.Error("Expected at least one stable metric")
@@ -75,6 +81,7 @@ func TestMetricMetadata(t *testing.T) {
 	})
 
 	t.Run("ValidateMetricMetadata", func(t *testing.T) {
+		t.Parallel()
 		issues := ValidateMetricMetadata()
 		if len(issues) > 0 {
 			t.Errorf("Metadata validation failed with issues: %v", issues)
@@ -82,6 +89,7 @@ func TestMetricMetadata(t *testing.T) {
 	})
 
 	t.Run("GetMetricCount", func(t *testing.T) {
+		t.Parallel()
 		count := GetMetricCount()
 		if count == 0 {
 			t.Error("Expected at least one metric in registry")
@@ -92,6 +100,7 @@ func TestMetricMetadata(t *testing.T) {
 	})
 
 	t.Run("GetCategoryCount", func(t *testing.T) {
+		t.Parallel()
 		counts := GetCategoryCount()
 		if len(counts) == 0 {
 			t.Error("Expected at least one category")
@@ -109,7 +118,9 @@ func TestMetricMetadata(t *testing.T) {
 }
 
 func TestMetricTypes(t *testing.T) {
+	t.Parallel()
 	t.Run("MetricType", func(t *testing.T) {
+		t.Parallel()
 		types := []MetricType{MetricTypeGauge, MetricTypeCounter, MetricTypeHistogram, MetricTypeSummary}
 		for _, metricType := range types {
 			if string(metricType) == "" {
@@ -119,6 +130,7 @@ func TestMetricTypes(t *testing.T) {
 	})
 
 	t.Run("MetricCategory", func(t *testing.T) {
+		t.Parallel()
 		categories := []MetricCategory{
 			CategoryCluster, CategoryNode, CategoryJob, CategoryUser,
 			CategoryAccount, CategoryPartition, CategoryPerformance, CategoryExporter,
@@ -131,6 +143,7 @@ func TestMetricTypes(t *testing.T) {
 	})
 
 	t.Run("StabilityLevel", func(t *testing.T) {
+		t.Parallel()
 		levels := []StabilityLevel{
 			StabilityStable, StabilityBeta, StabilityAlpha,
 			StabilityDeprecated, StabilityExperimental,
@@ -144,7 +157,9 @@ func TestMetricTypes(t *testing.T) {
 }
 
 func TestDocumentationGeneration(t *testing.T) {
+	t.Parallel()
 	t.Run("GenerateDocumentation", func(t *testing.T) {
+		t.Parallel()
 		doc := GenerateDocumentation()
 		if doc == "" {
 			t.Error("Expected non-empty documentation")
@@ -172,6 +187,7 @@ func TestDocumentationGeneration(t *testing.T) {
 	})
 
 	t.Run("GeneratePrometheusConfig", func(t *testing.T) {
+		t.Parallel()
 		config := GeneratePrometheusConfig()
 		if config == "" {
 			t.Error("Expected non-empty Prometheus config")
@@ -192,6 +208,7 @@ func TestDocumentationGeneration(t *testing.T) {
 	})
 
 	t.Run("GenerateGrafanaDashboard", func(t *testing.T) {
+		t.Parallel()
 		dashboard := GenerateGrafanaDashboard()
 		if dashboard == "" {
 			t.Error("Expected non-empty Grafana dashboard")
@@ -214,8 +231,12 @@ func TestDocumentationGeneration(t *testing.T) {
 }
 
 func TestMetricMetadataStructure(t *testing.T) {
+	t.Parallel()
 	t.Run("RequiredFields", func(t *testing.T) {
+		t.Parallel(
 		// Test that key metrics have all required fields
+		)
+
 		keyMetrics := []string{
 			"slurm_cluster_info",
 			"slurm_node_state",
@@ -252,7 +273,10 @@ func TestMetricMetadataStructure(t *testing.T) {
 	})
 
 	t.Run("ExampleValues", func(t *testing.T) {
+		t.Parallel(
 		// Test that metrics with example values have consistent structure
+		)
+
 		for name, metadata := range MetricsRegistry {
 			if metadata.ExampleValue != "" {
 				if len(metadata.ExampleLabels) > 0 && len(metadata.Labels) == 0 {
@@ -263,7 +287,10 @@ func TestMetricMetadataStructure(t *testing.T) {
 	})
 
 	t.Run("RelatedMetrics", func(t *testing.T) {
+		t.Parallel(
 		// Test that related metrics exist in registry
+		)
+
 		for name, metadata := range MetricsRegistry {
 			for _, relatedMetric := range metadata.RelatedMetrics {
 				if _, exists := MetricsRegistry[relatedMetric]; !exists {
@@ -274,7 +301,10 @@ func TestMetricMetadataStructure(t *testing.T) {
 	})
 
 	t.Run("LabelConsistency", func(t *testing.T) {
+		t.Parallel(
 		// Test that example labels match defined labels
+		)
+
 		for name, metadata := range MetricsRegistry {
 			if len(metadata.ExampleLabels) > 0 && len(metadata.Labels) > 0 {
 				for labelName := range metadata.ExampleLabels {
@@ -295,7 +325,9 @@ func TestMetricMetadataStructure(t *testing.T) {
 }
 
 func TestDocumentationQuality(t *testing.T) {
+	t.Parallel()
 	t.Run("HelpTextQuality", func(t *testing.T) {
+		t.Parallel()
 		for name, metadata := range MetricsRegistry {
 			// Help text should be concise
 			if len(metadata.Help) > 100 {
@@ -315,7 +347,10 @@ func TestDocumentationQuality(t *testing.T) {
 	})
 
 	t.Run("UseCaseCompleness", func(t *testing.T) {
+		t.Parallel(
 		// Key metrics should have use cases and troubleshooting info
+		)
+
 		keyMetrics := []string{
 			"slurm_cluster_info",
 			"slurm_node_state",
@@ -335,7 +370,9 @@ func TestDocumentationQuality(t *testing.T) {
 }
 
 func TestCategoryDistribution(t *testing.T) {
+	t.Parallel()
 	t.Run("CategoryBalance", func(t *testing.T) {
+		t.Parallel()
 		counts := GetCategoryCount()
 
 		// Should have metrics in all major categories

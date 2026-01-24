@@ -435,6 +435,7 @@ func TestMemoryProfileStorage(t *testing.T) {
 
 	t.Run("EnforceLimits", func(t *testing.T) {
 		// Create many profiles to exceed limit
+
 		for i := 0; i < 150; i++ {
 			profile := &CollectorProfile{
 				CollectorName: fmt.Sprintf("test_%d", i),

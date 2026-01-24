@@ -29,14 +29,12 @@ linters:
     - noinlineerr               # Inline error handling is idiomatic Go
     - nlreturn
     - nonamedreturns
-    - paralleltest
     - perfsprint
     - prealloc
     - tagliatelle
     - testifylint
     - testpackage
     - thelper
-    - tparallel
     - usetesting
     - varnamelen
     - wrapcheck
@@ -424,6 +422,42 @@ linters:
       - linters:
           - mnd
         path: internal/(health|adaptive)/
+      # paralleltest/tparallel - Tests with subtests that share parent state
+      # Go testing framework limitation: nested parallel calls with shared state create race conditions and deadlocks
+      # These tests have subtests that access/modify parent test state, so they cannot safely be parallelized
+      # Entire packages excluded because all/most tests use this pattern
+      - linters:
+          - paralleltest
+          - tparallel
+        path: ^internal/collector/.*_test\.go
+      - linters:
+          - paralleltest
+          - tparallel
+        path: ^internal/adaptive/.*_test\.go
+      - linters:
+          - paralleltest
+          - tparallel
+        path: ^internal/performance/.*_test\.go
+      - linters:
+          - paralleltest
+          - tparallel
+        path: ^internal/metrics/.*_test\.go
+      - linters:
+          - paralleltest
+          - tparallel
+        path: ^pkg/version/.*_test\.go
+      # Config tests that modify environment variables and file system - shared state
+      - linters:
+          - paralleltest
+          - tparallel
+        path: ^internal/config/.*_test\.go
+        text: '(TestEnv|TestApplyEnv|TestInvalidEnvOverrides|TestWatcher|subtests should call|Range statement|missing the call to method parallel)'
+      # Logging tests with shared test hooks - hook state is not safe for parallel execution
+      - linters:
+          - paralleltest
+          - tparallel
+        path: ^internal/logging/logger_test\.go
+        text: 'TestLoggerMethods'
       # Server middleware and utilities have timeout and size constants
       - linters:
           - mnd

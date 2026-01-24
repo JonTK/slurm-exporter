@@ -84,6 +84,7 @@ func TestNewBatchProcessor(t *testing.T) {
 }
 
 func TestBatchProcessor_Add(t *testing.T) {
+	t.Parallel()
 	logger := logrus.NewEntry(logrus.New())
 	config := BatchConfig{
 		MaxBatchSize: 10, // Increased to prevent auto-flush when adding 3 items
@@ -120,6 +121,7 @@ func TestBatchProcessor_Add(t *testing.T) {
 }
 
 func TestBatchProcessor_Deduplication(t *testing.T) {
+	t.Parallel()
 	logger := logrus.NewEntry(logrus.New())
 	config := BatchConfig{
 		MaxBatchSize: 10,
@@ -149,6 +151,7 @@ func TestBatchProcessor_Deduplication(t *testing.T) {
 }
 
 func TestBatchProcessor_AutoFlush(t *testing.T) {
+	t.Parallel()
 	logger := logrus.NewEntry(logrus.New())
 	config := BatchConfig{
 		MaxBatchSize: 2,
@@ -188,6 +191,7 @@ func TestBatchProcessor_AutoFlush(t *testing.T) {
 }
 
 func TestBatchProcessor_TimeBasedFlush(t *testing.T) {
+	t.Parallel()
 	logger := logrus.NewEntry(logrus.New())
 	config := BatchConfig{
 		MaxBatchSize: 10,
@@ -221,6 +225,7 @@ func TestBatchProcessor_TimeBasedFlush(t *testing.T) {
 }
 
 func TestBatchProcessor_RetryLogic(t *testing.T) {
+	t.Parallel()
 	logger := logrus.NewEntry(logrus.New())
 	config := BatchConfig{
 		MaxBatchSize:  2,
@@ -255,6 +260,7 @@ func TestBatchProcessor_RetryLogic(t *testing.T) {
 }
 
 func TestBatchProcessor_ConcurrentAdd(t *testing.T) {
+	t.Parallel()
 	logger := logrus.NewEntry(logrus.New())
 	config := BatchConfig{
 		MaxBatchSize: 100,
@@ -297,6 +303,7 @@ func TestBatchProcessor_ConcurrentAdd(t *testing.T) {
 }
 
 func TestBatchProcessor_FlushAll(t *testing.T) {
+	t.Parallel()
 	logger := logrus.NewEntry(logrus.New())
 	config := BatchConfig{
 		MaxBatchSize: 10,
@@ -343,6 +350,7 @@ func TestBatchProcessor_FlushAll(t *testing.T) {
 }
 
 func TestBatchProcessor_GetStats(t *testing.T) {
+	t.Parallel()
 	logger := logrus.NewEntry(logrus.New())
 	config := BatchConfig{
 		MaxBatchSize: 10,
@@ -376,6 +384,7 @@ func TestBatchProcessor_GetStats(t *testing.T) {
 }
 
 func TestBatchProcessor_Stop(t *testing.T) {
+	t.Parallel()
 	logger := logrus.NewEntry(logrus.New())
 	config := BatchConfig{
 		MaxBatchSize: 10,
@@ -404,13 +413,14 @@ func TestBatchProcessor_Stop(t *testing.T) {
 	// Verify clean stop
 	select {
 	case <-bp.ctx.Done():
-		// Context should be canceled
+	// Context should be canceled
 	default:
 		t.Error("Context not canceled after stop")
 	}
 }
 
 func TestBatchProcessor_RegisterMetrics(t *testing.T) {
+	t.Parallel()
 	logger := logrus.NewEntry(logrus.New())
 	config := BatchConfig{}
 

@@ -11,6 +11,7 @@ import (
 )
 
 func TestMetricFilter(t *testing.T) {
+	t.Parallel()
 	t.Run("NewMetricFilter", func(t *testing.T) {
 		cfg := config.MetricFilterConfig{
 			EnableAll: true,
@@ -28,6 +29,7 @@ func TestMetricFilter(t *testing.T) {
 }
 
 func TestShouldCollectMetric(t *testing.T) {
+	t.Parallel()
 	t.Run("DefaultConfig", func(t *testing.T) {
 		cfg := DefaultMetricFilterConfig()
 		filter := NewMetricFilter(cfg)
@@ -378,6 +380,7 @@ func TestShouldCollectMetric(t *testing.T) {
 }
 
 func TestMatchesPattern(t *testing.T) {
+	t.Parallel()
 	cfg := DefaultMetricFilterConfig()
 	filter := NewMetricFilter(cfg)
 
@@ -409,6 +412,7 @@ func TestMatchesPattern(t *testing.T) {
 }
 
 func TestGetMetricType(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name     string
 		metric   string
@@ -434,6 +438,7 @@ func TestGetMetricType(t *testing.T) {
 }
 
 func TestCreateMetricInfo(t *testing.T) {
+	t.Parallel()
 	t.Run("Counter metric", func(t *testing.T) {
 		info := CreateMetricInfo("slurm_jobs_total", MetricTypeCounter, "Total jobs")
 
@@ -512,6 +517,7 @@ func TestCreateMetricInfo(t *testing.T) {
 }
 
 func TestDefaultMetricFilterConfig(t *testing.T) {
+	t.Parallel()
 	cfg := DefaultMetricFilterConfig()
 
 	if !cfg.EnableAll {
@@ -541,6 +547,7 @@ func TestDefaultMetricFilterConfig(t *testing.T) {
 }
 
 func TestMetricFilterCombined(t *testing.T) {
+	t.Parallel()
 	t.Run("Include and Exclude combined", func(t *testing.T) {
 		cfg := config.MetricFilterConfig{
 			IncludeMetrics: []string{"slurm_*"},

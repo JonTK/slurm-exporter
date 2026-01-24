@@ -40,6 +40,7 @@ func (m *MockCollectorRegistry) GetStates() map[string]CollectorState {
 }
 
 func TestSLURMAPIHealthCheck_Healthy(t *testing.T) {
+	t.Parallel()
 	client := new(MockSLURMClient)
 	client.On("Ping", mock.Anything).Return(nil)
 	client.On("GetInfo", mock.Anything).Return(map[string]string{"version": "1.0"}, nil)
@@ -56,6 +57,7 @@ func TestSLURMAPIHealthCheck_Healthy(t *testing.T) {
 }
 
 func TestSLURMAPIHealthCheck_PingFails(t *testing.T) {
+	t.Parallel()
 	client := new(MockSLURMClient)
 	client.On("Ping", mock.Anything).Return(errors.New("connection refused"))
 
@@ -70,6 +72,7 @@ func TestSLURMAPIHealthCheck_PingFails(t *testing.T) {
 }
 
 func TestSLURMAPIHealthCheck_InfoFails(t *testing.T) {
+	t.Parallel()
 	client := new(MockSLURMClient)
 	client.On("Ping", mock.Anything).Return(nil)
 	client.On("GetInfo", mock.Anything).Return(nil, errors.New("unauthorized"))
@@ -86,6 +89,7 @@ func TestSLURMAPIHealthCheck_InfoFails(t *testing.T) {
 }
 
 func TestCollectorsHealthCheck_AllHealthy(t *testing.T) {
+	t.Parallel()
 	registry := &MockCollectorRegistry{
 		states: map[string]CollectorState{
 			"collector1": {
@@ -118,6 +122,7 @@ func TestCollectorsHealthCheck_AllHealthy(t *testing.T) {
 }
 
 func TestCollectorsHealthCheck_StaleCollector(t *testing.T) {
+	t.Parallel()
 	registry := &MockCollectorRegistry{
 		states: map[string]CollectorState{
 			"collector1": {
@@ -144,6 +149,7 @@ func TestCollectorsHealthCheck_StaleCollector(t *testing.T) {
 }
 
 func TestCollectorsHealthCheck_ConsecutiveErrors(t *testing.T) {
+	t.Parallel()
 	registry := &MockCollectorRegistry{
 		states: map[string]CollectorState{
 			"collector1": {
@@ -172,6 +178,7 @@ func TestCollectorsHealthCheck_ConsecutiveErrors(t *testing.T) {
 }
 
 func TestCollectorsHealthCheck_DisabledCollectors(t *testing.T) {
+	t.Parallel()
 	registry := &MockCollectorRegistry{
 		states: map[string]CollectorState{
 			"collector1": {
@@ -197,6 +204,7 @@ func TestCollectorsHealthCheck_DisabledCollectors(t *testing.T) {
 }
 
 func TestMemoryHealthCheck_Normal(t *testing.T) {
+	t.Parallel()
 	cfg := config.PerformanceMonitoringConfig{
 		MemoryThreshold: 500 * 1024 * 1024, // 500MB threshold
 	}
@@ -213,6 +221,7 @@ func TestMemoryHealthCheck_Normal(t *testing.T) {
 }
 
 func TestMemoryHealthCheck_NoThreshold(t *testing.T) {
+	t.Parallel()
 	cfg := config.PerformanceMonitoringConfig{
 		MemoryThreshold: 0, // No threshold
 	}
@@ -226,7 +235,10 @@ func TestMemoryHealthCheck_NoThreshold(t *testing.T) {
 }
 
 func TestDiskHealthCheck_Normal(t *testing.T) {
+	t.Parallel(
 	// Use OS temp directory which works on all platforms
+	)
+
 	tmpDir := os.TempDir()
 	checkFunc := NewDiskHealthCheck(tmpDir, 90.0) // 90% threshold
 	result := checkFunc(context.Background())
@@ -239,6 +251,7 @@ func TestDiskHealthCheck_Normal(t *testing.T) {
 }
 
 func TestDiskHealthCheck_InvalidPath(t *testing.T) {
+	t.Parallel()
 	checkFunc := NewDiskHealthCheck("/nonexistent/path", 90.0)
 	result := checkFunc(context.Background())
 
@@ -247,6 +260,7 @@ func TestDiskHealthCheck_InvalidPath(t *testing.T) {
 }
 
 func TestNetworkHealthCheck_Normal(t *testing.T) {
+	t.Parallel()
 	checkFunc := NewNetworkHealthCheck()
 	result := checkFunc(context.Background())
 
@@ -256,6 +270,7 @@ func TestNetworkHealthCheck_Normal(t *testing.T) {
 }
 
 func TestCircuitBreakerHealthCheck_AllClosed(t *testing.T) {
+	t.Parallel()
 	getStatuses := func() map[string]interface{} {
 		return map[string]interface{}{
 			"cb1": map[string]interface{}{"state": "closed"},
@@ -274,6 +289,7 @@ func TestCircuitBreakerHealthCheck_AllClosed(t *testing.T) {
 }
 
 func TestCircuitBreakerHealthCheck_SomeOpen(t *testing.T) {
+	t.Parallel()
 	getStatuses := func() map[string]interface{} {
 		return map[string]interface{}{
 			"cb1": map[string]interface{}{"state": "open"},
@@ -295,6 +311,7 @@ func TestCircuitBreakerHealthCheck_SomeOpen(t *testing.T) {
 }
 
 func TestCircuitBreakerHealthCheck_HalfOpen(t *testing.T) {
+	t.Parallel()
 	getStatuses := func() map[string]interface{} {
 		return map[string]interface{}{
 			"cb1": map[string]interface{}{"state": "half-open"},

@@ -328,6 +328,7 @@ func TestDimensionalAnalysisReporter(t *testing.T) {
 }
 
 func TestGetLabelNames(t *testing.T) {
+	t.Parallel()
 	t.Run("GetLabelNames", func(t *testing.T) {
 		desc := prometheus.NewDesc(
 			"test_metric",

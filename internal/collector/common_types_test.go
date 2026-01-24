@@ -10,6 +10,7 @@ import (
 
 func TestAccountHierarchy(t *testing.T) {
 	t.Run("EmptyHierarchy", func(t *testing.T) {
+		t.Parallel()
 		h := &AccountHierarchy{
 			AccountMap:       make(map[string]*AccountNode),
 			RootAccounts:     []*AccountNode{},
@@ -27,6 +28,7 @@ func TestAccountHierarchy(t *testing.T) {
 	})
 
 	t.Run("HierarchyWithMetrics", func(t *testing.T) {
+		t.Parallel()
 		now := time.Now()
 		h := &AccountHierarchy{
 			TotalAccounts:       100,
@@ -89,6 +91,7 @@ func TestAccountHierarchy(t *testing.T) {
 
 func TestAccountNode(t *testing.T) {
 	t.Run("BasicNode", func(t *testing.T) {
+		t.Parallel()
 		node := &AccountNode{
 			Name:              "root",
 			AccountName:       "root",
@@ -179,6 +182,7 @@ func TestAccountNode(t *testing.T) {
 	})
 
 	t.Run("NodeWithChildren", func(t *testing.T) {
+		t.Parallel()
 		child1 := &AccountNode{Name: "child1"}
 		child2 := &AccountNode{Name: "child2"}
 		parent := &AccountNode{
@@ -197,6 +201,7 @@ func TestAccountNode(t *testing.T) {
 	})
 
 	t.Run("NodeWithQuotaDeficit", func(t *testing.T) {
+		t.Parallel()
 		node := &AccountNode{
 			Name:           "overused",
 			QuotaUsed:      1200.0,
@@ -217,6 +222,7 @@ func TestAccountNode(t *testing.T) {
 
 func TestAccountUsageInfo(t *testing.T) {
 	t.Run("BasicUsage", func(t *testing.T) {
+		t.Parallel()
 		usage := &AccountUsageInfo{
 			CPUHours:           1000.5,
 			MemoryMBHours:      500000.0,
@@ -243,6 +249,7 @@ func TestAccountUsageInfo(t *testing.T) {
 	})
 
 	t.Run("HighEfficiencyUsage", func(t *testing.T) {
+		t.Parallel()
 		usage := &AccountUsageInfo{
 			CPUHours:           500.0,
 			MemoryMBHours:      250000.0,
@@ -262,6 +269,7 @@ func TestAccountUsageInfo(t *testing.T) {
 
 func TestQuotaViolation(t *testing.T) {
 	t.Run("BasicViolation", func(t *testing.T) {
+		t.Parallel()
 		now := time.Now()
 		violation := &QuotaViolation{
 			Account:            "test-account",
@@ -312,6 +320,7 @@ func TestQuotaViolation(t *testing.T) {
 	})
 
 	t.Run("MemoryViolation", func(t *testing.T) {
+		t.Parallel()
 		violation := &QuotaViolation{
 			Account:            "test-account",
 			Type:               "Memory",
@@ -345,6 +354,7 @@ func TestQuotaViolation(t *testing.T) {
 
 func TestQuotaRecommendation(t *testing.T) {
 	t.Run("IncreaseQuotaRecommendation", func(t *testing.T) {
+		t.Parallel()
 		rec := &QuotaRecommendation{
 			Account:             "test-account",
 			Type:                "CPU",
@@ -386,6 +396,7 @@ func TestQuotaRecommendation(t *testing.T) {
 	})
 
 	t.Run("ReduceQuotaRecommendation", func(t *testing.T) {
+		t.Parallel()
 		rec := &QuotaRecommendation{
 			Account:             "over-provisioned-account",
 			Type:                "Memory",
@@ -416,6 +427,7 @@ func TestQuotaRecommendation(t *testing.T) {
 
 func TestOptimizationOpportunity(t *testing.T) {
 	t.Run("JobSizeOptimization", func(t *testing.T) {
+		t.Parallel()
 		opp := &OptimizationOpportunity{
 			Type:             "Job Size",
 			Description:      "Many jobs are using more resources than necessary",
@@ -454,6 +466,7 @@ func TestOptimizationOpportunity(t *testing.T) {
 
 func TestEfficiencyMetrics(t *testing.T) {
 	t.Run("BasicMetrics", func(t *testing.T) {
+		t.Parallel()
 		metrics := &EfficiencyMetrics{
 			OverallEfficiency:    0.85,
 			CPUEfficiency:        0.9,
@@ -488,6 +501,7 @@ func TestEfficiencyMetrics(t *testing.T) {
 	})
 
 	t.Run("WithResourceWaste", func(t *testing.T) {
+		t.Parallel()
 		waste := &ResourceWaste{
 			WastedCPUHours:      100.5,
 			WastedMemoryGBHours: 50.0,
@@ -521,7 +535,9 @@ func TestEfficiencyMetrics(t *testing.T) {
 }
 
 func TestTimeSeriesPoint(t *testing.T) {
+	t.Parallel()
 	t.Run("BasicPoint", func(t *testing.T) {
+		t.Parallel()
 		now := time.Now()
 		point := &TimeSeriesPoint{
 			Timestamp:       now,
@@ -567,7 +583,9 @@ func TestTimeSeriesPoint(t *testing.T) {
 }
 
 func TestPerformanceMetrics(t *testing.T) {
+	t.Parallel()
 	t.Run("BasicMetrics", func(t *testing.T) {
+		t.Parallel()
 		metrics := &PerformanceMetrics{
 			Throughput:     100.5,
 			Latency:        5.2,
@@ -603,7 +621,9 @@ func TestPerformanceMetrics(t *testing.T) {
 }
 
 func TestResourceUsagePattern(t *testing.T) {
+	t.Parallel()
 	t.Run("BasicPattern", func(t *testing.T) {
+		t.Parallel()
 		pattern := &ResourceUsagePattern{
 			PeakHours:             []int{9, 10, 11, 14, 15, 16},
 			OffPeakHours:          []int{0, 1, 2, 3, 4, 22, 23},

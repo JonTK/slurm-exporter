@@ -76,7 +76,9 @@ func createTestLogger() *logrus.Logger {
 }
 
 func TestNew(t *testing.T) {
+	t.Parallel()
 	t.Run("WithValidConfig", func(t *testing.T) {
+		t.Parallel()
 		cfg := createTestConfig()
 		logger := createTestLogger()
 		registry := &mockRegistry{}
@@ -112,6 +114,7 @@ func TestNew(t *testing.T) {
 	})
 
 	t.Run("WithNilRegistry", func(t *testing.T) {
+		t.Parallel()
 		cfg := createTestConfig()
 		logger := createTestLogger()
 
@@ -127,6 +130,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestHealthEndpoint(t *testing.T) {
+	t.Parallel()
 	cfg := createTestConfig()
 	logger := createTestLogger()
 	registry := &mockRegistry{}
@@ -162,7 +166,9 @@ func TestHealthEndpoint(t *testing.T) {
 }
 
 func TestReadyEndpoint(t *testing.T) {
+	t.Parallel()
 	t.Run("WithEnabledCollectors", func(t *testing.T) {
+		t.Parallel()
 		cfg := createTestConfig()
 		logger := createTestLogger()
 		registry := &mockRegistry{
@@ -198,6 +204,7 @@ func TestReadyEndpoint(t *testing.T) {
 	})
 
 	t.Run("WithNoEnabledCollectors", func(t *testing.T) {
+		t.Parallel()
 		cfg := createTestConfig()
 		logger := createTestLogger()
 		registry := &mockRegistry{
@@ -233,6 +240,7 @@ func TestReadyEndpoint(t *testing.T) {
 	})
 
 	t.Run("WithNilRegistry", func(t *testing.T) {
+		t.Parallel()
 		cfg := createTestConfig()
 		logger := createTestLogger()
 
@@ -254,6 +262,7 @@ func TestReadyEndpoint(t *testing.T) {
 }
 
 func TestRootEndpoint(t *testing.T) {
+	t.Parallel()
 	cfg := createTestConfig()
 	logger := createTestLogger()
 	registry := &mockRegistry{
@@ -308,7 +317,9 @@ func TestRootEndpoint(t *testing.T) {
 }
 
 func TestMetricsEndpoint(t *testing.T) {
+	t.Parallel()
 	t.Run("WithRegistry", func(t *testing.T) {
+		t.Parallel()
 		cfg := createTestConfig()
 		logger := createTestLogger()
 		registry := &mockRegistry{}
@@ -319,6 +330,7 @@ func TestMetricsEndpoint(t *testing.T) {
 		}
 
 		// Register a test metric
+		//
 		//nolint:promlinter // Test metric name is intentionally simple
 		gauge := prometheus.NewGauge(prometheus.GaugeOpts{
 			Name: "test_gauge",
@@ -360,6 +372,7 @@ func TestMetricsEndpoint(t *testing.T) {
 	})
 
 	t.Run("WithCollectionError", func(t *testing.T) {
+		t.Parallel()
 		cfg := createTestConfig()
 		logger := createTestLogger()
 		registry := &mockRegistry{shouldFail: true}
@@ -383,6 +396,7 @@ func TestMetricsEndpoint(t *testing.T) {
 	})
 
 	t.Run("WithNilRegistry", func(t *testing.T) {
+		t.Parallel()
 		cfg := createTestConfig()
 		logger := createTestLogger()
 
@@ -405,7 +419,9 @@ func TestMetricsEndpoint(t *testing.T) {
 }
 
 func TestServerLifecycle(t *testing.T) {
+	t.Parallel()
 	t.Run("StartAndShutdown", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.Config{
 			Server: config.ServerConfig{
 				Address:      ":0", // Use random port for testing
@@ -456,7 +472,9 @@ func TestServerLifecycle(t *testing.T) {
 }
 
 func TestServerConfiguration(t *testing.T) {
+	t.Parallel()
 	t.Run("GetMethods", func(t *testing.T) {
+		t.Parallel()
 		cfg := createTestConfig()
 		logger := createTestLogger()
 		registry := &mockRegistry{}
@@ -480,6 +498,7 @@ func TestServerConfiguration(t *testing.T) {
 	})
 
 	t.Run("RegistryMethods", func(t *testing.T) {
+		t.Parallel()
 		cfg := createTestConfig()
 		logger := createTestLogger()
 		registry := &mockRegistry{}
@@ -490,6 +509,7 @@ func TestServerConfiguration(t *testing.T) {
 		}
 
 		// Test registering and unregistering a collector
+		//
 		//nolint:promlinter // Test metric name is intentionally simple
 		gauge := prometheus.NewGauge(prometheus.GaugeOpts{
 			Name: "test_registry_gauge",
@@ -515,10 +535,12 @@ func TestServerConfiguration(t *testing.T) {
 }
 
 func TestTLSConfiguration(t *testing.T) {
+	t.Parallel()
 	logger := logrus.New()
 	logger.SetLevel(logrus.DebugLevel)
 
 	t.Run("TLSDisabled", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.Config{
 			Server: config.ServerConfig{
 				Address:      ":8080",
@@ -544,6 +566,7 @@ func TestTLSConfiguration(t *testing.T) {
 	})
 
 	t.Run("TLSEnabledMissingCertFile", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.Config{
 			Server: config.ServerConfig{
 				Address:      ":8443",
@@ -569,6 +592,7 @@ func TestTLSConfiguration(t *testing.T) {
 	})
 
 	t.Run("TLSEnabledMissingKeyFile", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.Config{
 			Server: config.ServerConfig{
 				Address:      ":8443",
@@ -594,7 +618,10 @@ func TestTLSConfiguration(t *testing.T) {
 	})
 
 	t.Run("TLSMinVersionParsing", func(t *testing.T) {
+		t.Parallel(
 		// Create a test server to test TLS config parsing
+		)
+
 		cfg := &config.Config{
 			Server: config.ServerConfig{
 				TLS: config.TLSConfig{
@@ -620,6 +647,7 @@ func TestTLSConfiguration(t *testing.T) {
 	})
 
 	t.Run("TLSInvalidMinVersion", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.Config{
 			Server: config.ServerConfig{
 				TLS: config.TLSConfig{
@@ -648,6 +676,7 @@ func TestTLSConfiguration(t *testing.T) {
 }
 
 func TestSetupRoutes(t *testing.T) {
+	t.Parallel()
 	cfg := createTestConfig()
 	logger := createTestLogger()
 	registry := &mockRegistry{}

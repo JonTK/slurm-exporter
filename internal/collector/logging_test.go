@@ -418,6 +418,7 @@ func TestStructuredLogger(t *testing.T) {
 
 	t.Run("WithContext", func(t *testing.T) {
 		// Test with context containing request ID
+		//
 		//lint:ignore SA1029 test validates logger extracts string keys from context
 		ctx := context.WithValue(context.Background(), "request_id", "req-123")
 		entry := structuredLogger.WithContext(ctx)
@@ -426,6 +427,7 @@ func TestStructuredLogger(t *testing.T) {
 		}
 
 		// Test with context containing trace ID
+		//
 		//lint:ignore SA1029 test validates logger extracts string keys from context
 		ctx = context.WithValue(ctx, "trace_id", "trace-456")
 		entry = structuredLogger.WithContext(ctx)

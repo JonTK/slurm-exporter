@@ -12,8 +12,12 @@ import (
 
 // Simplified validation tests that focus on functionality rather than exact error message formats
 func TestEnhancedValidation_Functional(t *testing.T) {
+	t.Parallel()
 	t.Run("validation system is working", func(t *testing.T) {
+		t.Parallel(
 		// Just test that validation doesn't panic and returns structured errors
+		)
+
 		cfg := &Config{}
 		err := cfg.ValidateEnhanced()
 		assert.Error(t, err, "empty config should fail validation")
@@ -21,6 +25,7 @@ func TestEnhancedValidation_Functional(t *testing.T) {
 	})
 
 	t.Run("invalid server address should fail", func(t *testing.T) {
+		t.Parallel()
 		cfg := getValidTestConfig()
 		cfg.Server.Address = "invalid-address"
 		err := cfg.ValidateEnhanced()
@@ -28,6 +33,7 @@ func TestEnhancedValidation_Functional(t *testing.T) {
 	})
 
 	t.Run("missing metrics path should fail", func(t *testing.T) {
+		t.Parallel()
 		cfg := getValidTestConfig()
 		cfg.Server.MetricsPath = ""
 		err := cfg.ValidateEnhanced()
@@ -35,6 +41,7 @@ func TestEnhancedValidation_Functional(t *testing.T) {
 	})
 
 	t.Run("invalid metrics path should fail", func(t *testing.T) {
+		t.Parallel()
 		cfg := getValidTestConfig()
 		cfg.Server.MetricsPath = "no-leading-slash"
 		err := cfg.ValidateEnhanced()
@@ -42,6 +49,7 @@ func TestEnhancedValidation_Functional(t *testing.T) {
 	})
 
 	t.Run("missing SLURM base URL should fail", func(t *testing.T) {
+		t.Parallel()
 		cfg := getValidTestConfig()
 		cfg.SLURM.BaseURL = ""
 		err := cfg.ValidateEnhanced()
@@ -49,6 +57,7 @@ func TestEnhancedValidation_Functional(t *testing.T) {
 	})
 
 	t.Run("invalid auth type should fail", func(t *testing.T) {
+		t.Parallel()
 		cfg := getValidTestConfig()
 		cfg.SLURM.Auth.Type = "invalid-auth-type"
 		err := cfg.ValidateEnhanced()
@@ -56,6 +65,7 @@ func TestEnhancedValidation_Functional(t *testing.T) {
 	})
 
 	t.Run("short collector timeout should fail", func(t *testing.T) {
+		t.Parallel()
 		cfg := getValidTestConfig()
 		cfg.Collectors.Jobs.Timeout = 10 * time.Millisecond
 		err := cfg.ValidateEnhanced()
@@ -63,6 +73,7 @@ func TestEnhancedValidation_Functional(t *testing.T) {
 	})
 
 	t.Run("TLS enabled without cert should fail", func(t *testing.T) {
+		t.Parallel()
 		cfg := getValidTestConfig()
 		cfg.Server.TLS.Enabled = true
 		cfg.Server.TLS.CertFile = ""
@@ -71,6 +82,7 @@ func TestEnhancedValidation_Functional(t *testing.T) {
 	})
 
 	t.Run("conflicting metric filters should fail", func(t *testing.T) {
+		t.Parallel()
 		cfg := getValidTestConfig()
 		cfg.Collectors.Jobs.Filters.Metrics.OnlyCounters = true
 		cfg.Collectors.Jobs.Filters.Metrics.OnlyGauges = true

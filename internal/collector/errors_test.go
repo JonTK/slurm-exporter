@@ -13,7 +13,9 @@ import (
 )
 
 func TestCollectionError(t *testing.T) {
+	t.Parallel()
 	t.Run("ErrorInterface", func(t *testing.T) {
+		t.Parallel()
 		baseErr := errors.New("base error")
 		collErr := &CollectionError{
 			Collector: "test",
@@ -54,6 +56,7 @@ func TestCollectionError(t *testing.T) {
 	})
 
 	t.Run("LogFields", func(t *testing.T) {
+		t.Parallel()
 		collErr := &CollectionError{
 			Collector: "test",
 			Type:      ErrorTypeAPI,
@@ -112,10 +115,12 @@ func TestCollectionError(t *testing.T) {
 }
 
 func TestErrorBuilder(t *testing.T) {
+	t.Parallel()
 	logger := logrus.NewEntry(logrus.New())
 	builder := NewErrorBuilder("test_collector", logger)
 
 	t.Run("Connection", func(t *testing.T) {
+		t.Parallel()
 		baseErr := errors.New("connection refused")
 		err := builder.Connection(baseErr, "https://slurm.example.com", "Check network")
 
@@ -140,6 +145,7 @@ func TestErrorBuilder(t *testing.T) {
 	})
 
 	t.Run("Auth", func(t *testing.T) {
+		t.Parallel()
 		baseErr := errors.New("unauthorized")
 		err := builder.Auth(baseErr, "jwt", "Check token")
 
@@ -158,6 +164,7 @@ func TestErrorBuilder(t *testing.T) {
 	})
 
 	t.Run("Timeout", func(t *testing.T) {
+		t.Parallel()
 		baseErr := errors.New("context deadline exceeded")
 		duration := 30 * time.Second
 		err := builder.Timeout(baseErr, "fetch_jobs", duration, "Increase timeout")
@@ -180,6 +187,7 @@ func TestErrorBuilder(t *testing.T) {
 	})
 
 	t.Run("API", func(t *testing.T) {
+		t.Parallel()
 		baseErr := errors.New("internal server error")
 		err := builder.API(baseErr, "/api/jobs", 500, "req-456", "Try again")
 
@@ -220,6 +228,7 @@ func TestErrorBuilder(t *testing.T) {
 }
 
 func TestErrorAnalyzer(t *testing.T) {
+	t.Parallel()
 	logger := logrus.NewEntry(logrus.New())
 	analyzer := NewErrorAnalyzer(logger)
 
@@ -269,6 +278,7 @@ func TestErrorAnalyzer(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			baseErr := errors.New(tc.errMsg)
 			collErr := analyzer.AnalyzeError(baseErr, "test_collector")
 
@@ -295,6 +305,7 @@ func TestErrorAnalyzer(t *testing.T) {
 	}
 
 	t.Run("ExistingCollectionError", func(t *testing.T) {
+		t.Parallel()
 		originalErr := &CollectionError{
 			Collector: "original",
 			Type:      ErrorTypeAPI,
@@ -310,6 +321,7 @@ func TestErrorAnalyzer(t *testing.T) {
 	})
 
 	t.Run("NilError", func(t *testing.T) {
+		t.Parallel()
 		result := analyzer.AnalyzeError(nil, "test_collector")
 		if result != nil {
 			t.Error("Should return nil for nil error")
@@ -318,11 +330,13 @@ func TestErrorAnalyzer(t *testing.T) {
 }
 
 func TestErrorRecoveryHandler(t *testing.T) {
+	t.Parallel()
 	logger := logrus.NewEntry(logrus.New())
 	handler := NewErrorRecoveryHandler(logger)
 	ctx := context.Background()
 
 	t.Run("NilError", func(t *testing.T) {
+		t.Parallel()
 		err := handler.HandleError(ctx, nil)
 		if err != nil {
 			t.Error("Should return nil for nil error")
@@ -330,6 +344,7 @@ func TestErrorRecoveryHandler(t *testing.T) {
 	})
 
 	t.Run("ConnectionError", func(t *testing.T) {
+		t.Parallel()
 		collErr := &CollectionError{
 			Collector: "test",
 			Type:      ErrorTypeConnection,
@@ -346,6 +361,7 @@ func TestErrorRecoveryHandler(t *testing.T) {
 	})
 
 	t.Run("TimeoutError", func(t *testing.T) {
+		t.Parallel()
 		collErr := &CollectionError{
 			Collector: "test",
 			Type:      ErrorTypeTimeout,
@@ -362,6 +378,7 @@ func TestErrorRecoveryHandler(t *testing.T) {
 	})
 
 	t.Run("RateLimitError", func(t *testing.T) {
+		t.Parallel()
 		collErr := &CollectionError{
 			Collector: "test",
 			Type:      ErrorTypeRateLimit,
@@ -387,6 +404,7 @@ func TestErrorRecoveryHandler(t *testing.T) {
 	})
 
 	t.Run("AuthError", func(t *testing.T) {
+		t.Parallel()
 		collErr := &CollectionError{
 			Collector: "test",
 			Type:      ErrorTypeAuth,
@@ -403,6 +421,7 @@ func TestErrorRecoveryHandler(t *testing.T) {
 	})
 
 	t.Run("OtherError", func(t *testing.T) {
+		t.Parallel()
 		collErr := &CollectionError{
 			Collector: "test",
 			Type:      ErrorTypeParsing,
@@ -420,6 +439,7 @@ func TestErrorRecoveryHandler(t *testing.T) {
 }
 
 func TestErrorClassification(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name     string
 		errMsg   string
@@ -464,6 +484,7 @@ func TestErrorClassification(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			result := tc.checkFn(tc.errMsg)
 			if result != tc.expected {
 				t.Errorf("Expected %v for '%s', got %v", tc.expected, tc.errMsg, result)
@@ -473,6 +494,7 @@ func TestErrorClassification(t *testing.T) {
 }
 
 func TestContainsHelper(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		str      string
 		substr   string
@@ -490,6 +512,7 @@ func TestContainsHelper(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.str+"_contains_"+tc.substr, func(t *testing.T) {
+			t.Parallel()
 			result := contains(tc.str, tc.substr)
 			if result != tc.expected {
 				t.Errorf("Expected contains('%s', '%s') = %v, got %v",

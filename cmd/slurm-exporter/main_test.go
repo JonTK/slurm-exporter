@@ -10,7 +10,10 @@ import (
 )
 
 func TestMainFlags(t *testing.T) {
+	t.Parallel(
 	// Save original args
+	)
+
 	oldArgs := os.Args
 	defer func() { os.Args = oldArgs }()
 
@@ -67,7 +70,10 @@ func TestMainFlags(t *testing.T) {
 }
 
 func TestMainFlagsCustomValues(t *testing.T) {
+	t.Parallel(
 	// Save original args
+	)
+
 	oldArgs := os.Args
 	defer func() { os.Args = oldArgs }()
 

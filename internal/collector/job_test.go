@@ -18,6 +18,7 @@ import (
 
 func TestJobCollector(t *testing.T) {
 	// Create test logger
+
 	logger, hook := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)
 	logEntry := logrus.NewEntry(logger)
@@ -214,6 +215,7 @@ func TestJobCollector(t *testing.T) {
 
 func TestJobCollectorUtilities(t *testing.T) {
 	// Create test configuration for collector
+
 	cfg := &config.CollectorConfig{
 		Enabled:  true,
 		Interval: 30 * time.Second,
@@ -271,6 +273,7 @@ func TestJobCollectorUtilities(t *testing.T) {
 
 func TestJobCollectorIntegration(t *testing.T) {
 	// Create a full integration test
+
 	registry := prometheus.NewRegistry()
 
 	// Create test configuration

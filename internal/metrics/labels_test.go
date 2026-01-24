@@ -9,7 +9,9 @@ import (
 )
 
 func TestLabelManager(t *testing.T) {
+	t.Parallel()
 	t.Run("ValidateLabels", func(t *testing.T) {
+		t.Parallel()
 		lm := NewLabelManager()
 		validLabels := map[string]string{
 			"cluster_name": "production",
@@ -26,6 +28,7 @@ func TestLabelManager(t *testing.T) {
 	})
 
 	t.Run("ValidateInvalidLabels", func(t *testing.T) {
+		t.Parallel()
 		lm := NewLabelManager()
 		invalidLabels := map[string]string{
 			"job_state": "invalid_state",
@@ -38,6 +41,7 @@ func TestLabelManager(t *testing.T) {
 	})
 
 	t.Run("ValidateLabel", func(t *testing.T) {
+		t.Parallel()
 		lm := NewLabelManager()
 		testCases := []struct {
 			labelName  string
@@ -67,6 +71,7 @@ func TestLabelManager(t *testing.T) {
 	})
 
 	t.Run("SanitizeLabels", func(t *testing.T) {
+		t.Parallel()
 		lm := NewLabelManager()
 		labels := map[string]string{
 			"cluster_name": "Production Cluster",
@@ -90,6 +95,7 @@ func TestLabelManager(t *testing.T) {
 	})
 
 	t.Run("TrackLabelUsage", func(t *testing.T) {
+		t.Parallel()
 		lm := NewLabelManager()
 		lm.TrackLabelUsage("cluster_name", "test")
 		lm.TrackLabelUsage("cluster_name", "prod")
@@ -106,6 +112,7 @@ func TestLabelManager(t *testing.T) {
 	})
 
 	t.Run("GetDimensionalAnalysis", func(t *testing.T) {
+		t.Parallel()
 		lm := NewLabelManager()
 		analysis := lm.GetDimensionalAnalysis()
 
@@ -129,6 +136,7 @@ func TestLabelManager(t *testing.T) {
 	})
 
 	t.Run("GetHighCardinalityLabels", func(t *testing.T) {
+		t.Parallel()
 		lm := NewLabelManager()
 		// Simulate high cardinality usage
 		for i := 0; i < 15; i++ {
@@ -152,6 +160,7 @@ func TestLabelManager(t *testing.T) {
 	})
 
 	t.Run("BuildLabelSet", func(t *testing.T) {
+		t.Parallel()
 		lm := NewLabelManager()
 		labels := map[string]string{
 			"cluster_name": "Test Cluster",
@@ -173,6 +182,7 @@ func TestLabelManager(t *testing.T) {
 	})
 
 	t.Run("GetLabelRecommendations", func(t *testing.T) {
+		t.Parallel()
 		lm := NewLabelManager()
 		// Create high cardinality scenario
 		for i := 0; i < 90; i++ {
@@ -199,8 +209,12 @@ func TestLabelManager(t *testing.T) {
 }
 
 func TestLabelDimension(t *testing.T) {
+	t.Parallel()
 	t.Run("StandardLabels", func(t *testing.T) {
+		t.Parallel(
 		// Test that all standard labels are properly defined
+		)
+
 		requiredFields := []string{"cluster_name", "job_state", "node_state", "partition_state"}
 
 		for _, fieldName := range requiredFields {
@@ -223,6 +237,7 @@ func TestLabelDimension(t *testing.T) {
 	})
 
 	t.Run("LabelTypes", func(t *testing.T) {
+		t.Parallel()
 		expectedTypes := []LabelType{
 			LabelTypeCluster,
 			LabelTypeNode,
@@ -245,9 +260,11 @@ func TestLabelDimension(t *testing.T) {
 }
 
 func TestLabelValidation(t *testing.T) {
+	t.Parallel()
 	lm := NewLabelManager()
 
 	t.Run("ClusterNameValidation", func(t *testing.T) {
+		t.Parallel()
 		validNames := []string{"cluster1", "prod-cluster", "test_env", "c123", "123", "cluster with spaces"}
 		invalidNames := []string{"", "-invalid"}
 
@@ -265,6 +282,7 @@ func TestLabelValidation(t *testing.T) {
 	})
 
 	t.Run("JobIDValidation", func(t *testing.T) {
+		t.Parallel()
 		validIDs := []string{"123", "12345_0", "123.456", "999_1.0"}
 		invalidIDs := []string{"", "abc", "123-456", "job_123"}
 
@@ -282,6 +300,7 @@ func TestLabelValidation(t *testing.T) {
 	})
 
 	t.Run("StateValidation", func(t *testing.T) {
+		t.Parallel()
 		validJobStates := []string{"pending", "running", "completed", "failed"}
 		invalidJobStates := []string{"RUNNING", "unknown", "queued"}
 
@@ -300,9 +319,11 @@ func TestLabelValidation(t *testing.T) {
 }
 
 func TestLabelSanitization(t *testing.T) {
+	t.Parallel()
 	lm := NewLabelManager()
 
 	t.Run("ValueSanitization", func(t *testing.T) {
+		t.Parallel()
 		testCases := []struct {
 			input    string
 			expected string
@@ -324,6 +345,7 @@ func TestLabelSanitization(t *testing.T) {
 	})
 
 	t.Run("SensitiveLabelHandling", func(t *testing.T) {
+		t.Parallel()
 		labels := map[string]string{
 			"user":         "alice.smith",
 			"cluster_name": "production",
@@ -342,6 +364,7 @@ func TestLabelSanitization(t *testing.T) {
 }
 
 func TestDimensionalAnalysisReport(t *testing.T) {
+	t.Parallel()
 	lm := NewLabelManager()
 
 	// Add some test data
@@ -353,6 +376,7 @@ func TestDimensionalAnalysisReport(t *testing.T) {
 	}
 
 	t.Run("ExportDimensionalAnalysis", func(t *testing.T) {
+		t.Parallel()
 		report := lm.ExportDimensionalAnalysis()
 
 		if !strings.Contains(report, "SLURM Exporter Dimensional Analysis Report") {
@@ -374,7 +398,9 @@ func TestDimensionalAnalysisReport(t *testing.T) {
 }
 
 func TestCardinalityInfo(t *testing.T) {
+	t.Parallel()
 	t.Run("CardinalityInfoFields", func(t *testing.T) {
+		t.Parallel()
 		info := CardinalityInfo{
 			LabelName:          "test_label",
 			CurrentCardinality: 50,
@@ -398,7 +424,9 @@ func TestCardinalityInfo(t *testing.T) {
 }
 
 func TestLabelRecommendations(t *testing.T) {
+	t.Parallel()
 	t.Run("RecommendationTypes", func(t *testing.T) {
+		t.Parallel()
 		rec := LabelRecommendation{
 			LabelName:  "test_label",
 			Type:       RecommendationTypeCardinality,
@@ -416,6 +444,7 @@ func TestLabelRecommendations(t *testing.T) {
 	})
 
 	t.Run("SeverityLevels", func(t *testing.T) {
+		t.Parallel()
 		severities := []Severity{SeverityInfo, SeverityWarning, SeverityCritical}
 		for _, severity := range severities {
 			if string(severity) == "" {

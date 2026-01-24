@@ -18,6 +18,7 @@ import (
 )
 
 func TestPerformanceSimpleCollector_Describe(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
@@ -37,6 +38,7 @@ func TestPerformanceSimpleCollector_Describe(t *testing.T) {
 }
 
 func TestPerformanceSimpleCollector_Collect_Success(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)
@@ -117,6 +119,7 @@ func TestPerformanceSimpleCollector_Collect_Success(t *testing.T) {
 }
 
 func TestPerformanceSimpleCollector_Collect_Disabled(t *testing.T) {
+	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 
