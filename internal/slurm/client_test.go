@@ -27,7 +27,7 @@ func TestNewClient(t *testing.T) {
 				BaseURL:       "https://example.com:6820",
 				APIVersion:    "v0.0.42",
 				Timeout:       100 * time.Millisecond, // Short timeout for tests
-				RetryAttempts: 0,               // No retries to avoid long waits
+				RetryAttempts: 0,                      // No retries to avoid long waits
 				RetryDelay:    1 * time.Second,
 				Auth: config.AuthConfig{
 					Type: "none",
@@ -103,7 +103,7 @@ func TestNewConnectionPool(t *testing.T) {
 		BaseURL:       "https://example.com:6820",
 		APIVersion:    "v0.0.42",
 		Timeout:       100 * time.Millisecond, // Short timeout for tests
-		RetryAttempts: 0,               // No retries to avoid long waits
+		RetryAttempts: 0,                      // No retries to avoid long waits
 		RetryDelay:    1 * time.Second,
 		Auth: config.AuthConfig{
 			Type: "none",
@@ -168,7 +168,7 @@ func TestConnectionPoolGetClient(t *testing.T) {
 		BaseURL:       "https://example.com:6820",
 		APIVersion:    "v0.0.42",
 		Timeout:       100 * time.Millisecond, // Short timeout for tests
-		RetryAttempts: 0,               // No retries to avoid long waits
+		RetryAttempts: 0,                      // No retries to avoid long waits
 		RetryDelay:    1 * time.Second,
 		Auth: config.AuthConfig{
 			Type: "none",
@@ -209,7 +209,7 @@ func TestClientConnectionStatus(t *testing.T) {
 		BaseURL:       "https://example.com:6820",
 		APIVersion:    "v0.0.42",
 		Timeout:       100 * time.Millisecond, // Short timeout for tests
-		RetryAttempts: 0,               // No retries to avoid long waits
+		RetryAttempts: 0,                      // No retries to avoid long waits
 		RetryDelay:    1 * time.Second,
 		Auth: config.AuthConfig{
 			Type: "none",
@@ -246,7 +246,7 @@ func TestClientContextCancellation(t *testing.T) {
 		BaseURL:       "https://example.com:6820",
 		APIVersion:    "v0.0.42",
 		Timeout:       100 * time.Millisecond, // Short timeout for tests
-		RetryAttempts: 0,               // No retries to avoid long waits
+		RetryAttempts: 0,                      // No retries to avoid long waits
 		RetryDelay:    1 * time.Second,
 		Auth: config.AuthConfig{
 			Type: "none",
@@ -283,7 +283,7 @@ func TestClientRateLimiting(t *testing.T) {
 		BaseURL:       "https://example.com:6820",
 		APIVersion:    "v0.0.42",
 		Timeout:       100 * time.Millisecond, // Short timeout for tests
-		RetryAttempts: 0,               // No retries for faster test
+		RetryAttempts: 0,                      // No retries for faster test
 		RetryDelay:    1 * time.Second,
 		Auth: config.AuthConfig{
 			Type: "none",
