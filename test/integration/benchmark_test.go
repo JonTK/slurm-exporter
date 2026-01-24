@@ -24,7 +24,10 @@ func BenchmarkMetricsCollection(b *testing.B) {
 	exporterURL := "http://localhost:9341"
 
 	// Warmup - ensure exporter is ready
-	resp, err := client.Get(exporterURL + "/ready")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, exporterURL+"/ready", nil)
+	cancel()
+	resp, err := client.Do(req)
 	if err != nil {
 		b.Skip("Exporter not available for benchmarking")
 	}
@@ -33,7 +36,13 @@ func BenchmarkMetricsCollection(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		resp, err := client.Get(exporterURL + "/metrics")
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+		req, _ := http.NewRequestWithContext(ctx, http.MethodGet, exporterURL+"/metrics", nil)
+
+		cancel()
+
+		resp, err := client.Do(req)
 		if err != nil {
 			b.Fatalf("Failed to get metrics: %v", err)
 		}
@@ -52,7 +61,13 @@ func BenchmarkMetricsParsing(b *testing.B) {
 	exporterURL := "http://localhost:9341"
 
 	// Get metrics once
-	resp, err := client.Get(exporterURL + "/metrics")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, exporterURL+"/metrics", nil)
+
+	cancel()
+
+	resp, err := client.Do(req)
 	if err != nil {
 		b.Skip("Exporter not available for benchmarking")
 	}
@@ -85,7 +100,13 @@ func BenchmarkHealthCheck(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		resp, err := client.Get(exporterURL + "/health")
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+		req, _ := http.NewRequestWithContext(ctx, http.MethodGet, exporterURL+"/health", nil)
+
+		cancel()
+
+		resp, err := client.Do(req)
 		if err != nil {
 			b.Fatalf("Failed to get health: %v", err)
 		}
@@ -111,7 +132,13 @@ func BenchmarkConcurrentMetrics(b *testing.B) {
 
 			b.RunParallel(func(pb *testing.PB) {
 				for pb.Next() {
-					resp, err := client.Get(exporterURL + "/metrics")
+					ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+					req, _ := http.NewRequestWithContext(ctx, http.MethodGet, exporterURL+"/metrics", nil)
+
+					cancel()
+
+					resp, err := client.Do(req)
 					if err != nil {
 						b.Fatalf("Failed to get metrics: %v", err)
 					}
@@ -136,7 +163,13 @@ func PerformanceTest(t *testing.T) {
 	exporterURL := "http://localhost:9341"
 
 	// Warmup
-	resp, err := client.Get(exporterURL + "/ready")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, exporterURL+"/ready", nil)
+
+	cancel()
+
+	resp, err := client.Do(req)
 	if err != nil {
 		t.Skip("Exporter not available for performance testing")
 	}
@@ -161,7 +194,13 @@ func PerformanceTest(t *testing.T) {
 
 		for i := 0; i < iterations; i++ {
 			start := time.Now()
-			resp, err := client.Get(exporterURL + "/metrics")
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+			req, _ := http.NewRequestWithContext(ctx, http.MethodGet, exporterURL+"/metrics", nil)
+
+			cancel()
+
+			resp, err := client.Do(req)
 			duration := time.Since(start)
 
 			require.NoError(t, err)
@@ -217,7 +256,13 @@ func PerformanceTest(t *testing.T) {
 
 						for r := 0; r < requestsPerLevel; r++ {
 							start := time.Now()
-							resp, err := client.Get(exporterURL + "/metrics")
+							ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+							req, _ := http.NewRequestWithContext(ctx, http.MethodGet, exporterURL+"/metrics", nil)
+
+							cancel()
+
+							resp, err := client.Do(req)
 							duration := time.Since(start)
 
 							if err == nil && resp.StatusCode == http.StatusOK {
@@ -279,7 +324,13 @@ func PerformanceTest(t *testing.T) {
 				goto memoryAnalysis
 			case <-ticker.C:
 				// Get debug vars to check memory usage
-				resp, err := client.Get(exporterURL + "/debug/vars")
+				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+				req, _ := http.NewRequestWithContext(ctx, http.MethodGet, exporterURL+"/debug/vars", nil)
+
+				cancel()
+
+				resp, err := client.Do(req)
 				if err == nil && resp.StatusCode == http.StatusOK {
 					// Read the response but don't parse JSON for performance
 					body, err := io.ReadAll(resp.Body)
@@ -292,10 +343,15 @@ func PerformanceTest(t *testing.T) {
 				}
 
 				// Also make a metrics request to maintain load
-				resp, err = client.Get(exporterURL + "/metrics")
+				metricsCtx, metricsCancel := context.WithTimeout(context.Background(), 5*time.Second)
+				metricsReq, err := http.NewRequestWithContext(metricsCtx, http.MethodGet, exporterURL+"/metrics", nil)
+				metricsCancel()
 				if err == nil {
-					_, _ = io.Copy(io.Discard, resp.Body)
-					_ = resp.Body.Close()
+					resp, err = client.Do(metricsReq)
+					if err == nil {
+						_, _ = io.Copy(io.Discard, resp.Body)
+						_ = resp.Body.Close()
+					}
 				}
 			}
 		}

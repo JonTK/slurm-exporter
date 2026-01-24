@@ -186,13 +186,11 @@ func (c *QoSCollector) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 	if !c.enabled {
 		return nil
 	}
-	return c.collect(ch)
+	return c.collect(ctx, ch)
 }
 
 // collect gathers metrics from SLURM
-func (c *QoSCollector) collect(ch chan<- prometheus.Metric) error {
-	ctx := context.Background()
-
+func (c *QoSCollector) collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Get QoS manager from client
 	qosManager := c.client.QoS()
 	if qosManager == nil {

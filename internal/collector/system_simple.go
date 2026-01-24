@@ -219,19 +219,16 @@ func (c *SystemSimpleCollector) Collect(ctx context.Context, ch chan<- prometheu
 	if !c.enabled {
 		return nil
 	}
-	return c.collect(ch)
+	return c.collect(ctx, ch)
 }
 
 // collect gathers metrics from SLURM
-func (c *SystemSimpleCollector) collect(ch chan<- prometheus.Metric) error {
+func (c *SystemSimpleCollector) collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	startTime := time.Now()
 	defer func() {
 		duration := time.Since(startTime).Seconds()
 		c.collectionDuration.WithLabelValues("system").Observe(duration)
 	}()
-
-	ctx := context.Background()
-
 	// Get cluster info
 	clusterName := "default"
 	infoManager := c.client.Info()
@@ -386,7 +383,6 @@ func (c *SystemSimpleCollector) collectSlurmSystemInfo(ch chan<- prometheus.Metr
 		1, // Single controller
 		clusterName,
 	)
-
 	// Configuration last modified (simulated)
 	configTime := time.Now().Add(-24 * time.Hour).Unix() // Config modified 24 hours ago
 	ch <- prometheus.MustNewConstMetric(

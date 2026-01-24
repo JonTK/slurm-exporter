@@ -125,7 +125,7 @@ func (c *AssociationsSimpleCollector) Collect(ctx context.Context, ch chan<- pro
 	if !c.enabled {
 		return nil
 	}
-	return c.collect(ch)
+	return c.collect(ctx, ch)
 }
 
 // associationContext holds normalized association information
@@ -245,9 +245,7 @@ func (c *AssociationsSimpleCollector) sendAssociationLimitMetrics(ch chan<- prom
 }
 
 // collect gathers metrics from SLURM
-func (c *AssociationsSimpleCollector) collect(ch chan<- prometheus.Metric) error {
-	ctx := context.Background()
-
+func (c *AssociationsSimpleCollector) collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Get Associations manager from client
 	associationsManager := c.client.Associations()
 	if associationsManager == nil {

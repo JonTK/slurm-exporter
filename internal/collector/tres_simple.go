@@ -164,7 +164,6 @@ func (c *TRESCollector) collectNodeTRES(ctx context.Context, ch chan<- prometheu
 	if nodeManager == nil {
 		return
 	}
-
 	nodes, err := nodeManager.List(ctx, nil)
 	if err != nil {
 		c.logger.WithError(err).Debug("Failed to get nodes for TRES data")

@@ -196,13 +196,11 @@ func (c *PerformanceSimpleCollector) Collect(ctx context.Context, ch chan<- prom
 	if !c.enabled {
 		return nil
 	}
-	return c.collect(ch)
+	return c.collect(ctx, ch)
 }
 
 // collect gathers metrics from SLURM
-func (c *PerformanceSimpleCollector) collect(ch chan<- prometheus.Metric) error {
-	ctx := context.Background()
-
+func (c *PerformanceSimpleCollector) collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Get managers
 	jobsManager := c.client.Jobs()
 	nodesManager := c.client.Nodes()

@@ -141,13 +141,11 @@ func (c *ReservationCollector) Collect(ctx context.Context, ch chan<- prometheus
 	if !c.enabled {
 		return nil
 	}
-	return c.collect(ch)
+	return c.collect(ctx, ch)
 }
 
 // collect gathers metrics from SLURM
-func (c *ReservationCollector) collect(ch chan<- prometheus.Metric) error {
-	ctx := context.Background()
-
+func (c *ReservationCollector) collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Get Reservations manager from client
 	reservationsManager := c.client.Reservations()
 	if reservationsManager == nil {

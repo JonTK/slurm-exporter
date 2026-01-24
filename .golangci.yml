@@ -4,7 +4,6 @@ linters:
   disable:
     - canonicalheader
     - containedctx
-    - contextcheck
     - copyloopvar
     - cyclop
     - dupword
@@ -31,7 +30,6 @@ linters:
     - nilerr
     - noinlineerr               # Inline error handling is idiomatic Go
     - nlreturn
-    - noctx
     - nonamedreturns
     - paralleltest
     - perfsprint
@@ -204,8 +202,10 @@ linters:
           - goconst
           - gocyclo
           - gosec
+          - ineffassign
           - revive
           - staticcheck
+          - wastedassign
         path: _test\.go
       # Test helpers
       - linters:
@@ -352,6 +352,11 @@ linters:
           - spancheck
         path: internal/tracing/tracer\.go
         text: 'return can be reached without calling span.End'
+      # contextcheck - Graceful shutdown needs fresh timeout context after main context cancellation
+      - linters:
+          - contextcheck
+        path: internal/server/server\.go
+        text: 'Non-inherited new context, use function like'
       # Phase 3 Linters - Pragmatic exclusions for intentional patterns
       # godox - Intentional TODO comments documenting preserved code and missing fields
       - linters:

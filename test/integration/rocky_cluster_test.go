@@ -52,7 +52,11 @@ func (suite *RockyClusterTestSuite) TearDownSuite() {
 // waitForExporter waits for the exporter to become ready
 func (suite *RockyClusterTestSuite) waitForExporter() {
 	// Quick check if exporter is available, skip if not
-	resp, err := suite.client.Get(suite.exporterURL + "/ready")
+	quickCtx, quickCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	req, _ := http.NewRequestWithContext(quickCtx, http.MethodGet, suite.exporterURL+"/ready", nil)
+	quickCancel()
+
+	resp, err := suite.client.Do(req)
 	if err != nil {
 		suite.T().Skipf("Skipping integration test - exporter not running at %s: %v", suite.exporterURL, err)
 		return
@@ -65,7 +69,7 @@ func (suite *RockyClusterTestSuite) waitForExporter() {
 		}
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second) // Shorter timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	ticker := time.NewTicker(2 * time.Second) // Check more frequently
@@ -77,7 +81,13 @@ func (suite *RockyClusterTestSuite) waitForExporter() {
 			suite.T().Skipf("Skipping integration test - exporter not ready at %s within timeout", suite.exporterURL)
 			return
 		case <-ticker.C:
-			resp, err := suite.client.Get(suite.exporterURL + "/ready")
+			reqCtx, reqCancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+			req, _ := http.NewRequestWithContext(reqCtx, http.MethodGet, suite.exporterURL+"/ready", nil)
+
+			reqCancel()
+
+			resp, err := suite.client.Do(req)
 			if err == nil && resp.StatusCode == http.StatusOK {
 				_ = resp.Body.Close()
 				suite.T().Log("Exporter is ready")
@@ -171,7 +181,13 @@ func (suite *RockyClusterTestSuite) TestHealthEndpoints() {
 
 	for _, test := range tests {
 		suite.Run(test.name, func() {
-			resp, err := suite.client.Get(suite.exporterURL + test.endpoint)
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+			req, _ := http.NewRequestWithContext(ctx, http.MethodGet, suite.exporterURL+test.endpoint, nil)
+
+			cancel()
+
+			resp, err := suite.client.Do(req)
 			require.NoError(suite.T(), err)
 			defer func() { _ = resp.Body.Close() }()
 
@@ -190,7 +206,13 @@ func (suite *RockyClusterTestSuite) TestHealthEndpoints() {
 
 // TestMetricsEndpoint tests the main metrics endpoint
 func (suite *RockyClusterTestSuite) TestMetricsEndpoint() {
-	resp, err := suite.client.Get(suite.exporterURL + "/metrics")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, suite.exporterURL+"/metrics", nil)
+
+	cancel()
+
+	resp, err := suite.client.Do(req)
 	require.NoError(suite.T(), err)
 	defer func() { _ = resp.Body.Close() }()
 
@@ -236,7 +258,13 @@ func (suite *RockyClusterTestSuite) TestMetricsEndpoint() {
 
 // TestCollectorMetrics tests specific collector metrics
 func (suite *RockyClusterTestSuite) TestCollectorMetrics() {
-	resp, err := suite.client.Get(suite.exporterURL + "/metrics")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, suite.exporterURL+"/metrics", nil)
+
+	cancel()
+
+	resp, err := suite.client.Do(req)
 	require.NoError(suite.T(), err)
 	defer func() { _ = resp.Body.Close() }()
 
@@ -286,7 +314,11 @@ func (suite *RockyClusterTestSuite) TestCollectorMetrics() {
 // TestCollectorPerformance tests collection performance
 func (suite *RockyClusterTestSuite) TestCollectorPerformance() {
 	// Get initial metrics
-	initialResp, err := suite.client.Get(suite.exporterURL + "/metrics")
+	perfCtx, perfCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	perfReq, err := http.NewRequestWithContext(perfCtx, http.MethodGet, suite.exporterURL+"/metrics", nil)
+	perfCancel()
+	require.NoError(suite.T(), err)
+	initialResp, err := suite.client.Do(perfReq)
 	require.NoError(suite.T(), err)
 	_ = initialResp.Body.Close()
 
@@ -296,7 +328,13 @@ func (suite *RockyClusterTestSuite) TestCollectorPerformance() {
 
 	for i := 0; i < collections; i++ {
 		start := time.Now()
-		resp, err := suite.client.Get(suite.exporterURL + "/metrics")
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+		req, _ := http.NewRequestWithContext(ctx, http.MethodGet, suite.exporterURL+"/metrics", nil)
+
+		cancel()
+
+		resp, err := suite.client.Do(req)
 		duration := time.Since(start)
 
 		require.NoError(suite.T(), err)
@@ -346,7 +384,13 @@ func (suite *RockyClusterTestSuite) TestCollectorPerformance() {
 
 // TestSLURMConnectivity tests SLURM-specific functionality
 func (suite *RockyClusterTestSuite) TestSLURMConnectivity() {
-	resp, err := suite.client.Get(suite.exporterURL + "/metrics")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, suite.exporterURL+"/metrics", nil)
+
+	cancel()
+
+	resp, err := suite.client.Do(req)
 	require.NoError(suite.T(), err)
 	defer func() { _ = resp.Body.Close() }()
 
@@ -424,7 +468,13 @@ func (suite *RockyClusterTestSuite) TestSLURMConnectivity() {
 
 // TestCollectorHealth tests individual collector health
 func (suite *RockyClusterTestSuite) TestCollectorHealth() {
-	resp, err := suite.client.Get(suite.exporterURL + "/debug/vars")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, suite.exporterURL+"/debug/vars", nil)
+
+	cancel()
+
+	resp, err := suite.client.Do(req)
 	require.NoError(suite.T(), err)
 	defer func() { _ = resp.Body.Close() }()
 
@@ -469,7 +519,13 @@ func (suite *RockyClusterTestSuite) TestCollectorHealth() {
 // TestTracingIntegration tests distributed tracing features
 func (suite *RockyClusterTestSuite) TestTracingIntegration() {
 	// Test tracing status endpoint
-	resp, err := suite.client.Get(suite.exporterURL + "/debug/tracing/stats")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, suite.exporterURL+"/debug/tracing/stats", nil)
+
+	cancel()
+
+	resp, err := suite.client.Do(req)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		suite.T().Skip("Tracing not available or not enabled")
 		return
@@ -491,14 +547,16 @@ func (suite *RockyClusterTestSuite) TestTracingIntegration() {
 
 		// Test enabling detailed tracing
 		enableReq := `{"collector": "jobs", "duration": "30s"}`
-		enableResp, err := suite.client.Post(
-			suite.exporterURL+"/debug/tracing/enable",
-			"application/json",
-			strings.NewReader(enableReq),
-		)
+		enableCtx, enableCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		enableRequest, err := http.NewRequestWithContext(enableCtx, http.MethodPost, suite.exporterURL+"/debug/tracing/enable", strings.NewReader(enableReq))
+		enableRequest.Header.Set("Content-Type", "application/json")
+		enableCancel()
 		if err == nil {
-			_ = enableResp.Body.Close()
-			suite.T().Log("Successfully enabled detailed tracing for jobs collector")
+			enableResp, err := suite.client.Do(enableRequest)
+			if err == nil {
+				_ = enableResp.Body.Close()
+				suite.T().Log("Successfully enabled detailed tracing for jobs collector")
+			}
 		}
 	} else {
 		suite.T().Log("Tracing is disabled")

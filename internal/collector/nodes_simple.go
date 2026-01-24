@@ -150,13 +150,11 @@ func (c *NodesSimpleCollector) Collect(ctx context.Context, ch chan<- prometheus
 	if !c.enabled {
 		return nil
 	}
-	return c.collect(ch)
+	return c.collect(ctx, ch)
 }
 
 // collect gathers metrics from SLURM
-func (c *NodesSimpleCollector) collect(ch chan<- prometheus.Metric) error {
-	ctx := context.Background()
-
+func (c *NodesSimpleCollector) collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Get Nodes manager from client
 	nodesManager := c.client.Nodes()
 	if nodesManager == nil {

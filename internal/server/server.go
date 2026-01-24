@@ -348,7 +348,9 @@ func (s *Server) Start(ctx context.Context) error {
 	go func() {
 		<-ctx.Done()
 		s.logger.Info("Context cancelled, shutting down server")
-		_ = s.server.Shutdown(context.Background())
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		_ = s.server.Shutdown(shutdownCtx)
 	}()
 
 	var err error

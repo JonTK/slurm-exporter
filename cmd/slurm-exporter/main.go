@@ -207,8 +207,17 @@ func performHealthCheck() error {
 		Timeout: 5 * time.Second,
 	}
 
+	// Create request with timeout context
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, healthURL, nil)
+	if err != nil {
+		return fmt.Errorf("failed to create health check request: %w", err)
+	}
+
 	// Perform health check request
-	resp, err := client.Get(healthURL)
+	resp, err := client.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to connect to health endpoint: %w", err)
 	}

@@ -115,13 +115,11 @@ func (c *UsersSimpleCollector) Collect(ctx context.Context, ch chan<- prometheus
 	if !c.enabled {
 		return nil
 	}
-	return c.collect(ch)
+	return c.collect(ctx, ch)
 }
 
 // collect gathers metrics from SLURM
-func (c *UsersSimpleCollector) collect(ch chan<- prometheus.Metric) error {
-	ctx := context.Background()
-
+func (c *UsersSimpleCollector) collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Get Users manager from client
 	usersManager := c.client.Users()
 	if usersManager == nil {
@@ -232,7 +230,6 @@ type userJobStats struct {
 // collectJobStatsByUser collects job statistics grouped by user
 func (c *UsersSimpleCollector) collectJobStatsByUser(ctx context.Context, jobsManager slurm.JobManager) map[string]userJobStats {
 	stats := make(map[string]userJobStats)
-
 	// List all jobs
 	jobList, err := jobsManager.List(ctx, nil)
 	if err != nil {

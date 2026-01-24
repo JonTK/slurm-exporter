@@ -115,7 +115,7 @@ func (c *AccountsSimpleCollector) Collect(ctx context.Context, ch chan<- prometh
 	if !c.enabled {
 		return nil
 	}
-	return c.collect(ch)
+	return c.collect(ctx, ch)
 }
 
 // accountContext holds normalized account information
@@ -201,9 +201,7 @@ func (c *AccountsSimpleCollector) sendAccountMemoryLimit(ch chan<- prometheus.Me
 }
 
 // collect gathers metrics from SLURM
-func (c *AccountsSimpleCollector) collect(ch chan<- prometheus.Metric) error {
-	ctx := context.Background()
-
+func (c *AccountsSimpleCollector) collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Get Accounts manager from client
 	accountsManager := c.client.Accounts()
 	if accountsManager == nil {

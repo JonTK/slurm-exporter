@@ -233,7 +233,7 @@ func (c *JobsSimpleCollector) Collect(ctx context.Context, ch chan<- prometheus.
 	if !c.enabled {
 		return nil
 	}
-	return c.collect(ch)
+	return c.collect(ctx, ch)
 }
 
 // collect gathers metrics from SLURM
@@ -290,9 +290,7 @@ func (ctx *jobContext) createStateLabels() map[string]string {
 	return labels
 }
 
-func (c *JobsSimpleCollector) collect(ch chan<- prometheus.Metric) error {
-	ctx := context.Background()
-
+func (c *JobsSimpleCollector) collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Get Jobs manager from client
 	jobsManager := c.client.Jobs()
 	if jobsManager == nil {

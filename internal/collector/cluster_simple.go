@@ -115,13 +115,11 @@ func (c *ClusterSimpleCollector) Collect(ctx context.Context, ch chan<- promethe
 	if !c.enabled {
 		return nil
 	}
-	return c.collect(ch)
+	return c.collect(ctx, ch)
 }
 
 // collect gathers metrics from SLURM
-func (c *ClusterSimpleCollector) collect(ch chan<- prometheus.Metric) error {
-	ctx := context.Background()
-
+func (c *ClusterSimpleCollector) collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Get Info manager from client
 	infoManager := c.client.Info()
 	if infoManager == nil {

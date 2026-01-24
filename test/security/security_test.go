@@ -4,6 +4,7 @@
 package security
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"io"
@@ -473,7 +474,10 @@ func (s *SecurityTestSuite) makeRequest(method, path string, headers map[string]
 		reqBody = strings.NewReader(fmt.Sprintf("%v", body))
 	}
 
-	req, err := http.NewRequest(method, s.server.URL+path, reqBody)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, method, s.server.URL+path, reqBody)
 	s.Require().NoError(err)
 
 	// Add headers

@@ -169,13 +169,11 @@ func (c *PartitionsSimpleCollector) Collect(ctx context.Context, ch chan<- prome
 	if !c.enabled {
 		return nil
 	}
-	return c.collect(ch)
+	return c.collect(ctx, ch)
 }
 
 // collect gathers metrics from SLURM
-func (c *PartitionsSimpleCollector) collect(ch chan<- prometheus.Metric) error {
-	ctx := context.Background()
-
+func (c *PartitionsSimpleCollector) collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	// Get Partitions manager from client
 	partitionsManager := c.client.Partitions()
 	if partitionsManager == nil {
