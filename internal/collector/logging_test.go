@@ -83,7 +83,6 @@ func TestLoggingCollector(t *testing.T) {
 	})
 
 	t.Run("FailedCollection", func(t *testing.T) {
-		
 		hook.Reset()
 
 		// Create failing mock collector
@@ -133,7 +132,6 @@ func TestLoggingCollector(t *testing.T) {
 	})
 
 	t.Run("DisabledCollector", func(t *testing.T) {
-		
 		hook.Reset()
 
 		// Create disabled mock collector
@@ -172,7 +170,6 @@ func TestLoggingCollector(t *testing.T) {
 	})
 
 	t.Run("SetEnabled", func(t *testing.T) {
-		
 		hook.Reset()
 
 		mockCollector := &mockCollector{
@@ -207,7 +204,6 @@ func TestLoggingCollector(t *testing.T) {
 	})
 
 	t.Run("Describe", func(t *testing.T) {
-		
 		hook.Reset()
 
 		mockCollector := &mockCollector{
@@ -257,7 +253,6 @@ func TestCollectorLogger(t *testing.T) {
 	collectorLogger := NewCollectorLogger(logEntry)
 
 	t.Run("LogCollection", func(t *testing.T) {
-		
 		hook.Reset()
 
 		fields := logrus.Fields{
@@ -285,7 +280,6 @@ func TestCollectorLogger(t *testing.T) {
 	})
 
 	t.Run("LogError", func(t *testing.T) {
-		
 		hook.Reset()
 
 		testErr := errors.New("test error")
@@ -313,7 +307,6 @@ func TestCollectorLogger(t *testing.T) {
 	})
 
 	t.Run("LogMetric", func(t *testing.T) {
-		
 		hook.Reset()
 
 		labels := map[string]string{
@@ -344,7 +337,6 @@ func TestCollectorLogger(t *testing.T) {
 	})
 
 	t.Run("LogPerformance", func(t *testing.T) {
-		
 		hook.Reset()
 
 		duration := 150 * time.Millisecond
@@ -378,7 +370,6 @@ func TestStructuredLogger(t *testing.T) {
 	structuredLogger := NewStructuredLogger(logEntry)
 
 	t.Run("WithCollector", func(t *testing.T) {
-		
 		entry := structuredLogger.WithCollector("test_collector")
 		if entry.Data["collector"] != "test_collector" {
 			t.Errorf("Expected collector 'test_collector', got '%v'", entry.Data["collector"])
@@ -386,7 +377,6 @@ func TestStructuredLogger(t *testing.T) {
 	})
 
 	t.Run("WithOperation", func(t *testing.T) {
-		
 		entry := structuredLogger.WithOperation("collect")
 		if entry.Data["operation"] != "collect" {
 			t.Errorf("Expected operation 'collect', got '%v'", entry.Data["operation"])
@@ -394,7 +384,6 @@ func TestStructuredLogger(t *testing.T) {
 	})
 
 	t.Run("WithDuration", func(t *testing.T) {
-		
 		duration := 100 * time.Millisecond
 		entry := structuredLogger.WithDuration(duration)
 		if entry.Data["duration_ms"] != int64(100) {
@@ -448,7 +437,6 @@ func TestStructuredLogger(t *testing.T) {
 	})
 
 	t.Run("LogEntry", func(t *testing.T) {
-		
 		hook.Reset()
 
 		entry := structuredLogger.LogEntry("test_collector", "collect")
