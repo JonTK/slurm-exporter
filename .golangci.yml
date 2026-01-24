@@ -25,7 +25,6 @@ linters:
     - ireturn
     - lll
     - maintidx
-    - mnd
     - modernize                 # Modernization suggestions (v2.8+ only) - not always appropriate
     - nilerr
     - noinlineerr               # Inline error handling is idiomatic Go
@@ -178,6 +177,15 @@ linters:
         - -QF1008   # Embedded field selector - intentional for clarity
     unparam:
       check-exported: false
+    mnd:
+      ignored-numbers:
+        - "0"
+        - "1"
+        - "2"
+        - "-1"
+        - "10"
+        - "100"
+        - "1000"
     usestdlibvars:
       http-method: true
       http-status-code: true
@@ -251,7 +259,7 @@ linters:
         text: '(applySLURMEnvOverrides|validateSecurity)'
       - linters:
           - nestif
-        path: internal/
+        path: (internal/|test/)
         text: 'has complex nested blocks'
       # Test functions - can be legitimately long with multiple test cases
       - linters:
@@ -393,6 +401,43 @@ linters:
           - revive
         path: ^internal/collector/
         text: 'context-as-argument'
+      # Phase 6 mnd linter - Pragmatic exclusions for legitimate magic numbers
+      # Collector package legitimately has many magic numbers for metrics thresholds and limits
+      - linters:
+          - mnd
+        path: ^internal/collector/
+      # Test fixtures have abundant magic numbers for realistic test data
+      - linters:
+          - mnd
+        path: ^internal/testutil/
+      # Config files legitimately contain many numeric thresholds and defaults
+      - linters:
+          - mnd
+        path: ^internal/config/
+      # Performance package has many numeric optimization constants (cache sizes, timeouts, thresholds)
+      - linters:
+          - mnd
+        path: ^internal/performance/
+      # Metrics package has many numeric configuration constants and limits
+      - linters:
+          - mnd
+        path: ^internal/metrics/
+      # Health checks, and adaptive scheduler have numeric limits and timeouts
+      - linters:
+          - mnd
+        path: internal/(health|adaptive)/
+      # Server middleware and utilities have timeout and size constants
+      - linters:
+          - mnd
+        path: ^internal/server/
+      # Filtering and logging have threshold and permission constants
+      - linters:
+          - mnd
+        path: internal/(filtering|logging)/
+      # Example code and integration code often have inline configuration
+      - linters:
+          - mnd
+        path: (example|integration|fixture|benchmark)
     paths:
       - .*\.pb\.go$
       - .*\.gen\.go$

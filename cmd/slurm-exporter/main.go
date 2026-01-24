@@ -22,6 +22,16 @@ import (
 	"github.com/jontk/slurm-exporter/pkg/version"
 )
 
+// Timeout constants
+const (
+	// performanceMonitoringInterval is the interval for performance metric collection
+	performanceMonitoringInterval = 5 * time.Minute
+	// gracefulShutdownTimeout is the maximum duration to wait for graceful shutdown
+	gracefulShutdownTimeout = 30 * time.Second
+	// healthCheckTimeout is the timeout for health check operations
+	healthCheckTimeout = 5 * time.Second
+)
+
 var (
 	configFile  = flag.String("config", "configs/config.yaml", "Path to configuration file")
 	logLevel    = flag.String("log-level", "info", "Log level (debug, info, warn, error)")
@@ -112,8 +122,8 @@ func main() {
 		logger.WithComponent("main").WithError(err).Fatal("Failed to create collectors")
 	}
 
-	// Start performance monitoring with 5-minute reporting interval
-	registry.StartPerformanceMonitoring(ctx, 5*time.Minute)
+	// Start performance monitoring with configured reporting interval
+	registry.StartPerformanceMonitoring(ctx, performanceMonitoringInterval)
 	logger.WithComponent("main").Info("Performance monitoring started")
 
 	// Create and start the server
@@ -123,7 +133,7 @@ func main() {
 	}
 
 	// Setup graceful shutdown handling
-	shutdown := NewShutdownManager(logger.Logger, 30*time.Second)
+	shutdown := NewShutdownManager(logger.Logger, gracefulShutdownTimeout)
 
 	// Register shutdown hooks for proper cleanup
 	shutdown.AddShutdownHook("server", func(ctx context.Context) error {
@@ -204,11 +214,11 @@ func performHealthCheck() error {
 
 	// Create HTTP client with timeout
 	client := &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: healthCheckTimeout,
 	}
 
 	// Create request with timeout context
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), healthCheckTimeout)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, healthURL, nil)
