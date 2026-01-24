@@ -14,6 +14,10 @@ func newTestCalculator() *EfficiencyCalculator {
 	return NewEfficiencyCalculator(slog.New(slog.NewTextHandler(os.Stdout, nil)), nil)
 }
 
+func newTestCalculatorWithConfig(config *EfficiencyConfig) *EfficiencyCalculator {
+	return NewEfficiencyCalculator(slog.New(slog.NewTextHandler(os.Stdout, nil)), config)
+}
+
 func TestNewEfficiencyCalculator(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
@@ -83,7 +87,6 @@ func TestCalculateEfficiency(t *testing.T) {
 		}
 		if metrics == nil {
 			t.Error("Expected metrics to be returned")
-			return
 		}
 		if metrics.OverallEfficiency <= 0.0 || metrics.OverallEfficiency > 1.0 {
 			t.Errorf("Overall efficiency out of range: %f", metrics.OverallEfficiency)

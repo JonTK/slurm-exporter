@@ -19,7 +19,6 @@ func TestMetricFilter(t *testing.T) {
 
 		if filter == nil {
 			t.Error("Expected non-nil filter")
-			return
 		}
 		if filter.config.EnableAll != true {
 			t.Error("Filter config not set correctly")
