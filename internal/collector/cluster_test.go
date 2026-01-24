@@ -17,9 +17,8 @@ import (
 )
 
 func TestClusterCollector(t *testing.T) {
-	t.Parallel(
+	t.Parallel()
 	// Create test logger
-	)
 
 	logger, hook := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)
@@ -270,9 +269,8 @@ func TestClusterCollector(t *testing.T) {
 }
 
 func TestClusterCollectorIntegration(t *testing.T) {
-	t.Parallel(
+	t.Parallel()
 	// Create a full integration test with registry
-	)
 
 	registry := prometheus.NewRegistry()
 

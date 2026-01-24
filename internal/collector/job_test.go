@@ -17,9 +17,8 @@ import (
 )
 
 func TestJobCollector(t *testing.T) {
-	t.Parallel(
+	t.Parallel()
 	// Create test logger
-	)
 
 	logger, hook := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)
@@ -223,9 +222,8 @@ func TestJobCollector(t *testing.T) {
 }
 
 func TestJobCollectorUtilities(t *testing.T) {
-	t.Parallel(
+	t.Parallel()
 	// Create test configuration for collector
-	)
 
 	cfg := &config.CollectorConfig{
 		Enabled:  true,
@@ -284,9 +282,8 @@ func TestJobCollectorUtilities(t *testing.T) {
 }
 
 func TestJobCollectorIntegration(t *testing.T) {
-	t.Parallel(
+	t.Parallel()
 	// Create a full integration test
-	)
 
 	registry := prometheus.NewRegistry()
 

@@ -46,9 +46,8 @@ func (m *mockCollector) Collect(ctx context.Context, ch chan<- prometheus.Metric
 }
 
 func TestScheduler(t *testing.T) {
-	t.Parallel(
+	t.Parallel()
 	// Create test configuration
-	)
 
 	cfg := &config.CollectorsConfig{
 		Global: config.GlobalCollectorConfig{
@@ -150,9 +149,8 @@ func TestScheduler(t *testing.T) {
 	})
 
 	t.Run("ScheduledCollection", func(t *testing.T) {
-		t.Parallel(
+		t.Parallel()
 		// Ensure schedules are initialized
-		)
 
 		if len(scheduler.schedules) == 0 {
 			_ = scheduler.InitializeSchedules()
@@ -188,9 +186,8 @@ func TestScheduler(t *testing.T) {
 	})
 
 	t.Run("UpdateSchedule", func(t *testing.T) {
-		t.Parallel(
+		t.Parallel()
 		// Create new registry and scheduler for this test
-		)
 
 		promRegistry2 := prometheus.NewRegistry()
 		registry2, _ := NewRegistry(cfg, promRegistry2)
@@ -226,9 +223,8 @@ func TestScheduler(t *testing.T) {
 	})
 
 	t.Run("EnableDisableSchedule", func(t *testing.T) {
-		t.Parallel(
+		t.Parallel()
 		// Create new registry and scheduler for this test
-		)
 
 		promRegistry3 := prometheus.NewRegistry()
 		registry3, _ := NewRegistry(cfg, promRegistry3)
@@ -274,9 +270,8 @@ func TestScheduler(t *testing.T) {
 	})
 
 	t.Run("ScheduleStats", func(t *testing.T) {
-		t.Parallel(
+		t.Parallel()
 		// Create new registry and scheduler for this test
-		)
 
 		promRegistry4 := prometheus.NewRegistry()
 		registry4, _ := NewRegistry(cfg, promRegistry4)
@@ -318,9 +313,8 @@ func TestScheduler(t *testing.T) {
 }
 
 func TestSchedulerErrorHandling(t *testing.T) {
-	t.Parallel(
+	t.Parallel()
 	// Create test configuration
-	)
 
 	cfg := &config.CollectorsConfig{
 		Global: config.GlobalCollectorConfig{
@@ -391,9 +385,8 @@ func TestSchedulerErrorHandling(t *testing.T) {
 }
 
 func TestScheduleHealthCheck(t *testing.T) {
-	t.Parallel(
+	t.Parallel()
 	// Create test configuration
-	)
 
 	cfg := &config.CollectorsConfig{
 		Global: config.GlobalCollectorConfig{

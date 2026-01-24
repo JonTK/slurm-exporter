@@ -286,6 +286,7 @@ func TestRegistry(t *testing.T) {
 }
 
 func TestCollectorAdapter(t *testing.T) {
+	t.Parallel()
 	mockCol := &mockRegistryCollector{
 		name:    "adapter_test",
 		enabled: true,
@@ -306,6 +307,7 @@ func TestCollectorAdapter(t *testing.T) {
 	adapter := &collectorAdapter{collector: mockCol}
 
 	t.Run("Describe", func(t *testing.T) {
+		t.Parallel()
 		ch := make(chan *prometheus.Desc, 10)
 		adapter.Describe(ch)
 		close(ch)
@@ -321,6 +323,7 @@ func TestCollectorAdapter(t *testing.T) {
 	})
 
 	t.Run("Collect", func(t *testing.T) {
+		t.Parallel()
 		ch := make(chan prometheus.Metric, 10)
 		adapter.Collect(ch)
 		close(ch)
@@ -336,6 +339,7 @@ func TestCollectorAdapter(t *testing.T) {
 	})
 
 	t.Run("CollectWithError", func(t *testing.T) {
+		t.Parallel()
 		errorCol := &mockRegistryCollector{
 			name:    "error_test",
 			enabled: true,
@@ -363,6 +367,7 @@ func TestCollectorAdapter(t *testing.T) {
 }
 
 func TestCollectorFactory(t *testing.T) {
+	t.Parallel()
 	factoryCalled := false
 	testFactory := func(cfg *config.CollectorConfig) (Collector, error) {
 		factoryCalled = true

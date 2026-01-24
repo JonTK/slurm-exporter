@@ -17,9 +17,8 @@ import (
 )
 
 func TestBaseCollector(t *testing.T) {
-	t.Parallel(
+	t.Parallel()
 	// Create test configuration
-	)
 
 	cfg := &config.CollectorConfig{
 		Enabled:        true,
@@ -57,9 +56,8 @@ func TestBaseCollector(t *testing.T) {
 	})
 
 	t.Run("EnabledState", func(t *testing.T) {
-		t.Parallel(
+		t.Parallel()
 		// Initially enabled
-		)
 
 		if !base.IsEnabled() {
 			t.Error("Collector should be initially enabled")
@@ -145,9 +143,8 @@ func TestBaseCollector(t *testing.T) {
 	})
 
 	t.Run("RetryLogic", func(t *testing.T) {
-		t.Parallel(
+		t.Parallel()
 		// Test retry conditions
-		)
 
 		if !base.ShouldRetry(0) {
 			t.Error("Should retry on first attempt")

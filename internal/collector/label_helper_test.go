@@ -293,7 +293,6 @@ func TestDimensionalAnalysisReporter(t *testing.T) {
 	}
 
 	t.Run("LogCardinalityAnalysis", func(t *testing.T) {
-		t.Parallel()
 		hook.Reset()
 		reporter.LogCardinalityAnalysis()
 
@@ -316,7 +315,6 @@ func TestDimensionalAnalysisReporter(t *testing.T) {
 	})
 
 	t.Run("LogHighCardinalityWarnings", func(t *testing.T) {
-		t.Parallel()
 		hook.Reset()
 		reporter.LogHighCardinalityWarnings(30.0)
 
@@ -334,7 +332,6 @@ func TestDimensionalAnalysisReporter(t *testing.T) {
 	})
 
 	t.Run("LogRecommendations", func(t *testing.T) {
-		t.Parallel()
 		hook.Reset()
 		reporter.LogRecommendations()
 
@@ -348,7 +345,6 @@ func TestDimensionalAnalysisReporter(t *testing.T) {
 func TestGetLabelNames(t *testing.T) {
 	t.Parallel()
 	t.Run("GetLabelNames", func(t *testing.T) {
-		t.Parallel()
 		desc := prometheus.NewDesc(
 			"test_metric",
 			"Test metric",
