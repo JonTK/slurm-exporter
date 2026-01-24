@@ -120,10 +120,10 @@ func (c *AccountsSimpleCollector) Collect(ctx context.Context, ch chan<- prometh
 
 // accountContext holds normalized account information
 type accountContext struct {
-	name            string
-	organization    string
-	description     string
-	parentAccount   string
+	name             string
+	organization     string
+	description      string
+	parentAccount    string
 	defaultPartition string
 }
 
