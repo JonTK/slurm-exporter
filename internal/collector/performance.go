@@ -187,89 +187,55 @@ func (pc *PerformanceCollector) collectThroughputMetrics(ctx context.Context, ch
 // collectEfficiencyMetrics collects system efficiency metrics
 //
 //nolint:unparam
+// publishEfficiencyMetrics publishes efficiency metrics for all data points
+func (pc *PerformanceCollector) publishEfficiencyMetrics(ch chan<- prometheus.Metric, data []struct {
+	EfficiencyType string
+	Value          float64
+	PartitionName  string
+	TimeWindow     string
+}) {
+	for _, d := range data {
+		pc.SendMetric(ch, pc.BuildMetric(
+			pc.metrics.SystemEfficiency.WithLabelValues(pc.clusterName, d.EfficiencyType, d.PartitionName, d.TimeWindow).Desc(),
+			prometheus.GaugeValue, d.Value, pc.clusterName, d.EfficiencyType, d.PartitionName, d.TimeWindow))
+	}
+}
+
+// publishResourceMetrics publishes resource utilization metrics
+func (pc *PerformanceCollector) publishResourceMetrics(ch chan<- prometheus.Metric, data []struct {
+	ResourceType  string
+	Utilization   float64
+	PartitionName string
+}) {
+	for _, d := range data {
+		pc.SendMetric(ch, pc.BuildMetric(
+			pc.metrics.ResourceUtilization.WithLabelValues(pc.clusterName, d.ResourceType, d.PartitionName).Desc(),
+			prometheus.GaugeValue, d.Utilization, pc.clusterName, d.ResourceType, d.PartitionName))
+	}
+}
+
 func (pc *PerformanceCollector) collectEfficiencyMetrics(ctx context.Context, ch chan<- prometheus.Metric) error {
 	_ = ctx
-	// Simulate efficiency data
+
+	// Build efficiency data
 	efficiencyData := []struct {
 		EfficiencyType string
 		Value          float64
 		PartitionName  string
 		TimeWindow     string
 	}{
-		{
-			EfficiencyType: "cpu_utilization",
-			Value:          0.78, // 78% CPU utilization
-			PartitionName:  "compute",
-			TimeWindow:     "1h",
-		},
-		{
-			EfficiencyType: "memory_utilization",
-			Value:          0.65, // 65% memory utilization
-			PartitionName:  "compute",
-			TimeWindow:     "1h",
-		},
-		{
-			EfficiencyType: "node_utilization",
-			Value:          0.82, // 82% node utilization
-			PartitionName:  "compute",
-			TimeWindow:     "1h",
-		},
-		{
-			EfficiencyType: "cpu_utilization",
-			Value:          0.85, // 85% CPU utilization
-			PartitionName:  "gpu",
-			TimeWindow:     "1h",
-		},
-		{
-			EfficiencyType: "memory_utilization",
-			Value:          0.72, // 72% memory utilization
-			PartitionName:  "gpu",
-			TimeWindow:     "1h",
-		},
-		{
-			EfficiencyType: "node_utilization",
-			Value:          0.90, // 90% node utilization
-			PartitionName:  "gpu",
-			TimeWindow:     "1h",
-		},
-		{
-			EfficiencyType: "cpu_utilization",
-			Value:          0.91, // 91% CPU utilization
-			PartitionName:  "highmem",
-			TimeWindow:     "1h",
-		},
-		{
-			EfficiencyType: "memory_utilization",
-			Value:          0.88, // 88% memory utilization
-			PartitionName:  "highmem",
-			TimeWindow:     "1h",
-		},
-		{
-			EfficiencyType: "node_utilization",
-			Value:          0.75, // 75% node utilization
-			PartitionName:  "highmem",
-			TimeWindow:     "1h",
-		},
+		{"cpu_utilization", 0.78, "compute", "1h"},
+		{"memory_utilization", 0.65, "compute", "1h"},
+		{"node_utilization", 0.82, "compute", "1h"},
+		{"cpu_utilization", 0.85, "gpu", "1h"},
+		{"memory_utilization", 0.72, "gpu", "1h"},
+		{"node_utilization", 0.90, "gpu", "1h"},
+		{"cpu_utilization", 0.91, "highmem", "1h"},
+		{"memory_utilization", 0.88, "highmem", "1h"},
+		{"node_utilization", 0.75, "highmem", "1h"},
 	}
 
-	for _, data := range efficiencyData {
-		pc.SendMetric(ch, pc.BuildMetric(
-			pc.metrics.SystemEfficiency.WithLabelValues(
-				pc.clusterName,
-				data.EfficiencyType,
-				data.PartitionName,
-				data.TimeWindow,
-			).Desc(),
-			prometheus.GaugeValue,
-			data.Value,
-			pc.clusterName,
-			data.EfficiencyType,
-			data.PartitionName,
-			data.TimeWindow,
-		))
-	}
-
-	// Collect resource utilization metrics (more detailed breakdowns)
+	// Build resource data
 	resourceData := []struct {
 		ResourceType  string
 		Utilization   float64
@@ -288,20 +254,8 @@ func (pc *PerformanceCollector) collectEfficiencyMetrics(ctx context.Context, ch
 		{"storage", 0.52, "highmem"},
 	}
 
-	for _, data := range resourceData {
-		pc.SendMetric(ch, pc.BuildMetric(
-			pc.metrics.ResourceUtilization.WithLabelValues(
-				pc.clusterName,
-				data.ResourceType,
-				data.PartitionName,
-			).Desc(),
-			prometheus.GaugeValue,
-			data.Utilization,
-			pc.clusterName,
-			data.ResourceType,
-			data.PartitionName,
-		))
-	}
+	pc.publishEfficiencyMetrics(ch, efficiencyData)
+	pc.publishResourceMetrics(ch, resourceData)
 
 	pc.LogCollectionf("Collected efficiency metrics for %d efficiency points and %d resource points",
 		len(efficiencyData), len(resourceData))
