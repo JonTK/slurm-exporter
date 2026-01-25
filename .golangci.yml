@@ -269,11 +269,26 @@ linters:
           - funlen
         path: cmd/.*/main\.go
         text: 'Function .main.'
-      # Collector package - common duplication patterns
+      # Collector package - analyzed duplication patterns:
+      # 1. Streaming collector interfaces (13 lines, 8 files):
+      #    - Each collector needs a unique interface for its specific contract
+      #    - Cannot extract to a base interface without losing type safety
+      #    - The "duplication" is necessary for proper encapsulation
+      # 2. Collection function patterns (20-70 lines):
+      #    - Similar error handling and metric setting patterns
+      #    - Applied to different data types and metrics
+      #    - Extracting would require complex generic patterns or reflection
+      # 3. Metric struct definitions (40-50 lines):
+      #    - Different metric types with similar structure
+      #    - Not mergeable - each type has its own semantic meaning
+      #    - Similar patterns but different fields
+      # Analysis result: Only 1 of 48 violations was worth extracting (cluster.go)
+      # Remaining violations would require breaking encapsulation or adding complexity
       - linters:
           - dupl
         path: ^internal/collector/
-      # Mock and test utilities
+      # Test utilities - test fixtures naturally have similar patterns
+      # These are intentional test data patterns, not problematic duplication
       - linters:
           - dupl
         path: ^internal/testutil/
