@@ -122,6 +122,34 @@ func DrainMetrics(ch <-chan prometheus.Metric) []prometheus.Metric {
 }
 
 // AssertMetricWithLabels asserts that a specific metric exists with the given labels
+// labelsMatch checks if the metric labels match expected labels
+func labelsMatch(metricLabels []*io_prometheus_client.LabelPair, expectedLabels map[string]string) bool {
+	for labelName, expectedLabelValue := range expectedLabels {
+		found := false
+		for _, labelPair := range metricLabels {
+			if labelPair.GetName() == labelName && labelPair.GetValue() == expectedLabelValue {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+	return true
+}
+
+// getMetricValue extracts the numeric value from a metric
+func getMetricValue(dto *io_prometheus_client.Metric) float64 {
+	if dto.GetGauge() != nil {
+		return dto.GetGauge().GetValue()
+	}
+	if dto.GetCounter() != nil {
+		return dto.GetCounter().GetValue()
+	}
+	return 0
+}
+
 func AssertMetricWithLabels(t *testing.T, collector prometheus.Collector, metricName string, labels map[string]string, expectedValue float64) {
 	t.Helper()
 	ch := make(chan prometheus.Metric, 100)
@@ -142,29 +170,9 @@ func AssertMetricWithLabels(t *testing.T, collector prometheus.Collector, metric
 		}
 
 		// Check labels
-		labelMatch := true
-		for labelName, expectedLabelValue := range labels {
-			found := false
-			for _, labelPair := range dto.GetLabel() {
-				if labelPair.GetName() == labelName && labelPair.GetValue() == expectedLabelValue {
-					found = true
-					break
-				}
-			}
-			if !found {
-				labelMatch = false
-				break
-			}
-		}
-
-		if labelMatch {
+		if labelsMatch(dto.GetLabel(), labels) {
 			found = true
-			var actualValue float64
-			if dto.GetGauge() != nil {
-				actualValue = dto.GetGauge().GetValue()
-			} else if dto.GetCounter() != nil {
-				actualValue = dto.GetCounter().GetValue()
-			}
+			actualValue := getMetricValue(dto)
 			assert.Equal(t, expectedValue, actualValue, "metric %s with labels %v", metricName, labels)
 			break
 		}

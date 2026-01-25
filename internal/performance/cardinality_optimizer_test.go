@@ -147,7 +147,7 @@ func TestCardinalityOptimizer_OptimizeCardinality_BelowLimit(t *testing.T) {
 
 	initialRate := co.sampleRate
 
-	// Optimize when below limit
+	// Call OptimizeCardinality when below limit
 	co.OptimizeCardinality()
 
 	// Sample rate should not change when below limit

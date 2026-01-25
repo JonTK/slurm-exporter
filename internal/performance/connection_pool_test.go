@@ -476,9 +476,9 @@ func TestConnectionPool_Concurrent_PoolSizeAdjustment(t *testing.T) {
 	// Concurrent pool size adjustments
 	for i := 0; i < 5; i++ {
 		go func(idx int) {
-			min := 1 + idx
-			max := 10 + idx
-			pool.SetPoolSize(min, max)
+			minSize := 1 + idx
+			maxSize := 10 + idx
+			pool.SetPoolSize(minSize, maxSize)
 			done <- true
 		}(i)
 	}

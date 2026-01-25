@@ -254,7 +254,7 @@ func TestMetricBatcher_CollectBatchedMetrics(t *testing.T) {
 
 	// Register a simple counter to ensure we have metrics
 	counter := prometheus.NewCounter(prometheus.CounterOpts{
-		Name: "test_metric",
+		Name: "test_metric_total",
 		Help: "Test metric",
 	})
 	registry.MustRegister(counter)
@@ -299,10 +299,12 @@ func TestMetricBatcher_GetStats(t *testing.T) {
 	assert.Contains(t, stats, "sampling_enabled")
 	assert.Contains(t, stats, "aggregation_enabled")
 
-	samplingEnabled := stats["sampling_enabled"].(bool)
-	aggregationEnabled := stats["aggregation_enabled"].(bool)
-
+	samplingEnabled, ok := stats["sampling_enabled"].(bool)
+	assert.True(t, ok)
 	assert.True(t, samplingEnabled)
+
+	aggregationEnabled, ok := stats["aggregation_enabled"].(bool)
+	assert.True(t, ok)
 	assert.True(t, aggregationEnabled)
 }
 

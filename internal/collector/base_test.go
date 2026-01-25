@@ -583,12 +583,12 @@ func TestBaseCollectorConcurrentOperations(t *testing.T) {
 
 		// Concurrent state updates
 		for i := 0; i < 100; i++ {
-			go func(idx int) {
+			go func() {
 				base.UpdateState(func(s *CollectorState) {
 					s.TotalCollections += 1
 				})
 				done <- true
-			}(i)
+			}()
 		}
 
 		// Wait for all goroutines
