@@ -47,10 +47,13 @@ jobs:
     - name: Run staticcheck
       run: staticcheck ./...
 
-    - name: Install golangci-lint
+    - name: Run golangci-lint
       uses: golangci/golangci-lint-action@v9
       with:
-        version: latest
+        version: v2.8.0
+        args: --timeout=10m --max-issues-per-linter=0 --max-same-issues=0
+      env:
+        NODE_OPTIONS: --max-old-space-size=8192
 
     - name: Run tests
       run: go test -v -race -timeout=10m -coverprofile=coverage.out ./...
