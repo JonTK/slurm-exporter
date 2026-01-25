@@ -8,7 +8,6 @@ linters:
     - cyclop
     - embeddedstructfieldcheck  # Embedded struct formatting is stylistic
     - err113
-    - exhaustruct
     - forbidigo
     - funcorder                 # Function ordering is developer's choice
     - gochecknoglobals
@@ -41,6 +40,10 @@ linters:
               desc: Use standard library errors package or fmt.Errorf with %w
     dogsled:
       max-blank-identifiers: 2
+    exhaustruct:
+      include:
+        - 'internal/config\.\w+Config$'
+        - 'internal/config\.\w+Options$'
     dupl:
       threshold: 120            # Phase 7: Reduced from 150
     goconst:
