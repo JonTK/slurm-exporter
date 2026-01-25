@@ -27,9 +27,6 @@ linters:
     - nonamedreturns
     - perfsprint
     - tagliatelle
-    - testifylint
-    - testpackage
-    - thelper
     - usetesting
     - varnamelen
     - wrapcheck
@@ -204,13 +201,20 @@ linters:
           - ineffassign
           - revive
           - staticcheck
+          - testifylint
+          - testpackage
           - wastedassign
         path: _test\.go
       # Test helpers
       - linters:
           - deadcode
+          - testifylint
           - unused
         path: test_helpers\.go
+      # Test utilities - testify patterns allowed
+      - linters:
+          - testifylint
+        path: ^internal/testutil/
       # Phase 4 Complexity Linters - Pragmatic exclusions for inherent patterns
       # Constructor functions - inherently long due to metric initialization
       - linters:
@@ -357,7 +361,13 @@ linters:
         path: internal/server/server\.go
         text: 'Non-inherited new context, use function like'
       # Phase 3 Linters - Pragmatic exclusions for intentional patterns
-      # godox - Intentional TODO comments documenting preserved code and missing fields
+      # godox - Scoped exclusion for collector package:
+      # All TODOs are intentional and document:
+      # 1) Preserved code for future feature implementation
+      # 2) Known SLURM client API field/type incompatibilities that block full implementation
+      # 3) Missing struct fields from current slurm-client library version
+      # 4) Placeholder label assignments waiting for SLURM data availability
+      # These are not orphaned TODOs but rather blocking issues documented for future work.
       - linters:
           - godox
         path: ^internal/collector/

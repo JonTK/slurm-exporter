@@ -304,6 +304,7 @@ type TestHelpers struct{}
 
 // AssertMetricValue asserts that a metric has the expected value
 func (h TestHelpers) AssertMetricValue(t *testing.T, registry *TestMetricsRegistry, name string, expected float64) {
+	t.Helper()
 	actual := registry.GetMetricValue(name)
 	assert.InDelta(t, expected, actual, 0.001,
 		"Metric %s: expected %f, got %f", name, expected, actual)
@@ -311,11 +312,13 @@ func (h TestHelpers) AssertMetricValue(t *testing.T, registry *TestMetricsRegist
 
 // AssertMetricExists asserts that a metric exists
 func (h TestHelpers) AssertMetricExists(t *testing.T, registry *TestMetricsRegistry, name string) {
+	t.Helper()
 	assert.True(t, registry.HasMetric(name), "Metric %s should exist", name)
 }
 
 // AssertMetricLabels asserts that a metric has expected labels
 func (h TestHelpers) AssertMetricLabels(t *testing.T, registry *TestMetricsRegistry, name string, expectedLabels map[string]string) {
+	t.Helper()
 	metric := registry.GetMetric(name)
 	require.NotNil(t, metric, "Metric %s should exist", name)
 
@@ -327,24 +330,28 @@ func (h TestHelpers) AssertMetricLabels(t *testing.T, registry *TestMetricsRegis
 
 // AssertLogMessage asserts that a log message was recorded
 func (h TestHelpers) AssertLogMessage(t *testing.T, logger *TestLogger, message string) {
+	t.Helper()
 	assert.True(t, logger.HasLogWithMessage(message),
 		"Expected log message not found: %s", message)
 }
 
 // AssertLogLevel asserts that a log entry with the specified level was recorded
 func (h TestHelpers) AssertLogLevel(t *testing.T, logger *TestLogger, level logrus.Level) {
+	t.Helper()
 	assert.True(t, logger.HasLogWithLevel(level),
 		"Expected log level not found: %s", level)
 }
 
 // AssertNoErrors asserts that no error logs were recorded
 func (h TestHelpers) AssertNoErrors(t *testing.T, logger *TestLogger) {
+	t.Helper()
 	errorEntries := logger.GetEntriesWithLevel(logrus.ErrorLevel)
 	assert.Empty(t, errorEntries, "Unexpected error logs: %+v", errorEntries)
 }
 
 // WaitForCondition waits for a condition to be true with timeout
 func (h TestHelpers) WaitForCondition(t *testing.T, condition func() bool, timeout time.Duration, message string) {
+	t.Helper()
 	ticker := time.NewTicker(10 * time.Millisecond)
 	defer ticker.Stop()
 
@@ -364,6 +371,7 @@ func (h TestHelpers) WaitForCondition(t *testing.T, condition func() bool, timeo
 
 // Eventually polls a condition until it's true or timeout
 func (h TestHelpers) Eventually(t *testing.T, condition func() bool, timeout time.Duration, interval time.Duration) bool {
+	t.Helper()
 	deadline := time.Now().Add(timeout)
 
 	for time.Now().Before(deadline) {
@@ -378,6 +386,7 @@ func (h TestHelpers) Eventually(t *testing.T, condition func() bool, timeout tim
 
 // CreateTempConfig creates a temporary configuration for testing
 func (h TestHelpers) CreateTempConfig(t *testing.T, config string) string {
+	t.Helper()
 	tempFile := fmt.Sprintf("/tmp/test-config-%d.yaml", time.Now().UnixNano())
 
 	err := WriteFile(tempFile, []byte(config))
