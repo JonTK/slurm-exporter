@@ -13,6 +13,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/testutil"
 
 	"github.com/jontk/slurm-exporter/internal/config"
+	internalMetrics "github.com/jontk/slurm-exporter/internal/metrics"
 	// "github.com/jontk/slurm-exporter/internal/slurm"
 )
 
@@ -249,3 +250,371 @@ func TestCollectorMetrics(t *testing.T) {
 }
 
 // Note: TestCollectionError moved to errors_test.go with enhanced testing
+
+// Additional comprehensive test cases for BaseCollector
+
+func TestBaseCollectorCardinalityManagement(t *testing.T) {
+	t.Parallel()
+	cfg := &config.CollectorConfig{
+		Enabled: true,
+		Timeout: 10 * time.Second,
+		ErrorHandling: config.ErrorHandlingConfig{
+			MaxRetries:    3,
+			RetryDelay:    1 * time.Second,
+			BackoffFactor: 2.0,
+		},
+	}
+
+	opts := &CollectorOptions{
+		Namespace: "test",
+		Subsystem: "collector",
+	}
+
+	metrics := NewCollectorMetrics("test", "collector")
+
+	t.Run("SendMetricWithCardinality", func(t *testing.T) {
+		t.Parallel()
+		base := NewBaseCollector("card_test", cfg, opts, nil, metrics, nil)
+
+		desc := prometheus.NewDesc(
+			"test_metric",
+			"Test metric",
+			[]string{"label1", "label2"},
+			nil,
+		)
+
+		ch := make(chan prometheus.Metric, 10)
+		defer close(ch)
+
+		labels := map[string]string{"label1": "value1", "label2": "value2"}
+		base.SendMetricWithCardinality(ch, "test_metric", desc, prometheus.GaugeValue, 42.0, labels, "value1", "value2")
+
+		// Check that metric was sent (cardinality manager is nil so no filtering)
+		metricCount := 0
+		for range ch {
+			metricCount++
+			if metricCount >= 1 {
+				break
+			}
+		}
+
+		if metricCount != 1 {
+			t.Errorf("Expected 1 metric, got %d", metricCount)
+		}
+	})
+
+	t.Run("SendMetricNil", func(t *testing.T) {
+		t.Parallel()
+		base := NewBaseCollector("nil_test", cfg, opts, nil, metrics, nil)
+
+		ch := make(chan prometheus.Metric, 10)
+		defer close(ch)
+
+		// Should not panic or send anything
+		base.SendMetric(ch, nil)
+
+		// Channel should still be empty
+		if len(ch) != 0 {
+			t.Errorf("Expected empty channel after sending nil metric")
+		}
+	})
+
+	t.Run("GetCardinalityManager", func(t *testing.T) {
+		t.Parallel()
+		base := NewBaseCollector("card_mgr_test", cfg, opts, nil, metrics, nil)
+
+		cm := base.GetCardinalityManager()
+		if cm != nil {
+			t.Error("Expected nil cardinality manager initially")
+		}
+	})
+
+	t.Run("SetCardinalityManager", func(t *testing.T) {
+		t.Parallel()
+		base := NewBaseCollector("set_card_test", cfg, opts, nil, metrics, nil)
+
+		// Create a real cardinality manager for testing
+		realCM := internalMetrics.NewCardinalityManager(nil)
+		base.SetCardinalityManager(realCM)
+
+		if base.GetCardinalityManager() != realCM {
+			t.Error("Cardinality manager not set correctly")
+		}
+	})
+}
+
+func TestBaseCollectorDisabledCollection(t *testing.T) {
+	t.Parallel()
+	cfg := &config.CollectorConfig{
+		Enabled: false,
+		Timeout: 10 * time.Second,
+		ErrorHandling: config.ErrorHandlingConfig{
+			MaxRetries:    3,
+			RetryDelay:    1 * time.Second,
+			BackoffFactor: 2.0,
+		},
+	}
+
+	opts := &CollectorOptions{
+		Namespace: "test",
+		Subsystem: "collector",
+	}
+
+	metrics := NewCollectorMetrics("test", "collector")
+	base := NewBaseCollector("disabled_test", cfg, opts, nil, metrics, nil)
+
+	t.Run("CollectWhenDisabled", func(t *testing.T) {
+		t.Parallel()
+		ch := make(chan prometheus.Metric, 10)
+		defer close(ch)
+
+		err := base.CollectWithMetrics(context.Background(), ch, func(ctx context.Context, ch chan<- prometheus.Metric) error {
+			t.Error("Collection function should not be called when disabled")
+			return nil
+		})
+
+		if err != nil {
+			t.Errorf("Expected no error, got: %v", err)
+		}
+	})
+}
+
+func TestBaseCollectorErrorHandling(t *testing.T) {
+	t.Parallel()
+	cfg := &config.CollectorConfig{
+		Enabled: true,
+		Timeout: 10 * time.Second,
+		ErrorHandling: config.ErrorHandlingConfig{
+			MaxRetries:    2,
+			RetryDelay:    1 * time.Second,
+			BackoffFactor: 2.0,
+			MaxRetryDelay: 10 * time.Second,
+			FailFast:      false,
+		},
+	}
+
+	opts := &CollectorOptions{
+		Namespace: "test",
+		Subsystem: "collector",
+	}
+
+	metrics := NewCollectorMetrics("test", "collector")
+	base := NewBaseCollector("error_test", cfg, opts, nil, metrics, nil)
+
+	t.Run("HandleErrorWithFailFast", func(t *testing.T) {
+		t.Parallel()
+		cfg.ErrorHandling.FailFast = true
+		base := NewBaseCollector("failfast_test", cfg, opts, nil, metrics, nil)
+
+		testErr := errors.New("test error")
+		result := base.HandleError(testErr)
+
+		if result == nil {
+			t.Error("Expected wrapped error with FailFast enabled")
+		}
+	})
+
+	t.Run("HandleErrorWithNil", func(t *testing.T) {
+		t.Parallel()
+		result := base.HandleError(nil)
+
+		if result != nil {
+			t.Error("Expected nil for nil input error")
+		}
+	})
+
+	t.Run("HandleErrorWithConsecutiveErrors", func(t *testing.T) {
+		t.Parallel()
+		base := NewBaseCollector("consec_test", cfg, opts, nil, metrics, nil)
+
+		// Simulate consecutive errors
+		base.UpdateState(func(s *CollectorState) {
+			s.ConsecutiveErrors = 3
+		})
+
+		testErr := errors.New("test error")
+		result := base.HandleError(testErr)
+
+		if result == nil {
+			t.Error("Expected error when exceeding threshold")
+		}
+
+		// Check if collector was disabled
+		if base.IsEnabled() {
+			t.Error("Collector should be disabled after exceeding error threshold")
+		}
+	})
+}
+
+func TestBaseCollectorRetryDelayCalculation(t *testing.T) {
+	t.Parallel()
+	cfg := &config.CollectorConfig{
+		Enabled: true,
+		Timeout: 10 * time.Second,
+		ErrorHandling: config.ErrorHandlingConfig{
+			MaxRetries:    5,
+			RetryDelay:    100 * time.Millisecond,
+			BackoffFactor: 3.0,
+			MaxRetryDelay: 5 * time.Second,
+		},
+	}
+
+	opts := &CollectorOptions{
+		Namespace: "test",
+		Subsystem: "collector",
+	}
+
+	metrics := NewCollectorMetrics("test", "collector")
+	base := NewBaseCollector("delay_test", cfg, opts, nil, metrics, nil)
+
+	t.Run("ExponentialBackoff", func(t *testing.T) {
+		t.Parallel()
+		delay0 := base.GetRetryDelay(0)
+		delay1 := base.GetRetryDelay(1)
+		delay2 := base.GetRetryDelay(2)
+
+		// delay0 should be 100ms
+		if delay0 != 100*time.Millisecond {
+			t.Errorf("Expected 100ms for attempt 0, got %v", delay0)
+		}
+
+		// delay1 should be 100ms * 3 = 300ms
+		if delay1 != 300*time.Millisecond {
+			t.Errorf("Expected 300ms for attempt 1, got %v", delay1)
+		}
+
+		// delay2 should be 100ms * 3 * 3 = 900ms
+		if delay2 != 900*time.Millisecond {
+			t.Errorf("Expected 900ms for attempt 2, got %v", delay2)
+		}
+	})
+
+	t.Run("MaxDelayEnforcement", func(t *testing.T) {
+		t.Parallel()
+		// Large attempt numbers should be capped at maxRetryDelay
+		delayLarge := base.GetRetryDelay(10)
+
+		if delayLarge > 5*time.Second {
+			t.Errorf("Expected max delay of 5s, got %v", delayLarge)
+		}
+	})
+}
+
+func TestBaseCollectorBuildMetricWithCardinality(t *testing.T) {
+	t.Parallel()
+	cfg := &config.CollectorConfig{
+		Enabled: true,
+		Timeout: 10 * time.Second,
+		ErrorHandling: config.ErrorHandlingConfig{
+			MaxRetries:    3,
+			RetryDelay:    1 * time.Second,
+			BackoffFactor: 2.0,
+		},
+	}
+
+	opts := &CollectorOptions{
+		Namespace: "test",
+		Subsystem: "collector",
+	}
+
+	metrics := NewCollectorMetrics("test", "collector")
+	base := NewBaseCollector("build_card_test", cfg, opts, nil, metrics, nil)
+
+	desc := prometheus.NewDesc(
+		"test_metric",
+		"Test metric",
+		[]string{"label1"},
+		nil,
+	)
+
+	t.Run("WithoutCardinalityManager", func(t *testing.T) {
+		t.Parallel()
+		metric, shouldSend := base.BuildMetricWithCardinality(
+			"test_metric",
+			desc,
+			prometheus.GaugeValue,
+			42.0,
+			map[string]string{"label1": "value1"},
+			"value1",
+		)
+
+		if metric == nil {
+			t.Error("Expected metric to be created")
+		}
+		if !shouldSend {
+			t.Error("Expected shouldSend to be true without cardinality manager")
+		}
+	})
+}
+
+func TestBaseCollectorConcurrentOperations(t *testing.T) {
+	t.Parallel()
+	cfg := &config.CollectorConfig{
+		Enabled: true,
+		Timeout: 10 * time.Second,
+		ErrorHandling: config.ErrorHandlingConfig{
+			MaxRetries:    3,
+			RetryDelay:    1 * time.Second,
+			BackoffFactor: 2.0,
+		},
+	}
+
+	opts := &CollectorOptions{
+		Namespace: "test",
+		Subsystem: "collector",
+	}
+
+	metrics := NewCollectorMetrics("test", "collector")
+	base := NewBaseCollector("concurrent_test", cfg, opts, nil, metrics, nil)
+
+	t.Run("ConcurrentStateUpdates", func(t *testing.T) {
+		t.Parallel()
+		done := make(chan bool, 100)
+
+		// Concurrent state updates
+		for i := 0; i < 100; i++ {
+			go func(idx int) {
+				base.UpdateState(func(s *CollectorState) {
+					s.TotalCollections += 1
+				})
+				done <- true
+			}(i)
+		}
+
+		// Wait for all goroutines
+		for i := 0; i < 100; i++ {
+			<-done
+		}
+
+		state := base.GetState()
+		if state.TotalCollections != 100 {
+			t.Errorf("Expected 100 total collections, got %d", state.TotalCollections)
+		}
+	})
+
+	t.Run("ConcurrentEnabledChanges", func(t *testing.T) {
+		t.Parallel()
+		done := make(chan bool, 50)
+
+		// Concurrent enable/disable
+		for i := 0; i < 50; i++ {
+			go func(idx int) {
+				if idx%2 == 0 {
+					base.SetEnabled(true)
+				} else {
+					base.SetEnabled(false)
+				}
+				done <- true
+			}(i)
+		}
+
+		// Wait for all goroutines
+		for i := 0; i < 50; i++ {
+			<-done
+		}
+
+		// Final state should be valid (either true or false)
+		_ = base.IsEnabled()
+	})
+}
+
