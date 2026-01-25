@@ -211,11 +211,15 @@ const profilesListHTML = `
 // fetchProfilesList retrieves profiles based on collector filter
 func (h *ProfilingDebugHandler) fetchProfilesList(collectorFilter string) ([]*performance.ProfileMetadata, error) {
 	if collectorFilter != "" {
-		return h.manager.GetCollectorProfiles(collectorFilter)
+		profiles, err := h.manager.GetCollectorProfiles(collectorFilter)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get profiles for collector %s: %w", collectorFilter, err)
+		}
+		return profiles, nil
 	}
 	allProfiles, err := h.manager.GetAllProfiles()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get all profiles: %w", err)
 	}
 	var profiles []*performance.ProfileMetadata
 	for _, collectorProfiles := range allProfiles {

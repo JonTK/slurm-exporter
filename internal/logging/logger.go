@@ -35,7 +35,7 @@ func NewLogger(cfg *config.LoggingConfig) (*Logger, error) {
 
 	// Validate configuration
 	if err := cfg.Validate(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to validate logging configuration: %w", err)
 	}
 
 	logger := logrus.New()

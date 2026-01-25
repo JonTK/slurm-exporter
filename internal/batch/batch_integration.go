@@ -339,7 +339,7 @@ func (bc *BatchedCollector) Collect(ctx context.Context, ch chan<- prometheus.Me
 	// Collect batched metrics
 	metrics, err := bc.batcher.CollectBatchedMetrics()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to collect batched metrics: %w", err)
 	}
 
 	// Convert and send metrics
@@ -351,7 +351,10 @@ func (bc *BatchedCollector) Collect(ctx context.Context, ch chan<- prometheus.Me
 	}
 
 	// Also collect from underlying collector
-	return bc.collector.Collect(ctx, ch)
+	if err := bc.collector.Collect(ctx, ch); err != nil {
+		return fmt.Errorf("underlying collector failed during batch integration: %w", err)
+	}
+	return nil
 }
 
 // GetStats returns batch collector statistics

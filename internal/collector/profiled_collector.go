@@ -56,7 +56,10 @@ func (pc *ProfiledCollector) Collect(ctx context.Context, ch chan<- prometheus.M
 	pc.mu.RLock()
 	if !pc.enabled {
 		pc.mu.RUnlock()
-		return pc.collector.Collect(ctx, ch)
+		if err := pc.collector.Collect(ctx, ch); err != nil {
+			return fmt.Errorf("profiled collector (disabled) failed: %w", err)
+		}
+		return nil
 	}
 	pc.mu.RUnlock()
 
@@ -81,10 +84,12 @@ func (pc *ProfiledCollector) Collect(ctx context.Context, ch chan<- prometheus.M
 	if err != nil {
 		pc.logger.WithError(err).Error("Collection failed")
 		// Metadata will be added when profile is saved
-	} else {
-		pc.logger.WithField("duration", op.Duration()).Debug("Collection completed")
-		// Metadata will be added when profile is saved
+		op.PhaseEnd("post_collection")
+		return fmt.Errorf("profiled collection failed: %w", err)
 	}
+
+	pc.logger.WithField("duration", op.Duration()).Debug("Collection completed")
+	// Metadata will be added when profile is saved
 
 	op.PhaseEnd("post_collection")
 
@@ -95,7 +100,7 @@ func (pc *ProfiledCollector) Collect(ctx context.Context, ch chan<- prometheus.M
 		pc.logger.WithField("report", report).Warn("Slow collection detected")
 	}
 
-	return err
+	return nil
 }
 
 // IsEnabled returns whether this collector is enabled

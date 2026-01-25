@@ -113,7 +113,11 @@ func (sls *StandardLabelSets) ClusterLabels(clusterName string) (map[string]stri
 	labels := map[string]string{
 		"cluster_name": clusterName,
 	}
-	return sls.labelManager.BuildLabelSet(labels)
+	labelSet, err := sls.labelManager.BuildLabelSet(labels)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build cluster labels: %w", err)
+	}
+	return labelSet, nil
 }
 
 // NodeLabels builds standard node-level labels
@@ -122,7 +126,11 @@ func (sls *StandardLabelSets) NodeLabels(clusterName, nodeName string) (map[stri
 		"cluster_name": clusterName,
 		"node_name":    nodeName,
 	}
-	return sls.labelManager.BuildLabelSet(labels)
+	labelSet, err := sls.labelManager.BuildLabelSet(labels)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build node labels for %s: %w", nodeName, err)
+	}
+	return labelSet, nil
 }
 
 // JobLabels builds standard job-level labels
@@ -134,7 +142,11 @@ func (sls *StandardLabelSets) JobLabels(clusterName, jobID, user, account, parti
 		"account":      account,
 		"partition":    partition,
 	}
-	return sls.labelManager.BuildLabelSet(labels)
+	labelSet, err := sls.labelManager.BuildLabelSet(labels)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build job labels for job %s: %w", jobID, err)
+	}
+	return labelSet, nil
 }
 
 // PartitionLabels builds standard partition-level labels
@@ -143,7 +155,11 @@ func (sls *StandardLabelSets) PartitionLabels(clusterName, partitionName string)
 		"cluster_name": clusterName,
 		"partition":    partitionName,
 	}
-	return sls.labelManager.BuildLabelSet(labels)
+	labelSet, err := sls.labelManager.BuildLabelSet(labels)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build partition labels for %s: %w", partitionName, err)
+	}
+	return labelSet, nil
 }
 
 // UserLabels builds standard user-level labels
@@ -153,7 +169,11 @@ func (sls *StandardLabelSets) UserLabels(clusterName, user, account string) (map
 		"user":         user,
 		"account":      account,
 	}
-	return sls.labelManager.BuildLabelSet(labels)
+	labelSet, err := sls.labelManager.BuildLabelSet(labels)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build user labels for %s: %w", user, err)
+	}
+	return labelSet, nil
 }
 
 // StateLabels builds standard state-related labels
@@ -163,7 +183,11 @@ func (sls *StandardLabelSets) StateLabels(clusterName, entityName, state string)
 		"entity_name":  entityName,
 		"job_state":    state, // Use a specific state type that exists in StandardLabels
 	}
-	return sls.labelManager.BuildLabelSet(labels)
+	labelSet, err := sls.labelManager.BuildLabelSet(labels)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build state labels for %s: %w", entityName, err)
+	}
+	return labelSet, nil
 }
 
 // LabelSetBuilder provides a fluent interface for building label sets
@@ -245,7 +269,11 @@ func (lsb *LabelSetBuilder) WithCustom(key, value string) *LabelSetBuilder {
 
 // Build validates and builds the final label set
 func (lsb *LabelSetBuilder) Build() (map[string]string, error) {
-	return lsb.labelManager.BuildLabelSet(lsb.labels)
+	labelSet, err := lsb.labelManager.BuildLabelSet(lsb.labels)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build label set: %w", err)
+	}
+	return labelSet, nil
 }
 
 // BuildSlice builds the label set and returns it as ordered slices

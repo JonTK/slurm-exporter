@@ -366,7 +366,7 @@ func (op *OperationProfile) Save() error {
 	err := op.profiler.storage.Save(op.profile)
 	if err != nil {
 		op.profiler.logger.WithError(err).Error("Failed to save profile")
-		return err
+		return fmt.Errorf("failed to save profile for collector %s: %w", op.collectorName, err)
 	}
 
 	op.profiler.metrics.profilesSaved.WithLabelValues(op.collectorName).Inc()
@@ -498,12 +498,20 @@ func (p *Profiler) GetProfile(collectorName string) *CollectorProfile {
 
 // ListProfiles lists all stored profiles
 func (p *Profiler) ListProfiles() ([]*ProfileMetadata, error) {
-	return p.storage.List()
+	profiles, err := p.storage.List()
+	if err != nil {
+		return nil, fmt.Errorf("failed to list profiles: %w", err)
+	}
+	return profiles, nil
 }
 
 // LoadProfile loads a profile from storage
 func (p *Profiler) LoadProfile(id string) (*CollectorProfile, error) {
-	return p.storage.Load(id)
+	profile, err := p.storage.Load(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load profile %s: %w", id, err)
+	}
+	return profile, nil
 }
 
 // GetStats returns profiler statistics

@@ -5,6 +5,7 @@ package collector
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -108,8 +109,11 @@ func (ic *InstrumentedCollector) Collect(ctx context.Context, ch chan<- promethe
 
 	// Execute the actual collection
 	collectErr = ic.collector.Collect(ctx, ch)
+	if collectErr != nil {
+		return fmt.Errorf("instrumented collection failed for %s: %w", ic.name, collectErr)
+	}
 
-	return collectErr
+	return nil
 }
 
 // IsEnabled returns whether this collector is enabled

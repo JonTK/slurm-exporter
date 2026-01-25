@@ -364,7 +364,11 @@ func (mb *MetricBatcher) CollectBatchedMetrics() ([]*dto.MetricFamily, error) {
 
 	// Collect metrics from registry
 	if mb.registry != nil {
-		return mb.registry.Gather()
+		metrics, err := mb.registry.Gather()
+		if err != nil {
+			return nil, fmt.Errorf("failed to gather batched metrics: %w", err)
+		}
+		return metrics, nil
 	}
 
 	return nil, nil

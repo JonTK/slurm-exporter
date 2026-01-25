@@ -127,7 +127,7 @@ func TestProfiledCollector(t *testing.T) {
 
 		ch := make(chan prometheus.Metric)
 		err = pc.Collect(context.Background(), ch)
-		assert.Equal(t, testErr, err)
+		assert.ErrorIs(t, err, testErr)
 	})
 
 	t.Run("SlowCollection", func(t *testing.T) {
