@@ -1494,6 +1494,65 @@ func (c *UserPermissionAuditCollector) Collect(ch chan<- prometheus.Metric) {
 	c.resourceOptimization.Collect(ch)
 }
 
+// permissionLevelValue maps permission level to numeric value
+func permissionLevelValue(level string) float64 {
+	switch level {
+	case "basic":
+		return 0
+	case "standard":
+		return 1
+	case "advanced":
+		return 2
+	case "admin":
+		return 3
+	}
+	return 0
+}
+
+// permissionScopeValue maps permission scope to numeric value
+func permissionScopeValue(scope string) float64 {
+	switch scope {
+	case "limited":
+		return 0
+	case "departmental":
+		return 1
+	case "organizational":
+		return 2
+	case "global":
+		return 3
+	}
+	return 0
+}
+
+// riskLevelValue maps risk level to numeric value
+func riskLevelValue(level string) float64 {
+	switch level {
+	case "low":
+		return 0
+	case "medium":
+		return 1
+	case "high":
+		return 2
+	case "critical":
+		return 3
+	}
+	return 0
+}
+
+// complianceStatusScore maps compliance status to score
+func complianceStatusScore(status string) float64 {
+	switch status {
+	case "compliant":
+		return 1.0
+	case "warning":
+		return 0.7
+	case "violation":
+		return 0.3
+	default:
+		return 0.0
+	}
+}
+
 func (c *UserPermissionAuditCollector) collectPermissionMetrics(ctx context.Context, user string, ch chan<- prometheus.Metric) {
 	_ = ch
 	permissions, err := c.client.GetUserPermissions(ctx, user)
@@ -1502,6 +1561,7 @@ func (c *UserPermissionAuditCollector) collectPermissionMetrics(ctx context.Cont
 		return
 	}
 
+	// Permission counts
 	c.activePermissions.WithLabelValues(user).Set(float64(len(permissions.ActivePermissions)))
 	c.inheritedPermissions.WithLabelValues(user).Set(float64(len(permissions.InheritedPermissions)))
 	c.explicitPermissions.WithLabelValues(user).Set(float64(len(permissions.ExplicitPermissions)))
@@ -1509,57 +1569,11 @@ func (c *UserPermissionAuditCollector) collectPermissionMetrics(ctx context.Cont
 	c.temporaryPermissions.WithLabelValues(user).Set(float64(len(permissions.TemporaryPermissions)))
 	c.conditionalPermissions.WithLabelValues(user).Set(float64(len(permissions.ConditionalPermissions)))
 
-	var levelValue float64
-	switch permissions.PermissionLevel {
-	case "basic":
-		levelValue = 0
-	case "standard":
-		levelValue = 1
-	case "advanced":
-		levelValue = 2
-	case "admin":
-		levelValue = 3
-	}
-	c.permissionLevel.WithLabelValues(user, permissions.PermissionLevel).Set(levelValue)
-
-	var scopeValue float64
-	switch permissions.PermissionScope {
-	case "limited":
-		scopeValue = 0
-	case "departmental":
-		scopeValue = 1
-	case "organizational":
-		scopeValue = 2
-	case "global":
-		scopeValue = 3
-	}
-	c.permissionScope.WithLabelValues(user, permissions.PermissionScope).Set(scopeValue)
-
-	var riskValue float64
-	switch permissions.RiskLevel {
-	case "low":
-		riskValue = 0
-	case "medium":
-		riskValue = 1
-	case "high":
-		riskValue = 2
-	case "critical":
-		riskValue = 3
-	}
-	c.permissionRiskLevel.WithLabelValues(user, permissions.RiskLevel).Set(riskValue)
-
-	var complianceScore float64
-	switch permissions.ComplianceStatus {
-	case "compliant":
-		complianceScore = 1.0
-	case "warning":
-		complianceScore = 0.7
-	case "violation":
-		complianceScore = 0.3
-	default:
-		complianceScore = 0.0
-	}
-	c.permissionCompliance.WithLabelValues(user).Set(complianceScore)
+	// Permission characteristics
+	c.permissionLevel.WithLabelValues(user, permissions.PermissionLevel).Set(permissionLevelValue(permissions.PermissionLevel))
+	c.permissionScope.WithLabelValues(user, permissions.PermissionScope).Set(permissionScopeValue(permissions.PermissionScope))
+	c.permissionRiskLevel.WithLabelValues(user, permissions.RiskLevel).Set(riskLevelValue(permissions.RiskLevel))
+	c.permissionCompliance.WithLabelValues(user).Set(complianceStatusScore(permissions.ComplianceStatus))
 }
 
 func (c *UserPermissionAuditCollector) collectAuditMetrics(ctx context.Context, user string, ch chan<- prometheus.Metric) {
@@ -1703,6 +1717,36 @@ func (c *UserPermissionAuditCollector) collectPermissionHistory(ctx context.Cont
 	}
 }
 
+// impactAssessmentScore maps impact assessment to score
+func impactAssessmentScore(assessment string) float64 {
+	switch assessment {
+	case "low":
+		return 0.25
+	case "medium":
+		return 0.5
+	case "high":
+		return 0.75
+	case "critical":
+		return 1.0
+	}
+	return 0
+}
+
+// severityScore maps severity level to score
+func severityScore(severity string) float64 {
+	switch severity {
+	case "low":
+		return 0.25
+	case "medium":
+		return 0.5
+	case "high":
+		return 0.75
+	case "critical":
+		return 1.0
+	}
+	return 0
+}
+
 func (c *UserPermissionAuditCollector) collectViolationMetrics(ctx context.Context, user string, ch chan<- prometheus.Metric) {
 	_ = ch
 	violations, err := c.client.GetUserAccessViolations(ctx, user)
@@ -1717,38 +1761,25 @@ func (c *UserPermissionAuditCollector) collectViolationMetrics(ctx context.Conte
 	var totalRisk, totalImpact float64
 	var violationCount int
 
+	// Process violations
 	for _, violation := range violations {
 		if violationCounts[violation.ViolationType] == nil {
 			violationCounts[violation.ViolationType] = make(map[string]int)
 		}
 		violationCounts[violation.ViolationType][violation.Severity]++
-
 		severityCounts[violation.Severity]++
 		recurrenceCounts[violation.ViolationType] += violation.RecurrenceCount
-
 		totalRisk += violation.RiskScore
-
-		var impactScore float64
-		switch violation.ImpactAssessment {
-		case "low":
-			impactScore = 0.25
-		case "medium":
-			impactScore = 0.5
-		case "high":
-			impactScore = 0.75
-		case "critical":
-			impactScore = 1.0
-		}
-		totalImpact += impactScore
+		totalImpact += impactAssessmentScore(violation.ImpactAssessment)
 
 		if violation.ResolutionTime != nil {
 			resolutionDuration := violation.ResolutionTime.Sub(violation.DetectedTime)
 			c.violationResolutionTime.WithLabelValues(user, violation.ViolationType).Observe(resolutionDuration.Seconds())
 		}
-
 		violationCount++
 	}
 
+	// Publish aggregated metrics
 	for violationType, severityMap := range violationCounts {
 		for severity, count := range severityMap {
 			c.accessViolationsTotal.WithLabelValues(user, violationType, severity).Add(float64(count))
@@ -1756,18 +1787,7 @@ func (c *UserPermissionAuditCollector) collectViolationMetrics(ctx context.Conte
 	}
 
 	for severity, count := range severityCounts {
-		var severityScore float64
-		switch severity {
-		case "low":
-			severityScore = 0.25
-		case "medium":
-			severityScore = 0.5
-		case "high":
-			severityScore = 0.75
-		case "critical":
-			severityScore = 1.0
-		}
-		c.violationSeverity.WithLabelValues(user, severity).Set(severityScore * float64(count))
+		c.violationSeverity.WithLabelValues(user, severity).Set(severityScore(severity) * float64(count))
 	}
 
 	for violationType, count := range recurrenceCounts {
