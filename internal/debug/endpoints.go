@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -217,11 +218,11 @@ func (dh *DebugHandler) withAuth(handler http.HandlerFunc) http.HandlerFunc {
 			}
 		}
 
-		// Log access
+		// Log access (sanitize user input to prevent log injection)
 		dh.logger.WithFields(logrus.Fields{
-			"endpoint": r.URL.Path,
-			"method":   r.Method,
-			"remote":   r.RemoteAddr,
+			"endpoint": sanitizeLogField(r.URL.Path),
+			"method":   sanitizeLogField(r.Method),
+			"remote":   sanitizeLogField(r.RemoteAddr),
 		}).Debug("Debug endpoint accessed")
 
 		handler(w, r)
@@ -600,4 +601,16 @@ func (dh *DebugHandler) GetStats() map[string]interface{} {
 		"endpoints":     dh.getAvailableEndpoints(),
 		"components":    dh.getComponentStatus(),
 	}
+}
+
+// sanitizeLogField removes control characters and newlines from log fields to prevent log injection
+func sanitizeLogField(input string) string {
+	var result strings.Builder
+	for _, r := range input {
+		// Allow printable ASCII and common safe characters
+		if (r >= 32 && r <= 126) || r == '\t' {
+			result.WriteRune(r)
+		}
+	}
+	return result.String()
 }
