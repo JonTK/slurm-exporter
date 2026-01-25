@@ -27,9 +27,6 @@ linters:
     - nonamedreturns
     - perfsprint
     - tagliatelle
-    - testifylint
-    - testpackage
-    - thelper
     - usetesting
     - varnamelen
     - wrapcheck
@@ -204,13 +201,20 @@ linters:
           - ineffassign
           - revive
           - staticcheck
+          - testifylint
+          - testpackage
           - wastedassign
         path: _test\.go
       # Test helpers
       - linters:
           - deadcode
+          - testifylint
           - unused
         path: test_helpers\.go
+      # Test utilities - testify patterns allowed
+      - linters:
+          - testifylint
+        path: ^internal/testutil/
       # Phase 4 Complexity Linters - Pragmatic exclusions for inherent patterns
       # Constructor functions - inherently long due to metric initialization
       - linters:

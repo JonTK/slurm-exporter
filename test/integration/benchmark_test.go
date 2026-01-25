@@ -153,6 +153,7 @@ func BenchmarkConcurrentMetrics(b *testing.B) {
 
 // PerformanceTest runs comprehensive performance analysis
 func PerformanceTest(t *testing.T) {
+	t.Helper()
 	if testing.Short() {
 		t.Skip("Skipping performance test in short mode")
 	}

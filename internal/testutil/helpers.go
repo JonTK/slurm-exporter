@@ -39,6 +39,7 @@ func CollectAndCount(collector prometheus.Collector) int {
 
 // CollectAndCompare collects metrics and compares with expected output
 func CollectAndCompare(t *testing.T, collector prometheus.Collector, expected string, metricNames ...string) {
+	t.Helper()
 	err := testutil.CollectAndCompare(collector, strings.NewReader(expected), metricNames...)
 	assert.NoError(t, err)
 }
@@ -86,12 +87,14 @@ func GetMetricValue(collector prometheus.Collector, metricName string, labels pr
 
 // AssertMetricExists checks if a metric exists with the given labels
 func AssertMetricExists(t *testing.T, collector prometheus.Collector, metricName string, labels prometheus.Labels) {
+	t.Helper()
 	_, err := GetMetricValue(collector, metricName, labels)
 	assert.NoError(t, err, "metric %s with labels %v should exist", metricName, labels)
 }
 
 // AssertMetricValue checks if a metric has the expected value
 func AssertMetricValue(t *testing.T, collector prometheus.Collector, metricName string, labels prometheus.Labels, expected float64) {
+	t.Helper()
 	value, err := GetMetricValue(collector, metricName, labels)
 	assert.NoError(t, err)
 	assert.Equal(t, expected, value, "metric %s with labels %v should have value %f", metricName, labels, expected)
@@ -104,6 +107,7 @@ func CreateTestRegistry() *prometheus.Registry {
 
 // MustRegister registers a collector and panics on error (for tests)
 func MustRegister(t *testing.T, registry *prometheus.Registry, collector prometheus.Collector) {
+	t.Helper()
 	err := registry.Register(collector)
 	assert.NoError(t, err, "failed to register collector")
 }
