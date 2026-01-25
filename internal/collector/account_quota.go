@@ -706,7 +706,6 @@ func (c *AccountQuotaCollector) Collect(ch chan<- prometheus.Metric) {
 	c.accountQuotaResetDays.Collect(ch)
 }
 
-
 func (c *AccountQuotaCollector) collectAccountQuota(ctx context.Context, quota *AccountQuotas) {
 	_ = ctx
 	if quota.CPUMinutes != nil {

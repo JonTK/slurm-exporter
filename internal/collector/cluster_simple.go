@@ -137,7 +137,6 @@ func parseVersionString(version string) (string, string, string, string) {
 	return version, fmt.Sprintf("%d", maj), fmt.Sprintf("%d", minorV), fmt.Sprintf("%d", pat)
 }
 
-
 func (c *ClusterSimpleCollector) collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	infoManager := c.client.Info()
 	if infoManager == nil {

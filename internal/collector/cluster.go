@@ -201,7 +201,7 @@ func (cc *ClusterCollector) collectNodeSummary(ctx context.Context, ch chan<- pr
 		AllocatedNodes:  75,
 		AllocatedCPUs:   3600,
 		AllocatedMemory: 768 * 1024 * 1024 * 1024,
-		NodeStates: map[string]int{"idle": 20, "allocated": 75, "down": 3, "drain": 2},
+		NodeStates:      map[string]int{"idle": 20, "allocated": 75, "down": 3, "drain": 2},
 	}
 
 	// Send metrics by category
