@@ -137,13 +137,6 @@ func parseVersionString(version string) (string, string, string, string) {
 	return version, fmt.Sprintf("%d", maj), fmt.Sprintf("%d", minorV), fmt.Sprintf("%d", pat)
 }
 
-// getStatValue safely gets value from stats, returns 0 if nil
-func getStatValue(val *int, defaultVal int) float64 {
-	if val != nil {
-		return float64(*val)
-	}
-	return float64(defaultVal)
-}
 
 func (c *ClusterSimpleCollector) collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	infoManager := c.client.Info()
