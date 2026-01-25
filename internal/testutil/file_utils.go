@@ -10,17 +10,17 @@ import (
 
 // WriteFile writes data to a file
 func WriteFile(filename string, data []byte) error {
-	return os.WriteFile(filename, data, 0600) //nolint:wrapcheck
+	return os.WriteFile(filename, data, 0600)
 }
 
 // RemoveFile removes a file
 func RemoveFile(filename string) error {
-	return os.Remove(filename) //nolint:wrapcheck
+	return os.Remove(filename)
 }
 
 // ReadFile reads a file
 func ReadFile(filename string) ([]byte, error) {
-	return os.ReadFile(filename) //nolint:wrapcheck
+	return os.ReadFile(filename)
 }
 
 // FileExists checks if a file exists
@@ -31,15 +31,15 @@ func FileExists(filename string) bool {
 
 // CreateTempDir creates a temporary directory
 func CreateTempDir(pattern string) (string, error) {
-	return os.MkdirTemp("", pattern) //nolint:wrapcheck
+	return os.MkdirTemp("", pattern)
 }
 
 // RemoveAll removes a directory and all its contents
 func RemoveAll(path string) error {
-	return os.RemoveAll(path) //nolint:wrapcheck
+	return os.RemoveAll(path)
 }
 
 // Chmod changes file permissions
 func Chmod(name string, mode fs.FileMode) error {
-	return os.Chmod(name, mode) //nolint:wrapcheck
+	return os.Chmod(name, mode)
 }

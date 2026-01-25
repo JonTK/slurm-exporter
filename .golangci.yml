@@ -184,9 +184,11 @@ linters:
       time-layout: true
       crypto-hash: true
     wrapcheck:
-      # ignoreSigs: Function signatures to ignore for pragmatic reasons
+      # ignore-sigs: Function signatures to ignore for pragmatic reasons
       # These are well-documented APIs where wrapping would be noisy without adding value
-      ignoreSigs:
+      ignore-sigs:
+        # Standard library error creation - already performs error wrapping internally
+        - fmt.Errorf(
         # Standard library context - stdlib contract is to check before using
         - (context.Context).Err()
         # Standard library HTTP - ResponseWriter errors are contextual to HTTP handling

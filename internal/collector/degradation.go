@@ -236,7 +236,7 @@ func (m *DegradationMetrics) Register(registry *prometheus.Registry) error {
 
 	for _, c := range collectors {
 		if err := registry.Register(c); err != nil {
-			return err //nolint:wrapcheck
+			return err
 		}
 	}
 
