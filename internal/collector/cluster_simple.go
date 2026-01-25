@@ -119,14 +119,38 @@ func (c *ClusterSimpleCollector) Collect(ctx context.Context, ch chan<- promethe
 }
 
 // collect gathers metrics from SLURM
+// extractClusterName extracts cluster name with default
+func extractClusterName(name string) string {
+	if name != "" {
+		return name
+	}
+	return DefaultClusterName
+}
+
+// parseVersionString parses version string into components
+func parseVersionString(version string) (string, string, string, string) {
+	if version == "" {
+		version = "unknown"
+	}
+	var maj, minorV, pat int
+	fmt.Sscanf(version, "%d.%d.%d", &maj, &minorV, &pat)
+	return version, fmt.Sprintf("%d", maj), fmt.Sprintf("%d", minorV), fmt.Sprintf("%d", pat)
+}
+
+// getStatValue safely gets value from stats, returns 0 if nil
+func getStatValue(val *int, defaultVal int) float64 {
+	if val != nil {
+		return float64(*val)
+	}
+	return float64(defaultVal)
+}
+
 func (c *ClusterSimpleCollector) collect(ctx context.Context, ch chan<- prometheus.Metric) error {
-	// Get Info manager from client
 	infoManager := c.client.Info()
 	if infoManager == nil {
 		return fmt.Errorf("info manager not available")
 	}
 
-	// Get cluster information
 	info, err := infoManager.Get(ctx)
 	if err != nil {
 		c.logger.WithError(err).Error("Failed to get cluster info")
@@ -138,92 +162,44 @@ func (c *ClusterSimpleCollector) collect(ctx context.Context, ch chan<- promethe
 		return err
 	}
 
-	// Also get cluster stats
 	stats, err := infoManager.Stats(ctx)
 	if err != nil {
 		c.logger.WithError(err).Warn("Failed to get cluster stats, continuing with info only")
-		// Continue with info only
 	}
 
-	c.logger.WithField("cluster", info.ClusterName).Info("Collected cluster info")
+	clusterName := extractClusterName(info.ClusterName)
+	c.logger.WithField("cluster", clusterName).Info("Collected cluster info")
 
-	// Extract cluster name with default
-	clusterName := DefaultClusterName
-	if info.ClusterName != "" {
-		clusterName = info.ClusterName
-	}
-
-	// Control information (use defaults as this info isn't in the interface)
-	controlHost := "localhost"
-	controlPort := "6817"
-
-	// Version information
-	version := info.Version
-	if version == "" {
-		version = "unknown"
-	}
-
-	// Parse version components (simple parsing)
-	// Version might be like "23.02.1"
-	var maj, minorV, pat int
-	if _, err := fmt.Sscanf(info.Version, "%d.%d.%d", &maj, &minorV, &pat); err != nil {
-		// If parsing fails, use defaults
-		maj, minorV, pat = 0, 0, 0
-	}
-	major := fmt.Sprintf("%d", maj)
-	minor := fmt.Sprintf("%d", minorV)
-	patch := fmt.Sprintf("%d", pat)
-
-	// RPC/API version
-	rpcVersion := info.APIVersion
+	const controlHost, controlPort = "localhost", "6817"
+	rpcVersion, pluginVersion := info.APIVersion, info.Release
 	if rpcVersion == "" {
 		rpcVersion = "unknown"
 	}
-	pluginVersion := info.Release
 
-	// Cluster info metric
-	ch <- prometheus.MustNewConstMetric(
-		c.clusterInfo,
-		prometheus.GaugeValue,
-		1,
-		clusterName, controlHost, controlPort, rpcVersion, pluginVersion,
-	)
+	version, major, minor, patch := parseVersionString(info.Version)
 
-	// Total nodes (if available in stats)
+	// Publish cluster info
+	ch <- prometheus.MustNewConstMetric(c.clusterInfo, prometheus.GaugeValue, 1,
+		clusterName, controlHost, controlPort, rpcVersion, pluginVersion)
+
+	// Publish resource metrics from stats
 	totalNodes := float64(0)
 	if stats != nil {
 		totalNodes = float64(stats.TotalNodes)
 	}
-	ch <- prometheus.MustNewConstMetric(
-		c.clusterNodes,
-		prometheus.GaugeValue,
-		totalNodes,
-		clusterName,
-	)
+	ch <- prometheus.MustNewConstMetric(c.clusterNodes, prometheus.GaugeValue, totalNodes, clusterName)
 
-	// Total CPUs
 	totalCPUs := float64(0)
 	if stats != nil {
 		totalCPUs = float64(stats.TotalCPUs)
 	}
-	ch <- prometheus.MustNewConstMetric(
-		c.clusterCPUs,
-		prometheus.GaugeValue,
-		totalCPUs,
-		clusterName,
-	)
+	ch <- prometheus.MustNewConstMetric(c.clusterCPUs, prometheus.GaugeValue, totalCPUs, clusterName)
 
-	// Total jobs
 	totalJobs := float64(0)
 	if stats != nil {
 		totalJobs = float64(stats.TotalJobs)
 	}
-	ch <- prometheus.MustNewConstMetric(
-		c.clusterJobs,
-		prometheus.GaugeValue,
-		totalJobs,
-		clusterName,
-	)
+	ch <- prometheus.MustNewConstMetric(c.clusterJobs, prometheus.GaugeValue, totalJobs, clusterName)
 
 	// Version info
 	ch <- prometheus.MustNewConstMetric(

@@ -146,116 +146,80 @@ func (cc *ClusterCollector) collectClusterInfo(ctx context.Context, ch chan<- pr
 // collectNodeSummary collects node summary information for cluster aggregates
 //
 //nolint:unparam
+// sendCapacityMetrics sends cluster capacity metrics
+func (cc *ClusterCollector) sendCapacityMetrics(ch chan<- prometheus.Metric, totalNodes int, totalCPUs int, totalMemory int64) {
+	cc.SendMetric(ch, cc.BuildMetric(cc.metrics.ClusterCapacityNodes.WithLabelValues(cc.clusterName).Desc(),
+		prometheus.GaugeValue, float64(totalNodes), cc.clusterName))
+	cc.SendMetric(ch, cc.BuildMetric(cc.metrics.ClusterCapacityCPUs.WithLabelValues(cc.clusterName).Desc(),
+		prometheus.GaugeValue, float64(totalCPUs), cc.clusterName))
+	cc.SendMetric(ch, cc.BuildMetric(cc.metrics.ClusterCapacityMemory.WithLabelValues(cc.clusterName).Desc(),
+		prometheus.GaugeValue, float64(totalMemory), cc.clusterName))
+}
+
+// sendAllocationMetrics sends cluster allocation metrics
+func (cc *ClusterCollector) sendAllocationMetrics(ch chan<- prometheus.Metric, allocNodes int, allocCPUs int, allocMemory int64) {
+	cc.SendMetric(ch, cc.BuildMetric(cc.metrics.ClusterAllocatedNodes.WithLabelValues(cc.clusterName).Desc(),
+		prometheus.GaugeValue, float64(allocNodes), cc.clusterName))
+	cc.SendMetric(ch, cc.BuildMetric(cc.metrics.ClusterAllocatedCPUs.WithLabelValues(cc.clusterName).Desc(),
+		prometheus.GaugeValue, float64(allocCPUs), cc.clusterName))
+	cc.SendMetric(ch, cc.BuildMetric(cc.metrics.ClusterAllocatedMemory.WithLabelValues(cc.clusterName).Desc(),
+		prometheus.GaugeValue, float64(allocMemory), cc.clusterName))
+}
+
+// sendUtilizationMetrics sends cluster utilization metrics
+func (cc *ClusterCollector) sendUtilizationMetrics(ch chan<- prometheus.Metric, cpuUtil, memUtil, nodeUtil float64) {
+	cc.SendMetric(ch, cc.BuildMetric(cc.metrics.ClusterUtilizationCPUs.WithLabelValues(cc.clusterName).Desc(),
+		prometheus.GaugeValue, cpuUtil, cc.clusterName))
+	cc.SendMetric(ch, cc.BuildMetric(cc.metrics.ClusterUtilizationMemory.WithLabelValues(cc.clusterName).Desc(),
+		prometheus.GaugeValue, memUtil, cc.clusterName))
+	cc.SendMetric(ch, cc.BuildMetric(cc.metrics.ClusterUtilizationNodes.WithLabelValues(cc.clusterName).Desc(),
+		prometheus.GaugeValue, nodeUtil, cc.clusterName))
+}
+
+// sendNodeStateMetrics sends node state metrics
+func (cc *ClusterCollector) sendNodeStateMetrics(ch chan<- prometheus.Metric, states map[string]int) {
+	for state, count := range states {
+		cc.SendMetric(ch, cc.BuildMetric(cc.metrics.ClusterNodeStates.WithLabelValues(cc.clusterName, state).Desc(),
+			prometheus.GaugeValue, float64(count), cc.clusterName, state))
+	}
+}
+
 func (cc *ClusterCollector) collectNodeSummary(ctx context.Context, ch chan<- prometheus.Metric) error {
 	_ = ctx
 	// Simulate node data - in real implementation this would come from SLURM API
-	// This represents what we might get from /slurm/v1/nodes
 	nodeData := struct {
 		TotalNodes      int
 		TotalCPUs       int
-		TotalMemory     int64 // bytes
+		TotalMemory     int64
 		AllocatedNodes  int
 		AllocatedCPUs   int
-		AllocatedMemory int64 // bytes
+		AllocatedMemory int64
 		NodeStates      map[string]int
 	}{
 		TotalNodes:      100,
 		TotalCPUs:       4800,
-		TotalMemory:     1024 * 1024 * 1024 * 1024, // 1TB
+		TotalMemory:     1024 * 1024 * 1024 * 1024,
 		AllocatedNodes:  75,
 		AllocatedCPUs:   3600,
-		AllocatedMemory: 768 * 1024 * 1024 * 1024, // 768GB
-		NodeStates: map[string]int{
-			"idle":      20,
-			"allocated": 75,
-			"down":      3,
-			"drain":     2,
-		},
+		AllocatedMemory: 768 * 1024 * 1024 * 1024,
+		NodeStates: map[string]int{"idle": 20, "allocated": 75, "down": 3, "drain": 2},
 	}
 
-	// Cluster capacity metrics
-	cc.SendMetric(ch, cc.BuildMetric(
-		cc.metrics.ClusterCapacityNodes.WithLabelValues(cc.clusterName).Desc(),
-		prometheus.GaugeValue,
-		float64(nodeData.TotalNodes),
-		cc.clusterName,
-	))
+	// Send metrics by category
+	cc.sendCapacityMetrics(ch, nodeData.TotalNodes, nodeData.TotalCPUs, nodeData.TotalMemory)
+	cc.sendAllocationMetrics(ch, nodeData.AllocatedNodes, nodeData.AllocatedCPUs, nodeData.AllocatedMemory)
 
-	cc.SendMetric(ch, cc.BuildMetric(
-		cc.metrics.ClusterCapacityCPUs.WithLabelValues(cc.clusterName).Desc(),
-		prometheus.GaugeValue,
-		float64(nodeData.TotalCPUs),
-		cc.clusterName,
-	))
+	// Calculate and send utilization
+	cpuUtil := float64(nodeData.AllocatedCPUs) / float64(nodeData.TotalCPUs)
+	memUtil := float64(nodeData.AllocatedMemory) / float64(nodeData.TotalMemory)
+	nodeUtil := float64(nodeData.AllocatedNodes) / float64(nodeData.TotalNodes)
+	cc.sendUtilizationMetrics(ch, cpuUtil, memUtil, nodeUtil)
 
-	cc.SendMetric(ch, cc.BuildMetric(
-		cc.metrics.ClusterCapacityMemory.WithLabelValues(cc.clusterName).Desc(),
-		prometheus.GaugeValue,
-		float64(nodeData.TotalMemory),
-		cc.clusterName,
-	))
-
-	// Cluster allocation metrics
-	cc.SendMetric(ch, cc.BuildMetric(
-		cc.metrics.ClusterAllocatedNodes.WithLabelValues(cc.clusterName).Desc(),
-		prometheus.GaugeValue,
-		float64(nodeData.AllocatedNodes),
-		cc.clusterName,
-	))
-
-	cc.SendMetric(ch, cc.BuildMetric(
-		cc.metrics.ClusterAllocatedCPUs.WithLabelValues(cc.clusterName).Desc(),
-		prometheus.GaugeValue,
-		float64(nodeData.AllocatedCPUs),
-		cc.clusterName,
-	))
-
-	cc.SendMetric(ch, cc.BuildMetric(
-		cc.metrics.ClusterAllocatedMemory.WithLabelValues(cc.clusterName).Desc(),
-		prometheus.GaugeValue,
-		float64(nodeData.AllocatedMemory),
-		cc.clusterName,
-	))
-
-	// Cluster utilization metrics
-	cpuUtilization := float64(nodeData.AllocatedCPUs) / float64(nodeData.TotalCPUs)
-	memoryUtilization := float64(nodeData.AllocatedMemory) / float64(nodeData.TotalMemory)
-	nodeUtilization := float64(nodeData.AllocatedNodes) / float64(nodeData.TotalNodes)
-
-	cc.SendMetric(ch, cc.BuildMetric(
-		cc.metrics.ClusterUtilizationCPUs.WithLabelValues(cc.clusterName).Desc(),
-		prometheus.GaugeValue,
-		cpuUtilization,
-		cc.clusterName,
-	))
-
-	cc.SendMetric(ch, cc.BuildMetric(
-		cc.metrics.ClusterUtilizationMemory.WithLabelValues(cc.clusterName).Desc(),
-		prometheus.GaugeValue,
-		memoryUtilization,
-		cc.clusterName,
-	))
-
-	cc.SendMetric(ch, cc.BuildMetric(
-		cc.metrics.ClusterUtilizationNodes.WithLabelValues(cc.clusterName).Desc(),
-		prometheus.GaugeValue,
-		nodeUtilization,
-		cc.clusterName,
-	))
-
-	// Node states metrics
-	for state, count := range nodeData.NodeStates {
-		cc.SendMetric(ch, cc.BuildMetric(
-			cc.metrics.ClusterNodeStates.WithLabelValues(cc.clusterName, state).Desc(),
-			prometheus.GaugeValue,
-			float64(count),
-			cc.clusterName,
-			state,
-		))
-	}
+	// Send node states
+	cc.sendNodeStateMetrics(ch, nodeData.NodeStates)
 
 	cc.LogCollectionf("Collected node summary: %d total nodes, %.1f%% CPU utilization",
-		nodeData.TotalNodes, cpuUtilization*100)
+		nodeData.TotalNodes, cpuUtil*100)
 
 	return nil
 }
