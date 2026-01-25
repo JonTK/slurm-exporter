@@ -150,40 +150,8 @@ func (h *ProfilingDebugHandler) handleProfilingStatus(w http.ResponseWriter, r *
 }
 
 // handleListProfiles lists available profiles
-func (h *ProfilingDebugHandler) handleListProfiles(w http.ResponseWriter, r *http.Request) {
-	collectorFilter := r.URL.Query().Get("collector")
-	acceptJSON := r.Header.Get("Accept") == "application/json"
-
-	var profiles []*performance.ProfileMetadata
-	var err error
-
-	if collectorFilter != "" {
-		profiles, err = h.manager.GetCollectorProfiles(collectorFilter)
-	} else {
-		allProfiles, err := h.manager.GetAllProfiles()
-		if err == nil {
-			for _, collectorProfiles := range allProfiles {
-				profiles = append(profiles, collectorProfiles...)
-			}
-		}
-	}
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if acceptJSON {
-		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(profiles); err != nil {
-			h.logger.WithError(err).Error("Failed to encode profile list")
-			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-		}
-		return
-	}
-
-	// HTML response
-	tmpl := `
+// profilesListHTML is the HTML template for listing profiles
+const profilesListHTML = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -200,9 +168,9 @@ func (h *ProfilingDebugHandler) handleListProfiles(w http.ResponseWriter, r *htt
 </head>
 <body>
     <h1>Profiles {{if .collector}}for {{.collector}}{{end}}</h1>
-    
+
     <a href="/debug/profiling">← Back to Status</a>
-    
+
     <table>
         <tr>
             <th>ID</th>
@@ -231,7 +199,7 @@ func (h *ProfilingDebugHandler) handleListProfiles(w http.ResponseWriter, r *htt
     function viewProfile(id) {
         window.location.href = '/debug/profiling/profile/' + id;
     }
-    
+
     function downloadProfile(id) {
         window.location.href = '/debug/profiling/download/' + id;
     }
@@ -240,7 +208,34 @@ func (h *ProfilingDebugHandler) handleListProfiles(w http.ResponseWriter, r *htt
 </html>
 `
 
-	t, err := template.New("profiles").Parse(tmpl)
+// fetchProfilesList retrieves profiles based on collector filter
+func (h *ProfilingDebugHandler) fetchProfilesList(collectorFilter string) ([]*performance.ProfileMetadata, error) {
+	if collectorFilter != "" {
+		return h.manager.GetCollectorProfiles(collectorFilter)
+	}
+	allProfiles, err := h.manager.GetAllProfiles()
+	if err != nil {
+		return nil, err
+	}
+	var profiles []*performance.ProfileMetadata
+	for _, collectorProfiles := range allProfiles {
+		profiles = append(profiles, collectorProfiles...)
+	}
+	return profiles, nil
+}
+
+// renderProfilesJSON renders profiles as JSON
+func (h *ProfilingDebugHandler) renderProfilesJSON(w http.ResponseWriter, profiles []*performance.ProfileMetadata) {
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(profiles); err != nil {
+		h.logger.WithError(err).Error("Failed to encode profile list")
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
+}
+
+// renderProfilesHTML renders profiles as HTML table
+func (h *ProfilingDebugHandler) renderProfilesHTML(w http.ResponseWriter, profiles []*performance.ProfileMetadata, collectorFilter string) {
+	t, err := template.New("profiles").Parse(profilesListHTML)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -253,6 +248,23 @@ func (h *ProfilingDebugHandler) handleListProfiles(w http.ResponseWriter, r *htt
 
 	w.Header().Set("Content-Type", "text/html")
 	_ = t.Execute(w, data)
+}
+
+func (h *ProfilingDebugHandler) handleListProfiles(w http.ResponseWriter, r *http.Request) {
+	collectorFilter := r.URL.Query().Get("collector")
+	acceptJSON := r.Header.Get("Accept") == "application/json"
+
+	profiles, err := h.fetchProfilesList(collectorFilter)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if acceptJSON {
+		h.renderProfilesJSON(w, profiles)
+	} else {
+		h.renderProfilesHTML(w, profiles, collectorFilter)
+	}
 }
 
 // handleGetProfile shows profile details
