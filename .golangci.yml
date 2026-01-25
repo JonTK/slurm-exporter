@@ -184,18 +184,37 @@ linters:
       time-layout: true
       crypto-hash: true
     wrapcheck:
-      # ignore-sigs: Function signatures to ignore for pragmatic reasons
-      # These are well-documented APIs where wrapping would be noisy without adding value
+      # ignore-sigs: Function signatures to ignore for pragmatic reasons.
+      # Rationale: These are well-documented external/stdlib APIs where wrapping
+      # would add noise without improving error context. Error contracts are clear
+      # from the operation context or documentation.
       ignore-sigs:
-        # Standard library error creation - already performs error wrapping internally
+        # Standard library error creation - already performs wrapping internally with %w
         - fmt.Errorf(
         # Standard library context - stdlib contract is to check before using
         - (context.Context).Err()
-        # Standard library HTTP - ResponseWriter errors are contextual to HTTP handling
+        # Standard library HTTP - ResponseWriter errors are contextual to HTTP semantics
         - (net/http.ResponseWriter).Write(
-        # Well-documented external packages - Prometheus Registry errors are clear
+        # Prometheus external API - Registry errors have clear contract, wrapping is noise
         - (*github.com/prometheus/client_golang/prometheus.Registry).Register(
         - (*github.com/prometheus/client_golang/prometheus.Registerer).Register(
+        # SLURM client external API - Manager.List() and similar methods
+        # Error context is clear from caller's perspective; wrapping adds noise
+        - (github.com/jontk/slurm-client/interfaces.JobManager).List(
+        - (github.com/jontk/slurm-client/interfaces.NodeManager).List(
+        - (github.com/jontk/slurm-client/interfaces.PartitionManager).List(
+        - (github.com/jontk/slurm-client/interfaces.AccountManager).List(
+        - (github.com/jontk/slurm-client/interfaces.AssociationManager).List(
+        - (github.com/jontk/slurm-client/interfaces.QoSManager).List(
+        - (github.com/jontk/slurm-client/interfaces.WCKeyManager).List(
+        - (github.com/jontk/slurm-client/interfaces.ReservationManager).List(
+        - (github.com/jontk/slurm-client/interfaces.UserManager).List(
+        - (github.com/jontk/slurm-client/interfaces.InfoManager).Get(
+        - (github.com/jontk/slurm-client/interfaces.InfoManager).Ping(
+        - (github.com/jontk/slurm-client/interfaces.SlurmClient).GetDiagnostics(
+        - (github.com/jontk/slurm-client/interfaces.SlurmClient).GetLicenses(
+        - (github.com/jontk/slurm-client/interfaces.SlurmClient).GetShares(
+        - (github.com/jontk/slurm-client/interfaces.SlurmClient).GetTRES(
         # Standard library file operations - errors are clear from operation context
         - os.RemoveAll(
         - os.Remove(
