@@ -403,8 +403,18 @@ func TestBaseCollectorErrorHandling(t *testing.T) {
 
 	t.Run("HandleErrorWithFailFast", func(t *testing.T) {
 		t.Parallel()
-		cfg.ErrorHandling.FailFast = true
-		base := NewBaseCollector("failfast_test", cfg, opts, nil, metrics, nil)
+		ffCfg := &config.CollectorConfig{
+			Enabled: true,
+			Timeout: 10 * time.Second,
+			ErrorHandling: config.ErrorHandlingConfig{
+				MaxRetries:    2,
+				RetryDelay:    1 * time.Second,
+				BackoffFactor: 2.0,
+				MaxRetryDelay: 10 * time.Second,
+				FailFast:      true,
+			},
+		}
+		base := NewBaseCollector("failfast_test", ffCfg, opts, nil, metrics, nil)
 
 		testErr := errors.New("test error")
 		result := base.HandleError(testErr)
