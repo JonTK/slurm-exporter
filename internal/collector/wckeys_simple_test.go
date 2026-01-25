@@ -174,3 +174,28 @@ func TestWCKeysCollector_EmptyWCKeyList(t *testing.T) {
 	mockInfoManager.AssertExpectations(t)
 	mockWCKeyManager.AssertExpectations(t)
 }
+
+func TestWCKeysCollector_InfoError(t *testing.T) {
+	t.Parallel()
+	logger := testutil.GetTestLogger()
+	mockClient := new(mocks.MockSlurmClient)
+	mockInfoManager := new(mocks.MockInfoManager)
+	mockWCKeyManager := new(mocks.MockWCKeyManager)
+	timeout := 30 * time.Second
+
+	// Setup mock to return error for cluster info, but still mock WCKeys() call
+	mockClient.On("Info").Return(mockInfoManager)
+	mockInfoManager.On("Get", mock.Anything).Return(nil, assert.AnError)
+	mockClient.On("WCKeys").Return(mockWCKeyManager)
+	mockWCKeyManager.On("List", mock.Anything, mock.Anything).Return(nil, assert.AnError)
+
+	collector := NewWCKeysCollector(mockClient, logger, timeout)
+
+	// Collect metrics
+	ch := make(chan prometheus.Metric, 100)
+	err := collector.Collect(context.Background(), ch)
+	close(ch)
+
+	// Should handle error gracefully (from WCKeys().List())
+	assert.Error(t, err)
+}

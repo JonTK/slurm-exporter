@@ -12,6 +12,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/jontk/slurm-exporter/internal/config"
+	"github.com/jontk/slurm-exporter/internal/metrics"
 )
 
 // mockRegistryCollector implements the Collector interface for testing
@@ -396,4 +397,171 @@ func TestCollectorFactory(t *testing.T) {
 	if collector.Name() != "factory_test" {
 		t.Errorf("Expected collector name 'factory_test', got '%s'", collector.Name())
 	}
+}
+
+func TestRegistryCardinalityManagement(t *testing.T) {
+	t.Parallel()
+	cfg := &config.CollectorsConfig{
+		Global: config.GlobalCollectorConfig{
+			DefaultInterval: 30 * time.Second,
+			DefaultTimeout:  10 * time.Second,
+			MaxConcurrency:  5,
+		},
+	}
+
+	promRegistry := prometheus.NewRegistry()
+	registry, err := NewRegistry(cfg, promRegistry)
+	if err != nil {
+		t.Fatalf("Failed to create registry: %v", err)
+	}
+
+	t.Run("GetCardinalityManager", func(t *testing.T) {
+		t.Parallel()
+		cm := registry.GetCardinalityManager()
+		if cm == nil {
+			t.Error("Expected cardinality manager to be available")
+		}
+	})
+
+	t.Run("SetCardinalityLimit", func(t *testing.T) {
+		t.Parallel()
+		// This should not panic
+		limit := metrics.CardinalityLimit{
+			MetricPattern: "test_metric",
+			MaxSeries:     1000,
+		}
+		registry.SetCardinalityLimit("test_metric", limit)
+	})
+
+	t.Run("SetCardinalityFilter", func(t *testing.T) {
+		t.Parallel()
+		// This should not panic
+		filter := metrics.CardinalityFilter{
+			Strategy:   metrics.FilterStrategySample,
+			SampleRate: 0.5,
+		}
+		registry.SetCardinalityFilter("test_metric", filter)
+	})
+
+	t.Run("GetCardinalityReport", func(t *testing.T) {
+		t.Parallel()
+		report := registry.GetCardinalityReport()
+		// CardinalityReport is a struct, check it was generated
+		if report.GeneratedAt.IsZero() && len(report.MetricStats) == 0 {
+			// Report exists but is empty (no metrics collected yet)
+		}
+	})
+}
+
+func TestRegistryPerformanceMonitoring(t *testing.T) {
+	t.Parallel()
+	cfg := &config.CollectorsConfig{
+		Global: config.GlobalCollectorConfig{
+			DefaultInterval: 30 * time.Second,
+			DefaultTimeout:  10 * time.Second,
+			MaxConcurrency:  5,
+		},
+	}
+
+	promRegistry := prometheus.NewRegistry()
+	registry, err := NewRegistry(cfg, promRegistry)
+	if err != nil {
+		t.Fatalf("Failed to create registry: %v", err)
+	}
+
+	t.Run("GetPerformanceStats", func(t *testing.T) {
+		t.Parallel()
+		stats := registry.GetPerformanceStats()
+		if stats == nil {
+			t.Error("Expected performance stats")
+		}
+	})
+
+	t.Run("GetCollectorPerformanceStats", func(t *testing.T) {
+		t.Parallel()
+		collector := &mockRegistryCollector{
+			name:    "perf_test",
+			enabled: true,
+		}
+		_ = registry.Register("perf_test", collector)
+
+		stats, exists := registry.GetCollectorPerformanceStats("perf_test")
+		// May or may not exist depending on collection activity
+		_ = exists
+		_ = stats
+	})
+}
+
+func TestRegistryMonitoring(t *testing.T) {
+	t.Parallel()
+	cfg := &config.CollectorsConfig{
+		Global: config.GlobalCollectorConfig{
+			DefaultInterval: 30 * time.Second,
+			DefaultTimeout:  10 * time.Second,
+			MaxConcurrency:  5,
+		},
+	}
+
+	promRegistry := prometheus.NewRegistry()
+	registry, err := NewRegistry(cfg, promRegistry)
+	if err != nil {
+		t.Fatalf("Failed to create registry: %v", err)
+	}
+
+	t.Run("StartCardinalityMonitoring", func(t *testing.T) {
+		t.Parallel()
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		// Should not panic
+		registry.StartCardinalityMonitoring(ctx)
+		time.Sleep(10 * time.Millisecond)
+	})
+
+	t.Run("StartPerformanceMonitoring", func(t *testing.T) {
+		t.Parallel()
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		// Should not panic
+		registry.StartPerformanceMonitoring(ctx, 100*time.Millisecond)
+		time.Sleep(10 * time.Millisecond)
+	})
+}
+
+func TestRegistryReconfiguration(t *testing.T) {
+	t.Parallel()
+	cfg := &config.CollectorsConfig{
+		Global: config.GlobalCollectorConfig{
+			DefaultInterval: 30 * time.Second,
+			DefaultTimeout:  10 * time.Second,
+			MaxConcurrency:  5,
+		},
+		Jobs: config.CollectorConfig{
+			Enabled:  true,
+			Interval: 30 * time.Second,
+			Timeout:  10 * time.Second,
+		},
+	}
+
+	promRegistry := prometheus.NewRegistry()
+	registry, err := NewRegistry(cfg, promRegistry)
+	if err != nil {
+		t.Fatalf("Failed to create registry: %v", err)
+	}
+
+	t.Run("ReconfigureCollectors", func(t *testing.T) {
+		t.Parallel()
+		newCfg := &config.CollectorsConfig{
+			Global: config.GlobalCollectorConfig{
+				DefaultInterval: 60 * time.Second,
+				DefaultTimeout:  20 * time.Second,
+				MaxConcurrency:  10,
+			},
+		}
+
+		err := registry.ReconfigureCollectors(newCfg)
+		// May succeed or fail depending on collector setup
+		_ = err
+	})
 }

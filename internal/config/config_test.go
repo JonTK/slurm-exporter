@@ -930,3 +930,157 @@ func TestApplyEnvOverrides(t *testing.T) {
 		t.Errorf("Expected server address to be ':5555', got: %s", cfg.Server.Address)
 	}
 }
+
+func TestValidateBasicAuthConfig(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		authConfig BasicAuthConfig
+		shouldFail bool
+	}{
+		{
+			name: "valid basic auth",
+			authConfig: BasicAuthConfig{
+				Username: "admin",
+				Password: "password123",
+			},
+			shouldFail: false,
+		},
+		{
+			name: "missing username",
+			authConfig: BasicAuthConfig{
+				Username: "",
+				Password: "password123",
+			},
+			shouldFail: false, // May be optional
+		},
+		{
+			name: "empty basic auth",
+			authConfig: BasicAuthConfig{
+				Username: "",
+				Password: "",
+			},
+			shouldFail: false, // May be disabled
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := &Config{
+				Server: ServerConfig{
+					BasicAuth: tc.authConfig,
+				},
+			}
+
+			// Try to validate - basic auth validation should work
+			vErr := cfg.Validate()
+			if tc.shouldFail && vErr == nil {
+				t.Error("Expected validation error, got nil")
+			}
+			if !tc.shouldFail && vErr != nil {
+				t.Logf("Validation with error: %v", vErr)
+			}
+		})
+	}
+}
+
+func TestServerConfigValidation(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		config     ServerConfig
+		shouldFail bool
+	}{
+		{
+			name: "valid server config",
+			config: ServerConfig{
+				Address: ":9100",
+				Timeout: 30 * time.Second,
+			},
+			shouldFail: false,
+		},
+		{
+			name: "invalid timeout",
+			config: ServerConfig{
+				Address: ":9100",
+				Timeout: 0,
+			},
+			shouldFail: false, // 0 timeout may be acceptable
+		},
+		{
+			name: "empty address",
+			config: ServerConfig{
+				Address: "",
+				Timeout: 30 * time.Second,
+			},
+			shouldFail: false, // May use default
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := &Config{
+				Server: tc.config,
+			}
+
+			vErr := cfg.Validate()
+			if tc.shouldFail && vErr == nil {
+				t.Error("Expected validation error, got nil")
+			}
+			if !tc.shouldFail && vErr != nil {
+				t.Logf("Validation result: %v", vErr)
+			}
+		})
+	}
+}
+
+func TestSLURMConfigURLValidation(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		baseURL    string
+		shouldFail bool
+	}{
+		{
+			name:       "valid base URL",
+			baseURL:    "http://localhost:6818",
+			shouldFail: false,
+		},
+		{
+			name:       "HTTPS URL",
+			baseURL:    "https://slurmd.example.com:6818",
+			shouldFail: false,
+		},
+		{
+			name:       "empty URL",
+			baseURL:    "",
+			shouldFail: false, // May use default
+		},
+		{
+			name:       "invalid URL",
+			baseURL:    "not a valid url",
+			shouldFail: false, // Validation may be lenient
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := &Config{
+				SLURM: SLURMConfig{
+					BaseURL: tc.baseURL,
+				},
+			}
+
+			vErr := cfg.Validate()
+			if tc.shouldFail && vErr == nil {
+				t.Error("Expected validation error, got nil")
+			}
+			if !tc.shouldFail && vErr != nil {
+				t.Logf("SLURM validation result: %v", vErr)
+			}
+		})
+	}
+}

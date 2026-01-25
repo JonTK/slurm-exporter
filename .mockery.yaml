@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2024 SLURM Exporter Contributors
+
+# Mockery configuration for generating test mocks
+with-expecter: true
+dir: internal/testutil/mocks
+outpkg: mocks
+quiet: false
+
+# Packages and interfaces to generate mocks for
+# Note: Only generate mocks for external packages to avoid import cycles
+packages:
+  github.com/jontk/slurm-exporter/internal/performance:
+    config:
+      all: false
+    interfaces:
+      ProfileStorage:

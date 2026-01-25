@@ -111,3 +111,92 @@ func MustRegister(t *testing.T, registry *prometheus.Registry, collector prometh
 	err := registry.Register(collector)
 	assert.NoError(t, err, "failed to register collector")
 }
+
+// DrainMetrics drains a metric channel and returns all collected metrics
+func DrainMetrics(ch <-chan prometheus.Metric) []prometheus.Metric {
+	var metrics []prometheus.Metric
+	for metric := range ch {
+		metrics = append(metrics, metric)
+	}
+	return metrics
+}
+
+// AssertMetricWithLabels asserts that a specific metric exists with the given labels
+// labelsMatch checks if the metric labels match expected labels
+func labelsMatch(metricLabels []*io_prometheus_client.LabelPair, expectedLabels map[string]string) bool {
+	for labelName, expectedLabelValue := range expectedLabels {
+		found := false
+		for _, labelPair := range metricLabels {
+			if labelPair.GetName() == labelName && labelPair.GetValue() == expectedLabelValue {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+	return true
+}
+
+// getMetricValue extracts the numeric value from a metric
+func getMetricValue(dto *io_prometheus_client.Metric) float64 {
+	if dto.GetGauge() != nil {
+		return dto.GetGauge().GetValue()
+	}
+	if dto.GetCounter() != nil {
+		return dto.GetCounter().GetValue()
+	}
+	return 0
+}
+
+func AssertMetricWithLabels(t *testing.T, collector prometheus.Collector, metricName string, labels map[string]string, expectedValue float64) {
+	t.Helper()
+	ch := make(chan prometheus.Metric, 100)
+	go func() {
+		collector.Collect(ch)
+		close(ch)
+	}()
+
+	found := false
+	for metric := range ch {
+		dto := &io_prometheus_client.Metric{}
+		_ = metric.Write(dto)
+
+		// Check metric name
+		desc := metric.Desc()
+		if !strings.Contains(desc.String(), metricName) {
+			continue
+		}
+
+		// Check labels
+		if labelsMatch(dto.GetLabel(), labels) {
+			found = true
+			actualValue := getMetricValue(dto)
+			assert.Equal(t, expectedValue, actualValue, "metric %s with labels %v", metricName, labels)
+			break
+		}
+	}
+
+	assert.True(t, found, "metric %s with labels %v not found", metricName, labels)
+}
+
+// AssertMetricCount asserts the count of metrics matching a pattern
+func AssertMetricCount(t *testing.T, collector prometheus.Collector, namePattern string, expectedCount int) {
+	t.Helper()
+	ch := make(chan prometheus.Metric, 1000)
+	go func() {
+		collector.Collect(ch)
+		close(ch)
+	}()
+
+	count := 0
+	for metric := range ch {
+		desc := metric.Desc()
+		if strings.Contains(desc.String(), namePattern) {
+			count++
+		}
+	}
+
+	assert.Equal(t, expectedCount, count, "expected %d metrics matching pattern %s, got %d", expectedCount, namePattern, count)
+}
