@@ -112,7 +112,8 @@ func main() {
 	// Create SLURM client using our wrapper
 	slurmWrapper, err := slurm.NewClient(&cfg.SLURM)
 	if err != nil {
-		logger.WithComponent("main").WithError(err).Fatal("Failed to create SLURM client")
+		// Don't log the error directly as it may contain sensitive config information
+		logger.WithComponent("main").Fatal("Failed to create SLURM client (check configuration for details)")
 	}
 
 	// Get the underlying client for collectors

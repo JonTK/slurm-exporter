@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -217,11 +218,20 @@ func (dh *DebugHandler) withAuth(handler http.HandlerFunc) http.HandlerFunc {
 			}
 		}
 
-		// Log access
+		// Log access (sanitize RemoteAddr to prevent log injection attacks)
+		var remoteAddr string
+		if r.RemoteAddr != "" {
+			// Extract only the IP portion to avoid log injection from user-controlled values
+			if idx := strings.LastIndex(r.RemoteAddr, ":"); idx != -1 {
+				remoteAddr = r.RemoteAddr[:idx]
+			} else {
+				remoteAddr = r.RemoteAddr
+			}
+		}
 		dh.logger.WithFields(logrus.Fields{
 			"endpoint": r.URL.Path,
 			"method":   r.Method,
-			"remote":   r.RemoteAddr,
+			"remote":   remoteAddr,
 		}).Debug("Debug endpoint accessed")
 
 		handler(w, r)
