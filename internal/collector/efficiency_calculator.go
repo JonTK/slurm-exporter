@@ -369,21 +369,22 @@ func (e *EfficiencyCalculator) calculateUtilizationScore(utilization float64) fl
 	if utilization < e.config.CPUIdleThreshold {
 		// Very low utilization - poor efficiency
 		return utilization / e.config.CPUIdleThreshold * 0.3
-	} else if utilization <= e.config.OptimalUtilization {
+	}
+	if utilization <= e.config.OptimalUtilization {
 		// Good utilization range
 		progress := (utilization - e.config.CPUIdleThreshold) / (e.config.OptimalUtilization - e.config.CPUIdleThreshold)
 		return 0.3 + (progress * 0.7) // Scale from 0.3 to 1.0
-	} else if utilization <= e.config.CPUOptimalThreshold {
+	}
+	if utilization <= e.config.CPUOptimalThreshold {
 		// Still good, but slightly over optimal
 		excess := utilization - e.config.OptimalUtilization
 		maxExcess := e.config.CPUOptimalThreshold - e.config.OptimalUtilization
 		penalty := (excess / maxExcess) * 0.2
 		return 1.0 - penalty
-	} else {
-		// Over-utilization - declining efficiency
-		overuse := utilization - e.config.CPUOptimalThreshold
-		return math.Max(0.5, 0.8-(overuse*2.0))
 	}
+	// Over-utilization - declining efficiency
+	overuse := utilization - e.config.CPUOptimalThreshold
+	return math.Max(0.5, 0.8-(overuse*2.0))
 }
 
 // clampEfficiency ensures efficiency score is within valid range
@@ -395,30 +396,34 @@ func (e *EfficiencyCalculator) clampEfficiency(efficiency float64) float64 {
 func (e *EfficiencyCalculator) determineEfficiencyGrade(efficiency float64) string {
 	if efficiency >= 0.9 {
 		return "A"
-	} else if efficiency >= 0.8 {
-		return "B"
-	} else if efficiency >= 0.7 {
-		return "C"
-	} else if efficiency >= 0.6 {
-		return "D"
-	} else {
-		return "F"
 	}
+	if efficiency >= 0.8 {
+		return "B"
+	}
+	if efficiency >= 0.7 {
+		return "C"
+	}
+	if efficiency >= 0.6 {
+		return "D"
+	}
+	return "F"
 }
 
 // determineEfficiencyCategory assigns a category based on efficiency score
 func (e *EfficiencyCalculator) determineEfficiencyCategory(efficiency float64) string {
 	if efficiency >= 0.9 {
 		return "Excellent"
-	} else if efficiency >= 0.8 {
-		return "Good"
-	} else if efficiency >= 0.6 {
-		return "Fair"
-	} else if efficiency >= 0.4 {
-		return "Poor"
-	} else {
-		return "Critical"
 	}
+	if efficiency >= 0.8 {
+		return "Good"
+	}
+	if efficiency >= 0.6 {
+		return "Fair"
+	}
+	if efficiency >= 0.4 {
+		return "Poor"
+	}
+	return "Critical"
 }
 
 // generateRecommendations provides actionable recommendations for improvement

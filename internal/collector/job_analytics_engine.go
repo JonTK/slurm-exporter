@@ -1631,11 +1631,11 @@ func (e *JobAnalyticsEngine) calculateVariabilityIndex(resourceType string, used
 	// Simple variability calculation based on utilization rate
 	if utilizationRate > 0.8 {
 		return 0.1 // Low variability for high utilization
-	} else if utilizationRate < 0.3 {
-		return 0.8 // High variability for low utilization
-	} else {
-		return 0.4 // Medium variability
 	}
+	if utilizationRate < 0.3 {
+		return 0.8 // High variability for low utilization
+	}
+	return 0.4 // Medium variability
 }
 
 // calculateOptimalAllocation calculates optimal resource allocation
@@ -1650,26 +1650,27 @@ func (e *JobAnalyticsEngine) calculateOptimalAllocation(resourceType string, use
 	if utilizationRate > 0.9 {
 		// Under-allocated, increase by 20%
 		return allocated * 1.2
-	} else if utilizationRate < 0.3 {
+	}
+	if utilizationRate < 0.3 {
 		// Over-allocated, reduce to achieve target utilization
 		return used / targetUtilization
-	} else {
-		// Reasonable allocation, minor adjustment
-		return used / targetUtilization
 	}
+	// Reasonable allocation, minor adjustment
+	return used / targetUtilization
 }
 
 // generateResourceRecommendation generates recommendation for resource optimization
 func (e *JobAnalyticsEngine) generateResourceRecommendation(resourceType string, utilizationRate, wastePercentage, optimalAllocation float64) string {
 	if utilizationRate > 0.9 {
 		return fmt.Sprintf("Increase %s allocation to %.1f units to prevent bottlenecks", resourceType, optimalAllocation)
-	} else if utilizationRate < 0.3 {
-		return fmt.Sprintf("Reduce %s allocation to %.1f units to eliminate waste", resourceType, optimalAllocation)
-	} else if wastePercentage > 0.4 {
-		return fmt.Sprintf("Optimize %s allocation to reduce %.1f%% waste", resourceType, wastePercentage*100)
-	} else {
-		return fmt.Sprintf("%s allocation is well-optimized", resourceType)
 	}
+	if utilizationRate < 0.3 {
+		return fmt.Sprintf("Reduce %s allocation to %.1f units to eliminate waste", resourceType, optimalAllocation)
+	}
+	if wastePercentage > 0.4 {
+		return fmt.Sprintf("Optimize %s allocation to reduce %.1f%% waste", resourceType, wastePercentage*100)
+	}
+	return fmt.Sprintf("%s allocation is well-optimized", resourceType)
 }
 
 // analyzeResourceCorrelations analyzes correlations between different resources

@@ -860,13 +860,14 @@ func (b *BottleneckAnalyzer) updateAnalysisMetrics(job *slurm.Job, analysis *Ste
 func (b *BottleneckAnalyzer) getSeverityLevel(severity float64) string {
 	if severity >= 0.8 {
 		return "critical"
-	} else if severity >= 0.6 {
-		return "high"
-	} else if severity >= 0.4 {
-		return "medium"
-	} else {
-		return "low"
 	}
+	if severity >= 0.6 {
+		return "high"
+	}
+	if severity >= 0.4 {
+		return "medium"
+	}
+	return "low"
 }
 
 // cleanExpiredCache removes expired analysis results from cache

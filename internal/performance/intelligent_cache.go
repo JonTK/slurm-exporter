@@ -443,15 +443,17 @@ func (c *IntelligentCache) updateTTLDistribution(ttl time.Duration) {
 func (c *IntelligentCache) getTTLBucket(ttl time.Duration) string {
 	if ttl < time.Minute {
 		return "< 1m"
-	} else if ttl < 5*time.Minute {
-		return "1-5m"
-	} else if ttl < 15*time.Minute {
-		return "5-15m"
-	} else if ttl < time.Hour {
-		return "15m-1h"
-	} else {
-		return "> 1h"
 	}
+	if ttl < 5*time.Minute {
+		return "1-5m"
+	}
+	if ttl < 15*time.Minute {
+		return "5-15m"
+	}
+	if ttl < time.Hour {
+		return "15m-1h"
+	}
+	return "> 1h"
 }
 
 // recordHit increments hit counter

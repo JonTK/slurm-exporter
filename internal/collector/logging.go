@@ -123,10 +123,9 @@ func (lc *LoggingCollector) Collect(ctx context.Context, ch chan<- prometheus.Me
 		}
 
 		return collErr
-	} else {
-		lc.logger.WithFields(fields).Info("Collection completed successfully")
-		return nil
 	}
+	lc.logger.WithFields(fields).Info("Collection completed successfully")
+	return nil
 }
 
 // IsEnabled returns whether this collector is enabled

@@ -393,10 +393,6 @@ linters:
           - revive
         path: _test\.go
         text: 'var-declaration.*Mock client'
-      # revive - Indent-error-flow in existing code (will be refactored in Phase 4)
-      - linters:
-          - revive
-        text: 'indent-error-flow'
       # revive - Context-as-argument in Prometheus collectors (chan first is idiomatic pattern)
       - linters:
           - revive
