@@ -918,40 +918,59 @@ func (s *SLURMConfig) Validate() error {
 	return nil
 }
 
+// validateFileExists checks if a file exists
+func validateFileExists(path, field string) error {
+	if path != "" {
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			return fmt.Errorf("%s '%s' does not exist", field, path)
+		}
+	}
+	return nil
+}
+
+// validateJWTAuth validates JWT authentication configuration
+func (a *AuthConfig) validateJWTAuth() error {
+	if a.Token == "" && a.TokenFile == "" {
+		return fmt.Errorf("slurm.auth.token or slurm.auth.token_file must be specified when using JWT auth (set slurm.auth.type='none' to disable authentication)")
+	}
+	return validateFileExists(a.TokenFile, "slurm.auth.token_file")
+}
+
+// validateBasicAuth validates basic authentication configuration
+func (a *AuthConfig) validateBasicAuth() error {
+	if a.Username == "" {
+		return fmt.Errorf("slurm.auth.username must be specified when using basic auth (current type: '%s')", a.Type)
+	}
+	if a.Password == "" && a.PasswordFile == "" {
+		return fmt.Errorf("slurm.auth.password or slurm.auth.password_file must be specified when using basic auth (use environment variable SLURM_EXPORTER_SLURM_AUTH_PASSWORD)")
+	}
+	return validateFileExists(a.PasswordFile, "slurm.auth.password_file")
+}
+
+// validateAPIKeyAuth validates API key authentication configuration
+func (a *AuthConfig) validateAPIKeyAuth() error {
+	if a.APIKey == "" && a.APIKeyFile == "" {
+		return fmt.Errorf("slurm.auth.api_key or slurm.auth.api_key_file must be specified when using API key auth (use environment variable SLURM_EXPORTER_SLURM_AUTH_API_KEY)")
+	}
+	return validateFileExists(a.APIKeyFile, "slurm.auth.api_key_file")
+}
+
 // Validate validates the auth configuration.
 func (a *AuthConfig) Validate() error {
 	switch a.Type {
 	case AuthTypeNone:
 		// No validation needed
 	case AuthTypeJWT:
-		if a.Token == "" && a.TokenFile == "" {
-			return fmt.Errorf("slurm.auth.token or slurm.auth.token_file must be specified when using JWT auth (set slurm.auth.type='none' to disable authentication)")
-		}
-		if a.TokenFile != "" {
-			if _, err := os.Stat(a.TokenFile); os.IsNotExist(err) {
-				return fmt.Errorf("slurm.auth.token_file '%s' does not exist", a.TokenFile)
-			}
+		if err := a.validateJWTAuth(); err != nil {
+			return err
 		}
 	case "basic":
-		if a.Username == "" {
-			return fmt.Errorf("slurm.auth.username must be specified when using basic auth (current type: '%s')", a.Type)
-		}
-		if a.Password == "" && a.PasswordFile == "" {
-			return fmt.Errorf("slurm.auth.password or slurm.auth.password_file must be specified when using basic auth (use environment variable SLURM_EXPORTER_SLURM_AUTH_PASSWORD)")
-		}
-		if a.PasswordFile != "" {
-			if _, err := os.Stat(a.PasswordFile); os.IsNotExist(err) {
-				return fmt.Errorf("slurm.auth.password_file '%s' does not exist", a.PasswordFile)
-			}
+		if err := a.validateBasicAuth(); err != nil {
+			return err
 		}
 	case "apikey":
-		if a.APIKey == "" && a.APIKeyFile == "" {
-			return fmt.Errorf("slurm.auth.api_key or slurm.auth.api_key_file must be specified when using API key auth (use environment variable SLURM_EXPORTER_SLURM_AUTH_API_KEY)")
-		}
-		if a.APIKeyFile != "" {
-			if _, err := os.Stat(a.APIKeyFile); os.IsNotExist(err) {
-				return fmt.Errorf("slurm.auth.api_key_file '%s' does not exist", a.APIKeyFile)
-			}
+		if err := a.validateAPIKeyAuth(); err != nil {
+			return err
 		}
 	default:
 		return fmt.Errorf("unsupported auth type: '%s' (supported types: 'none', 'jwt', 'basic', 'apikey')", a.Type)
@@ -1210,212 +1229,165 @@ func (c *Config) ApplyEnvOverrides() error {
 	return nil
 }
 
+// envString gets a string environment variable
+func envString(key string, setter func(string)) {
+	if val := os.Getenv(key); val != "" {
+		setter(val)
+	}
+}
+
+// envDuration gets a duration environment variable
+func envDuration(key string, setter func(time.Duration) error) error {
+	if val := os.Getenv(key); val != "" {
+		duration, err := time.ParseDuration(val)
+		if err != nil {
+			return fmt.Errorf("invalid duration for %s: %w", key, err)
+		}
+		return setter(duration)
+	}
+	return nil
+}
+
+// envBool gets a boolean environment variable
+func envBool(key string, setter func(bool) error) error {
+	if val := os.Getenv(key); val != "" {
+		enabled, err := strconv.ParseBool(val)
+		if err != nil {
+			return fmt.Errorf("invalid boolean for %s: %w", key, err)
+		}
+		return setter(enabled)
+	}
+	return nil
+}
+
+// envInt gets an integer environment variable
+func envInt(key string, setter func(int) error) error {
+	if val := os.Getenv(key); val != "" {
+		intVal, err := strconv.Atoi(val)
+		if err != nil {
+			return fmt.Errorf("invalid integer for %s: %w", key, err)
+		}
+		return setter(intVal)
+	}
+	return nil
+}
+
+// envInt64 gets an int64 environment variable
+func envInt64(key string, setter func(int64) error) error {
+	if val := os.Getenv(key); val != "" {
+		intVal, err := strconv.ParseInt(val, 10, 64)
+		if err != nil {
+			return fmt.Errorf("invalid integer for %s: %w", key, err)
+		}
+		return setter(intVal)
+	}
+	return nil
+}
+
+// envFloat64 gets a float64 environment variable
+func envFloat64(key string, setter func(float64) error) error {
+	if val := os.Getenv(key); val != "" {
+		floatVal, err := strconv.ParseFloat(val, 64)
+		if err != nil {
+			return fmt.Errorf("invalid float for %s: %w", key, err)
+		}
+		return setter(floatVal)
+	}
+	return nil
+}
+
 // applyServerEnvOverrides applies server-specific environment overrides.
 func (c *Config) applyServerEnvOverrides(prefix string) error {
-	if val := os.Getenv(prefix + "ADDRESS"); val != "" {
-		c.Server.Address = val
+	// String overrides
+	envString(prefix+"ADDRESS", func(v string) { c.Server.Address = v })
+	envString(prefix+"METRICS_PATH", func(v string) { c.Server.MetricsPath = v })
+	envString(prefix+"HEALTH_PATH", func(v string) { c.Server.HealthPath = v })
+	envString(prefix+"READY_PATH", func(v string) { c.Server.ReadyPath = v })
+
+	// Duration overrides
+	if err := envDuration(prefix+"TIMEOUT", func(v time.Duration) error { c.Server.Timeout = v; return nil }); err != nil {
+		return err
+	}
+	if err := envDuration(prefix+"READ_TIMEOUT", func(v time.Duration) error { c.Server.ReadTimeout = v; return nil }); err != nil {
+		return err
+	}
+	if err := envDuration(prefix+"WRITE_TIMEOUT", func(v time.Duration) error { c.Server.WriteTimeout = v; return nil }); err != nil {
+		return err
+	}
+	if err := envDuration(prefix+"IDLE_TIMEOUT", func(v time.Duration) error { c.Server.IdleTimeout = v; return nil }); err != nil {
+		return err
 	}
 
-	if val := os.Getenv(prefix + "METRICS_PATH"); val != "" {
-		c.Server.MetricsPath = val
-	}
-
-	if val := os.Getenv(prefix + "HEALTH_PATH"); val != "" {
-		c.Server.HealthPath = val
-	}
-
-	if val := os.Getenv(prefix + "READY_PATH"); val != "" {
-		c.Server.ReadyPath = val
-	}
-
-	if val := os.Getenv(prefix + "TIMEOUT"); val != "" {
-		duration, err := time.ParseDuration(val)
-		if err != nil {
-			return fmt.Errorf("invalid server timeout: %w", err)
-		}
-		c.Server.Timeout = duration
-	}
-
-	if val := os.Getenv(prefix + "READ_TIMEOUT"); val != "" {
-		duration, err := time.ParseDuration(val)
-		if err != nil {
-			return fmt.Errorf("invalid read timeout: %w", err)
-		}
-		c.Server.ReadTimeout = duration
-	}
-
-	if val := os.Getenv(prefix + "WRITE_TIMEOUT"); val != "" {
-		duration, err := time.ParseDuration(val)
-		if err != nil {
-			return fmt.Errorf("invalid write timeout: %w", err)
-		}
-		c.Server.WriteTimeout = duration
-	}
-
-	if val := os.Getenv(prefix + "IDLE_TIMEOUT"); val != "" {
-		duration, err := time.ParseDuration(val)
-		if err != nil {
-			return fmt.Errorf("invalid idle timeout: %w", err)
-		}
-		c.Server.IdleTimeout = duration
-	}
-
-	if val := os.Getenv(prefix + "MAX_REQUEST_SIZE"); val != "" {
-		size, err := strconv.ParseInt(val, 10, 64)
-		if err != nil {
-			return fmt.Errorf("invalid max request size: %w", err)
-		}
-		c.Server.MaxRequestSize = size
+	// Integer overrides
+	if err := envInt64(prefix+"MAX_REQUEST_SIZE", func(v int64) error { c.Server.MaxRequestSize = v; return nil }); err != nil {
+		return err
 	}
 
 	// TLS configuration
-	if val := os.Getenv(prefix + "TLS_ENABLED"); val != "" {
-		enabled, err := strconv.ParseBool(val)
-		if err != nil {
-			return fmt.Errorf("invalid TLS enabled value: %w", err)
-		}
-		c.Server.TLS.Enabled = enabled
+	if err := envBool(prefix+"TLS_ENABLED", func(v bool) error { c.Server.TLS.Enabled = v; return nil }); err != nil {
+		return err
 	}
-
-	if val := os.Getenv(prefix + "TLS_CERT_FILE"); val != "" {
-		c.Server.TLS.CertFile = val
-	}
-
-	if val := os.Getenv(prefix + "TLS_KEY_FILE"); val != "" {
-		c.Server.TLS.KeyFile = val
-	}
+	envString(prefix+"TLS_CERT_FILE", func(v string) { c.Server.TLS.CertFile = v })
+	envString(prefix+"TLS_KEY_FILE", func(v string) { c.Server.TLS.KeyFile = v })
 
 	// Basic Auth configuration
-	if val := os.Getenv(prefix + "BASIC_AUTH_ENABLED"); val != "" {
-		enabled, err := strconv.ParseBool(val)
-		if err != nil {
-			return fmt.Errorf("invalid basic auth enabled value: %w", err)
-		}
-		c.Server.BasicAuth.Enabled = enabled
+	if err := envBool(prefix+"BASIC_AUTH_ENABLED", func(v bool) error { c.Server.BasicAuth.Enabled = v; return nil }); err != nil {
+		return err
 	}
-
-	if val := os.Getenv(prefix + "BASIC_AUTH_USERNAME"); val != "" {
-		c.Server.BasicAuth.Username = val
-	}
-
-	if val := os.Getenv(prefix + "BASIC_AUTH_PASSWORD"); val != "" {
-		c.Server.BasicAuth.Password = val
-	}
+	envString(prefix+"BASIC_AUTH_USERNAME", func(v string) { c.Server.BasicAuth.Username = v })
+	envString(prefix+"BASIC_AUTH_PASSWORD", func(v string) { c.Server.BasicAuth.Password = v })
 
 	return nil
 }
 
 // applySLURMEnvOverrides applies SLURM-specific environment overrides.
 func (c *Config) applySLURMEnvOverrides(prefix string) error {
-	if val := os.Getenv(prefix + "BASE_URL"); val != "" {
-		c.SLURM.BaseURL = val
+	// String overrides
+	envString(prefix+"BASE_URL", func(v string) { c.SLURM.BaseURL = v })
+	envString(prefix+"API_VERSION", func(v string) { c.SLURM.APIVersion = v })
+
+	// Boolean overrides
+	if err := envBool(prefix+"USE_ADAPTERS", func(v bool) error { c.SLURM.UseAdapters = v; return nil }); err != nil {
+		return err
 	}
 
-	if val := os.Getenv(prefix + "API_VERSION"); val != "" {
-		c.SLURM.APIVersion = val
+	// Duration overrides
+	if err := envDuration(prefix+"TIMEOUT", func(v time.Duration) error { c.SLURM.Timeout = v; return nil }); err != nil {
+		return err
+	}
+	if err := envDuration(prefix+"RETRY_DELAY", func(v time.Duration) error { c.SLURM.RetryDelay = v; return nil }); err != nil {
+		return err
 	}
 
-	if val := os.Getenv(prefix + "USE_ADAPTERS"); val != "" {
-		useAdapters, err := strconv.ParseBool(val)
-		if err != nil {
-			return fmt.Errorf("invalid use adapters value: %w", err)
-		}
-		c.SLURM.UseAdapters = useAdapters
-	}
-
-	if val := os.Getenv(prefix + "TIMEOUT"); val != "" {
-		duration, err := time.ParseDuration(val)
-		if err != nil {
-			return fmt.Errorf("invalid SLURM timeout: %w", err)
-		}
-		c.SLURM.Timeout = duration
-	}
-
-	if val := os.Getenv(prefix + "RETRY_ATTEMPTS"); val != "" {
-		attempts, err := strconv.Atoi(val)
-		if err != nil {
-			return fmt.Errorf("invalid retry attempts: %w", err)
-		}
-		c.SLURM.RetryAttempts = attempts
-	}
-
-	if val := os.Getenv(prefix + "RETRY_DELAY"); val != "" {
-		duration, err := time.ParseDuration(val)
-		if err != nil {
-			return fmt.Errorf("invalid retry delay: %w", err)
-		}
-		c.SLURM.RetryDelay = duration
+	// Integer overrides
+	if err := envInt(prefix+"RETRY_ATTEMPTS", func(v int) error { c.SLURM.RetryAttempts = v; return nil }); err != nil {
+		return err
 	}
 
 	// Authentication configuration
-	if val := os.Getenv(prefix + "AUTH_TYPE"); val != "" {
-		c.SLURM.Auth.Type = val
-	}
-
-	if val := os.Getenv(prefix + "AUTH_TOKEN"); val != "" {
-		c.SLURM.Auth.Token = val
-	}
-
-	if val := os.Getenv(prefix + "AUTH_TOKEN_FILE"); val != "" {
-		c.SLURM.Auth.TokenFile = val
-	}
-
-	if val := os.Getenv(prefix + "AUTH_USERNAME"); val != "" {
-		c.SLURM.Auth.Username = val
-	}
-
-	if val := os.Getenv(prefix + "AUTH_PASSWORD"); val != "" {
-		c.SLURM.Auth.Password = val
-	}
-
-	if val := os.Getenv(prefix + "AUTH_PASSWORD_FILE"); val != "" {
-		c.SLURM.Auth.PasswordFile = val
-	}
-
-	if val := os.Getenv(prefix + "AUTH_API_KEY"); val != "" {
-		c.SLURM.Auth.APIKey = val
-	}
-
-	if val := os.Getenv(prefix + "AUTH_API_KEY_FILE"); val != "" {
-		c.SLURM.Auth.APIKeyFile = val
-	}
+	envString(prefix+"AUTH_TYPE", func(v string) { c.SLURM.Auth.Type = v })
+	envString(prefix+"AUTH_TOKEN", func(v string) { c.SLURM.Auth.Token = v })
+	envString(prefix+"AUTH_TOKEN_FILE", func(v string) { c.SLURM.Auth.TokenFile = v })
+	envString(prefix+"AUTH_USERNAME", func(v string) { c.SLURM.Auth.Username = v })
+	envString(prefix+"AUTH_PASSWORD", func(v string) { c.SLURM.Auth.Password = v })
+	envString(prefix+"AUTH_PASSWORD_FILE", func(v string) { c.SLURM.Auth.PasswordFile = v })
+	envString(prefix+"AUTH_API_KEY", func(v string) { c.SLURM.Auth.APIKey = v })
+	envString(prefix+"AUTH_API_KEY_FILE", func(v string) { c.SLURM.Auth.APIKeyFile = v })
 
 	// TLS configuration
-	if val := os.Getenv(prefix + "TLS_INSECURE_SKIP_VERIFY"); val != "" {
-		skip, err := strconv.ParseBool(val)
-		if err != nil {
-			return fmt.Errorf("invalid TLS insecure skip verify value: %w", err)
-		}
-		c.SLURM.TLS.InsecureSkipVerify = skip
+	if err := envBool(prefix+"TLS_INSECURE_SKIP_VERIFY", func(v bool) error { c.SLURM.TLS.InsecureSkipVerify = v; return nil }); err != nil {
+		return err
 	}
-
-	if val := os.Getenv(prefix + "TLS_CA_CERT_FILE"); val != "" {
-		c.SLURM.TLS.CACertFile = val
-	}
-
-	if val := os.Getenv(prefix + "TLS_CLIENT_CERT_FILE"); val != "" {
-		c.SLURM.TLS.ClientCertFile = val
-	}
-
-	if val := os.Getenv(prefix + "TLS_CLIENT_KEY_FILE"); val != "" {
-		c.SLURM.TLS.ClientKeyFile = val
-	}
+	envString(prefix+"TLS_CA_CERT_FILE", func(v string) { c.SLURM.TLS.CACertFile = v })
+	envString(prefix+"TLS_CLIENT_CERT_FILE", func(v string) { c.SLURM.TLS.ClientCertFile = v })
+	envString(prefix+"TLS_CLIENT_KEY_FILE", func(v string) { c.SLURM.TLS.ClientKeyFile = v })
 
 	// Rate limiting configuration
-	if val := os.Getenv(prefix + "RATE_LIMIT_REQUESTS_PER_SECOND"); val != "" {
-		rps, err := strconv.ParseFloat(val, 64)
-		if err != nil {
-			return fmt.Errorf("invalid requests per second: %w", err)
-		}
-		c.SLURM.RateLimit.RequestsPerSecond = rps
+	if err := envFloat64(prefix+"RATE_LIMIT_REQUESTS_PER_SECOND", func(v float64) error { c.SLURM.RateLimit.RequestsPerSecond = v; return nil }); err != nil {
+		return err
 	}
-
-	if val := os.Getenv(prefix + "RATE_LIMIT_BURST_SIZE"); val != "" {
-		burst, err := strconv.Atoi(val)
-		if err != nil {
-			return fmt.Errorf("invalid burst size: %w", err)
-		}
-		c.SLURM.RateLimit.BurstSize = burst
+	if err := envInt(prefix+"RATE_LIMIT_BURST_SIZE", func(v int) error { c.SLURM.RateLimit.BurstSize = v; return nil }); err != nil {
+		return err
 	}
 
 	return nil
@@ -1570,86 +1542,43 @@ func (c *Config) applyLoggingEnvOverrides(prefix string) error {
 
 // applyMetricsEnvOverrides applies metrics-specific environment overrides.
 func (c *Config) applyMetricsEnvOverrides(prefix string) error {
-	if val := os.Getenv(prefix + "NAMESPACE"); val != "" {
-		c.Metrics.Namespace = val
+	// String overrides
+	envString(prefix+"NAMESPACE", func(v string) { c.Metrics.Namespace = v })
+	envString(prefix+"SUBSYSTEM", func(v string) { c.Metrics.Subsystem = v })
+
+	// Duration overrides
+	if err := envDuration(prefix+"MAX_AGE", func(v time.Duration) error { c.Metrics.MaxAge = v; return nil }); err != nil {
+		return err
 	}
 
-	if val := os.Getenv(prefix + "SUBSYSTEM"); val != "" {
-		c.Metrics.Subsystem = val
-	}
-
-	if val := os.Getenv(prefix + "MAX_AGE"); val != "" {
-		duration, err := time.ParseDuration(val)
-		if err != nil {
-			return fmt.Errorf("invalid max age: %w", err)
-		}
-		c.Metrics.MaxAge = duration
-	}
-
-	if val := os.Getenv(prefix + "AGE_BUCKETS"); val != "" {
-		buckets, err := strconv.Atoi(val)
-		if err != nil {
-			return fmt.Errorf("invalid age buckets: %w", err)
-		}
-		c.Metrics.AgeBuckets = buckets
+	// Integer overrides
+	if err := envInt(prefix+"AGE_BUCKETS", func(v int) error { c.Metrics.AgeBuckets = v; return nil }); err != nil {
+		return err
 	}
 
 	// Registry configuration
-	if val := os.Getenv(prefix + "REGISTRY_ENABLE_GO_COLLECTOR"); val != "" {
-		enable, err := strconv.ParseBool(val)
-		if err != nil {
-			return fmt.Errorf("invalid enable go collector value: %w", err)
-		}
-		c.Metrics.Registry.EnableGoCollector = enable
+	if err := envBool(prefix+"REGISTRY_ENABLE_GO_COLLECTOR", func(v bool) error { c.Metrics.Registry.EnableGoCollector = v; return nil }); err != nil {
+		return err
 	}
-
-	if val := os.Getenv(prefix + "REGISTRY_ENABLE_PROCESS_COLLECTOR"); val != "" {
-		enable, err := strconv.ParseBool(val)
-		if err != nil {
-			return fmt.Errorf("invalid enable process collector value: %w", err)
-		}
-		c.Metrics.Registry.EnableProcessCollector = enable
+	if err := envBool(prefix+"REGISTRY_ENABLE_PROCESS_COLLECTOR", func(v bool) error { c.Metrics.Registry.EnableProcessCollector = v; return nil }); err != nil {
+		return err
 	}
-
-	if val := os.Getenv(prefix + "REGISTRY_ENABLE_BUILD_INFO"); val != "" {
-		enable, err := strconv.ParseBool(val)
-		if err != nil {
-			return fmt.Errorf("invalid enable build info value: %w", err)
-		}
-		c.Metrics.Registry.EnableBuildInfo = enable
+	if err := envBool(prefix+"REGISTRY_ENABLE_BUILD_INFO", func(v bool) error { c.Metrics.Registry.EnableBuildInfo = v; return nil }); err != nil {
+		return err
 	}
 
 	// Cardinality configuration
-	if val := os.Getenv(prefix + "CARDINALITY_MAX_SERIES"); val != "" {
-		maxSeries, err := strconv.Atoi(val)
-		if err != nil {
-			return fmt.Errorf("invalid max series: %w", err)
-		}
-		c.Metrics.Cardinality.MaxSeries = maxSeries
+	if err := envInt(prefix+"CARDINALITY_MAX_SERIES", func(v int) error { c.Metrics.Cardinality.MaxSeries = v; return nil }); err != nil {
+		return err
 	}
-
-	if val := os.Getenv(prefix + "CARDINALITY_MAX_LABELS"); val != "" {
-		maxLabels, err := strconv.Atoi(val)
-		if err != nil {
-			return fmt.Errorf("invalid max labels: %w", err)
-		}
-		c.Metrics.Cardinality.MaxLabels = maxLabels
+	if err := envInt(prefix+"CARDINALITY_MAX_LABELS", func(v int) error { c.Metrics.Cardinality.MaxLabels = v; return nil }); err != nil {
+		return err
 	}
-
-	if val := os.Getenv(prefix + "CARDINALITY_MAX_LABEL_SIZE"); val != "" {
-		maxLabelSize, err := strconv.Atoi(val)
-		if err != nil {
-			return fmt.Errorf("invalid max label size: %w", err)
-		}
-		c.Metrics.Cardinality.MaxLabelSize = maxLabelSize
+	if err := envInt(prefix+"CARDINALITY_MAX_LABEL_SIZE", func(v int) error { c.Metrics.Cardinality.MaxLabelSize = v; return nil }); err != nil {
+		return err
 	}
-
-	if val := os.Getenv(prefix + "CARDINALITY_WARN_LIMIT"); val != "" {
-		warnLimit, err := strconv.Atoi(val)
-		if err != nil {
-			return fmt.Errorf("invalid warn limit: %w", err)
-		}
-		c.Metrics.Cardinality.WarnLimit = warnLimit
+	if err := envInt(prefix+"CARDINALITY_WARN_LIMIT", func(v int) error { c.Metrics.Cardinality.WarnLimit = v; return nil }); err != nil {
+		return err
 	}
 
 	return nil
