@@ -125,41 +125,41 @@ func (fs *FileProfileStorage) Save(profile *CollectorProfile) error {
 	var totalSize int64
 
 	// Save all profile types
-	if size, err := fs.saveProfileBuffer(profileDir, "cpu.pprof", "CPU", profile.CPUProfile); err != nil {
+	size, err := fs.saveProfileBuffer(profileDir, "cpu.pprof", "CPU", profile.CPUProfile)
+	if err != nil {
 		return err
-	} else {
-		totalSize += size
 	}
+	totalSize += size
 
-	if size, err := fs.saveProfileBuffer(profileDir, "heap.pprof", "heap", profile.HeapProfile); err != nil {
+	size, err = fs.saveProfileBuffer(profileDir, "heap.pprof", "heap", profile.HeapProfile)
+	if err != nil {
 		return err
-	} else {
-		totalSize += size
 	}
+	totalSize += size
 
-	if size, err := fs.saveProfileBuffer(profileDir, "goroutine.pprof", "goroutine", profile.GoroutineProfile); err != nil {
+	size, err = fs.saveProfileBuffer(profileDir, "goroutine.pprof", "goroutine", profile.GoroutineProfile)
+	if err != nil {
 		return err
-	} else {
-		totalSize += size
 	}
+	totalSize += size
 
-	if size, err := fs.saveProfileBuffer(profileDir, "block.pprof", "block", profile.BlockProfile); err != nil {
+	size, err = fs.saveProfileBuffer(profileDir, "block.pprof", "block", profile.BlockProfile)
+	if err != nil {
 		return err
-	} else {
-		totalSize += size
 	}
+	totalSize += size
 
-	if size, err := fs.saveProfileBuffer(profileDir, "mutex.pprof", "mutex", profile.MutexProfile); err != nil {
+	size, err = fs.saveProfileBuffer(profileDir, "mutex.pprof", "mutex", profile.MutexProfile)
+	if err != nil {
 		return err
-	} else {
-		totalSize += size
 	}
+	totalSize += size
 
-	if size, err := fs.saveProfileBuffer(profileDir, "trace.out", "trace", profile.TraceData); err != nil {
+	size, err = fs.saveProfileBuffer(profileDir, "trace.out", "trace", profile.TraceData)
+	if err != nil {
 		return err
-	} else {
-		totalSize += size
 	}
+	totalSize += size
 
 	metadata.Size = totalSize
 
