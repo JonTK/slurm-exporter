@@ -67,7 +67,10 @@ func (dc *DegradedCollector) Collect(ctx context.Context, ch chan<- prometheus.M
 		// Wait for collection to complete
 		<-done
 
-		return metrics, collectionErr
+		if collectionErr != nil {
+			return nil, fmt.Errorf("underlying collector failed: %w", collectionErr)
+		}
+		return metrics, nil
 	}
 
 	// Execute with degradation support
@@ -79,11 +82,14 @@ func (dc *DegradedCollector) Collect(ctx context.Context, ch chan<- prometheus.M
 		case ch <- metric:
 			// Metric sent successfully
 		case <-ctx.Done():
-			return ctx.Err()
+			return fmt.Errorf("context cancelled during metric send: %w", ctx.Err())
 		}
 	}
 
-	return err
+	if err != nil {
+		return fmt.Errorf("degradation execution failed: %w", err)
+	}
+	return nil
 }
 
 // IsEnabled returns whether this collector is enabled

@@ -28,7 +28,6 @@ linters:
     - tagliatelle
     - usetesting
     - varnamelen
-    - wrapcheck
     - wsl                       # Whitespace linter (deprecated version)
     - wsl_v5                    # Whitespace linter (new version) - very opinionated
   settings:
@@ -184,6 +183,28 @@ linters:
       time-month: true
       time-layout: true
       crypto-hash: true
+    wrapcheck:
+      # ignoreSigs: Function signatures to ignore for pragmatic reasons
+      # These are well-documented APIs where wrapping would be noisy without adding value
+      ignoreSigs:
+        # Standard library context - stdlib contract is to check before using
+        - (context.Context).Err()
+        # Standard library HTTP - ResponseWriter errors are contextual to HTTP handling
+        - (net/http.ResponseWriter).Write(
+        # Well-documented external packages - Prometheus Registry errors are clear
+        - (*github.com/prometheus/client_golang/prometheus.Registry).Register(
+        - (*github.com/prometheus/client_golang/prometheus.Registerer).Register(
+        # Standard library file operations - errors are clear from operation context
+        - os.RemoveAll(
+        - os.Remove(
+        - os.ReadFile(
+        - os.WriteFile(
+        - os.Create(
+        - os.Open(
+        - os.Chmod(
+        - os.MkdirTemp(
+        - io.Copy(
+        - path/filepath.Walk(
   exclusions:
     generated: lax
     presets:

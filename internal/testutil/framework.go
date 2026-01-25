@@ -78,7 +78,7 @@ func NewTestMetricsRegistry() *TestMetricsRegistry {
 
 // Register registers a metric
 func (tmr *TestMetricsRegistry) Register(c prometheus.Collector) error {
-	return tmr.reg.Register(c)
+	return tmr.reg.Register(c) //nolint:wrapcheck
 }
 
 // MustRegister registers a metric and panics on error

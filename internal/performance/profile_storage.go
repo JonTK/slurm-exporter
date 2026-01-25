@@ -182,11 +182,11 @@ func (fs *FileProfileStorage) Save(profile *CollectorProfile) error {
 func (fs *FileProfileStorage) saveBuffer(filename string, buf io.Reader) (int64, error) {
 	file, err := os.Create(filename)
 	if err != nil {
-		return 0, err
+		return 0, err //nolint:wrapcheck
 	}
 	defer func() { _ = file.Close() }()
 
-	return io.Copy(file, buf)
+	return io.Copy(file, buf) //nolint:wrapcheck
 }
 
 // Load loads a profile from disk
@@ -247,7 +247,7 @@ func (fs *FileProfileStorage) Load(id string) (*CollectorProfile, error) {
 func (fs *FileProfileStorage) loadFile(filename string) (*bytes.Buffer, error) {
 	data, err := os.ReadFile(filename)
 	if err != nil {
-		return nil, err
+		return nil, err //nolint:wrapcheck
 	}
 	return bytes.NewBuffer(data), nil
 }
@@ -302,7 +302,7 @@ func (fs *FileProfileStorage) Delete(id string) error {
 	defer fs.mu.Unlock()
 
 	profileDir := filepath.Join(fs.config.Path, id)
-	return os.RemoveAll(profileDir)
+	return os.RemoveAll(profileDir) //nolint:wrapcheck
 }
 
 // Cleanup removes old profiles based on retention policy
@@ -403,7 +403,7 @@ func (fs *FileProfileStorage) getDirectorySize(path string) (int64, error) {
 		}
 		return nil
 	})
-	return size, err
+	return size, err //nolint:wrapcheck
 }
 
 // GetStats returns storage statistics

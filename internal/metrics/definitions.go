@@ -1110,7 +1110,7 @@ func (md *MetricDefinitions) allMetrics() []prometheus.Collector {
 func (md *MetricDefinitions) Register(registry *prometheus.Registry) error {
 	for _, metric := range md.allMetrics() {
 		if err := registry.Register(metric); err != nil {
-			return err
+			return err //nolint:wrapcheck
 		}
 	}
 

@@ -94,7 +94,7 @@ func (m *SchedulerMetrics) Register(registry *prometheus.Registry) error {
 
 	for _, c := range collectors {
 		if err := registry.Register(c); err != nil {
-			return err
+			return err //nolint:wrapcheck
 		}
 	}
 

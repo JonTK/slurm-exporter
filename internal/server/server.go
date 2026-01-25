@@ -104,7 +104,7 @@ func (m *HTTPMetrics) Register(registry *prometheus.Registry) error {
 
 	for _, c := range collectors {
 		if err := registry.Register(c); err != nil {
-			return err
+			return err //nolint:wrapcheck
 		}
 	}
 
@@ -630,7 +630,7 @@ func (s *Server) SetPrometheusRegistry(registry *prometheus.Registry) {
 
 // RegisterCollector registers a Prometheus collector
 func (s *Server) RegisterCollector(collector prometheus.Collector) error {
-	return s.promRegistry.Register(collector)
+	return s.promRegistry.Register(collector) //nolint:wrapcheck
 }
 
 // UnregisterCollector unregisters a Prometheus collector
