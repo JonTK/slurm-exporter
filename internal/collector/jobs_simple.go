@@ -445,12 +445,17 @@ func (c *JobsSimpleCollector) sanitizeCPUCount(cpus int, jobID string) int {
 	return cpus
 }
 
-// sanitizeMemory validates and converts memory from MB to bytes
-func (c *JobsSimpleCollector) sanitizeMemory(memoryMB int) int64 {
-	if memoryMB <= 0 || memoryMB >= 1000000 { // < 1TB sanity check
+// sanitizeMemory validates memory value (already in bytes from slurm-client)
+func (c *JobsSimpleCollector) sanitizeMemory(memoryBytes int) int64 {
+	if memoryBytes <= 0 {
 		return 0
 	}
-	return int64(memoryMB) * 1024 * 1024
+	// Sanity check: reject values > 1TB (1024^4 bytes)
+	maxBytes := int64(1024 * 1024 * 1024 * 1024)
+	if int64(memoryBytes) >= maxBytes {
+		return 0
+	}
+	return int64(memoryBytes)
 }
 
 // calculateNodeCount determines node count from job node list
