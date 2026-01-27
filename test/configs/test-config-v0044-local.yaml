@@ -6,7 +6,7 @@ slurm:
   base_url: "http://rocky9.ar.jontk.com:6820"
   auth:
     type: "jwt"
-    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Njk0ODA5OTAsImlhdCI6MTc2OTQ3NzM5MCwic3VuIjoicm9vdCJ9.38OXi2EVN8I9D7NEh3a04WuTgwTHwjGe-pu7AKwwpH4"
+    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Njk0ODQ4ODcsImlhdCI6MTc2OTQ4MTI4Nywic3VuIjoicm9vdCJ9.G7mLHNi0v_yjWzzeqs0Gm1-TXmMWbNAr-EBR6s4TJcQ"
   timeout: 30s
 
 validation:

@@ -1,8 +1,8 @@
-# Test configuration for v0.0.43 with local slurm-client
-# Used to verify metrics collection across all collectors
+# Test configuration for v0.0.42 with local slurm-client
+# Used to verify metrics collection and identify improvement opportunities
 
 slurm:
-  api_version: "v0.0.43"
+  api_version: "v0.0.42"
   base_url: "http://rocky9.ar.jontk.com:6820"
   auth:
     type: "jwt"
