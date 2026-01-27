@@ -48,8 +48,8 @@ type JobsSimpleCollector struct {
 	jobStates *prometheus.Desc
 
 	// Job timing metrics
-	jobQueueTime *prometheus.Desc
-	jobRunTime   *prometheus.Desc
+	jobQueueTime  *prometheus.Desc
+	jobRunTime    *prometheus.Desc
 	jobSubmitTime *prometheus.Desc
 
 	// Job resource metrics
