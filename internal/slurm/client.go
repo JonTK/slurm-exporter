@@ -61,17 +61,18 @@ func NewClient(cfg *config.SLURMConfig) (*Client, error) {
 		// Use adapter pattern for better version compatibility
 		logrus.Info("Creating SLURM client with adapter pattern enabled")
 
-		// When using adapters, we should use the factory pattern from slurm-client
-		// For now, we'll use the standard approach but with auto-detection if no version specified
+		// Enable adapter pattern explicitly via WithUseAdapters option
 		if cfg.APIVersion == "" {
 			client, err = slurm.NewClient(ctx,
 				slurm.WithBaseURL(cfg.BaseURL),
 				slurm.WithAuth(authProvider),
+				slurm.WithUseAdapters(true), // Enable adapter pattern
 			)
 		} else {
 			client, err = slurm.NewClientWithVersion(ctx, cfg.APIVersion,
 				slurm.WithBaseURL(cfg.BaseURL),
 				slurm.WithAuth(authProvider),
+				slurm.WithUseAdapters(true), // Enable adapter pattern
 			)
 		}
 
