@@ -17,6 +17,8 @@ on:
 permissions:
   contents: write
   packages: write
+  pull-requests: write
+  id-token: write
 
 jobs:
   validate-tag:
@@ -153,13 +155,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: [validate-tag, verify]
     if: needs.validate-tag.outputs.prerelease == 'false'
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: main
-          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
       - name: Update version references
         env:
@@ -170,18 +175,20 @@ jobs:
             sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+/${VERSION}/g" README.md || true
           fi
 
-      - name: Commit documentation updates
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+      - name: Create Pull Request for Documentation Updates
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs: update version references to ${{ needs.validate-tag.outputs.version }}"
+          title: "docs: update version references to ${{ needs.validate-tag.outputs.version }}"
+          body: |
+            Automated documentation update for release ${{ needs.validate-tag.outputs.version }}.
 
-          if git diff --quiet; then
-            echo "No documentation changes to commit"
-          else
-            git add .
-            git commit -m "docs: update version references to ${{ needs.validate-tag.outputs.version }}"
-            git push
-          fi
+            Updated version references in documentation files.
+          branch: "docs/update-${{ needs.validate-tag.outputs.version }}"
+          base: main
+          labels: documentation
+          delete-branch: true
 
   notify:
     name: Notify Release Completion
