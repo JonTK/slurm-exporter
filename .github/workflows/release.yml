@@ -17,6 +17,8 @@ on:
 permissions:
   contents: write
   packages: write
+  pull-requests: write
+  id-token: write
 
 jobs:
   validate-tag:
