@@ -57,43 +57,32 @@ func NewClient(cfg *config.SLURMConfig) (*Client, error) {
 
 	var client slurm.SlurmClient
 
-	if cfg.UseAdapters {
-		// Use adapter pattern for better version compatibility
-		logrus.Info("Creating SLURM client with adapter pattern enabled")
+	// Use adapter pattern for better version compatibility
+	// Adapters provide more complete implementation of standalone operations
+	// especially for older API versions (v0.0.40-v0.0.43)
+	logrus.Info("Creating SLURM client with adapter pattern enabled")
 
-		// Enable adapter pattern explicitly via WithUseAdapters option
-		if cfg.APIVersion == "" {
-			client, err = slurm.NewClient(ctx,
-				slurm.WithBaseURL(cfg.BaseURL),
-				slurm.WithAuth(authProvider),
-				slurm.WithUseAdapters(true), // Enable adapter pattern
-			)
-		} else {
-			client, err = slurm.NewClientWithVersion(ctx, cfg.APIVersion,
-				slurm.WithBaseURL(cfg.BaseURL),
-				slurm.WithAuth(authProvider),
-				slurm.WithUseAdapters(true), // Enable adapter pattern
-			)
-		}
-
-		// Log the detected/configured API version after client creation
+	if cfg.APIVersion == "" {
+		client, err = slurm.NewClient(ctx,
+			slurm.WithBaseURL(cfg.BaseURL),
+			slurm.WithAuth(authProvider),
+			slurm.WithUseAdapters(true),
+		)
 		if err == nil {
-			detectedVersion := client.Version()
-			if cfg.APIVersion == "" {
-				logrus.WithField("version", detectedVersion).Info("Auto-detected SLURM API version")
-			} else {
-				logrus.WithFields(logrus.Fields{
-					"configured": cfg.APIVersion,
-					"actual":     detectedVersion,
-				}).Info("Using configured SLURM API version")
-			}
+			logrus.WithField("version", client.Version()).Info("Auto-detected SLURM API version")
 		}
 	} else {
-		// Traditional client creation
 		client, err = slurm.NewClientWithVersion(ctx, cfg.APIVersion,
 			slurm.WithBaseURL(cfg.BaseURL),
 			slurm.WithAuth(authProvider),
+			slurm.WithUseAdapters(true),
 		)
+		if err == nil {
+			logrus.WithFields(logrus.Fields{
+				"configured": cfg.APIVersion,
+				"actual":     client.Version(),
+			}).Info("Using configured SLURM API version")
+		}
 	}
 
 	if err != nil {
