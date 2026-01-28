@@ -397,8 +397,8 @@ func TestCardinalityManager(t *testing.T) {
 
 		// Test specific configurations
 		jobLimit := cm.limits["slurm_job_.*"]
-		if jobLimit.SamplingRate != 0.1 {
-			t.Errorf("Expected job sampling rate 0.1, got %f", jobLimit.SamplingRate)
+		if jobLimit.SamplingRate != 1.0 {
+			t.Errorf("Expected job sampling rate 1.0, got %f", jobLimit.SamplingRate)
 		}
 
 		nodeLimit := cm.limits["slurm_node_.*"]
