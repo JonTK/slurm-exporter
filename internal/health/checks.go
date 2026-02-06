@@ -9,11 +9,12 @@ import (
 	"runtime"
 	"time"
 
+	"os"
+
 	"github.com/jontk/slurm-exporter/internal/config"
 	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/net"
 	"github.com/shirou/gopsutil/v3/process"
-	"os"
 )
 
 // SLURMClient defines the interface for SLURM client operations needed for health checks

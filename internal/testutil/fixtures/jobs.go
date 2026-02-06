@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 )
 
 // createRunningTestJob creates a running test job

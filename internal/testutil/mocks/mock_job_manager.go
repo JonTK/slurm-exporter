@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	interfaces "github.com/jontk/slurm-client/interfaces"
+	"github.com/jontk/slurm-client"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,27 +15,27 @@ type MockJobManager struct {
 }
 
 // Allocate provides a mock function with given fields: ctx, req
-func (_m *MockJobManager) Allocate(ctx context.Context, req *interfaces.JobAllocateRequest) (*interfaces.JobAllocateResponse, error) {
+func (_m *MockJobManager) Allocate(ctx context.Context, req *slurm.JobAllocateRequest) (*slurm.JobAllocateResponse, error) {
 	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Allocate")
 	}
 
-	var r0 *interfaces.JobAllocateResponse
+	var r0 *slurm.JobAllocateResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.JobAllocateRequest) (*interfaces.JobAllocateResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.JobAllocateRequest) (*slurm.JobAllocateResponse, error)); ok {
 		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.JobAllocateRequest) *interfaces.JobAllocateResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.JobAllocateRequest) *slurm.JobAllocateResponse); ok {
 		r0 = rf(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.JobAllocateResponse)
+			r0 = ret.Get(0).(*slurm.JobAllocateResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.JobAllocateRequest) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.JobAllocateRequest) error); ok {
 		r1 = rf(ctx, req)
 	} else {
 		r1 = ret.Error(1)
@@ -45,27 +45,27 @@ func (_m *MockJobManager) Allocate(ctx context.Context, req *interfaces.JobAlloc
 }
 
 // AnalyzeBatchJobs provides a mock function with given fields: ctx, jobIDs, opts
-func (_m *MockJobManager) AnalyzeBatchJobs(ctx context.Context, jobIDs []string, opts *interfaces.BatchAnalysisOptions) (*interfaces.BatchJobAnalysis, error) {
+func (_m *MockJobManager) AnalyzeBatchJobs(ctx context.Context, jobIDs []string, opts *slurm.BatchAnalysisOptions) (*slurm.BatchJobAnalysis, error) {
 	ret := _m.Called(ctx, jobIDs, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AnalyzeBatchJobs")
 	}
 
-	var r0 *interfaces.BatchJobAnalysis
+	var r0 *slurm.BatchJobAnalysis
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []string, *interfaces.BatchAnalysisOptions) (*interfaces.BatchJobAnalysis, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string, *slurm.BatchAnalysisOptions) (*slurm.BatchJobAnalysis, error)); ok {
 		return rf(ctx, jobIDs, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []string, *interfaces.BatchAnalysisOptions) *interfaces.BatchJobAnalysis); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string, *slurm.BatchAnalysisOptions) *slurm.BatchJobAnalysis); ok {
 		r0 = rf(ctx, jobIDs, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.BatchJobAnalysis)
+			r0 = ret.Get(0).(*slurm.BatchJobAnalysis)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, []string, *interfaces.BatchAnalysisOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, []string, *slurm.BatchAnalysisOptions) error); ok {
 		r1 = rf(ctx, jobIDs, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -93,27 +93,27 @@ func (_m *MockJobManager) Cancel(ctx context.Context, jobID string) error {
 }
 
 // GenerateEfficiencyReport provides a mock function with given fields: ctx, opts
-func (_m *MockJobManager) GenerateEfficiencyReport(ctx context.Context, opts *interfaces.ReportOptions) (*interfaces.EfficiencyReport, error) {
+func (_m *MockJobManager) GenerateEfficiencyReport(ctx context.Context, opts *slurm.ReportOptions) (*slurm.EfficiencyReport, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GenerateEfficiencyReport")
 	}
 
-	var r0 *interfaces.EfficiencyReport
+	var r0 *slurm.EfficiencyReport
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ReportOptions) (*interfaces.EfficiencyReport, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ReportOptions) (*slurm.EfficiencyReport, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ReportOptions) *interfaces.EfficiencyReport); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ReportOptions) *slurm.EfficiencyReport); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.EfficiencyReport)
+			r0 = ret.Get(0).(*slurm.EfficiencyReport)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.ReportOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.ReportOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -123,23 +123,23 @@ func (_m *MockJobManager) GenerateEfficiencyReport(ctx context.Context, opts *in
 }
 
 // Get provides a mock function with given fields: ctx, jobID
-func (_m *MockJobManager) Get(ctx context.Context, jobID string) (*interfaces.Job, error) {
+func (_m *MockJobManager) Get(ctx context.Context, jobID string) (*slurm.Job, error) {
 	ret := _m.Called(ctx, jobID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *interfaces.Job
+	var r0 *slurm.Job
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.Job, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.Job, error)); ok {
 		return rf(ctx, jobID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.Job); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.Job); ok {
 		r0 = rf(ctx, jobID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.Job)
+			r0 = ret.Get(0).(*slurm.Job)
 		}
 	}
 
@@ -153,23 +153,23 @@ func (_m *MockJobManager) Get(ctx context.Context, jobID string) (*interfaces.Jo
 }
 
 // GetJobCPUAnalytics provides a mock function with given fields: ctx, jobID
-func (_m *MockJobManager) GetJobCPUAnalytics(ctx context.Context, jobID string) (*interfaces.CPUAnalytics, error) {
+func (_m *MockJobManager) GetJobCPUAnalytics(ctx context.Context, jobID string) (*slurm.CPUAnalytics, error) {
 	ret := _m.Called(ctx, jobID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetJobCPUAnalytics")
 	}
 
-	var r0 *interfaces.CPUAnalytics
+	var r0 *slurm.CPUAnalytics
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.CPUAnalytics, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.CPUAnalytics, error)); ok {
 		return rf(ctx, jobID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.CPUAnalytics); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.CPUAnalytics); ok {
 		r0 = rf(ctx, jobID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.CPUAnalytics)
+			r0 = ret.Get(0).(*slurm.CPUAnalytics)
 		}
 	}
 
@@ -183,23 +183,23 @@ func (_m *MockJobManager) GetJobCPUAnalytics(ctx context.Context, jobID string) 
 }
 
 // GetJobComprehensiveAnalytics provides a mock function with given fields: ctx, jobID
-func (_m *MockJobManager) GetJobComprehensiveAnalytics(ctx context.Context, jobID string) (*interfaces.JobComprehensiveAnalytics, error) {
+func (_m *MockJobManager) GetJobComprehensiveAnalytics(ctx context.Context, jobID string) (*slurm.JobComprehensiveAnalytics, error) {
 	ret := _m.Called(ctx, jobID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetJobComprehensiveAnalytics")
 	}
 
-	var r0 *interfaces.JobComprehensiveAnalytics
+	var r0 *slurm.JobComprehensiveAnalytics
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.JobComprehensiveAnalytics, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.JobComprehensiveAnalytics, error)); ok {
 		return rf(ctx, jobID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.JobComprehensiveAnalytics); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.JobComprehensiveAnalytics); ok {
 		r0 = rf(ctx, jobID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.JobComprehensiveAnalytics)
+			r0 = ret.Get(0).(*slurm.JobComprehensiveAnalytics)
 		}
 	}
 
@@ -213,23 +213,23 @@ func (_m *MockJobManager) GetJobComprehensiveAnalytics(ctx context.Context, jobI
 }
 
 // GetJobEfficiency provides a mock function with given fields: ctx, jobID
-func (_m *MockJobManager) GetJobEfficiency(ctx context.Context, jobID string) (*interfaces.ResourceUtilization, error) {
+func (_m *MockJobManager) GetJobEfficiency(ctx context.Context, jobID string) (*slurm.ResourceUtilization, error) {
 	ret := _m.Called(ctx, jobID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetJobEfficiency")
 	}
 
-	var r0 *interfaces.ResourceUtilization
+	var r0 *slurm.ResourceUtilization
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.ResourceUtilization, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.ResourceUtilization, error)); ok {
 		return rf(ctx, jobID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.ResourceUtilization); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.ResourceUtilization); ok {
 		r0 = rf(ctx, jobID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.ResourceUtilization)
+			r0 = ret.Get(0).(*slurm.ResourceUtilization)
 		}
 	}
 
@@ -243,23 +243,23 @@ func (_m *MockJobManager) GetJobEfficiency(ctx context.Context, jobID string) (*
 }
 
 // GetJobIOAnalytics provides a mock function with given fields: ctx, jobID
-func (_m *MockJobManager) GetJobIOAnalytics(ctx context.Context, jobID string) (*interfaces.IOAnalytics, error) {
+func (_m *MockJobManager) GetJobIOAnalytics(ctx context.Context, jobID string) (*slurm.IOAnalytics, error) {
 	ret := _m.Called(ctx, jobID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetJobIOAnalytics")
 	}
 
-	var r0 *interfaces.IOAnalytics
+	var r0 *slurm.IOAnalytics
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.IOAnalytics, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.IOAnalytics, error)); ok {
 		return rf(ctx, jobID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.IOAnalytics); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.IOAnalytics); ok {
 		r0 = rf(ctx, jobID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.IOAnalytics)
+			r0 = ret.Get(0).(*slurm.IOAnalytics)
 		}
 	}
 
@@ -273,23 +273,23 @@ func (_m *MockJobManager) GetJobIOAnalytics(ctx context.Context, jobID string) (
 }
 
 // GetJobLiveMetrics provides a mock function with given fields: ctx, jobID
-func (_m *MockJobManager) GetJobLiveMetrics(ctx context.Context, jobID string) (*interfaces.JobLiveMetrics, error) {
+func (_m *MockJobManager) GetJobLiveMetrics(ctx context.Context, jobID string) (*slurm.JobLiveMetrics, error) {
 	ret := _m.Called(ctx, jobID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetJobLiveMetrics")
 	}
 
-	var r0 *interfaces.JobLiveMetrics
+	var r0 *slurm.JobLiveMetrics
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.JobLiveMetrics, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.JobLiveMetrics, error)); ok {
 		return rf(ctx, jobID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.JobLiveMetrics); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.JobLiveMetrics); ok {
 		r0 = rf(ctx, jobID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.JobLiveMetrics)
+			r0 = ret.Get(0).(*slurm.JobLiveMetrics)
 		}
 	}
 
@@ -303,23 +303,23 @@ func (_m *MockJobManager) GetJobLiveMetrics(ctx context.Context, jobID string) (
 }
 
 // GetJobMemoryAnalytics provides a mock function with given fields: ctx, jobID
-func (_m *MockJobManager) GetJobMemoryAnalytics(ctx context.Context, jobID string) (*interfaces.MemoryAnalytics, error) {
+func (_m *MockJobManager) GetJobMemoryAnalytics(ctx context.Context, jobID string) (*slurm.MemoryAnalytics, error) {
 	ret := _m.Called(ctx, jobID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetJobMemoryAnalytics")
 	}
 
-	var r0 *interfaces.MemoryAnalytics
+	var r0 *slurm.MemoryAnalytics
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.MemoryAnalytics, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.MemoryAnalytics, error)); ok {
 		return rf(ctx, jobID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.MemoryAnalytics); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.MemoryAnalytics); ok {
 		r0 = rf(ctx, jobID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.MemoryAnalytics)
+			r0 = ret.Get(0).(*slurm.MemoryAnalytics)
 		}
 	}
 
@@ -333,23 +333,23 @@ func (_m *MockJobManager) GetJobMemoryAnalytics(ctx context.Context, jobID strin
 }
 
 // GetJobPerformance provides a mock function with given fields: ctx, jobID
-func (_m *MockJobManager) GetJobPerformance(ctx context.Context, jobID string) (*interfaces.JobPerformance, error) {
+func (_m *MockJobManager) GetJobPerformance(ctx context.Context, jobID string) (*slurm.JobPerformance, error) {
 	ret := _m.Called(ctx, jobID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetJobPerformance")
 	}
 
-	var r0 *interfaces.JobPerformance
+	var r0 *slurm.JobPerformance
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.JobPerformance, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.JobPerformance, error)); ok {
 		return rf(ctx, jobID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.JobPerformance); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.JobPerformance); ok {
 		r0 = rf(ctx, jobID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.JobPerformance)
+			r0 = ret.Get(0).(*slurm.JobPerformance)
 		}
 	}
 
@@ -363,27 +363,27 @@ func (_m *MockJobManager) GetJobPerformance(ctx context.Context, jobID string) (
 }
 
 // GetJobPerformanceHistory provides a mock function with given fields: ctx, jobID, opts
-func (_m *MockJobManager) GetJobPerformanceHistory(ctx context.Context, jobID string, opts *interfaces.PerformanceHistoryOptions) (*interfaces.JobPerformanceHistory, error) {
+func (_m *MockJobManager) GetJobPerformanceHistory(ctx context.Context, jobID string, opts *slurm.PerformanceHistoryOptions) (*slurm.JobPerformanceHistory, error) {
 	ret := _m.Called(ctx, jobID, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetJobPerformanceHistory")
 	}
 
-	var r0 *interfaces.JobPerformanceHistory
+	var r0 *slurm.JobPerformanceHistory
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.PerformanceHistoryOptions) (*interfaces.JobPerformanceHistory, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.PerformanceHistoryOptions) (*slurm.JobPerformanceHistory, error)); ok {
 		return rf(ctx, jobID, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.PerformanceHistoryOptions) *interfaces.JobPerformanceHistory); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.PerformanceHistoryOptions) *slurm.JobPerformanceHistory); ok {
 		r0 = rf(ctx, jobID, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.JobPerformanceHistory)
+			r0 = ret.Get(0).(*slurm.JobPerformanceHistory)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, *interfaces.PerformanceHistoryOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, *slurm.PerformanceHistoryOptions) error); ok {
 		r1 = rf(ctx, jobID, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -393,27 +393,27 @@ func (_m *MockJobManager) GetJobPerformanceHistory(ctx context.Context, jobID st
 }
 
 // GetJobResourceTrends provides a mock function with given fields: ctx, jobID, opts
-func (_m *MockJobManager) GetJobResourceTrends(ctx context.Context, jobID string, opts *interfaces.ResourceTrendsOptions) (*interfaces.JobResourceTrends, error) {
+func (_m *MockJobManager) GetJobResourceTrends(ctx context.Context, jobID string, opts *slurm.ResourceTrendsOptions) (*slurm.JobResourceTrends, error) {
 	ret := _m.Called(ctx, jobID, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetJobResourceTrends")
 	}
 
-	var r0 *interfaces.JobResourceTrends
+	var r0 *slurm.JobResourceTrends
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.ResourceTrendsOptions) (*interfaces.JobResourceTrends, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.ResourceTrendsOptions) (*slurm.JobResourceTrends, error)); ok {
 		return rf(ctx, jobID, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.ResourceTrendsOptions) *interfaces.JobResourceTrends); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.ResourceTrendsOptions) *slurm.JobResourceTrends); ok {
 		r0 = rf(ctx, jobID, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.JobResourceTrends)
+			r0 = ret.Get(0).(*slurm.JobResourceTrends)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, *interfaces.ResourceTrendsOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, *slurm.ResourceTrendsOptions) error); ok {
 		r1 = rf(ctx, jobID, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -423,23 +423,23 @@ func (_m *MockJobManager) GetJobResourceTrends(ctx context.Context, jobID string
 }
 
 // GetJobStepAPIData provides a mock function with given fields: ctx, jobID, stepID
-func (_m *MockJobManager) GetJobStepAPIData(ctx context.Context, jobID string, stepID string) (*interfaces.JobStepAPIData, error) {
+func (_m *MockJobManager) GetJobStepAPIData(ctx context.Context, jobID string, stepID string) (*slurm.JobStepAPIData, error) {
 	ret := _m.Called(ctx, jobID, stepID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetJobStepAPIData")
 	}
 
-	var r0 *interfaces.JobStepAPIData
+	var r0 *slurm.JobStepAPIData
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*interfaces.JobStepAPIData, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*slurm.JobStepAPIData, error)); ok {
 		return rf(ctx, jobID, stepID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) *interfaces.JobStepAPIData); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *slurm.JobStepAPIData); ok {
 		r0 = rf(ctx, jobID, stepID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.JobStepAPIData)
+			r0 = ret.Get(0).(*slurm.JobStepAPIData)
 		}
 	}
 
@@ -453,23 +453,23 @@ func (_m *MockJobManager) GetJobStepAPIData(ctx context.Context, jobID string, s
 }
 
 // GetJobStepDetails provides a mock function with given fields: ctx, jobID, stepID
-func (_m *MockJobManager) GetJobStepDetails(ctx context.Context, jobID string, stepID string) (*interfaces.JobStepDetails, error) {
+func (_m *MockJobManager) GetJobStepDetails(ctx context.Context, jobID string, stepID string) (*slurm.JobStepDetails, error) {
 	ret := _m.Called(ctx, jobID, stepID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetJobStepDetails")
 	}
 
-	var r0 *interfaces.JobStepDetails
+	var r0 *slurm.JobStepDetails
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*interfaces.JobStepDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*slurm.JobStepDetails, error)); ok {
 		return rf(ctx, jobID, stepID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) *interfaces.JobStepDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *slurm.JobStepDetails); ok {
 		r0 = rf(ctx, jobID, stepID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.JobStepDetails)
+			r0 = ret.Get(0).(*slurm.JobStepDetails)
 		}
 	}
 
@@ -483,23 +483,23 @@ func (_m *MockJobManager) GetJobStepDetails(ctx context.Context, jobID string, s
 }
 
 // GetJobStepUtilization provides a mock function with given fields: ctx, jobID, stepID
-func (_m *MockJobManager) GetJobStepUtilization(ctx context.Context, jobID string, stepID string) (*interfaces.JobStepUtilization, error) {
+func (_m *MockJobManager) GetJobStepUtilization(ctx context.Context, jobID string, stepID string) (*slurm.JobStepUtilization, error) {
 	ret := _m.Called(ctx, jobID, stepID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetJobStepUtilization")
 	}
 
-	var r0 *interfaces.JobStepUtilization
+	var r0 *slurm.JobStepUtilization
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*interfaces.JobStepUtilization, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*slurm.JobStepUtilization, error)); ok {
 		return rf(ctx, jobID, stepID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) *interfaces.JobStepUtilization); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *slurm.JobStepUtilization); ok {
 		r0 = rf(ctx, jobID, stepID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.JobStepUtilization)
+			r0 = ret.Get(0).(*slurm.JobStepUtilization)
 		}
 	}
 
@@ -513,27 +513,27 @@ func (_m *MockJobManager) GetJobStepUtilization(ctx context.Context, jobID strin
 }
 
 // GetJobStepsFromAccounting provides a mock function with given fields: ctx, jobID, opts
-func (_m *MockJobManager) GetJobStepsFromAccounting(ctx context.Context, jobID string, opts *interfaces.AccountingQueryOptions) (*interfaces.AccountingJobSteps, error) {
+func (_m *MockJobManager) GetJobStepsFromAccounting(ctx context.Context, jobID string, opts *slurm.AccountingQueryOptions) (*slurm.AccountingJobSteps, error) {
 	ret := _m.Called(ctx, jobID, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetJobStepsFromAccounting")
 	}
 
-	var r0 *interfaces.AccountingJobSteps
+	var r0 *slurm.AccountingJobSteps
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.AccountingQueryOptions) (*interfaces.AccountingJobSteps, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.AccountingQueryOptions) (*slurm.AccountingJobSteps, error)); ok {
 		return rf(ctx, jobID, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.AccountingQueryOptions) *interfaces.AccountingJobSteps); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.AccountingQueryOptions) *slurm.AccountingJobSteps); ok {
 		r0 = rf(ctx, jobID, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.AccountingJobSteps)
+			r0 = ret.Get(0).(*slurm.AccountingJobSteps)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, *interfaces.AccountingQueryOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, *slurm.AccountingQueryOptions) error); ok {
 		r1 = rf(ctx, jobID, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -543,23 +543,23 @@ func (_m *MockJobManager) GetJobStepsFromAccounting(ctx context.Context, jobID s
 }
 
 // GetJobUtilization provides a mock function with given fields: ctx, jobID
-func (_m *MockJobManager) GetJobUtilization(ctx context.Context, jobID string) (*interfaces.JobUtilization, error) {
+func (_m *MockJobManager) GetJobUtilization(ctx context.Context, jobID string) (*slurm.JobUtilization, error) {
 	ret := _m.Called(ctx, jobID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetJobUtilization")
 	}
 
-	var r0 *interfaces.JobUtilization
+	var r0 *slurm.JobUtilization
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.JobUtilization, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.JobUtilization, error)); ok {
 		return rf(ctx, jobID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.JobUtilization); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.JobUtilization); ok {
 		r0 = rf(ctx, jobID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.JobUtilization)
+			r0 = ret.Get(0).(*slurm.JobUtilization)
 		}
 	}
 
@@ -573,27 +573,27 @@ func (_m *MockJobManager) GetJobUtilization(ctx context.Context, jobID string) (
 }
 
 // GetPerformanceTrends provides a mock function with given fields: ctx, opts
-func (_m *MockJobManager) GetPerformanceTrends(ctx context.Context, opts *interfaces.TrendAnalysisOptions) (*interfaces.PerformanceTrends, error) {
+func (_m *MockJobManager) GetPerformanceTrends(ctx context.Context, opts *slurm.TrendAnalysisOptions) (*slurm.PerformanceTrends, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetPerformanceTrends")
 	}
 
-	var r0 *interfaces.PerformanceTrends
+	var r0 *slurm.PerformanceTrends
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.TrendAnalysisOptions) (*interfaces.PerformanceTrends, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.TrendAnalysisOptions) (*slurm.PerformanceTrends, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.TrendAnalysisOptions) *interfaces.PerformanceTrends); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.TrendAnalysisOptions) *slurm.PerformanceTrends); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.PerformanceTrends)
+			r0 = ret.Get(0).(*slurm.PerformanceTrends)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.TrendAnalysisOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.TrendAnalysisOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -603,23 +603,23 @@ func (_m *MockJobManager) GetPerformanceTrends(ctx context.Context, opts *interf
 }
 
 // GetStepAccountingData provides a mock function with given fields: ctx, jobID, stepID
-func (_m *MockJobManager) GetStepAccountingData(ctx context.Context, jobID string, stepID string) (*interfaces.StepAccountingRecord, error) {
+func (_m *MockJobManager) GetStepAccountingData(ctx context.Context, jobID string, stepID string) (*slurm.StepAccountingRecord, error) {
 	ret := _m.Called(ctx, jobID, stepID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetStepAccountingData")
 	}
 
-	var r0 *interfaces.StepAccountingRecord
+	var r0 *slurm.StepAccountingRecord
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*interfaces.StepAccountingRecord, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*slurm.StepAccountingRecord, error)); ok {
 		return rf(ctx, jobID, stepID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) *interfaces.StepAccountingRecord); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *slurm.StepAccountingRecord); ok {
 		r0 = rf(ctx, jobID, stepID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.StepAccountingRecord)
+			r0 = ret.Get(0).(*slurm.StepAccountingRecord)
 		}
 	}
 
@@ -633,27 +633,27 @@ func (_m *MockJobManager) GetStepAccountingData(ctx context.Context, jobID strin
 }
 
 // GetUserEfficiencyTrends provides a mock function with given fields: ctx, userID, opts
-func (_m *MockJobManager) GetUserEfficiencyTrends(ctx context.Context, userID string, opts *interfaces.EfficiencyTrendOptions) (*interfaces.UserEfficiencyTrends, error) {
+func (_m *MockJobManager) GetUserEfficiencyTrends(ctx context.Context, userID string, opts *slurm.EfficiencyTrendOptions) (*slurm.UserEfficiencyTrends, error) {
 	ret := _m.Called(ctx, userID, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserEfficiencyTrends")
 	}
 
-	var r0 *interfaces.UserEfficiencyTrends
+	var r0 *slurm.UserEfficiencyTrends
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.EfficiencyTrendOptions) (*interfaces.UserEfficiencyTrends, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.EfficiencyTrendOptions) (*slurm.UserEfficiencyTrends, error)); ok {
 		return rf(ctx, userID, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.EfficiencyTrendOptions) *interfaces.UserEfficiencyTrends); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.EfficiencyTrendOptions) *slurm.UserEfficiencyTrends); ok {
 		r0 = rf(ctx, userID, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.UserEfficiencyTrends)
+			r0 = ret.Get(0).(*slurm.UserEfficiencyTrends)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, *interfaces.EfficiencyTrendOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, *slurm.EfficiencyTrendOptions) error); ok {
 		r1 = rf(ctx, userID, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -663,27 +663,27 @@ func (_m *MockJobManager) GetUserEfficiencyTrends(ctx context.Context, userID st
 }
 
 // GetWorkflowPerformance provides a mock function with given fields: ctx, workflowID, opts
-func (_m *MockJobManager) GetWorkflowPerformance(ctx context.Context, workflowID string, opts *interfaces.WorkflowAnalysisOptions) (*interfaces.WorkflowPerformance, error) {
+func (_m *MockJobManager) GetWorkflowPerformance(ctx context.Context, workflowID string, opts *slurm.WorkflowAnalysisOptions) (*slurm.WorkflowPerformance, error) {
 	ret := _m.Called(ctx, workflowID, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetWorkflowPerformance")
 	}
 
-	var r0 *interfaces.WorkflowPerformance
+	var r0 *slurm.WorkflowPerformance
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.WorkflowAnalysisOptions) (*interfaces.WorkflowPerformance, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.WorkflowAnalysisOptions) (*slurm.WorkflowPerformance, error)); ok {
 		return rf(ctx, workflowID, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.WorkflowAnalysisOptions) *interfaces.WorkflowPerformance); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.WorkflowAnalysisOptions) *slurm.WorkflowPerformance); ok {
 		r0 = rf(ctx, workflowID, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.WorkflowPerformance)
+			r0 = ret.Get(0).(*slurm.WorkflowPerformance)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, *interfaces.WorkflowAnalysisOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, *slurm.WorkflowAnalysisOptions) error); ok {
 		r1 = rf(ctx, workflowID, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -711,27 +711,27 @@ func (_m *MockJobManager) Hold(ctx context.Context, jobID string) error {
 }
 
 // List provides a mock function with given fields: ctx, opts
-func (_m *MockJobManager) List(ctx context.Context, opts *interfaces.ListJobsOptions) (*interfaces.JobList, error) {
+func (_m *MockJobManager) List(ctx context.Context, opts *slurm.ListJobsOptions) (*slurm.JobList, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 *interfaces.JobList
+	var r0 *slurm.JobList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListJobsOptions) (*interfaces.JobList, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListJobsOptions) (*slurm.JobList, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListJobsOptions) *interfaces.JobList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListJobsOptions) *slurm.JobList); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.JobList)
+			r0 = ret.Get(0).(*slurm.JobList)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.ListJobsOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.ListJobsOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -741,27 +741,27 @@ func (_m *MockJobManager) List(ctx context.Context, opts *interfaces.ListJobsOpt
 }
 
 // ListJobStepsFromSacct provides a mock function with given fields: ctx, jobID, opts
-func (_m *MockJobManager) ListJobStepsFromSacct(ctx context.Context, jobID string, opts *interfaces.SacctQueryOptions) (*interfaces.SacctJobStepData, error) {
+func (_m *MockJobManager) ListJobStepsFromSacct(ctx context.Context, jobID string, opts *slurm.SacctQueryOptions) (*slurm.SacctJobStepData, error) {
 	ret := _m.Called(ctx, jobID, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListJobStepsFromSacct")
 	}
 
-	var r0 *interfaces.SacctJobStepData
+	var r0 *slurm.SacctJobStepData
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.SacctQueryOptions) (*interfaces.SacctJobStepData, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.SacctQueryOptions) (*slurm.SacctJobStepData, error)); ok {
 		return rf(ctx, jobID, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.SacctQueryOptions) *interfaces.SacctJobStepData); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.SacctQueryOptions) *slurm.SacctJobStepData); ok {
 		r0 = rf(ctx, jobID, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.SacctJobStepData)
+			r0 = ret.Get(0).(*slurm.SacctJobStepData)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, *interfaces.SacctQueryOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, *slurm.SacctQueryOptions) error); ok {
 		r1 = rf(ctx, jobID, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -771,27 +771,27 @@ func (_m *MockJobManager) ListJobStepsFromSacct(ctx context.Context, jobID strin
 }
 
 // ListJobStepsWithMetrics provides a mock function with given fields: ctx, jobID, opts
-func (_m *MockJobManager) ListJobStepsWithMetrics(ctx context.Context, jobID string, opts *interfaces.ListJobStepsOptions) (*interfaces.JobStepMetricsList, error) {
+func (_m *MockJobManager) ListJobStepsWithMetrics(ctx context.Context, jobID string, opts *slurm.ListJobStepsOptions) (*slurm.JobStepMetricsList, error) {
 	ret := _m.Called(ctx, jobID, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListJobStepsWithMetrics")
 	}
 
-	var r0 *interfaces.JobStepMetricsList
+	var r0 *slurm.JobStepMetricsList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.ListJobStepsOptions) (*interfaces.JobStepMetricsList, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.ListJobStepsOptions) (*slurm.JobStepMetricsList, error)); ok {
 		return rf(ctx, jobID, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.ListJobStepsOptions) *interfaces.JobStepMetricsList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.ListJobStepsOptions) *slurm.JobStepMetricsList); ok {
 		r0 = rf(ctx, jobID, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.JobStepMetricsList)
+			r0 = ret.Get(0).(*slurm.JobStepMetricsList)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, *interfaces.ListJobStepsOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, *slurm.ListJobStepsOptions) error); ok {
 		r1 = rf(ctx, jobID, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -873,23 +873,23 @@ func (_m *MockJobManager) Signal(ctx context.Context, jobID string, signal strin
 }
 
 // Steps provides a mock function with given fields: ctx, jobID
-func (_m *MockJobManager) Steps(ctx context.Context, jobID string) (*interfaces.JobStepList, error) {
+func (_m *MockJobManager) Steps(ctx context.Context, jobID string) (*slurm.JobStepList, error) {
 	ret := _m.Called(ctx, jobID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Steps")
 	}
 
-	var r0 *interfaces.JobStepList
+	var r0 *slurm.JobStepList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.JobStepList, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.JobStepList, error)); ok {
 		return rf(ctx, jobID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.JobStepList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.JobStepList); ok {
 		r0 = rf(ctx, jobID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.JobStepList)
+			r0 = ret.Get(0).(*slurm.JobStepList)
 		}
 	}
 
@@ -903,27 +903,27 @@ func (_m *MockJobManager) Steps(ctx context.Context, jobID string) (*interfaces.
 }
 
 // Submit provides a mock function with given fields: ctx, job
-func (_m *MockJobManager) Submit(ctx context.Context, job *interfaces.JobSubmission) (*interfaces.JobSubmitResponse, error) {
+func (_m *MockJobManager) Submit(ctx context.Context, job *slurm.JobSubmission) (*slurm.JobSubmitResponse, error) {
 	ret := _m.Called(ctx, job)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Submit")
 	}
 
-	var r0 *interfaces.JobSubmitResponse
+	var r0 *slurm.JobSubmitResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.JobSubmission) (*interfaces.JobSubmitResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.JobSubmission) (*slurm.JobSubmitResponse, error)); ok {
 		return rf(ctx, job)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.JobSubmission) *interfaces.JobSubmitResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.JobSubmission) *slurm.JobSubmitResponse); ok {
 		r0 = rf(ctx, job)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.JobSubmitResponse)
+			r0 = ret.Get(0).(*slurm.JobSubmitResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.JobSubmission) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.JobSubmission) error); ok {
 		r1 = rf(ctx, job)
 	} else {
 		r1 = ret.Error(1)
@@ -933,7 +933,7 @@ func (_m *MockJobManager) Submit(ctx context.Context, job *interfaces.JobSubmiss
 }
 
 // Update provides a mock function with given fields: ctx, jobID, update
-func (_m *MockJobManager) Update(ctx context.Context, jobID string, update *interfaces.JobUpdate) error {
+func (_m *MockJobManager) Update(ctx context.Context, jobID string, update *slurm.JobUpdate) error {
 	ret := _m.Called(ctx, jobID, update)
 
 	if len(ret) == 0 {
@@ -941,7 +941,7 @@ func (_m *MockJobManager) Update(ctx context.Context, jobID string, update *inte
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.JobUpdate) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.JobUpdate) error); ok {
 		r0 = rf(ctx, jobID, update)
 	} else {
 		r0 = ret.Error(0)
@@ -951,27 +951,27 @@ func (_m *MockJobManager) Update(ctx context.Context, jobID string, update *inte
 }
 
 // Watch provides a mock function with given fields: ctx, opts
-func (_m *MockJobManager) Watch(ctx context.Context, opts *interfaces.WatchJobsOptions) (<-chan interfaces.JobEvent, error) {
+func (_m *MockJobManager) Watch(ctx context.Context, opts *slurm.WatchJobsOptions) (<-chan slurm.JobEvent, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Watch")
 	}
 
-	var r0 <-chan interfaces.JobEvent
+	var r0 <-chan slurm.JobEvent
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.WatchJobsOptions) (<-chan interfaces.JobEvent, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.WatchJobsOptions) (<-chan slurm.JobEvent, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.WatchJobsOptions) <-chan interfaces.JobEvent); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.WatchJobsOptions) <-chan slurm.JobEvent); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan interfaces.JobEvent)
+			r0 = ret.Get(0).(<-chan slurm.JobEvent)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.WatchJobsOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.WatchJobsOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -981,27 +981,27 @@ func (_m *MockJobManager) Watch(ctx context.Context, opts *interfaces.WatchJobsO
 }
 
 // WatchJobMetrics provides a mock function with given fields: ctx, jobID, opts
-func (_m *MockJobManager) WatchJobMetrics(ctx context.Context, jobID string, opts *interfaces.WatchMetricsOptions) (<-chan interfaces.JobMetricsEvent, error) {
+func (_m *MockJobManager) WatchJobMetrics(ctx context.Context, jobID string, opts *slurm.WatchMetricsOptions) (<-chan slurm.JobMetricsEvent, error) {
 	ret := _m.Called(ctx, jobID, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for WatchJobMetrics")
 	}
 
-	var r0 <-chan interfaces.JobMetricsEvent
+	var r0 <-chan slurm.JobMetricsEvent
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.WatchMetricsOptions) (<-chan interfaces.JobMetricsEvent, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.WatchMetricsOptions) (<-chan slurm.JobMetricsEvent, error)); ok {
 		return rf(ctx, jobID, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.WatchMetricsOptions) <-chan interfaces.JobMetricsEvent); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.WatchMetricsOptions) <-chan slurm.JobMetricsEvent); ok {
 		r0 = rf(ctx, jobID, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan interfaces.JobMetricsEvent)
+			r0 = ret.Get(0).(<-chan slurm.JobMetricsEvent)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, *interfaces.WatchMetricsOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, *slurm.WatchMetricsOptions) error); ok {
 		r1 = rf(ctx, jobID, opts)
 	} else {
 		r1 = ret.Error(1)

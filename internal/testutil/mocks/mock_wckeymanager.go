@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	interfaces "github.com/jontk/slurm-client/interfaces"
+	"github.com/jontk/slurm-client"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,27 +15,27 @@ type MockWCKeyManager struct {
 }
 
 // Create provides a mock function with given fields: ctx, wckey
-func (_m *MockWCKeyManager) Create(ctx context.Context, wckey *interfaces.WCKeyCreate) (*interfaces.WCKeyCreateResponse, error) {
+func (_m *MockWCKeyManager) Create(ctx context.Context, wckey *slurm.WCKeyCreate) (*slurm.WCKeyCreateResponse, error) {
 	ret := _m.Called(ctx, wckey)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *interfaces.WCKeyCreateResponse
+	var r0 *slurm.WCKeyCreateResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.WCKeyCreate) (*interfaces.WCKeyCreateResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.WCKeyCreate) (*slurm.WCKeyCreateResponse, error)); ok {
 		return rf(ctx, wckey)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.WCKeyCreate) *interfaces.WCKeyCreateResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.WCKeyCreate) *slurm.WCKeyCreateResponse); ok {
 		r0 = rf(ctx, wckey)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.WCKeyCreateResponse)
+			r0 = ret.Get(0).(*slurm.WCKeyCreateResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.WCKeyCreate) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.WCKeyCreate) error); ok {
 		r1 = rf(ctx, wckey)
 	} else {
 		r1 = ret.Error(1)
@@ -63,23 +63,23 @@ func (_m *MockWCKeyManager) Delete(ctx context.Context, wckeyID string) error {
 }
 
 // Get provides a mock function with given fields: ctx, wckeyName, user, cluster
-func (_m *MockWCKeyManager) Get(ctx context.Context, wckeyName string, user string, cluster string) (*interfaces.WCKey, error) {
+func (_m *MockWCKeyManager) Get(ctx context.Context, wckeyName string, user string, cluster string) (*slurm.WCKey, error) {
 	ret := _m.Called(ctx, wckeyName, user, cluster)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *interfaces.WCKey
+	var r0 *slurm.WCKey
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) (*interfaces.WCKey, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) (*slurm.WCKey, error)); ok {
 		return rf(ctx, wckeyName, user, cluster)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) *interfaces.WCKey); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) *slurm.WCKey); ok {
 		r0 = rf(ctx, wckeyName, user, cluster)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.WCKey)
+			r0 = ret.Get(0).(*slurm.WCKey)
 		}
 	}
 
@@ -93,27 +93,27 @@ func (_m *MockWCKeyManager) Get(ctx context.Context, wckeyName string, user stri
 }
 
 // List provides a mock function with given fields: ctx, opts
-func (_m *MockWCKeyManager) List(ctx context.Context, opts *interfaces.WCKeyListOptions) (*interfaces.WCKeyList, error) {
+func (_m *MockWCKeyManager) List(ctx context.Context, opts *slurm.WCKeyListOptions) (*slurm.WCKeyList, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 *interfaces.WCKeyList
+	var r0 *slurm.WCKeyList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.WCKeyListOptions) (*interfaces.WCKeyList, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.WCKeyListOptions) (*slurm.WCKeyList, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.WCKeyListOptions) *interfaces.WCKeyList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.WCKeyListOptions) *slurm.WCKeyList); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.WCKeyList)
+			r0 = ret.Get(0).(*slurm.WCKeyList)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.WCKeyListOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.WCKeyListOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -123,7 +123,7 @@ func (_m *MockWCKeyManager) List(ctx context.Context, opts *interfaces.WCKeyList
 }
 
 // Update provides a mock function with given fields: ctx, wckeyName, user, cluster, update
-func (_m *MockWCKeyManager) Update(ctx context.Context, wckeyName string, user string, cluster string, update *interfaces.WCKeyUpdate) error {
+func (_m *MockWCKeyManager) Update(ctx context.Context, wckeyName string, user string, cluster string, update *slurm.WCKeyUpdate) error {
 	ret := _m.Called(ctx, wckeyName, user, cluster, update)
 
 	if len(ret) == 0 {
@@ -131,7 +131,7 @@ func (_m *MockWCKeyManager) Update(ctx context.Context, wckeyName string, user s
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, *interfaces.WCKeyUpdate) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, *slurm.WCKeyUpdate) error); ok {
 		r0 = rf(ctx, wckeyName, user, cluster, update)
 	} else {
 		r0 = ret.Error(0)

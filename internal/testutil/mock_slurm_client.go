@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"go.uber.org/mock/gomock"
 )
 

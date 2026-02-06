@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/jontk/slurm-exporter/internal/collector"
 	"github.com/jontk/slurm-exporter/internal/performance"
 	"github.com/prometheus/client_golang/prometheus"

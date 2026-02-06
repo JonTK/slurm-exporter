@@ -7,12 +7,13 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+
 	// Commented out as only used in commented-out functions
 	// "math"
 	"sync"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -413,7 +414,7 @@ func (l *LiveJobMonitor) collectLiveJobMetrics(ctx context.Context) error {
 	l.metrics.MonitoredJobsCount.WithLabelValues("running").Set(float64(len(jobs.Jobs)))
 
 	// Process jobs in batches for better performance
-	// TODO: Job type mismatch - jobs.Jobs returns []interfaces.Job but processBatch expects []*slurm.Job
+	// TODO: Job type mismatch - jobs.Jobs returns []slurm.Job but processBatch expects []*slurm.Job
 	// Skipping job processing for now
 	_ = jobs // Suppress unused variable warning
 	/*

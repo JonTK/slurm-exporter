@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	interfaces "github.com/jontk/slurm-client/interfaces"
+	"github.com/jontk/slurm-client"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,23 +15,23 @@ type MockInfoManager struct {
 }
 
 // Get provides a mock function with given fields: ctx
-func (_m *MockInfoManager) Get(ctx context.Context) (*interfaces.ClusterInfo, error) {
+func (_m *MockInfoManager) Get(ctx context.Context) (*slurm.ClusterInfo, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *interfaces.ClusterInfo
+	var r0 *slurm.ClusterInfo
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*interfaces.ClusterInfo, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*slurm.ClusterInfo, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *interfaces.ClusterInfo); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *slurm.ClusterInfo); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.ClusterInfo)
+			r0 = ret.Get(0).(*slurm.ClusterInfo)
 		}
 	}
 
@@ -81,23 +81,23 @@ func (_m *MockInfoManager) PingDatabase(ctx context.Context) error {
 }
 
 // Stats provides a mock function with given fields: ctx
-func (_m *MockInfoManager) Stats(ctx context.Context) (*interfaces.ClusterStats, error) {
+func (_m *MockInfoManager) Stats(ctx context.Context) (*slurm.ClusterStats, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Stats")
 	}
 
-	var r0 *interfaces.ClusterStats
+	var r0 *slurm.ClusterStats
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*interfaces.ClusterStats, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*slurm.ClusterStats, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *interfaces.ClusterStats); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *slurm.ClusterStats); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.ClusterStats)
+			r0 = ret.Get(0).(*slurm.ClusterStats)
 		}
 	}
 
@@ -111,23 +111,23 @@ func (_m *MockInfoManager) Stats(ctx context.Context) (*interfaces.ClusterStats,
 }
 
 // Version provides a mock function with given fields: ctx
-func (_m *MockInfoManager) Version(ctx context.Context) (*interfaces.APIVersion, error) {
+func (_m *MockInfoManager) Version(ctx context.Context) (*slurm.APIVersion, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Version")
 	}
 
-	var r0 *interfaces.APIVersion
+	var r0 *slurm.APIVersion
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*interfaces.APIVersion, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*slurm.APIVersion, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *interfaces.APIVersion); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *slurm.APIVersion); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.APIVersion)
+			r0 = ret.Get(0).(*slurm.APIVersion)
 		}
 	}
 

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/jontk/slurm-exporter/internal/config"
 	"github.com/jontk/slurm-exporter/internal/metrics"
 	"github.com/prometheus/client_golang/prometheus"
@@ -495,7 +495,7 @@ func (c *JobsSimpleCollector) calculateNodeCount(nodes []string) int {
 
 // collectJobInfo collects job info metric
 func (c *JobsSimpleCollector) collectJobInfo(ch chan<- prometheus.Metric, ctx jobContext) {
-	// These fields don't exist in interfaces.Job, use defaults
+	// These fields don't exist in slurm.Job, use defaults
 	account := "default"
 	qos := "normal"
 

@@ -8,8 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jontk/slurm-client"
-	"github.com/jontk/slurm-client/interfaces"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -53,8 +52,8 @@ func TestTRESCollector_Collect_Success(t *testing.T) {
 	}
 
 	now := time.Now()
-	tresList := &interfaces.TRESList{
-		TRES: []interfaces.TRES{
+	tresList := &slurm.TRESList{
+		TRES: []slurm.TRES{
 			{
 				ID:       1,
 				Type:     "cpu",
@@ -91,8 +90,8 @@ func TestTRESCollector_Collect_Success(t *testing.T) {
 		},
 	}
 
-	nodeList := &interfaces.NodeList{
-		Nodes: []interfaces.Node{
+	nodeList := &slurm.NodeList{
+		Nodes: []slurm.Node{
 			{
 				Name:  "node1",
 				State: "IDLE",
@@ -172,12 +171,12 @@ func TestTRESCollector_EmptyTRESList(t *testing.T) {
 	}
 
 	// Setup mock to return empty list
-	emptyList := &interfaces.TRESList{
-		TRES: []interfaces.TRES{},
+	emptyList := &slurm.TRESList{
+		TRES: []slurm.TRES{},
 	}
 
-	nodeList := &interfaces.NodeList{
-		Nodes: []interfaces.Node{},
+	nodeList := &slurm.NodeList{
+		Nodes: []slurm.Node{},
 		Total: 0,
 	}
 

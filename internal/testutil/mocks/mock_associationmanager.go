@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	interfaces "github.com/jontk/slurm-client/interfaces"
+	"github.com/jontk/slurm-client"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,27 +15,27 @@ type MockAssociationManager struct {
 }
 
 // BulkDelete provides a mock function with given fields: ctx, opts
-func (_m *MockAssociationManager) BulkDelete(ctx context.Context, opts *interfaces.BulkDeleteOptions) (*interfaces.BulkDeleteResponse, error) {
+func (_m *MockAssociationManager) BulkDelete(ctx context.Context, opts *slurm.BulkDeleteOptions) (*slurm.BulkDeleteResponse, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for BulkDelete")
 	}
 
-	var r0 *interfaces.BulkDeleteResponse
+	var r0 *slurm.BulkDeleteResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.BulkDeleteOptions) (*interfaces.BulkDeleteResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.BulkDeleteOptions) (*slurm.BulkDeleteResponse, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.BulkDeleteOptions) *interfaces.BulkDeleteResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.BulkDeleteOptions) *slurm.BulkDeleteResponse); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.BulkDeleteResponse)
+			r0 = ret.Get(0).(*slurm.BulkDeleteResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.BulkDeleteOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.BulkDeleteOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -45,27 +45,27 @@ func (_m *MockAssociationManager) BulkDelete(ctx context.Context, opts *interfac
 }
 
 // Create provides a mock function with given fields: ctx, associations
-func (_m *MockAssociationManager) Create(ctx context.Context, associations []*interfaces.AssociationCreate) (*interfaces.AssociationCreateResponse, error) {
+func (_m *MockAssociationManager) Create(ctx context.Context, associations []*slurm.AssociationCreate) (*slurm.AssociationCreateResponse, error) {
 	ret := _m.Called(ctx, associations)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *interfaces.AssociationCreateResponse
+	var r0 *slurm.AssociationCreateResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []*interfaces.AssociationCreate) (*interfaces.AssociationCreateResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []*slurm.AssociationCreate) (*slurm.AssociationCreateResponse, error)); ok {
 		return rf(ctx, associations)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []*interfaces.AssociationCreate) *interfaces.AssociationCreateResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []*slurm.AssociationCreate) *slurm.AssociationCreateResponse); ok {
 		r0 = rf(ctx, associations)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.AssociationCreateResponse)
+			r0 = ret.Get(0).(*slurm.AssociationCreateResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, []*interfaces.AssociationCreate) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, []*slurm.AssociationCreate) error); ok {
 		r1 = rf(ctx, associations)
 	} else {
 		r1 = ret.Error(1)
@@ -75,7 +75,7 @@ func (_m *MockAssociationManager) Create(ctx context.Context, associations []*in
 }
 
 // Delete provides a mock function with given fields: ctx, opts
-func (_m *MockAssociationManager) Delete(ctx context.Context, opts *interfaces.DeleteAssociationOptions) error {
+func (_m *MockAssociationManager) Delete(ctx context.Context, opts *slurm.DeleteAssociationOptions) error {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
@@ -83,7 +83,7 @@ func (_m *MockAssociationManager) Delete(ctx context.Context, opts *interfaces.D
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.DeleteAssociationOptions) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.DeleteAssociationOptions) error); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		r0 = ret.Error(0)
@@ -93,27 +93,27 @@ func (_m *MockAssociationManager) Delete(ctx context.Context, opts *interfaces.D
 }
 
 // Get provides a mock function with given fields: ctx, opts
-func (_m *MockAssociationManager) Get(ctx context.Context, opts *interfaces.GetAssociationOptions) (*interfaces.Association, error) {
+func (_m *MockAssociationManager) Get(ctx context.Context, opts *slurm.GetAssociationOptions) (*slurm.Association, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *interfaces.Association
+	var r0 *slurm.Association
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.GetAssociationOptions) (*interfaces.Association, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.GetAssociationOptions) (*slurm.Association, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.GetAssociationOptions) *interfaces.Association); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.GetAssociationOptions) *slurm.Association); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.Association)
+			r0 = ret.Get(0).(*slurm.Association)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.GetAssociationOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.GetAssociationOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -123,23 +123,23 @@ func (_m *MockAssociationManager) Get(ctx context.Context, opts *interfaces.GetA
 }
 
 // GetAccountAssociations provides a mock function with given fields: ctx, accountName
-func (_m *MockAssociationManager) GetAccountAssociations(ctx context.Context, accountName string) ([]*interfaces.Association, error) {
+func (_m *MockAssociationManager) GetAccountAssociations(ctx context.Context, accountName string) ([]*slurm.Association, error) {
 	ret := _m.Called(ctx, accountName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAccountAssociations")
 	}
 
-	var r0 []*interfaces.Association
+	var r0 []*slurm.Association
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) ([]*interfaces.Association, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) ([]*slurm.Association, error)); ok {
 		return rf(ctx, accountName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) []*interfaces.Association); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) []*slurm.Association); ok {
 		r0 = rf(ctx, accountName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*interfaces.Association)
+			r0 = ret.Get(0).([]*slurm.Association)
 		}
 	}
 
@@ -153,23 +153,23 @@ func (_m *MockAssociationManager) GetAccountAssociations(ctx context.Context, ac
 }
 
 // GetUserAssociations provides a mock function with given fields: ctx, userName
-func (_m *MockAssociationManager) GetUserAssociations(ctx context.Context, userName string) ([]*interfaces.Association, error) {
+func (_m *MockAssociationManager) GetUserAssociations(ctx context.Context, userName string) ([]*slurm.Association, error) {
 	ret := _m.Called(ctx, userName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserAssociations")
 	}
 
-	var r0 []*interfaces.Association
+	var r0 []*slurm.Association
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) ([]*interfaces.Association, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) ([]*slurm.Association, error)); ok {
 		return rf(ctx, userName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) []*interfaces.Association); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) []*slurm.Association); ok {
 		r0 = rf(ctx, userName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*interfaces.Association)
+			r0 = ret.Get(0).([]*slurm.Association)
 		}
 	}
 
@@ -183,27 +183,27 @@ func (_m *MockAssociationManager) GetUserAssociations(ctx context.Context, userN
 }
 
 // List provides a mock function with given fields: ctx, opts
-func (_m *MockAssociationManager) List(ctx context.Context, opts *interfaces.ListAssociationsOptions) (*interfaces.AssociationList, error) {
+func (_m *MockAssociationManager) List(ctx context.Context, opts *slurm.ListAssociationsOptions) (*slurm.AssociationList, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 *interfaces.AssociationList
+	var r0 *slurm.AssociationList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListAssociationsOptions) (*interfaces.AssociationList, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListAssociationsOptions) (*slurm.AssociationList, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListAssociationsOptions) *interfaces.AssociationList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListAssociationsOptions) *slurm.AssociationList); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.AssociationList)
+			r0 = ret.Get(0).(*slurm.AssociationList)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.ListAssociationsOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.ListAssociationsOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -213,7 +213,7 @@ func (_m *MockAssociationManager) List(ctx context.Context, opts *interfaces.Lis
 }
 
 // Update provides a mock function with given fields: ctx, associations
-func (_m *MockAssociationManager) Update(ctx context.Context, associations []*interfaces.AssociationUpdate) error {
+func (_m *MockAssociationManager) Update(ctx context.Context, associations []*slurm.AssociationUpdate) error {
 	ret := _m.Called(ctx, associations)
 
 	if len(ret) == 0 {
@@ -221,7 +221,7 @@ func (_m *MockAssociationManager) Update(ctx context.Context, associations []*in
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, []*interfaces.AssociationUpdate) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []*slurm.AssociationUpdate) error); ok {
 		r0 = rf(ctx, associations)
 	} else {
 		r0 = ret.Error(0)

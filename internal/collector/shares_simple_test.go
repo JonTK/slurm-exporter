@@ -8,8 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jontk/slurm-client"
-	"github.com/jontk/slurm-client/interfaces"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -47,8 +46,8 @@ func TestSharesCollector_Collect_Success(t *testing.T) {
 	timeout := 30 * time.Second
 
 	// Setup mock expectations with test data
-	sharesList := &interfaces.SharesList{
-		Shares: []interfaces.Share{
+	sharesList := &slurm.SharesList{
+		Shares: []slurm.Share{
 			{
 				Name:        "account1",
 				User:        "user1",
@@ -131,8 +130,8 @@ func TestSharesCollector_EmptySharesList(t *testing.T) {
 	timeout := 30 * time.Second
 
 	// Setup mock to return empty list
-	emptyList := &interfaces.SharesList{
-		Shares: []interfaces.Share{},
+	emptyList := &slurm.SharesList{
+		Shares: []slurm.Share{},
 	}
 
 	clusterInfo := &slurm.ClusterInfo{

@@ -7,11 +7,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/jontk/slurm-client/interfaces"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
+	slurm "github.com/jontk/slurm-client"
 	"github.com/jontk/slurm-exporter/internal/testutil"
 	"github.com/jontk/slurm-exporter/internal/testutil/mocks"
 )
@@ -44,8 +44,8 @@ func TestAssociationsSimpleCollector_Collect_Success(t *testing.T) {
 
 	// Setup mock expectations with test data
 	maxJobs := 100
-	associationList := &interfaces.AssociationList{
-		Associations: []*interfaces.Association{
+	associationList := &slurm.AssociationList{
+		Associations: []*slurm.Association{
 			{
 				ID:        1,
 				User:      "user1",
@@ -150,8 +150,8 @@ func TestAssociationsSimpleCollector_EmptyAssociationList(t *testing.T) {
 	mockAssociationManager := new(mocks.MockAssociationManager)
 
 	// Setup mock to return empty list
-	emptyList := &interfaces.AssociationList{
-		Associations: []*interfaces.Association{},
+	emptyList := &slurm.AssociationList{
+		Associations: []*slurm.Association{},
 		Total:        0,
 	}
 

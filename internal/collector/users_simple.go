@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
@@ -255,7 +255,7 @@ func (c *UsersSimpleCollector) collectJobStatsByUser(ctx context.Context, jobsMa
 
 		// Create key for grouping
 		key := userJobKey{
-			account:   "default", // Job doesn't have account field in interfaces.Job
+			account:   "default", // Job doesn't have account field in slurm.Job
 			partition: job.Partition,
 		}
 

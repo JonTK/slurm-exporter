@@ -1,7 +1,7 @@
 package fixtures
 
 import (
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 )
 
 // GetTestPartitions returns test partition data

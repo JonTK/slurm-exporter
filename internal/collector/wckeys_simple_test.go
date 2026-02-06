@@ -8,8 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jontk/slurm-client"
-	"github.com/jontk/slurm-client/interfaces"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -48,8 +47,8 @@ func TestWCKeysCollector_Collect_Success(t *testing.T) {
 	timeout := 30 * time.Second
 
 	// Setup mock expectations with test data
-	wcKeyList := &interfaces.WCKeyList{
-		WCKeys: []interfaces.WCKey{
+	wcKeyList := &slurm.WCKeyList{
+		WCKeys: []slurm.WCKey{
 			{
 				Name:    "wckey1",
 				User:    "user1",
@@ -137,8 +136,8 @@ func TestWCKeysCollector_EmptyWCKeyList(t *testing.T) {
 	timeout := 30 * time.Second
 
 	// Setup mock to return empty list
-	emptyList := &interfaces.WCKeyList{
-		WCKeys: []interfaces.WCKey{},
+	emptyList := &slurm.WCKeyList{
+		WCKeys: []slurm.WCKey{},
 		Total:  0,
 	}
 

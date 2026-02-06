@@ -7,11 +7,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/jontk/slurm-client/interfaces"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
+	slurm "github.com/jontk/slurm-client"
 	"github.com/jontk/slurm-exporter/internal/testutil"
 	"github.com/jontk/slurm-exporter/internal/testutil/mocks"
 )
@@ -48,8 +48,8 @@ func TestAccountsSimpleCollector_Collect_Success(t *testing.T) {
 		"mem": 102400, // 100GB in MB
 	}
 
-	accountList := &interfaces.AccountList{
-		Accounts: []interfaces.Account{
+	accountList := &slurm.AccountList{
+		Accounts: []slurm.Account{
 			{
 				Name:             "account1",
 				Organization:     "org1",
@@ -73,8 +73,8 @@ func TestAccountsSimpleCollector_Collect_Success(t *testing.T) {
 	}
 
 	// Setup associations for user counting
-	associationList := &interfaces.AssociationList{
-		Associations: []*interfaces.Association{
+	associationList := &slurm.AssociationList{
+		Associations: []*slurm.Association{
 			{
 				ID:      1,
 				User:    "user1",
@@ -179,13 +179,13 @@ func TestAccountsSimpleCollector_EmptyAccountList(t *testing.T) {
 	mockAssociationManager := new(mocks.MockAssociationManager)
 
 	// Setup mock to return empty lists
-	emptyAccountList := &interfaces.AccountList{
-		Accounts: []interfaces.Account{},
+	emptyAccountList := &slurm.AccountList{
+		Accounts: []slurm.Account{},
 		Total:    0,
 	}
 
-	emptyAssociationList := &interfaces.AssociationList{
-		Associations: []*interfaces.Association{},
+	emptyAssociationList := &slurm.AssociationList{
+		Associations: []*slurm.Association{},
 		Total:        0,
 	}
 

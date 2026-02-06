@@ -7,8 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jontk/slurm-client"
-	"github.com/jontk/slurm-client/interfaces"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
@@ -138,7 +137,7 @@ type associationContext struct {
 }
 
 // extractAssociationContext extracts and normalizes association fields with safe defaults
-func extractAssociationContext(assoc *interfaces.Association) associationContext {
+func extractAssociationContext(assoc *slurm.Association) associationContext {
 	ctx := associationContext{
 		user:      assoc.User,
 		account:   assoc.Account,
@@ -178,7 +177,7 @@ func (c *AssociationsSimpleCollector) sendAssociationInfoMetric(ch chan<- promet
 }
 
 // sendTRESLimitsMetrics sends CPU and memory limit metrics from TRES
-func (c *AssociationsSimpleCollector) sendTRESLimitsMetrics(ch chan<- prometheus.Metric, assoc *interfaces.Association, ctx associationContext) {
+func (c *AssociationsSimpleCollector) sendTRESLimitsMetrics(ch chan<- prometheus.Metric, assoc *slurm.Association, ctx associationContext) {
 	if assoc.MaxTRESPerJob == nil {
 		return
 	}
@@ -212,7 +211,7 @@ func (c *AssociationsSimpleCollector) sendTRESLimitsMetrics(ch chan<- prometheus
 }
 
 // sendAssociationLimitMetrics sends time limit, priority, and shares metrics
-func (c *AssociationsSimpleCollector) sendAssociationLimitMetrics(ch chan<- prometheus.Metric, assoc *interfaces.Association, ctx associationContext) {
+func (c *AssociationsSimpleCollector) sendAssociationLimitMetrics(ch chan<- prometheus.Metric, assoc *slurm.Association, ctx associationContext) {
 	// Time limit
 	if assoc.MaxWallDuration != nil && *assoc.MaxWallDuration > 0 {
 		ch <- prometheus.MustNewConstMetric(

@@ -2,6 +2,8 @@ module github.com/jontk/slurm-exporter
 
 go 1.24.4
 
+replace github.com/jontk/slurm-client => ../slurm-client
+
 require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/golang/mock v1.6.0

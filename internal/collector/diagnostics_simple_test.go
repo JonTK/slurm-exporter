@@ -8,8 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jontk/slurm-client"
-	"github.com/jontk/slurm-client/interfaces"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -52,7 +51,7 @@ func TestDiagnosticsCollector_Collect_Success(t *testing.T) {
 
 	// Setup mock expectations with test data
 	now := time.Now()
-	diagnostics := &interfaces.Diagnostics{
+	diagnostics := &slurm.Diagnostics{
 		DataCollected:        now,
 		ReqTime:              12345,
 		ReqTimeStart:         now.Unix(),

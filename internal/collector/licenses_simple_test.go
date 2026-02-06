@@ -8,8 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jontk/slurm-client"
-	"github.com/jontk/slurm-client/interfaces"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -47,8 +46,8 @@ func TestLicensesCollector_Collect_Success(t *testing.T) {
 	timeout := 30 * time.Second
 
 	// Setup mock expectations with test data
-	licenseList := &interfaces.LicenseList{
-		Licenses: []interfaces.License{
+	licenseList := &slurm.LicenseList{
+		Licenses: []slurm.License{
 			{
 				Name:      "matlab",
 				Total:     100,
@@ -127,8 +126,8 @@ func TestLicensesCollector_EmptyLicenseList(t *testing.T) {
 	timeout := 30 * time.Second
 
 	// Setup mock to return empty list
-	emptyList := &interfaces.LicenseList{
-		Licenses: []interfaces.License{},
+	emptyList := &slurm.LicenseList{
+		Licenses: []slurm.License{},
 	}
 
 	clusterInfo := &slurm.ClusterInfo{

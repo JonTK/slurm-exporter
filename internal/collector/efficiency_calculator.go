@@ -9,7 +9,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 )
 
 // EfficiencyCalculator provides algorithms for calculating various efficiency metrics

@@ -8,7 +8,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 )
 
 // TestDataGenerator provides functions to generate test data

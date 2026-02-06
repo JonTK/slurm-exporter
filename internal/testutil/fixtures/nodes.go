@@ -3,7 +3,7 @@ package fixtures
 import (
 	"fmt"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 )
 
 // createIdleNode creates an idle test node

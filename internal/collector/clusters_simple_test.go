@@ -8,11 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jontk/slurm-client/interfaces"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
+	slurm "github.com/jontk/slurm-client"
 	"github.com/jontk/slurm-exporter/internal/testutil"
 	"github.com/jontk/slurm-exporter/internal/testutil/mocks"
 )
@@ -47,8 +47,8 @@ func TestClustersCollector_Collect_Success(t *testing.T) {
 
 	// Setup mock expectations with test data
 	now := time.Now()
-	clusterList := &interfaces.ClusterList{
-		Clusters: []*interfaces.Cluster{
+	clusterList := &slurm.ClusterList{
+		Clusters: []*slurm.Cluster{
 			{
 				Name:               "cluster1",
 				ControlHost:        "controller1.example.com",
@@ -136,8 +136,8 @@ func TestClustersCollector_EmptyClusterList(t *testing.T) {
 	timeout := 30 * time.Second
 
 	// Setup mock to return empty list
-	emptyList := &interfaces.ClusterList{
-		Clusters: []*interfaces.Cluster{},
+	emptyList := &slurm.ClusterList{
+		Clusters: []*slurm.Cluster{},
 		Total:    0,
 	}
 

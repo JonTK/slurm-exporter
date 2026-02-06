@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	interfaces "github.com/jontk/slurm-client/interfaces"
+	"github.com/jontk/slurm-client"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,27 +15,27 @@ type MockClusterManager struct {
 }
 
 // Create provides a mock function with given fields: ctx, cluster
-func (_m *MockClusterManager) Create(ctx context.Context, cluster *interfaces.ClusterCreate) (*interfaces.ClusterCreateResponse, error) {
+func (_m *MockClusterManager) Create(ctx context.Context, cluster *slurm.ClusterCreate) (*slurm.ClusterCreateResponse, error) {
 	ret := _m.Called(ctx, cluster)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *interfaces.ClusterCreateResponse
+	var r0 *slurm.ClusterCreateResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ClusterCreate) (*interfaces.ClusterCreateResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ClusterCreate) (*slurm.ClusterCreateResponse, error)); ok {
 		return rf(ctx, cluster)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ClusterCreate) *interfaces.ClusterCreateResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ClusterCreate) *slurm.ClusterCreateResponse); ok {
 		r0 = rf(ctx, cluster)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.ClusterCreateResponse)
+			r0 = ret.Get(0).(*slurm.ClusterCreateResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.ClusterCreate) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.ClusterCreate) error); ok {
 		r1 = rf(ctx, cluster)
 	} else {
 		r1 = ret.Error(1)
@@ -63,23 +63,23 @@ func (_m *MockClusterManager) Delete(ctx context.Context, clusterName string) er
 }
 
 // Get provides a mock function with given fields: ctx, clusterName
-func (_m *MockClusterManager) Get(ctx context.Context, clusterName string) (*interfaces.Cluster, error) {
+func (_m *MockClusterManager) Get(ctx context.Context, clusterName string) (*slurm.Cluster, error) {
 	ret := _m.Called(ctx, clusterName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *interfaces.Cluster
+	var r0 *slurm.Cluster
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.Cluster, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.Cluster, error)); ok {
 		return rf(ctx, clusterName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.Cluster); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.Cluster); ok {
 		r0 = rf(ctx, clusterName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.Cluster)
+			r0 = ret.Get(0).(*slurm.Cluster)
 		}
 	}
 
@@ -93,27 +93,27 @@ func (_m *MockClusterManager) Get(ctx context.Context, clusterName string) (*int
 }
 
 // List provides a mock function with given fields: ctx, opts
-func (_m *MockClusterManager) List(ctx context.Context, opts *interfaces.ListClustersOptions) (*interfaces.ClusterList, error) {
+func (_m *MockClusterManager) List(ctx context.Context, opts *slurm.ListClustersOptions) (*slurm.ClusterList, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 *interfaces.ClusterList
+	var r0 *slurm.ClusterList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListClustersOptions) (*interfaces.ClusterList, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListClustersOptions) (*slurm.ClusterList, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListClustersOptions) *interfaces.ClusterList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListClustersOptions) *slurm.ClusterList); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.ClusterList)
+			r0 = ret.Get(0).(*slurm.ClusterList)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.ListClustersOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.ListClustersOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -123,7 +123,7 @@ func (_m *MockClusterManager) List(ctx context.Context, opts *interfaces.ListClu
 }
 
 // Update provides a mock function with given fields: ctx, clusterName, update
-func (_m *MockClusterManager) Update(ctx context.Context, clusterName string, update *interfaces.ClusterUpdate) error {
+func (_m *MockClusterManager) Update(ctx context.Context, clusterName string, update *slurm.ClusterUpdate) error {
 	ret := _m.Called(ctx, clusterName, update)
 
 	if len(ret) == 0 {
@@ -131,7 +131,7 @@ func (_m *MockClusterManager) Update(ctx context.Context, clusterName string, up
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.ClusterUpdate) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.ClusterUpdate) error); ok {
 		r0 = rf(ctx, clusterName, update)
 	} else {
 		r0 = ret.Error(0)

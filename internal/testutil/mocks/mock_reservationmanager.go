@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	interfaces "github.com/jontk/slurm-client/interfaces"
+	"github.com/jontk/slurm-client"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,27 +15,27 @@ type MockReservationManager struct {
 }
 
 // Create provides a mock function with given fields: ctx, reservation
-func (_m *MockReservationManager) Create(ctx context.Context, reservation *interfaces.ReservationCreate) (*interfaces.ReservationCreateResponse, error) {
+func (_m *MockReservationManager) Create(ctx context.Context, reservation *slurm.ReservationCreate) (*slurm.ReservationCreateResponse, error) {
 	ret := _m.Called(ctx, reservation)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *interfaces.ReservationCreateResponse
+	var r0 *slurm.ReservationCreateResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ReservationCreate) (*interfaces.ReservationCreateResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ReservationCreate) (*slurm.ReservationCreateResponse, error)); ok {
 		return rf(ctx, reservation)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ReservationCreate) *interfaces.ReservationCreateResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ReservationCreate) *slurm.ReservationCreateResponse); ok {
 		r0 = rf(ctx, reservation)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.ReservationCreateResponse)
+			r0 = ret.Get(0).(*slurm.ReservationCreateResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.ReservationCreate) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.ReservationCreate) error); ok {
 		r1 = rf(ctx, reservation)
 	} else {
 		r1 = ret.Error(1)
@@ -63,23 +63,23 @@ func (_m *MockReservationManager) Delete(ctx context.Context, reservationName st
 }
 
 // Get provides a mock function with given fields: ctx, reservationName
-func (_m *MockReservationManager) Get(ctx context.Context, reservationName string) (*interfaces.Reservation, error) {
+func (_m *MockReservationManager) Get(ctx context.Context, reservationName string) (*slurm.Reservation, error) {
 	ret := _m.Called(ctx, reservationName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *interfaces.Reservation
+	var r0 *slurm.Reservation
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.Reservation, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.Reservation, error)); ok {
 		return rf(ctx, reservationName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.Reservation); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.Reservation); ok {
 		r0 = rf(ctx, reservationName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.Reservation)
+			r0 = ret.Get(0).(*slurm.Reservation)
 		}
 	}
 
@@ -93,27 +93,27 @@ func (_m *MockReservationManager) Get(ctx context.Context, reservationName strin
 }
 
 // List provides a mock function with given fields: ctx, opts
-func (_m *MockReservationManager) List(ctx context.Context, opts *interfaces.ListReservationsOptions) (*interfaces.ReservationList, error) {
+func (_m *MockReservationManager) List(ctx context.Context, opts *slurm.ListReservationsOptions) (*slurm.ReservationList, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 *interfaces.ReservationList
+	var r0 *slurm.ReservationList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListReservationsOptions) (*interfaces.ReservationList, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListReservationsOptions) (*slurm.ReservationList, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListReservationsOptions) *interfaces.ReservationList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListReservationsOptions) *slurm.ReservationList); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.ReservationList)
+			r0 = ret.Get(0).(*slurm.ReservationList)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.ListReservationsOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.ListReservationsOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -123,7 +123,7 @@ func (_m *MockReservationManager) List(ctx context.Context, opts *interfaces.Lis
 }
 
 // Update provides a mock function with given fields: ctx, reservationName, update
-func (_m *MockReservationManager) Update(ctx context.Context, reservationName string, update *interfaces.ReservationUpdate) error {
+func (_m *MockReservationManager) Update(ctx context.Context, reservationName string, update *slurm.ReservationUpdate) error {
 	ret := _m.Called(ctx, reservationName, update)
 
 	if len(ret) == 0 {
@@ -131,7 +131,7 @@ func (_m *MockReservationManager) Update(ctx context.Context, reservationName st
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.ReservationUpdate) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.ReservationUpdate) error); ok {
 		r0 = rf(ctx, reservationName, update)
 	} else {
 		r0 = ret.Error(0)

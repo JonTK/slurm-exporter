@@ -7,12 +7,13 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+
 	// Commented out as only used in commented-out trend analysis functions
 	// "math"
 	"sync"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -409,7 +410,7 @@ func (t *ResourceTrendTracker) trackResourceTrends(ctx context.Context) error {
 	t.logger.Debug("Tracking resource trends", "job_count", len(jobs.Jobs))
 
 	// Process each job
-	// TODO: Job type mismatch - jobs.Jobs returns []interfaces.Job but functions expect *slurm.Job
+	// TODO: Job type mismatch - jobs.Jobs returns []slurm.Job but functions expect *slurm.Job
 	// Skipping job processing for now
 	_ = jobs // Suppress unused variable warning
 	/*
