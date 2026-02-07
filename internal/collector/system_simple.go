@@ -10,7 +10,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
 	slurm "github.com/jontk/slurm-client"
@@ -458,34 +457,9 @@ func readLoadAverage() ([]float64, error) {
 	return loadAvgs, nil
 }
 
-// DiskStats holds disk usage statistics
-type DiskStats struct {
-	Total uint64
-	Used  uint64
-	Free  uint64
-}
-
-// readDiskUsage reads disk usage statistics for a given path
-func readDiskUsage(path string) (*DiskStats, error) {
-	var stat syscall.Statfs_t
-	if err := syscall.Statfs(path, &stat); err != nil {
-		return nil, fmt.Errorf("failed to statfs %s: %w", path, err)
-	}
-
-	// Calculate disk usage
-	// stat.Blocks * stat.Bsize = total size
-	// stat.Bfree * stat.Bsize = free size for root
-	// stat.Bavail * stat.Bsize = free size for users
-	total := stat.Blocks * uint64(stat.Bsize)
-	free := stat.Bfree * uint64(stat.Bsize)
-	used := total - free
-
-	return &DiskStats{
-		Total: total,
-		Used:  used,
-		Free:  free,
-	}, nil
-}
+// DiskStats and readDiskUsage are defined in platform-specific files:
+// - system_simple_linux.go (Linux)
+// - system_simple_windows.go (Windows)
 
 // getFileModTime returns the modification time of a file
 func getFileModTime(path string) (time.Time, error) {

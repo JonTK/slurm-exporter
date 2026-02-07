@@ -509,13 +509,6 @@ func (c *JobsSimpleCollector) sanitizeMemory(memoryBytes int) int64 {
 	return int64(memoryBytes)
 }
 
-// calculateNodeCount determines node count from job node list
-func (c *JobsSimpleCollector) calculateNodeCount(nodes []string) int {
-	if len(nodes) == 0 {
-		return 1 // Default for single-node jobs
-	}
-	return len(nodes)
-}
 
 // collectJobInfo collects job info metric
 func (c *JobsSimpleCollector) collectJobInfo(ch chan<- prometheus.Metric, job slurm.Job, ctx jobContext) {
