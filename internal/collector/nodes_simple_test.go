@@ -219,7 +219,7 @@ func TestNodesSimpleCollector_AllocatedMemory_UsesRealData(t *testing.T) {
 					}
 				}
 				if nodeName != "" {
-					allocMemoryMetrics[nodeName] = pb.Gauge.GetValue()
+					allocMemoryMetrics[nodeName] = pb.GetGauge().GetValue()
 				}
 			}
 		}
