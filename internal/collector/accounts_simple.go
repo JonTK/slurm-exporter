@@ -26,7 +26,7 @@ func NewAccountsSimpleCollector(client slurm.SlurmClient, logger *logrus.Entry) 
 	return &AccountsSimpleCollector{
 		logger:  logger,
 		client:  client,
-		enabled: false,  // Disabled until API migration complete
+		enabled: false, // Disabled until API migration complete
 	}
 }
 

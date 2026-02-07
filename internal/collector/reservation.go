@@ -301,4 +301,3 @@ func (c *ReservationCollector) collect(ctx context.Context, ch chan<- prometheus
 
 	return nil
 }
-

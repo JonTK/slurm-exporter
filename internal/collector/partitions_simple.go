@@ -174,11 +174,11 @@ func (c *PartitionsSimpleCollector) Collect(ctx context.Context, ch chan<- prome
 
 // partitionStats holds aggregated statistics for a partition
 type partitionStats struct {
-	idleNodes      int
-	downNodes      int
-	allocatedCPUs  int
-	pendingJobs    int
-	runningJobs    int
+	idleNodes     int
+	downNodes     int
+	allocatedCPUs int
+	pendingJobs   int
+	runningJobs   int
 }
 
 // publishPartitionMetrics publishes all metrics for a single partition
@@ -405,4 +405,3 @@ func formatDefaultTime(defaults *slurm.PartitionDefaults) string {
 	}
 	return fmt.Sprintf("%d", minutes)
 }
-

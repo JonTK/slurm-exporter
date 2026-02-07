@@ -509,7 +509,6 @@ func (c *JobsSimpleCollector) sanitizeMemory(memoryBytes int) int64 {
 	return int64(memoryBytes)
 }
 
-
 // collectJobInfo collects job info metric
 func (c *JobsSimpleCollector) collectJobInfo(ch chan<- prometheus.Metric, job slurm.Job, ctx jobContext) {
 	// Use actual account and QoS from the job
