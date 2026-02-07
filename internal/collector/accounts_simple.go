@@ -11,10 +11,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	accountsCollectorSubsystem = "account"
-)
-
 // AccountsSimpleCollector collects account-related metrics
 // TODO: This collector needs to be updated for the new Account API
 // The Account struct no longer has ParentAccount, DefaultPartition, MaxTRES, CPULimit, MaxJobs, MaxNodes

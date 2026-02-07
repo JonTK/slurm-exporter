@@ -145,24 +145,6 @@ func (g *TestDataGenerator) generateNodeList(count int) []string {
 	return nodes
 }
 
-// generateFeatures generates node features
-func (g *TestDataGenerator) generateFeatures() []string {
-	allFeatures := []string{"gpu", "ssd", "infiniband", "large_mem", "nvme", "fpga"}
-	count := g.rand.Intn(3) + 1 // 1-3 features
-
-	features := make([]string, 0, count)
-	used := make(map[string]bool)
-
-	for len(features) < count {
-		feature := allFeatures[g.rand.Intn(len(allFeatures))]
-		if !used[feature] {
-			features = append(features, feature)
-			used[feature] = true
-		}
-	}
-
-	return features
-}
 
 // GenerateJobStates generates realistic job state distributions
 func (g *TestDataGenerator) GenerateJobStates() map[string]int {

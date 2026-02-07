@@ -190,7 +190,6 @@ func (c *AssociationsSimpleCollector) sendAssociationInfoMetric(ch chan<- promet
 func (c *AssociationsSimpleCollector) sendTRESLimitsMetrics(ch chan<- prometheus.Metric, assoc api.Association, ctx associationContext) {
 	// TODO: MaxTRESPerJob field removed from Association API
 	// Need to use assoc.Max.TRES structure instead
-	return
 }
 
 // sendAssociationLimitMetrics sends time limit, priority, and shares metrics

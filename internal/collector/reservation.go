@@ -302,17 +302,3 @@ func (c *ReservationCollector) collect(ctx context.Context, ch chan<- prometheus
 	return nil
 }
 
-// isReservationActive is no longer needed - state is calculated from times in the new API
-// Keeping function stub for reference
-func isReservationActive(state string) bool {
-	state = strings.ToLower(state)
-	switch state {
-	case "active", "running":
-		return true
-	case "inactive", "pending", "expired", "deleted":
-		return false
-	default:
-		// Default to considering unknown states as inactive
-		return false
-	}
-}

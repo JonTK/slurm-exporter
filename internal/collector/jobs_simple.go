@@ -370,7 +370,7 @@ func (c *JobsSimpleCollector) collectJobState(ch chan<- prometheus.Metric, ctx j
 
 // collectQueueTime collects queue time metric if applicable
 func (c *JobsSimpleCollector) collectQueueTime(ch chan<- prometheus.Metric, job slurm.Job, ctx jobContext) {
-	if job.StartTime.IsZero() || job.StartTime.IsZero() || job.SubmitTime.IsZero() {
+	if job.StartTime.IsZero() || job.SubmitTime.IsZero() {
 		return
 	}
 
@@ -392,7 +392,7 @@ func (c *JobsSimpleCollector) collectQueueTime(ch chan<- prometheus.Metric, job 
 
 // collectRunTime collects run time metric if job is active
 func (c *JobsSimpleCollector) collectRunTime(ch chan<- prometheus.Metric, job slurm.Job, ctx jobContext, now time.Time) {
-	if job.StartTime.IsZero() || job.StartTime.IsZero() || !isJobActive(ctx.jobState) {
+	if job.StartTime.IsZero() || !isJobActive(ctx.jobState) {
 		return
 	}
 

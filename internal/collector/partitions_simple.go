@@ -294,17 +294,3 @@ func getPartitionRunningJobs(p slurm.Partition) int {
 	return 0 // Placeholder
 }
 
-func formatTimeLimit(minutes uint32) string {
-	if minutes == 0 {
-		return "unlimited"
-	}
-	hours := minutes / 60
-	mins := minutes % 60
-	days := hours / 24
-	hours = hours % 24
-
-	if days > 0 {
-		return fmt.Sprintf("%d-%02d:%02d", days, hours, mins)
-	}
-	return fmt.Sprintf("%02d:%02d", hours, mins)
-}
