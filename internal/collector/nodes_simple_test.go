@@ -154,14 +154,14 @@ func TestNodesSimpleCollector_AllocatedCPUs_UsesRealData(t *testing.T) {
 			pb := &dto.Metric{}
 			if err := metric.Write(pb); err == nil {
 				nodeName := ""
-				for _, label := range pb.Label {
+				for _, label := range pb.GetLabel() {
 					if label.GetName() == "node" {
 						nodeName = label.GetValue()
 						break
 					}
 				}
 				if nodeName != "" {
-					allocCPUMetrics[nodeName] = pb.Gauge.GetValue()
+					allocCPUMetrics[nodeName] = pb.GetGauge().GetValue()
 				}
 			}
 		}
@@ -212,7 +212,7 @@ func TestNodesSimpleCollector_AllocatedMemory_UsesRealData(t *testing.T) {
 			pb := &dto.Metric{}
 			if err := metric.Write(pb); err == nil {
 				nodeName := ""
-				for _, label := range pb.Label {
+				for _, label := range pb.GetLabel() {
 					if label.GetName() == "node" {
 						nodeName = label.GetValue()
 						break
@@ -271,7 +271,7 @@ func TestNodesSimpleCollector_Architecture_UsesRealData(t *testing.T) {
 				nodeName := ""
 				arch := ""
 				os := ""
-				for _, label := range pb.Label {
+				for _, label := range pb.GetLabel() {
 					if label.GetName() == "node" {
 						nodeName = label.GetValue()
 					}

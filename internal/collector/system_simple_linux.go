@@ -4,6 +4,7 @@
 package collector
 
 import (
+	"fmt"
 	"syscall"
 )
 
@@ -18,7 +19,7 @@ type DiskStats struct {
 func readDiskUsage(path string) (*DiskStats, error) {
 	var stat syscall.Statfs_t
 	if err := syscall.Statfs(path, &stat); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to statfs %s: %w", path, err)
 	}
 
 	// Calculate usage
