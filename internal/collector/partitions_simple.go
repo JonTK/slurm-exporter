@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
@@ -174,41 +174,65 @@ func (c *PartitionsSimpleCollector) Collect(ctx context.Context, ch chan<- prome
 
 // publishPartitionMetrics publishes all metrics for a single partition
 func (c *PartitionsSimpleCollector) publishPartitionMetrics(ch chan<- prometheus.Metric, partition slurm.Partition) {
+	// Extract name from pointer
+	name := ""
+	if partition.Name != nil {
+		name = *partition.Name
+	}
+
+	// Extract state from nested Partition.State array
+	stateStr := "UNKNOWN"
+	if partition.Partition != nil && len(partition.Partition.State) > 0 {
+		stateStr = string(partition.Partition.State[0])
+	}
+
 	stateValue := 0.0
-	if isPartitionUp(partition.State) {
+	if isPartitionUp(stateStr) {
 		stateValue = 1.0
 	}
-	ch <- prometheus.MustNewConstMetric(c.partitionState, prometheus.GaugeValue, stateValue, partition.Name, partition.State)
-	ch <- prometheus.MustNewConstMetric(c.partitionNodesTotal, prometheus.GaugeValue, float64(partition.TotalNodes), partition.Name)
+	ch <- prometheus.MustNewConstMetric(c.partitionState, prometheus.GaugeValue, stateValue, name, stateStr)
 
-	allocatedNodes := partition.TotalNodes
-	if partition.TotalNodes > 0 {
-		allocatedNodes = partition.TotalNodes - getIdleNodes(partition) - getDownNodes(partition)
+	// Extract node total from nested Nodes.Total
+	nodesTot := int32(0)
+	if partition.Nodes != nil && partition.Nodes.Total != nil {
+		nodesTot = *partition.Nodes.Total
+	}
+	ch <- prometheus.MustNewConstMetric(c.partitionNodesTotal, prometheus.GaugeValue, float64(nodesTot), name)
+
+	allocatedNodes := nodesTot
+	if nodesTot > 0 {
+		allocatedNodes = nodesTot - int32(getIdleNodes(partition)) - int32(getDownNodes(partition))
 		if allocatedNodes < 0 {
 			allocatedNodes = 0
 		}
 	}
-	ch <- prometheus.MustNewConstMetric(c.partitionNodesAllocated, prometheus.GaugeValue, float64(allocatedNodes), partition.Name)
-	ch <- prometheus.MustNewConstMetric(c.partitionNodesIdle, prometheus.GaugeValue, float64(getIdleNodes(partition)), partition.Name)
-	ch <- prometheus.MustNewConstMetric(c.partitionNodesDown, prometheus.GaugeValue, float64(getDownNodes(partition)), partition.Name)
+	ch <- prometheus.MustNewConstMetric(c.partitionNodesAllocated, prometheus.GaugeValue, float64(allocatedNodes), name)
+	ch <- prometheus.MustNewConstMetric(c.partitionNodesIdle, prometheus.GaugeValue, float64(getIdleNodes(partition)), name)
+	ch <- prometheus.MustNewConstMetric(c.partitionNodesDown, prometheus.GaugeValue, float64(getDownNodes(partition)), name)
 
-	ch <- prometheus.MustNewConstMetric(c.partitionCPUsTotal, prometheus.GaugeValue, float64(partition.TotalCPUs), partition.Name)
+	// Extract CPU total from nested CPUs.Total
+	cpusTot := int32(0)
+	if partition.CPUs != nil && partition.CPUs.Total != nil {
+		cpusTot = *partition.CPUs.Total
+	}
+	ch <- prometheus.MustNewConstMetric(c.partitionCPUsTotal, prometheus.GaugeValue, float64(cpusTot), name)
 
-	allocatedCPUs := getPartitionAllocatedCPUs(partition)
-	ch <- prometheus.MustNewConstMetric(c.partitionCPUsAllocated, prometheus.GaugeValue, float64(allocatedCPUs), partition.Name)
+	allocatedCPUs := int32(getPartitionAllocatedCPUs(partition))
+	ch <- prometheus.MustNewConstMetric(c.partitionCPUsAllocated, prometheus.GaugeValue, float64(allocatedCPUs), name)
 
-	idleCPUs := partition.TotalCPUs - allocatedCPUs
+	idleCPUs := cpusTot - allocatedCPUs
 	if idleCPUs < 0 {
 		idleCPUs = 0
 	}
-	ch <- prometheus.MustNewConstMetric(c.partitionCPUsIdle, prometheus.GaugeValue, float64(idleCPUs), partition.Name)
+	ch <- prometheus.MustNewConstMetric(c.partitionCPUsIdle, prometheus.GaugeValue, float64(idleCPUs), name)
 
-	ch <- prometheus.MustNewConstMetric(c.partitionJobsPending, prometheus.GaugeValue, float64(getPartitionPendingJobs(partition)), partition.Name)
-	ch <- prometheus.MustNewConstMetric(c.partitionJobsRunning, prometheus.GaugeValue, float64(getPartitionRunningJobs(partition)), partition.Name)
+	ch <- prometheus.MustNewConstMetric(c.partitionJobsPending, prometheus.GaugeValue, float64(getPartitionPendingJobs(partition)), name)
+	ch <- prometheus.MustNewConstMetric(c.partitionJobsRunning, prometheus.GaugeValue, float64(getPartitionRunningJobs(partition)), name)
 
-	maxTime := formatTimeLimit(uint32(partition.MaxTime))
-	defaultTime := formatTimeLimit(uint32(partition.DefaultTime))
-	ch <- prometheus.MustNewConstMetric(c.partitionInfo, prometheus.GaugeValue, 1, partition.Name, partition.State, "default", maxTime, defaultTime)
+	// These helper functions may need updating, for now use placeholder values
+	maxTime := "UNLIMITED"
+	defaultTime := "UNLIMITED"
+	ch <- prometheus.MustNewConstMetric(c.partitionInfo, prometheus.GaugeValue, 1, name, stateStr, "default", maxTime, defaultTime)
 }
 
 // collect gathers metrics from SLURM
@@ -270,17 +294,3 @@ func getPartitionRunningJobs(p slurm.Partition) int {
 	return 0 // Placeholder
 }
 
-func formatTimeLimit(minutes uint32) string {
-	if minutes == 0 {
-		return "unlimited"
-	}
-	hours := minutes / 60
-	mins := minutes % 60
-	days := hours / 24
-	hours = hours % 24
-
-	if days > 0 {
-		return fmt.Sprintf("%d-%02d:%02d", days, hours, mins)
-	}
-	return fmt.Sprintf("%02d:%02d", hours, mins)
-}

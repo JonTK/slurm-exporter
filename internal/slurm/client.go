@@ -66,7 +66,6 @@ func NewClient(cfg *config.SLURMConfig) (*Client, error) {
 		client, err = slurm.NewClient(ctx,
 			slurm.WithBaseURL(cfg.BaseURL),
 			slurm.WithAuth(authProvider),
-			slurm.WithUseAdapters(true),
 		)
 		if err == nil {
 			logrus.WithField("version", client.Version()).Info("Auto-detected SLURM API version")
@@ -75,7 +74,6 @@ func NewClient(cfg *config.SLURMConfig) (*Client, error) {
 		client, err = slurm.NewClientWithVersion(ctx, cfg.APIVersion,
 			slurm.WithBaseURL(cfg.BaseURL),
 			slurm.WithAuth(authProvider),
-			slurm.WithUseAdapters(true),
 		)
 		if err == nil {
 			logrus.WithFields(logrus.Fields{

@@ -7,8 +7,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/jontk/slurm-client"
-	"github.com/jontk/slurm-client/interfaces"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -52,8 +51,8 @@ func TestPerformanceSimpleCollector_Collect_Success(t *testing.T) {
 		Version:     "23.02.1",
 	}
 
-	jobList := &interfaces.JobList{
-		Jobs: []interfaces.Job{
+	jobList := &slurm.JobList{
+		Jobs: []slurm.Job{
 			{
 				ID:    "12345",
 				Name:  "test-job",
@@ -63,8 +62,8 @@ func TestPerformanceSimpleCollector_Collect_Success(t *testing.T) {
 		Total: 1,
 	}
 
-	nodeList := &interfaces.NodeList{
-		Nodes: []interfaces.Node{
+	nodeList := &slurm.NodeList{
+		Nodes: []slurm.Node{
 			{
 				Name:  "node1",
 				State: "IDLE",
@@ -73,8 +72,8 @@ func TestPerformanceSimpleCollector_Collect_Success(t *testing.T) {
 		Total: 1,
 	}
 
-	partitionList := &interfaces.PartitionList{
-		Partitions: []interfaces.Partition{
+	partitionList := &slurm.PartitionList{
+		Partitions: []slurm.Partition{
 			{
 				Name:  "compute",
 				State: "UP",

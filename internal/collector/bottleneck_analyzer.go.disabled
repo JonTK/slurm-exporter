@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -370,7 +370,11 @@ func (b *BottleneckAnalyzer) analyzeBottlenecks(ctx context.Context) error {
 		analysis := b.performStepPerformanceAnalysis(&job)
 
 		// Cache the analysis
-		cacheKey := fmt.Sprintf("%s:0", job.ID) // Step 0 for main job step
+		jobIDStr := "unknown"
+		if job.JobID != nil {
+			jobIDStr = fmt.Sprintf("%d", *job.JobID)
+		}
+		cacheKey := fmt.Sprintf("%s:0", jobIDStr) // Step 0 for main job step
 		b.analysisCache[cacheKey] = analysis
 
 		// Update metrics
@@ -392,8 +396,13 @@ func (b *BottleneckAnalyzer) analyzeBottlenecks(ctx context.Context) error {
 
 // performStepPerformanceAnalysis performs comprehensive analysis on a job step
 func (b *BottleneckAnalyzer) performStepPerformanceAnalysis(job *slurm.Job) *StepPerformanceAnalysis {
+	jobIDStr := "unknown"
+	if job.JobID != nil {
+		jobIDStr = fmt.Sprintf("%d", *job.JobID)
+	}
+
 	analysis := &StepPerformanceAnalysis{
-		JobID:             job.ID,
+		JobID:             jobIDStr,
 		StepID:            "0", // Main job step
 		AnalysisTimestamp: time.Now(),
 	}
@@ -404,7 +413,7 @@ func (b *BottleneckAnalyzer) performStepPerformanceAnalysis(job *slurm.Job) *Ste
 	// Calculate efficiency metrics
 	efficiencyMetrics, err := b.efficiencyCalc.CalculateEfficiency(utilizationData)
 	if err != nil {
-		b.logger.Warn("Failed to calculate efficiency for bottleneck analysis", "job_id", job.ID, "error", err)
+		b.logger.Warn("Failed to calculate efficiency for bottleneck analysis", "job_id", jobIDStr, "error", err)
 		// Use default values
 		efficiencyMetrics = &EfficiencyMetrics{
 			CPUEfficiency:     0.5,
@@ -694,10 +703,10 @@ func (b *BottleneckAnalyzer) identifyOptimizationOpportunities(data *ResourceUti
 // performPredictiveAnalysis performs predictive analysis
 func (b *BottleneckAnalyzer) performPredictiveAnalysis(job *slurm.Job, data *ResourceUtilizationData, analysis *StepPerformanceAnalysis) {
 	// Simplified predictive analysis
-	if job.StartTime != nil && data.WallTime > 0 {
+	if !job.StartTime.IsZero() && data.WallTime > 0 {
 		// Estimate remaining time based on current progress (simplified)
-		if job.TimeLimit > 0 {
-			timeLimit := float64(job.TimeLimit) * 60 // Convert to seconds
+		if job.TimeLimit != nil && *job.TimeLimit > 0 {
+			timeLimit := float64(*job.TimeLimit) * 60 // Convert to seconds
 			progress := data.WallTime / timeLimit
 			if progress > 0 && progress < 1 {
 				estimatedTotal := data.WallTime / progress
@@ -783,12 +792,17 @@ func (b *BottleneckAnalyzer) generateRecommendedActions(analysis *StepPerformanc
 
 // updateAnalysisMetrics updates Prometheus metrics from analysis results
 func (b *BottleneckAnalyzer) updateAnalysisMetrics(job *slurm.Job, analysis *StepPerformanceAnalysis) {
+	partition := ""
+	if job.Partition != nil {
+		partition = *job.Partition
+	}
+
 	labels := []string{
 		analysis.JobID,
 		analysis.StepID,
 		"", // TODO: job.UserName field not available
 		"", // TODO: job.Account field not available
-		job.Partition,
+		partition,
 	}
 
 	// Bottleneck detection metrics

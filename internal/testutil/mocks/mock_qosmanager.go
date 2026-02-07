@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	interfaces "github.com/jontk/slurm-client/interfaces"
+	"github.com/jontk/slurm-client"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,27 +15,27 @@ type MockQoSManager struct {
 }
 
 // Create provides a mock function with given fields: ctx, qos
-func (_m *MockQoSManager) Create(ctx context.Context, qos *interfaces.QoSCreate) (*interfaces.QoSCreateResponse, error) {
+func (_m *MockQoSManager) Create(ctx context.Context, qos *slurm.QoSCreate) (*slurm.QoSCreateResponse, error) {
 	ret := _m.Called(ctx, qos)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *interfaces.QoSCreateResponse
+	var r0 *slurm.QoSCreateResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.QoSCreate) (*interfaces.QoSCreateResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.QoSCreate) (*slurm.QoSCreateResponse, error)); ok {
 		return rf(ctx, qos)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.QoSCreate) *interfaces.QoSCreateResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.QoSCreate) *slurm.QoSCreateResponse); ok {
 		r0 = rf(ctx, qos)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.QoSCreateResponse)
+			r0 = ret.Get(0).(*slurm.QoSCreateResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.QoSCreate) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.QoSCreate) error); ok {
 		r1 = rf(ctx, qos)
 	} else {
 		r1 = ret.Error(1)
@@ -63,23 +63,23 @@ func (_m *MockQoSManager) Delete(ctx context.Context, qosName string) error {
 }
 
 // Get provides a mock function with given fields: ctx, qosName
-func (_m *MockQoSManager) Get(ctx context.Context, qosName string) (*interfaces.QoS, error) {
+func (_m *MockQoSManager) Get(ctx context.Context, qosName string) (*slurm.QoS, error) {
 	ret := _m.Called(ctx, qosName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *interfaces.QoS
+	var r0 *slurm.QoS
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.QoS, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.QoS, error)); ok {
 		return rf(ctx, qosName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.QoS); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.QoS); ok {
 		r0 = rf(ctx, qosName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.QoS)
+			r0 = ret.Get(0).(*slurm.QoS)
 		}
 	}
 
@@ -93,27 +93,27 @@ func (_m *MockQoSManager) Get(ctx context.Context, qosName string) (*interfaces.
 }
 
 // List provides a mock function with given fields: ctx, opts
-func (_m *MockQoSManager) List(ctx context.Context, opts *interfaces.ListQoSOptions) (*interfaces.QoSList, error) {
+func (_m *MockQoSManager) List(ctx context.Context, opts *slurm.ListQoSOptions) (*slurm.QoSList, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 *interfaces.QoSList
+	var r0 *slurm.QoSList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListQoSOptions) (*interfaces.QoSList, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListQoSOptions) (*slurm.QoSList, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListQoSOptions) *interfaces.QoSList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListQoSOptions) *slurm.QoSList); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.QoSList)
+			r0 = ret.Get(0).(*slurm.QoSList)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.ListQoSOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.ListQoSOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -123,7 +123,7 @@ func (_m *MockQoSManager) List(ctx context.Context, opts *interfaces.ListQoSOpti
 }
 
 // Update provides a mock function with given fields: ctx, qosName, update
-func (_m *MockQoSManager) Update(ctx context.Context, qosName string, update *interfaces.QoSUpdate) error {
+func (_m *MockQoSManager) Update(ctx context.Context, qosName string, update *slurm.QoSUpdate) error {
 	ret := _m.Called(ctx, qosName, update)
 
 	if len(ret) == 0 {
@@ -131,7 +131,7 @@ func (_m *MockQoSManager) Update(ctx context.Context, qosName string, update *in
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.QoSUpdate) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.QoSUpdate) error); ok {
 		r0 = rf(ctx, qosName, update)
 	} else {
 		r0 = ret.Error(0)

@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
@@ -177,9 +177,27 @@ func (c *NodesSimpleCollector) collect(ctx context.Context, ch chan<- prometheus
 			partition = node.Partitions[0]
 		}
 
+		// Extract node properties safely
+		nodeName := "unknown"
+		if node.Name != nil {
+			nodeName = *node.Name
+		}
+		nodeStateStr := "UNKNOWN"
+		if len(node.State) > 0 {
+			nodeStateStr = string(node.State[0])
+		}
+		nodeCPUs := int32(0)
+		if node.CPUs != nil {
+			nodeCPUs = *node.CPUs
+		}
+		nodeMemory := int64(0)
+		if node.RealMemory != nil {
+			nodeMemory = *node.RealMemory
+		}
+
 		// Node state metric
 		stateValue := 0.0
-		if isNodeUp(node.State) {
+		if isNodeUp(nodeStateStr) {
 			stateValue = 1.0
 		}
 
@@ -187,71 +205,71 @@ func (c *NodesSimpleCollector) collect(ctx context.Context, ch chan<- prometheus
 			c.nodeState,
 			prometheus.GaugeValue,
 			stateValue,
-			node.Name, node.State, partition,
+			nodeName, nodeStateStr, partition,
 		)
 
 		// CPU metrics
 		ch <- prometheus.MustNewConstMetric(
 			c.nodeCPUsTotal,
 			prometheus.GaugeValue,
-			float64(node.CPUs),
-			node.Name, partition,
+			float64(nodeCPUs),
+			nodeName, partition,
 		)
 
 		// Calculate allocated CPUs from node state
 		// If node is in use, assume some CPUs are allocated based on state
-		allocCPUs := 0
-		switch node.State {
+		allocCPUs := int32(0)
+		switch nodeStateStr {
 		case "ALLOCATED", "MIXED":
 			// For allocated/mixed nodes, assume 50% utilization as reasonable estimate
-			allocCPUs = node.CPUs / 2
+			allocCPUs = nodeCPUs / 2
 		case "COMPLETING":
 			// Node is completing jobs, assume high utilization
-			allocCPUs = node.CPUs * 3 / 4
+			allocCPUs = nodeCPUs * 3 / 4
 		}
 		// For IDLE, DRAIN, DOWN states, allocCPUs stays 0
 		ch <- prometheus.MustNewConstMetric(
 			c.nodeCPUsAllocated,
 			prometheus.GaugeValue,
 			float64(allocCPUs),
-			node.Name, partition,
+			nodeName, partition,
 		)
 
 		// Memory metrics (convert MB to bytes if Memory exists)
 		memoryTotalBytes := float64(0)
-		if node.Memory > 0 && node.Memory < 1000000 { // Sanity check: < 1TB
-			memoryTotalBytes = float64(node.Memory * 1024 * 1024)
-		} else if node.Memory >= 1000000 {
+		if nodeMemory > 0 && nodeMemory < 1000000 { // Sanity check: < 1TB
+			memoryTotalBytes = float64(nodeMemory * 1024 * 1024)
+		} else if nodeMemory >= 1000000 {
 			c.logger.WithFields(map[string]interface{}{
-				"node":      node.Name,
-				"memory_mb": node.Memory,
+				"node":      nodeName,
+				"memory_mb": nodeMemory,
 			}).Warn("Unusually high memory value detected, using 0")
 		}
 		ch <- prometheus.MustNewConstMetric(
 			c.nodeMemoryTotal,
 			prometheus.GaugeValue,
 			memoryTotalBytes,
-			node.Name, partition,
+			nodeName, partition,
 		)
 
 		// Allocated memory (estimate based on CPU allocation ratio)
 		memoryAllocBytes := float64(0)
-		if memoryTotalBytes > 0 && allocCPUs > 0 && node.CPUs > 0 {
+		if memoryTotalBytes > 0 && allocCPUs > 0 && nodeCPUs > 0 {
 			// Estimate memory allocation proportional to CPU allocation
-			allocationRatio := float64(allocCPUs) / float64(node.CPUs)
+			allocationRatio := float64(allocCPUs) / float64(nodeCPUs)
 			memoryAllocBytes = memoryTotalBytes * allocationRatio
 		}
 		ch <- prometheus.MustNewConstMetric(
 			c.nodeMemoryAllocated,
 			prometheus.GaugeValue,
 			memoryAllocBytes,
-			node.Name, partition,
+			nodeName, partition,
 		)
 
 		// Node info
 		reason := ""
-		if node.Reason != "" {
-			reason = node.Reason
+		if node.Reason != nil && *node.Reason != "" {
+			reason = *node.Reason
 		}
 
 		arch := "x86_64" // default
@@ -261,7 +279,7 @@ func (c *NodesSimpleCollector) collect(ctx context.Context, ch chan<- prometheus
 			c.nodeInfo,
 			prometheus.GaugeValue,
 			1,
-			node.Name, partition, node.State, reason, arch, os,
+			nodeName, partition, nodeStateStr, reason, arch, os,
 		)
 	}
 

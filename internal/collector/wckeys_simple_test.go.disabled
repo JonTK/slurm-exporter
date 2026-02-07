@@ -8,8 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jontk/slurm-client"
-	"github.com/jontk/slurm-client/interfaces"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,13 +17,13 @@ import (
 	"github.com/jontk/slurm-exporter/internal/testutil/mocks"
 )
 
-func TestLicensesCollector_Describe(t *testing.T) {
+func TestWCKeysCollector_Describe(t *testing.T) {
 	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	timeout := 30 * time.Second
 
-	collector := NewLicensesCollector(mockClient, logger, timeout)
+	collector := NewWCKeysCollector(mockClient, logger, timeout)
 
 	ch := make(chan *prometheus.Desc, 100)
 	collector.Describe(ch)
@@ -39,44 +38,41 @@ func TestLicensesCollector_Describe(t *testing.T) {
 	assert.True(t, len(descs) > 0, "should have metric descriptors")
 }
 
-func TestLicensesCollector_Collect_Success(t *testing.T) {
+func TestWCKeysCollector_Collect_Success(t *testing.T) {
 	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)
+	mockWCKeyManager := new(mocks.MockWCKeyManager)
 	timeout := 30 * time.Second
 
 	// Setup mock expectations with test data
-	licenseList := &interfaces.LicenseList{
-		Licenses: []interfaces.License{
+	wcKeyList := &slurm.WCKeyList{
+		WCKeys: []slurm.WCKey{
 			{
-				Name:      "matlab",
-				Total:     100,
-				Used:      25,
-				Available: 75,
-				Reserved:  0,
-				Remote:    false,
+				Name:    "wckey1",
+				User:    "user1",
+				Cluster: "test-cluster",
 			},
 			{
-				Name:      "ansys",
-				Total:     50,
-				Used:      10,
-				Available: 40,
-				Reserved:  5,
-				Remote:    false,
+				Name:    "wckey2",
+				User:    "user2",
+				Cluster: "test-cluster",
 			},
 		},
+		Total: 2,
 	}
 
 	clusterInfo := &slurm.ClusterInfo{
 		ClusterName: "test-cluster",
 	}
 
-	mockClient.On("GetLicenses", mock.Anything).Return(licenseList, nil)
 	mockClient.On("Info").Return(mockInfoManager)
 	mockInfoManager.On("Get", mock.Anything).Return(clusterInfo, nil)
+	mockClient.On("WCKeys").Return(mockWCKeyManager)
+	mockWCKeyManager.On("List", mock.Anything, mock.Anything).Return(wcKeyList, nil)
 
-	collector := NewLicensesCollector(mockClient, logger, timeout)
+	collector := NewWCKeysCollector(mockClient, logger, timeout)
 
 	// Collect metrics
 	ch := make(chan prometheus.Metric, 100)
@@ -96,18 +92,28 @@ func TestLicensesCollector_Collect_Success(t *testing.T) {
 	// Verify mock expectations
 	mockClient.AssertExpectations(t)
 	mockInfoManager.AssertExpectations(t)
+	mockWCKeyManager.AssertExpectations(t)
 }
 
-func TestLicensesCollector_Collect_Error(t *testing.T) {
+func TestWCKeysCollector_Collect_Error(t *testing.T) {
 	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
+	mockInfoManager := new(mocks.MockInfoManager)
+	mockWCKeyManager := new(mocks.MockWCKeyManager)
 	timeout := 30 * time.Second
 
-	// Setup mock to return error
-	mockClient.On("GetLicenses", mock.Anything).Return(nil, assert.AnError)
+	clusterInfo := &slurm.ClusterInfo{
+		ClusterName: "test-cluster",
+	}
 
-	collector := NewLicensesCollector(mockClient, logger, timeout)
+	// Setup mock to return error
+	mockClient.On("Info").Return(mockInfoManager)
+	mockInfoManager.On("Get", mock.Anything).Return(clusterInfo, nil)
+	mockClient.On("WCKeys").Return(mockWCKeyManager)
+	mockWCKeyManager.On("List", mock.Anything, mock.Anything).Return(nil, assert.AnError)
+
+	collector := NewWCKeysCollector(mockClient, logger, timeout)
 
 	// Collect metrics - should handle error gracefully
 	ch := make(chan prometheus.Metric, 100)
@@ -117,29 +123,34 @@ func TestLicensesCollector_Collect_Error(t *testing.T) {
 	// May or may not have metrics depending on error handling
 	// Just verify mock expectations were met
 	mockClient.AssertExpectations(t)
+	mockInfoManager.AssertExpectations(t)
+	mockWCKeyManager.AssertExpectations(t)
 }
 
-func TestLicensesCollector_EmptyLicenseList(t *testing.T) {
+func TestWCKeysCollector_EmptyWCKeyList(t *testing.T) {
 	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)
+	mockWCKeyManager := new(mocks.MockWCKeyManager)
 	timeout := 30 * time.Second
 
 	// Setup mock to return empty list
-	emptyList := &interfaces.LicenseList{
-		Licenses: []interfaces.License{},
+	emptyList := &slurm.WCKeyList{
+		WCKeys: []slurm.WCKey{},
+		Total:  0,
 	}
 
 	clusterInfo := &slurm.ClusterInfo{
 		ClusterName: "test-cluster",
 	}
 
-	mockClient.On("GetLicenses", mock.Anything).Return(emptyList, nil)
 	mockClient.On("Info").Return(mockInfoManager)
 	mockInfoManager.On("Get", mock.Anything).Return(clusterInfo, nil)
+	mockClient.On("WCKeys").Return(mockWCKeyManager)
+	mockWCKeyManager.On("List", mock.Anything, mock.Anything).Return(emptyList, nil)
 
-	collector := NewLicensesCollector(mockClient, logger, timeout)
+	collector := NewWCKeysCollector(mockClient, logger, timeout)
 
 	// Collect metrics
 	ch := make(chan prometheus.Metric, 100)
@@ -148,16 +159,42 @@ func TestLicensesCollector_EmptyLicenseList(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	// With empty license list, minimal or no metrics should be emitted
+	// With empty WCKey list, minimal or no metrics should be emitted
 	count := 0
 	for range ch {
 		count++
 	}
 
 	// Empty list should result in few or no metrics
-	assert.True(t, count >= 0, "should handle empty license list")
+	assert.True(t, count >= 0, "should handle empty WCKey list")
 
 	// Verify mock expectations
 	mockClient.AssertExpectations(t)
 	mockInfoManager.AssertExpectations(t)
+	mockWCKeyManager.AssertExpectations(t)
+}
+
+func TestWCKeysCollector_InfoError(t *testing.T) {
+	t.Parallel()
+	logger := testutil.GetTestLogger()
+	mockClient := new(mocks.MockSlurmClient)
+	mockInfoManager := new(mocks.MockInfoManager)
+	mockWCKeyManager := new(mocks.MockWCKeyManager)
+	timeout := 30 * time.Second
+
+	// Setup mock to return error for cluster info, but still mock WCKeys() call
+	mockClient.On("Info").Return(mockInfoManager)
+	mockInfoManager.On("Get", mock.Anything).Return(nil, assert.AnError)
+	mockClient.On("WCKeys").Return(mockWCKeyManager)
+	mockWCKeyManager.On("List", mock.Anything, mock.Anything).Return(nil, assert.AnError)
+
+	collector := NewWCKeysCollector(mockClient, logger, timeout)
+
+	// Collect metrics
+	ch := make(chan prometheus.Metric, 100)
+	err := collector.Collect(context.Background(), ch)
+	close(ch)
+
+	// Should handle error gracefully (from WCKeys().List())
+	assert.Error(t, err)
 }

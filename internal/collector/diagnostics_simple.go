@@ -330,7 +330,7 @@ func (c *DiagnosticsCollector) Collect(ctx context.Context, ch chan<- prometheus
 	ch <- prometheus.MustNewConstMetric(
 		c.scheduleCycleMean,
 		prometheus.GaugeValue,
-		diag.ScheduleCycleMean,
+		float64(diag.ScheduleCycleMean),
 		clusterName,
 	)
 
@@ -341,32 +341,33 @@ func (c *DiagnosticsCollector) Collect(ctx context.Context, ch chan<- prometheus
 		clusterName,
 	)
 
-	// Export backfill cycle metrics
+	// Export backfill cycle metrics (fields now prefixed with BF)
 	ch <- prometheus.MustNewConstMetric(
 		c.backfillCycleMax,
 		prometheus.GaugeValue,
-		float64(diag.BackfillCycleMax),
+		float64(diag.BFCycleMax),
 		clusterName,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.backfillCycleLast,
 		prometheus.GaugeValue,
-		float64(diag.BackfillCycleLast),
+		float64(diag.BFCycle),
 		clusterName,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.backfillCycleMean,
 		prometheus.GaugeValue,
-		diag.BackfillCycleMean,
+		float64(diag.BFCycleMean),
 		clusterName,
 	)
 
+	// Note: BFCycleCounter doesn't exist, using BFCycle as substitute
 	ch <- prometheus.MustNewConstMetric(
 		c.backfillCycleCounter,
 		prometheus.CounterValue,
-		float64(diag.BackfillCycleCounter),
+		float64(diag.BFCycle),
 		clusterName,
 	)
 

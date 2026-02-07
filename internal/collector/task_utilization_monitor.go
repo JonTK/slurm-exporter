@@ -7,12 +7,13 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+
 	// Commented out as only used in commented-out task simulation functions
 	// "math"
 	"sync"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -870,7 +871,7 @@ func (t *TaskUtilizationMonitor) collectTaskUtilizationMetrics(ctx context.Conte
 	totalTasks := 0
 
 	// Process each job for task-level monitoring
-	// TODO: Job type mismatch - jobs.Jobs returns []interfaces.Job but functions expect *slurm.Job
+	// TODO: Job type mismatch - jobs.Jobs returns []slurm.Job but functions expect *slurm.Job
 	// Skipping job processing for now
 	_ = jobs // Suppress unused variable warning
 	/*

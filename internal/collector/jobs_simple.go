@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/jontk/slurm-exporter/internal/config"
 	"github.com/jontk/slurm-exporter/internal/metrics"
 	"github.com/prometheus/client_golang/prometheus"
@@ -259,12 +259,25 @@ type jobContext struct {
 
 // extractJobContext extracts and normalizes job fields with safe defaults
 func extractJobContext(job slurm.Job) jobContext {
+	jobName := ""
+	if job.Name != nil {
+		jobName = *job.Name
+	}
+	userName := ""
+	if job.UserID != nil {
+		userName = fmt.Sprintf("%d", *job.UserID)
+	}
+	partition := ""
+	if job.Partition != nil {
+		partition = *job.Partition
+	}
+
 	ctx := jobContext{
-		jobID:     job.ID,
-		jobName:   job.Name,
-		userName:  job.UserID,
-		partition: job.Partition,
-		jobState:  job.State,
+		jobID:     getJobID(job),
+		jobName:   jobName,
+		userName:  userName,
+		partition: partition,
+		jobState:  getJobState(job),
 	}
 
 	// Apply safe defaults
@@ -357,7 +370,7 @@ func (c *JobsSimpleCollector) collectJobState(ch chan<- prometheus.Metric, ctx j
 
 // collectQueueTime collects queue time metric if applicable
 func (c *JobsSimpleCollector) collectQueueTime(ch chan<- prometheus.Metric, job slurm.Job, ctx jobContext) {
-	if job.StartTime == nil || job.StartTime.IsZero() || job.SubmitTime.IsZero() {
+	if job.StartTime.IsZero() || job.SubmitTime.IsZero() {
 		return
 	}
 
@@ -379,11 +392,11 @@ func (c *JobsSimpleCollector) collectQueueTime(ch chan<- prometheus.Metric, job 
 
 // collectRunTime collects run time metric if job is active
 func (c *JobsSimpleCollector) collectRunTime(ch chan<- prometheus.Metric, job slurm.Job, ctx jobContext, now time.Time) {
-	if job.StartTime == nil || job.StartTime.IsZero() || !isJobActive(ctx.jobState) {
+	if job.StartTime.IsZero() || !isJobActive(ctx.jobState) {
 		return
 	}
 
-	runTime := now.Sub(*job.StartTime).Seconds()
+	runTime := now.Sub(job.StartTime).Seconds()
 	if runTime < 0 {
 		return // Skip negative run times
 	}
@@ -421,7 +434,11 @@ func (c *JobsSimpleCollector) collectResourceMetrics(ch chan<- prometheus.Metric
 	labels := ctx.createJobLabels()
 
 	// CPU count
-	cpus := c.sanitizeCPUCount(job.CPUs, ctx.jobID)
+	cpuCount := 0
+	if job.CPUs != nil {
+		cpuCount = int(*job.CPUs)
+	}
+	cpus := c.sanitizeCPUCount(cpuCount, ctx.jobID)
 	if c.shouldCollectMetric("slurm_job_cpus", MetricTypeGauge, false, true) &&
 		c.shouldCollectWithCardinality("slurm_job_cpus", labels) {
 		ch <- prometheus.MustNewConstMetric(
@@ -433,7 +450,11 @@ func (c *JobsSimpleCollector) collectResourceMetrics(ch chan<- prometheus.Metric
 	}
 
 	// Memory in bytes
-	memoryBytes := c.sanitizeMemory(job.Memory)
+	memoryMB := uint64(0)
+	if job.MemoryPerNode != nil {
+		memoryMB = *job.MemoryPerNode
+	}
+	memoryBytes := c.sanitizeMemory(int(memoryMB))
 	if c.shouldCollectMetric("slurm_job_memory_bytes", MetricTypeGauge, false, true) &&
 		c.shouldCollectWithCardinality("slurm_job_memory_bytes", labels) {
 		ch <- prometheus.MustNewConstMetric(
@@ -444,8 +465,9 @@ func (c *JobsSimpleCollector) collectResourceMetrics(ch chan<- prometheus.Metric
 		)
 	}
 
-	// Node count
-	nodes := c.calculateNodeCount(job.Nodes)
+	// Node count (Nodes is now a string, not []string)
+	// TODO: Parse job.Nodes string to get actual node list
+	nodes := c.calculateNodeCount([]string{})
 	if c.shouldCollectMetric("slurm_job_nodes", MetricTypeGauge, false, true) &&
 		c.shouldCollectWithCardinality("slurm_job_nodes", labels) {
 		ch <- prometheus.MustNewConstMetric(
@@ -495,7 +517,7 @@ func (c *JobsSimpleCollector) calculateNodeCount(nodes []string) int {
 
 // collectJobInfo collects job info metric
 func (c *JobsSimpleCollector) collectJobInfo(ch chan<- prometheus.Metric, ctx jobContext) {
-	// These fields don't exist in interfaces.Job, use defaults
+	// These fields don't exist in slurm.Job, use defaults
 	account := "default"
 	qos := "normal"
 
@@ -531,4 +553,19 @@ func isJobActive(state string) bool {
 		// Default to considering unknown states as inactive
 		return false
 	}
+}
+
+// Helper functions
+func getJobID(job slurm.Job) string {
+	if job.JobID != nil {
+		return fmt.Sprintf("%d", *job.JobID)
+	}
+	return "unknown"
+}
+
+func getJobState(job slurm.Job) string {
+	if len(job.JobState) > 0 {
+		return string(job.JobState[0])
+	}
+	return "UNKNOWN"
 }

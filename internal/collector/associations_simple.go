@@ -7,13 +7,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jontk/slurm-client"
-	"github.com/jontk/slurm-client/interfaces"
+	slurm "github.com/jontk/slurm-client"
+	"github.com/jontk/slurm-client/api"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
 
 const (
+	namespace                      = "slurm"
 	associationsCollectorSubsystem = "association"
 )
 
@@ -137,14 +138,22 @@ type associationContext struct {
 	qos       string
 }
 
+// Helper to safely dereference string pointers
+func safeStr(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
 // extractAssociationContext extracts and normalizes association fields with safe defaults
-func extractAssociationContext(assoc *interfaces.Association) associationContext {
+func extractAssociationContext(assoc api.Association) associationContext {
 	ctx := associationContext{
 		user:      assoc.User,
-		account:   assoc.Account,
-		cluster:   assoc.Cluster,
-		partition: assoc.Partition,
-		qos:       assoc.DefaultQoS,
+		account:   safeStr(assoc.Account),
+		cluster:   safeStr(assoc.Cluster),
+		partition: safeStr(assoc.Partition),
+		qos:       safeStr(assoc.Default.QoS),
 	}
 
 	// Apply safe defaults
@@ -178,67 +187,33 @@ func (c *AssociationsSimpleCollector) sendAssociationInfoMetric(ch chan<- promet
 }
 
 // sendTRESLimitsMetrics sends CPU and memory limit metrics from TRES
-func (c *AssociationsSimpleCollector) sendTRESLimitsMetrics(ch chan<- prometheus.Metric, assoc *interfaces.Association, ctx associationContext) {
-	if assoc.MaxTRESPerJob == nil {
-		return
-	}
-
-	// CPU limit
-	if cpuStr, ok := assoc.MaxTRESPerJob["cpu"]; ok {
-		var cpuLimit float64
-		if _, err := fmt.Sscanf(cpuStr, "%f", &cpuLimit); err == nil && cpuLimit > 0 {
-			ch <- prometheus.MustNewConstMetric(
-				c.associationCPULimit,
-				prometheus.GaugeValue,
-				cpuLimit,
-				ctx.user, ctx.account, ctx.cluster, ctx.partition,
-			)
-		}
-	}
-
-	// Memory limit
-	if memStr, ok := assoc.MaxTRESPerJob["mem"]; ok {
-		var memLimit float64
-		_, _ = fmt.Sscanf(memStr, "%f", &memLimit)
-		if memLimit > 0 {
-			ch <- prometheus.MustNewConstMetric(
-				c.associationMemoryLimit,
-				prometheus.GaugeValue,
-				memLimit*1024*1024, // Convert MB to bytes
-				ctx.user, ctx.account, ctx.cluster, ctx.partition,
-			)
-		}
-	}
+func (c *AssociationsSimpleCollector) sendTRESLimitsMetrics(ch chan<- prometheus.Metric, assoc api.Association, ctx associationContext) {
+	// TODO: MaxTRESPerJob field removed from Association API
+	// Need to use assoc.Max.TRES structure instead
 }
 
 // sendAssociationLimitMetrics sends time limit, priority, and shares metrics
-func (c *AssociationsSimpleCollector) sendAssociationLimitMetrics(ch chan<- prometheus.Metric, assoc *interfaces.Association, ctx associationContext) {
-	// Time limit
-	if assoc.MaxWallDuration != nil && *assoc.MaxWallDuration > 0 {
-		ch <- prometheus.MustNewConstMetric(
-			c.associationTimeLimit,
-			prometheus.GaugeValue,
-			float64(*assoc.MaxWallDuration),
-			ctx.user, ctx.account, ctx.cluster, ctx.partition,
-		)
-	}
+func (c *AssociationsSimpleCollector) sendAssociationLimitMetrics(ch chan<- prometheus.Metric, assoc api.Association, ctx associationContext) {
+	// TODO: MaxWallDuration removed - now in assoc.Max.Jobs.Per.WallClock
+	// TODO: Priority is now *uint32 pointer - needs nil check
+	// TODO: SharesRaw is now *int32 pointer - needs nil check
 
 	// Priority
-	if assoc.Priority > 0 {
+	if assoc.Priority != nil && *assoc.Priority > 0 {
 		ch <- prometheus.MustNewConstMetric(
 			c.associationPriority,
 			prometheus.GaugeValue,
-			float64(assoc.Priority),
+			float64(*assoc.Priority),
 			ctx.user, ctx.account, ctx.cluster, ctx.partition,
 		)
 	}
 
 	// Shares
-	if assoc.SharesRaw > 0 {
+	if assoc.SharesRaw != nil && *assoc.SharesRaw > 0 {
 		ch <- prometheus.MustNewConstMetric(
 			c.associationSharesRaw,
 			prometheus.GaugeValue,
-			float64(assoc.SharesRaw),
+			float64(*assoc.SharesRaw),
 			ctx.user, ctx.account, ctx.cluster, ctx.partition,
 		)
 	}

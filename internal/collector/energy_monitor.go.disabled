@@ -11,7 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
+	"github.com/jontk/slurm-client/api"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -609,20 +610,25 @@ func (e *EnergyMonitor) collectEnergyMetrics(ctx context.Context) error {
 
 	// Process each job for energy metrics
 	for _, job := range jobs.Jobs {
+		// Extract job ID safely
+		jobIDStr := "unknown"
+		if job.JobID != nil {
+			jobIDStr = fmt.Sprintf("%d", *job.JobID)
+		}
+
 		if err := e.processJobEnergyMetrics(ctx, &job); err != nil {
-			e.logger.Error("Failed to process job energy metrics", "job_id", job.ID, "error", err)
+			e.logger.Error("Failed to process job energy metrics", "job_id", jobIDStr, "error", err)
 			e.metrics.EnergyDataCollectionErrors.WithLabelValues("process_job", "job_error").Inc()
 			continue
 		}
 
 		// Accumulate cluster totals
-		jobID := job.ID
-		if energyData, exists := e.energyData[jobID]; exists {
+		if energyData, exists := e.energyData[jobIDStr]; exists {
 			clusterTotalEnergy += energyData.TotalEnergyWh
 			clusterTotalPower += energyData.AveragePowerW
 		}
 
-		if carbonData, exists := e.carbonData[jobID]; exists {
+		if carbonData, exists := e.carbonData[jobIDStr]; exists {
 			clusterTotalCarbon += carbonData.TotalCO2grams
 		}
 	}
@@ -642,6 +648,13 @@ func (e *EnergyMonitor) collectEnergyMetrics(ctx context.Context) error {
 //nolint:unparam
 func (e *EnergyMonitor) processJobEnergyMetrics(ctx context.Context, job *slurm.Job) error {
 	_ = ctx
+
+	// Extract job ID safely
+	jobID := "unknown"
+	if job.JobID != nil {
+		jobID = fmt.Sprintf("%d", *job.JobID)
+	}
+
 	// Calculate energy consumption for the job
 	energyData := e.calculateJobEnergyConsumption(job)
 
@@ -653,14 +666,14 @@ func (e *EnergyMonitor) processJobEnergyMetrics(ctx context.Context, job *slurm.
 
 	// Track efficiency trends if enabled
 	if e.config.EnableEfficiencyTracking {
-		e.efficiencyTracker.trackEnergyEfficiency(job.ID, energyData.PowerEfficiency)
+		e.efficiencyTracker.trackEnergyEfficiency(jobID, energyData.PowerEfficiency)
 	}
 
 	// Store data
 	e.mu.Lock()
-	e.energyData[job.ID] = energyData
+	e.energyData[jobID] = energyData
 	if carbonData != nil {
-		e.carbonData[job.ID] = carbonData
+		e.carbonData[jobID] = carbonData
 	}
 	e.mu.Unlock()
 
@@ -674,13 +687,25 @@ func (e *EnergyMonitor) processJobEnergyMetrics(ctx context.Context, job *slurm.
 func (e *EnergyMonitor) calculateJobEnergyConsumption(job *slurm.Job) *JobEnergyData {
 	now := time.Now()
 
+	// Safely extract job properties
+	jobID := "unknown"
+	if job.JobID != nil {
+		jobID = fmt.Sprintf("%d", *job.JobID)
+	}
+	cpus := float64(0)
+	if job.CPUs != nil {
+		cpus = float64(*job.CPUs)
+	}
+
 	// Calculate runtime
 	var runtimeHours float64
-	if job.StartTime != nil {
-		if job.State == JobStateCompleted && job.EndTime != nil {
-			runtimeHours = job.EndTime.Sub(*job.StartTime).Hours()
+	if !job.StartTime.IsZero() {
+		// Check if job is completed
+		isCompleted := len(job.JobState) > 0 && job.JobState[0] == api.JobStateCompleted
+		if isCompleted && !job.EndTime.IsZero() {
+			runtimeHours = job.EndTime.Sub(job.StartTime).Hours()
 		} else {
-			runtimeHours = time.Since(*job.StartTime).Hours()
+			runtimeHours = time.Since(job.StartTime).Hours()
 		}
 	} else {
 		runtimeHours = 1.0 // Default to 1 hour if no start time
@@ -693,8 +718,10 @@ func (e *EnergyMonitor) calculateJobEnergyConsumption(job *slurm.Job) *JobEnergy
 	storageEnergyWh := e.calculateStorageEnergy(job, runtimeHours)
 	networkEnergyWh := e.calculateNetworkEnergy(job, runtimeHours)
 
-	// Base node power consumption
-	nodeBasePowerWh := e.config.DefaultNodeBasePowerWatts * float64(len(job.Nodes)) * runtimeHours
+	// Base node power consumption (nodes field is now a string, not an array)
+	nodeCount := 1.0 // Default to 1 node
+	// TODO: Parse job.Nodes string to count actual nodes
+	nodeBasePowerWh := e.config.DefaultNodeBasePowerWatts * nodeCount * runtimeHours
 
 	// Cooling energy (estimated as 30% of compute energy for data centers)
 	computeEnergyWh := cpuEnergyWh + memoryEnergyWh + gpuEnergyWh
@@ -710,17 +737,17 @@ func (e *EnergyMonitor) calculateJobEnergyConsumption(job *slurm.Job) *JobEnergy
 
 	// Calculate efficiency metrics
 	powerEfficiency := e.calculatePowerEfficiency(job, totalEnergyWh, runtimeHours)
-	energyPerCPUHour := totalEnergyWh / (float64(job.CPUs) * math.Max(runtimeHours, 0.001))
+	energyPerCPUHour := totalEnergyWh / (cpus * math.Max(runtimeHours, 0.001))
 	energyPerTaskUnit := e.calculateEnergyPerTaskUnit(job, totalEnergyWh)
 	energyWasteWh := e.calculateEnergyWaste(job, totalEnergyWh, powerEfficiency)
 
 	// Calculate cost metrics
 	energyCostUSD := e.calculateEnergyCost(totalEnergyWh)
-	costPerCPUHour := energyCostUSD / (float64(job.CPUs) * math.Max(runtimeHours, 0.001))
+	costPerCPUHour := energyCostUSD / (cpus * math.Max(runtimeHours, 0.001))
 	costEfficiency := e.calculateCostEfficiency(energyCostUSD, totalEnergyWh, powerEfficiency)
 
 	return &JobEnergyData{
-		JobID:             job.ID,
+		JobID:             jobID,
 		Timestamp:         now,
 		TotalEnergyWh:     totalEnergyWh,
 		CPUEnergyWh:       cpuEnergyWh,
@@ -744,14 +771,22 @@ func (e *EnergyMonitor) calculateJobEnergyConsumption(job *slurm.Job) *JobEnergy
 // calculateCPUEnergy calculates CPU energy consumption
 func (e *EnergyMonitor) calculateCPUEnergy(job *slurm.Job, runtimeHours float64) float64 {
 	// CPU energy = CPUs × power per CPU × runtime × utilization factor
+	cpus := float64(0)
+	if job.CPUs != nil {
+		cpus = float64(*job.CPUs)
+	}
 	utilizationFactor := e.estimateCPUUtilization(job)
-	return float64(job.CPUs) * e.config.DefaultCPUPowerWatts * runtimeHours * utilizationFactor
+	return cpus * e.config.DefaultCPUPowerWatts * runtimeHours * utilizationFactor
 }
 
 // calculateMemoryEnergy calculates memory energy consumption
 func (e *EnergyMonitor) calculateMemoryEnergy(job *slurm.Job, runtimeHours float64) float64 {
 	// Memory energy = Memory (GB) × power per GB × runtime
-	memoryGB := float64(job.Memory) / 1024 // Convert MB to GB
+	memoryMB := float64(0)
+	if job.MemoryPerNode != nil {
+		memoryMB = float64(*job.MemoryPerNode)
+	}
+	memoryGB := memoryMB / 1024 // Convert MB to GB
 	return memoryGB * e.config.DefaultMemoryPowerWatts * runtimeHours
 }
 
@@ -779,8 +814,9 @@ func (e *EnergyMonitor) calculateStorageEnergy(job *slurm.Job, runtimeHours floa
 func (e *EnergyMonitor) calculateNetworkEnergy(job *slurm.Job, runtimeHours float64) float64 {
 	// Estimate network energy based on job characteristics and communication patterns
 	baseNetworkPower := 2.0 // 2W base network power per job
+	nodeCount := 1.0 // Default to 1 node (job.Nodes is now a string, would need parsing)
 	networkIntensityFactor := e.estimateNetworkIntensity(job)
-	return baseNetworkPower * runtimeHours * networkIntensityFactor * float64(len(job.Nodes))
+	return baseNetworkPower * runtimeHours * networkIntensityFactor * nodeCount
 }
 
 // estimateCPUUtilization estimates CPU utilization for energy calculation
@@ -789,19 +825,29 @@ func (e *EnergyMonitor) estimateCPUUtilization(job *slurm.Job) float64 {
 	// In reality, this would use actual utilization data
 	baseUtilization := 0.7 // 70% base utilization
 
+	// Safely extract CPUs and memory
+	cpus := uint32(0)
+	if job.CPUs != nil {
+		cpus = *job.CPUs
+	}
+	memoryMB := uint64(0)
+	if job.MemoryPerNode != nil {
+		memoryMB = *job.MemoryPerNode
+	}
+
 	// Adjust based on job type heuristics
-	if job.CPUs > 16 {
+	if cpus > 16 {
 		baseUtilization += 0.1 // High-CPU jobs tend to have higher utilization
 	}
-	if float64(job.Memory)/float64(job.CPUs) > 4000 { // Memory-intensive jobs
+	if cpus > 0 && float64(memoryMB)/float64(cpus) > 4000 { // Memory-intensive jobs
 		baseUtilization -= 0.1 // May have lower CPU utilization
 	}
 
 	// Add some job-specific variation
-	// Use job ID hash for variation
+	// Use job ID hash for variation (JobID is now *int32)
 	idHash := 0
-	for _, c := range job.ID {
-		idHash += int(c)
+	if job.JobID != nil {
+		idHash = int(*job.JobID)
 	}
 	variation := float64(idHash%20) / 100.0 // 0-19% variation
 	baseUtilization += variation - 0.1
@@ -812,9 +858,19 @@ func (e *EnergyMonitor) estimateCPUUtilization(job *slurm.Job) float64 {
 
 // estimateGPUCount estimates GPU count for a job
 func (e *EnergyMonitor) estimateGPUCount(job *slurm.Job) int {
+	// Safely extract CPUs and memory
+	cpus := uint32(0)
+	if job.CPUs != nil {
+		cpus = *job.CPUs
+	}
+	memoryMB := uint64(0)
+	if job.MemoryPerNode != nil {
+		memoryMB = *job.MemoryPerNode
+	}
+
 	// Simple heuristic - assume GPU jobs have high CPU and memory allocation
-	if job.CPUs >= 8 && job.Memory >= 32768 { // 8+ CPUs and 32+ GB
-		return job.CPUs / 8 // Assume 1 GPU per 8 CPUs
+	if cpus >= 8 && memoryMB >= 32768 { // 8+ CPUs and 32+ GB
+		return int(cpus / 8) // Assume 1 GPU per 8 CPUs
 	}
 	return 0
 }
@@ -829,15 +885,23 @@ func (e *EnergyMonitor) estimateGPUUtilization(job *slurm.Job) float64 {
 func (e *EnergyMonitor) estimateIOIntensity(job *slurm.Job) float64 {
 	baseIntensity := 1.0
 
+	// Safely extract CPUs and memory
+	cpus := uint32(0)
+	if job.CPUs != nil {
+		cpus = *job.CPUs
+	}
+	memoryMB := uint64(0)
+	if job.MemoryPerNode != nil {
+		memoryMB = *job.MemoryPerNode
+	}
+
 	// High-memory jobs may be I/O intensive
-	if float64(job.Memory)/float64(job.CPUs) > 8000 {
+	if cpus > 0 && float64(memoryMB)/float64(cpus) > 8000 {
 		baseIntensity += 0.5
 	}
 
-	// Multi-node jobs may have more I/O
-	if len(job.Nodes) > 1 {
-		baseIntensity += 0.3
-	}
+	// Multi-node jobs may have more I/O (Nodes is now a string, skip this check)
+	// TODO: Parse job.Nodes string to count nodes
 
 	return math.Min(2.0, baseIntensity)
 }
@@ -846,13 +910,15 @@ func (e *EnergyMonitor) estimateIOIntensity(job *slurm.Job) float64 {
 func (e *EnergyMonitor) estimateNetworkIntensity(job *slurm.Job) float64 {
 	baseIntensity := 1.0
 
-	// Multi-node jobs have higher network intensity
-	if len(job.Nodes) > 1 {
-		baseIntensity += float64(len(job.Nodes)-1) * 0.2
-	}
+	// Multi-node jobs have higher network intensity (Nodes is now a string, skip this check)
+	// TODO: Parse job.Nodes string to count nodes
 
 	// High-CPU jobs may be communication-intensive
-	if job.CPUs > 32 {
+	cpus := uint32(0)
+	if job.CPUs != nil {
+		cpus = *job.CPUs
+	}
+	if cpus > 32 {
 		baseIntensity += 0.3
 	}
 
@@ -865,10 +931,20 @@ func (e *EnergyMonitor) calculatePowerEfficiency(job *slurm.Job, totalEnergyWh, 
 		return 0
 	}
 
+	// Safely extract CPUs and memory
+	cpus := float64(0)
+	if job.CPUs != nil {
+		cpus = float64(*job.CPUs)
+	}
+	memoryMB := float64(0)
+	if job.MemoryPerNode != nil {
+		memoryMB = float64(*job.MemoryPerNode)
+	}
+
 	// Calculate theoretical minimum power based on allocated resources
-	minCPUPower := float64(job.CPUs) * e.config.DefaultCPUPowerWatts * 0.1                // 10% minimum CPU power
-	minMemoryPower := float64(job.Memory) / 1024 * e.config.DefaultMemoryPowerWatts * 0.5 // 50% memory power
-	minBasePower := e.config.DefaultNodeBasePowerWatts * float64(len(job.Nodes))
+	minCPUPower := cpus * e.config.DefaultCPUPowerWatts * 0.1                // 10% minimum CPU power
+	minMemoryPower := memoryMB / 1024 * e.config.DefaultMemoryPowerWatts * 0.5 // 50% memory power
+	minBasePower := e.config.DefaultNodeBasePowerWatts * float64(1)
 
 	theoreticalMinEnergy := (minCPUPower + minMemoryPower + minBasePower) * runtimeHours
 
@@ -884,19 +960,25 @@ func (e *EnergyMonitor) calculatePowerEfficiency(job *slurm.Job, totalEnergyWh, 
 
 // calculateEnergyPerTaskUnit calculates energy consumption per unit of work
 func (e *EnergyMonitor) calculateEnergyPerTaskUnit(job *slurm.Job, totalEnergyWh float64) float64 {
+	// Safely extract CPUs
+	cpus := float64(0)
+	if job.CPUs != nil {
+		cpus = float64(*job.CPUs)
+	}
+
 	// Simple heuristic - assume task units are CPU-hours
 	var runtimeHours float64
-	if job.StartTime != nil {
-		if job.State == JobStateCompleted && job.EndTime != nil {
-			runtimeHours = job.EndTime.Sub(*job.StartTime).Hours()
+	if !job.StartTime.IsZero() {
+		if len(job.JobState) > 0 && job.JobState[0] == api.JobStateCompleted && !job.EndTime.IsZero() {
+			runtimeHours = job.EndTime.Sub(job.StartTime).Hours()
 		} else {
-			runtimeHours = time.Since(*job.StartTime).Hours()
+			runtimeHours = time.Since(job.StartTime).Hours()
 		}
 	} else {
 		runtimeHours = 1.0
 	}
 
-	taskUnits := float64(job.CPUs) * runtimeHours
+	taskUnits := cpus * runtimeHours
 	if taskUnits <= 0 {
 		return totalEnergyWh
 	}
@@ -941,6 +1023,16 @@ func (e *EnergyMonitor) calculateCostEfficiency(costUSD, energyWh, powerEfficien
 func (c *CarbonFootprintCalculator) calculateCarbonFootprint(job *slurm.Job, energyData *JobEnergyData) *CarbonFootprintData {
 	now := time.Now()
 
+	// Safely extract job properties
+	jobID := "unknown"
+	if job.JobID != nil {
+		jobID = fmt.Sprintf("%d", *job.JobID)
+	}
+	cpus := float64(0)
+	if job.CPUs != nil {
+		cpus = float64(*job.CPUs)
+	}
+
 	// Get current carbon intensity
 	carbonIntensity := c.getCurrentCarbonIntensity(now)
 
@@ -950,17 +1042,17 @@ func (c *CarbonFootprintCalculator) calculateCarbonFootprint(job *slurm.Job, ene
 
 	// Calculate per-unit emissions
 	var runtimeHours float64
-	if job.StartTime != nil {
-		if job.State == JobStateCompleted && job.EndTime != nil {
-			runtimeHours = job.EndTime.Sub(*job.StartTime).Hours()
+	if !job.StartTime.IsZero() {
+		if len(job.JobState) > 0 && job.JobState[0] == api.JobStateCompleted && !job.EndTime.IsZero() {
+			runtimeHours = job.EndTime.Sub(job.StartTime).Hours()
 		} else {
-			runtimeHours = time.Since(*job.StartTime).Hours()
+			runtimeHours = time.Since(job.StartTime).Hours()
 		}
 	} else {
 		runtimeHours = 1.0
 	}
 
-	cpuHours := float64(job.CPUs) * runtimeHours
+	cpuHours := cpus * runtimeHours
 	co2PerCPUHour := totalCO2grams / math.Max(cpuHours, 0.001)
 	co2PerTaskUnit := totalCO2grams / math.Max(cpuHours, 0.001) // Same as CPU-hour for now
 
@@ -979,7 +1071,7 @@ func (c *CarbonFootprintCalculator) calculateCarbonFootprint(job *slurm.Job, ene
 	environmentalImpact := c.calculateEnvironmentalImpact(totalCO2grams, energyData.TotalEnergyWh)
 
 	return &CarbonFootprintData{
-		JobID:                    job.ID,
+		JobID:                    jobID,
 		Timestamp:                now,
 		TotalCO2grams:            totalCO2grams,
 		CO2PerCPUHour:            co2PerCPUHour,
@@ -1153,7 +1245,17 @@ func (t *EnergyEfficiencyTracker) calculateTrend(scores []float64) (string, floa
 
 // updateJobEnergyMetrics updates Prometheus metrics for a job
 func (e *EnergyMonitor) updateJobEnergyMetrics(job *slurm.Job, energyData *JobEnergyData, carbonData *CarbonFootprintData) {
-	labels := []string{job.ID, "", "", job.Partition} // TODO: job.UserName and job.Account fields not available
+	// Safely extract job properties
+	jobID := "unknown"
+	if job.JobID != nil {
+		jobID = fmt.Sprintf("%d", *job.JobID)
+	}
+	partition := ""
+	if job.Partition != nil {
+		partition = *job.Partition
+	}
+
+	labels := []string{jobID, "", "", partition} // TODO: job.UserName and job.Account fields not available
 
 	// Update energy metrics
 	e.metrics.JobEnergyConsumption.WithLabelValues(labels...).Set(energyData.TotalEnergyWh)

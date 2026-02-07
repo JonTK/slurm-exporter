@@ -7,7 +7,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -43,27 +43,52 @@ func TestQoSCollector_Collect_Success(t *testing.T) {
 	mockQoSManager := new(mocks.MockQoSManager)
 
 	// Setup mock expectations with test data
+	// Helper functions for pointers
+	strPtr := func(s string) *string { return &s }
+	uint32Ptr := func(i uint32) *uint32 { return &i }
+	float64Ptr := func(f float64) *float64 { return &f }
+
 	qosList := &slurm.QoSList{
 		QoS: []slurm.QoS{
 			{
-				Name:           "normal",
-				Description:    "Normal QoS",
-				Priority:       100,
-				UsageFactor:    1.0,
-				MaxJobs:        1000,
-				MaxJobsPerUser: 100,
-				MaxCPUs:        5000,
-				MaxNodes:       100,
+				Name:        strPtr("normal"),
+				Description: strPtr("Normal QoS"),
+				Priority:    uint32Ptr(100),
+				UsageFactor: float64Ptr(1.0),
+				Limits: &slurm.QoSLimits{
+					Max: &slurm.QoSLimitsMax{
+						ActiveJobs: &slurm.QoSLimitsMaxActiveJobs{
+							Count: uint32Ptr(1000),
+						},
+						Jobs: &slurm.QoSLimitsMaxJobs{
+							ActiveJobs: &slurm.QoSLimitsMaxJobsActiveJobs{
+								Per: &slurm.QoSLimitsMaxJobsActiveJobsPer{
+									User: uint32Ptr(100),
+								},
+							},
+						},
+					},
+				},
 			},
 			{
-				Name:           "high",
-				Description:    "High Priority QoS",
-				Priority:       1000,
-				UsageFactor:    2.0,
-				MaxJobs:        2000,
-				MaxJobsPerUser: 200,
-				MaxCPUs:        10000,
-				MaxNodes:       200,
+				Name:        strPtr("high"),
+				Description: strPtr("High Priority QoS"),
+				Priority:    uint32Ptr(1000),
+				UsageFactor: float64Ptr(2.0),
+				Limits: &slurm.QoSLimits{
+					Max: &slurm.QoSLimitsMax{
+						ActiveJobs: &slurm.QoSLimitsMaxActiveJobs{
+							Count: uint32Ptr(2000),
+						},
+						Jobs: &slurm.QoSLimitsMaxJobs{
+							ActiveJobs: &slurm.QoSLimitsMaxJobsActiveJobs{
+								Per: &slurm.QoSLimitsMaxJobsActiveJobsPer{
+									User: uint32Ptr(200),
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 	}

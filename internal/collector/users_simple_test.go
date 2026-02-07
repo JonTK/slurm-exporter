@@ -7,7 +7,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
+	"github.com/jontk/slurm-client/api"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -44,17 +45,24 @@ func TestUsersSimpleCollector_Collect_Success(t *testing.T) {
 	mockJobManager := new(mocks.MockJobManager)
 
 	// Setup mock expectations with test data
+	// Helper function for pointers
+	strPtr := func(s string) *string { return &s }
+
 	userList := &slurm.UserList{
 		Users: []slurm.User{
 			{
-				Name:           "user1",
-				DefaultAccount: "account1",
-				AdminLevel:     "None",
+				Name: "user1",
+				Default: &slurm.UserDefault{
+					Account: strPtr("account1"),
+				},
+				AdministratorLevel: []slurm.AdministratorLevelValue{api.AdministratorLevelNone},
 			},
 			{
-				Name:           "user2",
-				DefaultAccount: "account2",
-				AdminLevel:     "Operator",
+				Name: "user2",
+				Default: &slurm.UserDefault{
+					Account: strPtr("account2"),
+				},
+				AdministratorLevel: []slurm.AdministratorLevelValue{api.AdministratorLevelOperator},
 			},
 		},
 	}

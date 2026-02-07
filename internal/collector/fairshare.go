@@ -8,11 +8,12 @@ import (
 	"fmt"
 	"log/slog"
 	"math"
+
 	// Commented out as only used in commented-out field
 	// "sync"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

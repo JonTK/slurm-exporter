@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -44,28 +44,28 @@ func TestReservationCollector_Collect_Success(t *testing.T) {
 	mockReservationManager := new(mocks.MockReservationManager)
 
 	// Setup mock expectations with test data
+	// Helper functions for pointers
+	strPtr := func(s string) *string { return &s }
+	int32Ptr := func(i int32) *int32 { return &i }
+
 	now := time.Now()
 	reservationList := &slurm.ReservationList{
 		Reservations: []slurm.Reservation{
 			{
-				Name:          "test-reservation-1",
-				PartitionName: "compute",
-				StartTime:     now,
-				EndTime:       now.Add(1 * time.Hour),
-				Duration:      3600,
-				NodeCount:     10,
-				CoreCount:     100,
-				State:         "ACTIVE",
+				Name:      strPtr("test-reservation-1"),
+				Partition: strPtr("compute"),
+				StartTime: now,
+				EndTime:   now.Add(1 * time.Hour),
+				NodeCount: int32Ptr(10),
+				CoreCount: int32Ptr(100),
 			},
 			{
-				Name:          "test-reservation-2",
-				PartitionName: "gpu",
-				StartTime:     now.Add(30 * time.Minute),
-				EndTime:       now.Add(90 * time.Minute),
-				Duration:      3600,
-				NodeCount:     5,
-				CoreCount:     50,
-				State:         "INACTIVE",
+				Name:      strPtr("test-reservation-2"),
+				Partition: strPtr("gpu"),
+				StartTime: now.Add(30 * time.Minute),
+				EndTime:   now.Add(90 * time.Minute),
+				NodeCount: int32Ptr(5),
+				CoreCount: int32Ptr(50),
 			},
 		},
 	}

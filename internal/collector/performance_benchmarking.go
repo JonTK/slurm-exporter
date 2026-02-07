@@ -8,11 +8,12 @@ import (
 	"fmt"
 	"log/slog"
 	"math"
+
 	// Commented out as only used in commented-out fields
 	// "sync"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -1142,7 +1143,7 @@ func (p *PerformanceBenchmarkingCollector) collectJobBenchmarks(ctx context.Cont
 	}
 
 	// Process each job for benchmarking
-	// TODO: Job type mismatch - jobList.Jobs returns []interfaces.Job but functions expect *slurm.Job
+	// TODO: Job type mismatch - jobList.Jobs returns []slurm.Job but functions expect *slurm.Job
 	// Skipping job processing for now
 	_ = jobList // Suppress unused variable warning
 	/*
@@ -1214,7 +1215,7 @@ func (p *PerformanceBenchmarkingCollector) collectNodeBenchmarks(ctx context.Con
 	}
 
 	// Process each node for benchmarking
-	// TODO: Node type mismatch - nodeList.Nodes returns []interfaces.Node but functions expect *slurm.Node
+	// TODO: Node type mismatch - nodeList.Nodes returns []slurm.Node but functions expect *slurm.Node
 	// Skipping node processing for now
 	_ = nodeList // Suppress unused variable warning
 	/*

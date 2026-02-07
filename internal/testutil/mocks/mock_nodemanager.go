@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	interfaces "github.com/jontk/slurm-client/interfaces"
+	"github.com/jontk/slurm-client"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -51,23 +51,23 @@ func (_m *MockNodeManager) Drain(ctx context.Context, nodeName string, reason st
 }
 
 // Get provides a mock function with given fields: ctx, nodeName
-func (_m *MockNodeManager) Get(ctx context.Context, nodeName string) (*interfaces.Node, error) {
+func (_m *MockNodeManager) Get(ctx context.Context, nodeName string) (*slurm.Node, error) {
 	ret := _m.Called(ctx, nodeName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *interfaces.Node
+	var r0 *slurm.Node
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.Node, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.Node, error)); ok {
 		return rf(ctx, nodeName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.Node); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.Node); ok {
 		r0 = rf(ctx, nodeName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.Node)
+			r0 = ret.Get(0).(*slurm.Node)
 		}
 	}
 
@@ -81,27 +81,27 @@ func (_m *MockNodeManager) Get(ctx context.Context, nodeName string) (*interface
 }
 
 // List provides a mock function with given fields: ctx, opts
-func (_m *MockNodeManager) List(ctx context.Context, opts *interfaces.ListNodesOptions) (*interfaces.NodeList, error) {
+func (_m *MockNodeManager) List(ctx context.Context, opts *slurm.ListNodesOptions) (*slurm.NodeList, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 *interfaces.NodeList
+	var r0 *slurm.NodeList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListNodesOptions) (*interfaces.NodeList, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListNodesOptions) (*slurm.NodeList, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListNodesOptions) *interfaces.NodeList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListNodesOptions) *slurm.NodeList); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.NodeList)
+			r0 = ret.Get(0).(*slurm.NodeList)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.ListNodesOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.ListNodesOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -129,7 +129,7 @@ func (_m *MockNodeManager) Resume(ctx context.Context, nodeName string) error {
 }
 
 // Update provides a mock function with given fields: ctx, nodeName, update
-func (_m *MockNodeManager) Update(ctx context.Context, nodeName string, update *interfaces.NodeUpdate) error {
+func (_m *MockNodeManager) Update(ctx context.Context, nodeName string, update *slurm.NodeUpdate) error {
 	ret := _m.Called(ctx, nodeName, update)
 
 	if len(ret) == 0 {
@@ -137,7 +137,7 @@ func (_m *MockNodeManager) Update(ctx context.Context, nodeName string, update *
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.NodeUpdate) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.NodeUpdate) error); ok {
 		r0 = rf(ctx, nodeName, update)
 	} else {
 		r0 = ret.Error(0)
@@ -147,27 +147,27 @@ func (_m *MockNodeManager) Update(ctx context.Context, nodeName string, update *
 }
 
 // Watch provides a mock function with given fields: ctx, opts
-func (_m *MockNodeManager) Watch(ctx context.Context, opts *interfaces.WatchNodesOptions) (<-chan interfaces.NodeEvent, error) {
+func (_m *MockNodeManager) Watch(ctx context.Context, opts *slurm.WatchNodesOptions) (<-chan slurm.NodeEvent, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Watch")
 	}
 
-	var r0 <-chan interfaces.NodeEvent
+	var r0 <-chan slurm.NodeEvent
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.WatchNodesOptions) (<-chan interfaces.NodeEvent, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.WatchNodesOptions) (<-chan slurm.NodeEvent, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.WatchNodesOptions) <-chan interfaces.NodeEvent); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.WatchNodesOptions) <-chan slurm.NodeEvent); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan interfaces.NodeEvent)
+			r0 = ret.Get(0).(<-chan slurm.NodeEvent)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.WatchNodesOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.WatchNodesOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)

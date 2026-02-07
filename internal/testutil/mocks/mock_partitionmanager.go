@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	interfaces "github.com/jontk/slurm-client/interfaces"
+	"github.com/jontk/slurm-client"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,27 +15,27 @@ type MockPartitionManager struct {
 }
 
 // Create provides a mock function with given fields: ctx, partition
-func (_m *MockPartitionManager) Create(ctx context.Context, partition *interfaces.PartitionCreate) (*interfaces.PartitionCreateResponse, error) {
+func (_m *MockPartitionManager) Create(ctx context.Context, partition *slurm.PartitionCreate) (*slurm.PartitionCreateResponse, error) {
 	ret := _m.Called(ctx, partition)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *interfaces.PartitionCreateResponse
+	var r0 *slurm.PartitionCreateResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.PartitionCreate) (*interfaces.PartitionCreateResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.PartitionCreate) (*slurm.PartitionCreateResponse, error)); ok {
 		return rf(ctx, partition)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.PartitionCreate) *interfaces.PartitionCreateResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.PartitionCreate) *slurm.PartitionCreateResponse); ok {
 		r0 = rf(ctx, partition)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.PartitionCreateResponse)
+			r0 = ret.Get(0).(*slurm.PartitionCreateResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.PartitionCreate) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.PartitionCreate) error); ok {
 		r1 = rf(ctx, partition)
 	} else {
 		r1 = ret.Error(1)
@@ -63,23 +63,23 @@ func (_m *MockPartitionManager) Delete(ctx context.Context, partitionName string
 }
 
 // Get provides a mock function with given fields: ctx, partitionName
-func (_m *MockPartitionManager) Get(ctx context.Context, partitionName string) (*interfaces.Partition, error) {
+func (_m *MockPartitionManager) Get(ctx context.Context, partitionName string) (*slurm.Partition, error) {
 	ret := _m.Called(ctx, partitionName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *interfaces.Partition
+	var r0 *slurm.Partition
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.Partition, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.Partition, error)); ok {
 		return rf(ctx, partitionName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.Partition); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.Partition); ok {
 		r0 = rf(ctx, partitionName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.Partition)
+			r0 = ret.Get(0).(*slurm.Partition)
 		}
 	}
 
@@ -93,27 +93,27 @@ func (_m *MockPartitionManager) Get(ctx context.Context, partitionName string) (
 }
 
 // List provides a mock function with given fields: ctx, opts
-func (_m *MockPartitionManager) List(ctx context.Context, opts *interfaces.ListPartitionsOptions) (*interfaces.PartitionList, error) {
+func (_m *MockPartitionManager) List(ctx context.Context, opts *slurm.ListPartitionsOptions) (*slurm.PartitionList, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 *interfaces.PartitionList
+	var r0 *slurm.PartitionList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListPartitionsOptions) (*interfaces.PartitionList, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListPartitionsOptions) (*slurm.PartitionList, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListPartitionsOptions) *interfaces.PartitionList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListPartitionsOptions) *slurm.PartitionList); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.PartitionList)
+			r0 = ret.Get(0).(*slurm.PartitionList)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.ListPartitionsOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.ListPartitionsOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -123,7 +123,7 @@ func (_m *MockPartitionManager) List(ctx context.Context, opts *interfaces.ListP
 }
 
 // Update provides a mock function with given fields: ctx, partitionName, update
-func (_m *MockPartitionManager) Update(ctx context.Context, partitionName string, update *interfaces.PartitionUpdate) error {
+func (_m *MockPartitionManager) Update(ctx context.Context, partitionName string, update *slurm.PartitionUpdate) error {
 	ret := _m.Called(ctx, partitionName, update)
 
 	if len(ret) == 0 {
@@ -131,7 +131,7 @@ func (_m *MockPartitionManager) Update(ctx context.Context, partitionName string
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.PartitionUpdate) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.PartitionUpdate) error); ok {
 		r0 = rf(ctx, partitionName, update)
 	} else {
 		r0 = ret.Error(0)
@@ -141,27 +141,27 @@ func (_m *MockPartitionManager) Update(ctx context.Context, partitionName string
 }
 
 // Watch provides a mock function with given fields: ctx, opts
-func (_m *MockPartitionManager) Watch(ctx context.Context, opts *interfaces.WatchPartitionsOptions) (<-chan interfaces.PartitionEvent, error) {
+func (_m *MockPartitionManager) Watch(ctx context.Context, opts *slurm.WatchPartitionsOptions) (<-chan slurm.PartitionEvent, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Watch")
 	}
 
-	var r0 <-chan interfaces.PartitionEvent
+	var r0 <-chan slurm.PartitionEvent
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.WatchPartitionsOptions) (<-chan interfaces.PartitionEvent, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.WatchPartitionsOptions) (<-chan slurm.PartitionEvent, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.WatchPartitionsOptions) <-chan interfaces.PartitionEvent); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.WatchPartitionsOptions) <-chan slurm.PartitionEvent); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan interfaces.PartitionEvent)
+			r0 = ret.Get(0).(<-chan slurm.PartitionEvent)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.WatchPartitionsOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.WatchPartitionsOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)

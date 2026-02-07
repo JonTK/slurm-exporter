@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
@@ -144,14 +144,16 @@ func (c *UsersSimpleCollector) collect(ctx context.Context, ch chan<- prometheus
 
 	for _, user := range userList.Users {
 		// User info metric
-		adminLevel := user.AdminLevel
-		if adminLevel == "" {
-			adminLevel = "none"
+		// AdminLevel is now AdministratorLevel (array of enums)
+		adminLevel := "none"
+		if len(user.AdministratorLevel) > 0 {
+			adminLevel = string(user.AdministratorLevel[0])
 		}
 
-		defaultAccount := user.DefaultAccount
-		if defaultAccount == "" {
-			defaultAccount = "default"
+		// DefaultAccount is now nested under Default.Account
+		defaultAccount := "default"
+		if user.Default != nil && user.Default.Account != nil {
+			defaultAccount = *user.Default.Account
 		}
 
 		ch <- prometheus.MustNewConstMetric(
@@ -238,7 +240,11 @@ func (c *UsersSimpleCollector) collectJobStatsByUser(ctx context.Context, jobsMa
 	}
 
 	for _, job := range jobList.Jobs {
-		userName := job.UserID
+		// UserID is now a pointer
+		userName := ""
+		if job.UserID != nil {
+			userName = fmt.Sprintf("%d", *job.UserID)
+		}
 		if userName == "" {
 			continue
 		}
@@ -253,18 +259,32 @@ func (c *UsersSimpleCollector) collectJobStatsByUser(ctx context.Context, jobsMa
 			}
 		}
 
+		// Partition is now a pointer
+		partition := ""
+		if job.Partition != nil {
+			partition = *job.Partition
+		}
+
 		// Create key for grouping
 		key := userJobKey{
-			account:   "default", // Job doesn't have account field in interfaces.Job
-			partition: job.Partition,
+			account:   "default", // Job doesn't have account field in slurm.Job
+			partition: partition,
+		}
+
+		// State is now an array of JobState enums
+		state := ""
+		if len(job.JobState) > 0 {
+			state = string(job.JobState[0])
 		}
 
 		// Count jobs by state
-		switch job.State {
+		switch state {
 		case "RUNNING", "COMPLETING":
 			stats[userName].runningJobs[key]++
-			stats[userName].cpusUsed[key] += job.CPUs
-			stats[userName].memoryUsed[key] += int64(job.Memory) * 1024 * 1024 // Convert MB to bytes
+
+			// CPU/memory tracking would require parsing TRES, skip for now
+			// TODO: Add TRES parsing when needed
+
 		case "PENDING":
 			stats[userName].pendingJobs[key]++
 		}

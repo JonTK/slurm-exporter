@@ -135,7 +135,7 @@ func (c *LicensesCollector) Collect(ctx context.Context, ch chan<- prometheus.Me
 			ch <- prometheus.MustNewConstMetric(
 				c.licensesAvailable,
 				prometheus.GaugeValue,
-				float64(license.Available),
+				float64(license.Free),
 				feature, clusterName,
 			)
 
@@ -143,7 +143,7 @@ func (c *LicensesCollector) Collect(ctx context.Context, ch chan<- prometheus.Me
 			ch <- prometheus.MustNewConstMetric(
 				c.licensesFree,
 				prometheus.GaugeValue,
-				float64(license.Available),
+				float64(license.Free),
 				feature, clusterName,
 			)
 

@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"go.uber.org/mock/gomock"
 )
 
@@ -93,7 +93,7 @@ func (m *MockSLURMClient) GetJob(ctx context.Context, id string) (*slurm.Job, er
 
 	// Find job by ID
 	for _, job := range m.jobs {
-		if job.ID == id {
+		if job.JobID != nil && fmt.Sprintf("%d", *job.JobID) == id {
 			return &job, nil
 		}
 	}
@@ -150,7 +150,7 @@ func (m *MockSLURMClient) GetNode(ctx context.Context, name string) (*slurm.Node
 
 	// Find node by name
 	for _, node := range m.nodes {
-		if node.Name == name {
+		if node.Name != nil && *node.Name == name {
 			return &node, nil
 		}
 	}
@@ -207,7 +207,7 @@ func (m *MockSLURMClient) GetPartition(ctx context.Context, name string) (*slurm
 
 	// Find partition by name
 	for _, partition := range m.partitions {
-		if partition.Name == name {
+		if partition.Name != nil && *partition.Name == name {
 			return &partition, nil
 		}
 	}

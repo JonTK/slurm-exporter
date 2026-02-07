@@ -9,7 +9,8 @@ import (
 	"math"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
+	"github.com/jontk/slurm-client/api"
 )
 
 // EfficiencyCalculator provides algorithms for calculating various efficiency metrics
@@ -502,24 +503,42 @@ func (e *EfficiencyCalculator) generateRecommendations(data *ResourceUtilization
 
 // CreateResourceUtilizationDataFromJob creates utilization data from basic job information
 func CreateResourceUtilizationDataFromJob(job *slurm.Job) *ResourceUtilizationData {
-	data := &ResourceUtilizationData{
-		CPURequested:    float64(job.CPUs),
-		CPUAllocated:    float64(job.CPUs),
-		CPUUsed:         float64(job.CPUs) * 0.75,        // Estimate 75% usage
-		MemoryRequested: int64(job.Memory) * 1024 * 1024, // Convert MB to bytes
-		MemoryAllocated: int64(job.Memory) * 1024 * 1024,
-		MemoryUsed:      int64(job.Memory) * 1024 * 1024 * 65 / 100, // Estimate 65% usage
-		JobState:        job.State,
+	// Extract CPUs safely
+	cpus := float64(0)
+	if job.CPUs != nil {
+		cpus = float64(*job.CPUs)
 	}
 
-	if job.StartTime != nil {
-		data.StartTime = *job.StartTime
-		if job.EndTime != nil {
-			data.EndTime = *job.EndTime
-			data.WallTime = job.EndTime.Sub(*job.StartTime).Seconds()
-		} else if job.State == JobStateRunning {
+	// Extract memory safely (using MemoryPerNode if available)
+	memory := int64(0)
+	if job.MemoryPerNode != nil {
+		memory = int64(*job.MemoryPerNode) * 1024 * 1024 // Convert MB to bytes
+	}
+
+	// Extract job state (convert from array to string)
+	jobState := ""
+	if len(job.JobState) > 0 {
+		jobState = string(job.JobState[0])
+	}
+
+	data := &ResourceUtilizationData{
+		CPURequested:    cpus,
+		CPUAllocated:    cpus,
+		CPUUsed:         cpus * 0.75,          // Estimate 75% usage
+		MemoryRequested: memory,
+		MemoryAllocated: memory,
+		MemoryUsed:      memory * 65 / 100,    // Estimate 65% usage
+		JobState:        jobState,
+	}
+
+	if !job.StartTime.IsZero() {
+		data.StartTime = job.StartTime
+		if !job.EndTime.IsZero() {
+			data.EndTime = job.EndTime
+			data.WallTime = job.EndTime.Sub(job.StartTime).Seconds()
+		} else if len(job.JobState) > 0 && job.JobState[0] == api.JobStateRunning {
 			data.EndTime = time.Now()
-			data.WallTime = time.Since(*job.StartTime).Seconds()
+			data.WallTime = time.Since(job.StartTime).Seconds()
 		}
 	}
 

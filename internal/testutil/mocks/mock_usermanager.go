@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	interfaces "github.com/jontk/slurm-client/interfaces"
+	"github.com/jontk/slurm-client"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,27 +15,27 @@ type MockUserManager struct {
 }
 
 // CalculateJobPriority provides a mock function with given fields: ctx, userName, jobSubmission
-func (_m *MockUserManager) CalculateJobPriority(ctx context.Context, userName string, jobSubmission *interfaces.JobSubmission) (*interfaces.JobPriorityInfo, error) {
+func (_m *MockUserManager) CalculateJobPriority(ctx context.Context, userName string, jobSubmission *slurm.JobSubmission) (*slurm.JobPriorityInfo, error) {
 	ret := _m.Called(ctx, userName, jobSubmission)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CalculateJobPriority")
 	}
 
-	var r0 *interfaces.JobPriorityInfo
+	var r0 *slurm.JobPriorityInfo
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.JobSubmission) (*interfaces.JobPriorityInfo, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.JobSubmission) (*slurm.JobPriorityInfo, error)); ok {
 		return rf(ctx, userName, jobSubmission)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.JobSubmission) *interfaces.JobPriorityInfo); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.JobSubmission) *slurm.JobPriorityInfo); ok {
 		r0 = rf(ctx, userName, jobSubmission)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.JobPriorityInfo)
+			r0 = ret.Get(0).(*slurm.JobPriorityInfo)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, *interfaces.JobSubmission) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, *slurm.JobSubmission) error); ok {
 		r1 = rf(ctx, userName, jobSubmission)
 	} else {
 		r1 = ret.Error(1)
@@ -45,27 +45,27 @@ func (_m *MockUserManager) CalculateJobPriority(ctx context.Context, userName st
 }
 
 // Create provides a mock function with given fields: ctx, user
-func (_m *MockUserManager) Create(ctx context.Context, user *interfaces.UserCreate) (*interfaces.UserCreateResponse, error) {
+func (_m *MockUserManager) Create(ctx context.Context, user *slurm.UserCreate) (*slurm.UserCreateResponse, error) {
 	ret := _m.Called(ctx, user)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *interfaces.UserCreateResponse
+	var r0 *slurm.UserCreateResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.UserCreate) (*interfaces.UserCreateResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.UserCreate) (*slurm.UserCreateResponse, error)); ok {
 		return rf(ctx, user)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.UserCreate) *interfaces.UserCreateResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.UserCreate) *slurm.UserCreateResponse); ok {
 		r0 = rf(ctx, user)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.UserCreateResponse)
+			r0 = ret.Get(0).(*slurm.UserCreateResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.UserCreate) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.UserCreate) error); ok {
 		r1 = rf(ctx, user)
 	} else {
 		r1 = ret.Error(1)
@@ -75,27 +75,27 @@ func (_m *MockUserManager) Create(ctx context.Context, user *interfaces.UserCrea
 }
 
 // CreateAssociation provides a mock function with given fields: ctx, accountName, opts
-func (_m *MockUserManager) CreateAssociation(ctx context.Context, accountName string, opts *interfaces.AssociationOptions) (*interfaces.AssociationCreateResponse, error) {
+func (_m *MockUserManager) CreateAssociation(ctx context.Context, accountName string, opts *slurm.AssociationOptions) (*slurm.AssociationCreateResponse, error) {
 	ret := _m.Called(ctx, accountName, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateAssociation")
 	}
 
-	var r0 *interfaces.AssociationCreateResponse
+	var r0 *slurm.AssociationCreateResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.AssociationOptions) (*interfaces.AssociationCreateResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.AssociationOptions) (*slurm.AssociationCreateResponse, error)); ok {
 		return rf(ctx, accountName, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.AssociationOptions) *interfaces.AssociationCreateResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.AssociationOptions) *slurm.AssociationCreateResponse); ok {
 		r0 = rf(ctx, accountName, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.AssociationCreateResponse)
+			r0 = ret.Get(0).(*slurm.AssociationCreateResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, *interfaces.AssociationOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, *slurm.AssociationOptions) error); ok {
 		r1 = rf(ctx, accountName, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -123,23 +123,23 @@ func (_m *MockUserManager) Delete(ctx context.Context, userName string) error {
 }
 
 // Get provides a mock function with given fields: ctx, userName
-func (_m *MockUserManager) Get(ctx context.Context, userName string) (*interfaces.User, error) {
+func (_m *MockUserManager) Get(ctx context.Context, userName string) (*slurm.User, error) {
 	ret := _m.Called(ctx, userName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *interfaces.User
+	var r0 *slurm.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.User, error)); ok {
 		return rf(ctx, userName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.User); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.User); ok {
 		r0 = rf(ctx, userName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.User)
+			r0 = ret.Get(0).(*slurm.User)
 		}
 	}
 
@@ -153,23 +153,23 @@ func (_m *MockUserManager) Get(ctx context.Context, userName string) (*interface
 }
 
 // GetBulkAccountUsers provides a mock function with given fields: ctx, accountNames
-func (_m *MockUserManager) GetBulkAccountUsers(ctx context.Context, accountNames []string) (map[string][]*interfaces.UserAccountAssociation, error) {
+func (_m *MockUserManager) GetBulkAccountUsers(ctx context.Context, accountNames []string) (map[string][]*slurm.UserAccountAssociation, error) {
 	ret := _m.Called(ctx, accountNames)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetBulkAccountUsers")
 	}
 
-	var r0 map[string][]*interfaces.UserAccountAssociation
+	var r0 map[string][]*slurm.UserAccountAssociation
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []string) (map[string][]*interfaces.UserAccountAssociation, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string) (map[string][]*slurm.UserAccountAssociation, error)); ok {
 		return rf(ctx, accountNames)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []string) map[string][]*interfaces.UserAccountAssociation); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string) map[string][]*slurm.UserAccountAssociation); ok {
 		r0 = rf(ctx, accountNames)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[string][]*interfaces.UserAccountAssociation)
+			r0 = ret.Get(0).(map[string][]*slurm.UserAccountAssociation)
 		}
 	}
 
@@ -183,23 +183,23 @@ func (_m *MockUserManager) GetBulkAccountUsers(ctx context.Context, accountNames
 }
 
 // GetBulkUserAccounts provides a mock function with given fields: ctx, userNames
-func (_m *MockUserManager) GetBulkUserAccounts(ctx context.Context, userNames []string) (map[string][]*interfaces.UserAccount, error) {
+func (_m *MockUserManager) GetBulkUserAccounts(ctx context.Context, userNames []string) (map[string][]*slurm.UserAccount, error) {
 	ret := _m.Called(ctx, userNames)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetBulkUserAccounts")
 	}
 
-	var r0 map[string][]*interfaces.UserAccount
+	var r0 map[string][]*slurm.UserAccount
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []string) (map[string][]*interfaces.UserAccount, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string) (map[string][]*slurm.UserAccount, error)); ok {
 		return rf(ctx, userNames)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []string) map[string][]*interfaces.UserAccount); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string) map[string][]*slurm.UserAccount); ok {
 		r0 = rf(ctx, userNames)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[string][]*interfaces.UserAccount)
+			r0 = ret.Get(0).(map[string][]*slurm.UserAccount)
 		}
 	}
 
@@ -213,27 +213,27 @@ func (_m *MockUserManager) GetBulkUserAccounts(ctx context.Context, userNames []
 }
 
 // GetUserAccountAssociations provides a mock function with given fields: ctx, userName, opts
-func (_m *MockUserManager) GetUserAccountAssociations(ctx context.Context, userName string, opts *interfaces.ListUserAccountAssociationsOptions) ([]*interfaces.UserAccountAssociation, error) {
+func (_m *MockUserManager) GetUserAccountAssociations(ctx context.Context, userName string, opts *slurm.ListUserAccountAssociationsOptions) ([]*slurm.UserAccountAssociation, error) {
 	ret := _m.Called(ctx, userName, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserAccountAssociations")
 	}
 
-	var r0 []*interfaces.UserAccountAssociation
+	var r0 []*slurm.UserAccountAssociation
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.ListUserAccountAssociationsOptions) ([]*interfaces.UserAccountAssociation, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.ListUserAccountAssociationsOptions) ([]*slurm.UserAccountAssociation, error)); ok {
 		return rf(ctx, userName, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.ListUserAccountAssociationsOptions) []*interfaces.UserAccountAssociation); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.ListUserAccountAssociationsOptions) []*slurm.UserAccountAssociation); ok {
 		r0 = rf(ctx, userName, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*interfaces.UserAccountAssociation)
+			r0 = ret.Get(0).([]*slurm.UserAccountAssociation)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, *interfaces.ListUserAccountAssociationsOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, *slurm.ListUserAccountAssociationsOptions) error); ok {
 		r1 = rf(ctx, userName, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -243,23 +243,23 @@ func (_m *MockUserManager) GetUserAccountAssociations(ctx context.Context, userN
 }
 
 // GetUserAccounts provides a mock function with given fields: ctx, userName
-func (_m *MockUserManager) GetUserAccounts(ctx context.Context, userName string) ([]*interfaces.UserAccount, error) {
+func (_m *MockUserManager) GetUserAccounts(ctx context.Context, userName string) ([]*slurm.UserAccount, error) {
 	ret := _m.Called(ctx, userName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserAccounts")
 	}
 
-	var r0 []*interfaces.UserAccount
+	var r0 []*slurm.UserAccount
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) ([]*interfaces.UserAccount, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) ([]*slurm.UserAccount, error)); ok {
 		return rf(ctx, userName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) []*interfaces.UserAccount); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) []*slurm.UserAccount); ok {
 		r0 = rf(ctx, userName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*interfaces.UserAccount)
+			r0 = ret.Get(0).([]*slurm.UserAccount)
 		}
 	}
 
@@ -273,23 +273,23 @@ func (_m *MockUserManager) GetUserAccounts(ctx context.Context, userName string)
 }
 
 // GetUserDefaultAccount provides a mock function with given fields: ctx, userName
-func (_m *MockUserManager) GetUserDefaultAccount(ctx context.Context, userName string) (*interfaces.Account, error) {
+func (_m *MockUserManager) GetUserDefaultAccount(ctx context.Context, userName string) (*slurm.Account, error) {
 	ret := _m.Called(ctx, userName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserDefaultAccount")
 	}
 
-	var r0 *interfaces.Account
+	var r0 *slurm.Account
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.Account, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.Account, error)); ok {
 		return rf(ctx, userName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.Account); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.Account); ok {
 		r0 = rf(ctx, userName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.Account)
+			r0 = ret.Get(0).(*slurm.Account)
 		}
 	}
 
@@ -303,23 +303,23 @@ func (_m *MockUserManager) GetUserDefaultAccount(ctx context.Context, userName s
 }
 
 // GetUserFairShare provides a mock function with given fields: ctx, userName
-func (_m *MockUserManager) GetUserFairShare(ctx context.Context, userName string) (*interfaces.UserFairShare, error) {
+func (_m *MockUserManager) GetUserFairShare(ctx context.Context, userName string) (*slurm.UserFairShare, error) {
 	ret := _m.Called(ctx, userName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserFairShare")
 	}
 
-	var r0 *interfaces.UserFairShare
+	var r0 *slurm.UserFairShare
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.UserFairShare, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.UserFairShare, error)); ok {
 		return rf(ctx, userName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.UserFairShare); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.UserFairShare); ok {
 		r0 = rf(ctx, userName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.UserFairShare)
+			r0 = ret.Get(0).(*slurm.UserFairShare)
 		}
 	}
 
@@ -333,23 +333,23 @@ func (_m *MockUserManager) GetUserFairShare(ctx context.Context, userName string
 }
 
 // GetUserQuotas provides a mock function with given fields: ctx, userName
-func (_m *MockUserManager) GetUserQuotas(ctx context.Context, userName string) (*interfaces.UserQuota, error) {
+func (_m *MockUserManager) GetUserQuotas(ctx context.Context, userName string) (*slurm.UserQuota, error) {
 	ret := _m.Called(ctx, userName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserQuotas")
 	}
 
-	var r0 *interfaces.UserQuota
+	var r0 *slurm.UserQuota
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*interfaces.UserQuota, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*slurm.UserQuota, error)); ok {
 		return rf(ctx, userName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *interfaces.UserQuota); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *slurm.UserQuota); ok {
 		r0 = rf(ctx, userName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.UserQuota)
+			r0 = ret.Get(0).(*slurm.UserQuota)
 		}
 	}
 
@@ -363,27 +363,27 @@ func (_m *MockUserManager) GetUserQuotas(ctx context.Context, userName string) (
 }
 
 // List provides a mock function with given fields: ctx, opts
-func (_m *MockUserManager) List(ctx context.Context, opts *interfaces.ListUsersOptions) (*interfaces.UserList, error) {
+func (_m *MockUserManager) List(ctx context.Context, opts *slurm.ListUsersOptions) (*slurm.UserList, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 *interfaces.UserList
+	var r0 *slurm.UserList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListUsersOptions) (*interfaces.UserList, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListUsersOptions) (*slurm.UserList, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.ListUsersOptions) *interfaces.UserList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.ListUsersOptions) *slurm.UserList); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.UserList)
+			r0 = ret.Get(0).(*slurm.UserList)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.ListUsersOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.ListUsersOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -393,7 +393,7 @@ func (_m *MockUserManager) List(ctx context.Context, opts *interfaces.ListUsersO
 }
 
 // Update provides a mock function with given fields: ctx, userName, update
-func (_m *MockUserManager) Update(ctx context.Context, userName string, update *interfaces.UserUpdate) error {
+func (_m *MockUserManager) Update(ctx context.Context, userName string, update *slurm.UserUpdate) error {
 	ret := _m.Called(ctx, userName, update)
 
 	if len(ret) == 0 {
@@ -401,7 +401,7 @@ func (_m *MockUserManager) Update(ctx context.Context, userName string, update *
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *interfaces.UserUpdate) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slurm.UserUpdate) error); ok {
 		r0 = rf(ctx, userName, update)
 	} else {
 		r0 = ret.Error(0)
@@ -411,23 +411,23 @@ func (_m *MockUserManager) Update(ctx context.Context, userName string, update *
 }
 
 // ValidateUserAccountAccess provides a mock function with given fields: ctx, userName, accountName
-func (_m *MockUserManager) ValidateUserAccountAccess(ctx context.Context, userName string, accountName string) (*interfaces.UserAccessValidation, error) {
+func (_m *MockUserManager) ValidateUserAccountAccess(ctx context.Context, userName string, accountName string) (*slurm.UserAccessValidation, error) {
 	ret := _m.Called(ctx, userName, accountName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ValidateUserAccountAccess")
 	}
 
-	var r0 *interfaces.UserAccessValidation
+	var r0 *slurm.UserAccessValidation
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*interfaces.UserAccessValidation, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*slurm.UserAccessValidation, error)); ok {
 		return rf(ctx, userName, accountName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) *interfaces.UserAccessValidation); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *slurm.UserAccessValidation); ok {
 		r0 = rf(ctx, userName, accountName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.UserAccessValidation)
+			r0 = ret.Get(0).(*slurm.UserAccessValidation)
 		}
 	}
 

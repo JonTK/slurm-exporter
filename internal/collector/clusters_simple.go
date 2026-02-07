@@ -5,7 +5,6 @@ package collector
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -120,93 +119,67 @@ func (c *ClustersCollector) Collect(ctx context.Context, ch chan<- prometheus.Me
 
 	// Process each cluster
 	for _, cluster := range clusters.Clusters {
-		clusterName := cluster.Name
+		// Safely extract cluster name
+		clusterName := "unknown"
+		if cluster.Name != nil {
+			clusterName = *cluster.Name
+		}
+
+		// Safely extract control host
+		controlHost := ""
+		if cluster.Controller != nil && cluster.Controller.Host != nil {
+			controlHost = *cluster.Controller.Host
+		}
 
 		// Export cluster info
 		ch <- prometheus.MustNewConstMetric(
 			c.clusterInfo,
 			prometheus.GaugeValue,
 			1,
-			clusterName, cluster.ControlHost,
+			clusterName, controlHost,
 		)
 
 		// RPC version
-		if cluster.RPCVersion > 0 {
+		if cluster.RpcVersion != nil && *cluster.RpcVersion > 0 {
 			ch <- prometheus.MustNewConstMetric(
 				c.clusterRPCVersion,
 				prometheus.GaugeValue,
-				float64(cluster.RPCVersion),
+				float64(*cluster.RpcVersion),
 				clusterName,
 			)
 		}
 
-		// Plugin information
-		if cluster.PluginIDSelect > 0 {
+		// Plugin information (SelectPlugin is now a string, not an ID)
+		if cluster.SelectPlugin != nil && *cluster.SelectPlugin != "" {
 			ch <- prometheus.MustNewConstMetric(
 				c.clusterPluginInfo,
 				prometheus.GaugeValue,
 				1,
-				clusterName, "select", fmt.Sprintf("%d", cluster.PluginIDSelect),
+				clusterName, "select", *cluster.SelectPlugin,
 			)
 		}
 
-		if cluster.PluginIDAuth > 0 {
-			ch <- prometheus.MustNewConstMetric(
-				c.clusterPluginInfo,
-				prometheus.GaugeValue,
-				1,
-				clusterName, "auth", fmt.Sprintf("%d", cluster.PluginIDAuth),
-			)
+		// Note: PluginIDAuth and PluginIDAcct fields no longer exist in the new API
+		// Skipping acct plugin metric
+
+		// Note: FederationState field no longer exists in the new API
+		// Skipping federation state metric
+
+		// TRES list (field is now TRES, not TRESList)
+		for _, tres := range cluster.TRES {
+			// TRES is now a complex struct with Type (string) and other fields
+			if tres.Type != "" {
+				ch <- prometheus.MustNewConstMetric(
+					c.clusterTRES,
+					prometheus.GaugeValue,
+					1,
+					clusterName, tres.Type,
+				)
+			}
 		}
 
-		if cluster.PluginIDAcct > 0 {
-			ch <- prometheus.MustNewConstMetric(
-				c.clusterPluginInfo,
-				prometheus.GaugeValue,
-				1,
-				clusterName, "acct", fmt.Sprintf("%d", cluster.PluginIDAcct),
-			)
-		}
-
-		// Federation state
-		if cluster.FederationState != "" {
-			ch <- prometheus.MustNewConstMetric(
-				c.clusterFederationInfo,
-				prometheus.GaugeValue,
-				1,
-				clusterName, cluster.FederationState,
-			)
-		}
-
-		// TRES list
-		for _, tres := range cluster.TRESList {
-			ch <- prometheus.MustNewConstMetric(
-				c.clusterTRES,
-				prometheus.GaugeValue,
-				1,
-				clusterName, tres,
-			)
-		}
-
-		// Features
-		for _, feature := range cluster.Features {
-			ch <- prometheus.MustNewConstMetric(
-				c.clusterFeatures,
-				prometheus.GaugeValue,
-				1,
-				clusterName, feature,
-			)
-		}
-
-		// Federation features
-		for _, feature := range cluster.FederationFeatures {
-			ch <- prometheus.MustNewConstMetric(
-				c.clusterFeatures,
-				prometheus.GaugeValue,
-				1,
-				clusterName, "federation:"+feature,
-			)
-		}
+		// Note: Features and FederationFeatures fields no longer exist in the new API
+		// Skipping cluster features metrics
 	}
 
 	c.logger.WithField("cluster_count", len(clusters.Clusters)).Debug("Cluster metrics collected")

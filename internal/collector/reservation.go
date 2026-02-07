@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
@@ -164,31 +164,59 @@ func (c *ReservationCollector) collect(ctx context.Context, ch chan<- prometheus
 	now := time.Now()
 
 	for _, reservation := range reservationList.Reservations {
+		// Extract name from pointer
+		name := ""
+		if reservation.Name != nil {
+			name = *reservation.Name
+		}
+
+		// Calculate state from times (no State field in new API)
+		isActive := !reservation.StartTime.IsZero() && !reservation.EndTime.IsZero() &&
+			now.After(reservation.StartTime) && now.Before(reservation.EndTime)
+
 		// Reservation state
 		stateValue := 0.0
-		if isReservationActive(reservation.State) {
+		if isActive {
 			stateValue = 1.0
 		}
 		ch <- prometheus.MustNewConstMetric(
 			c.reservationState,
 			prometheus.GaugeValue,
 			stateValue,
-			reservation.Name,
+			name,
 		)
+
+		// Extract partition from pointer (field renamed from PartitionName to Partition)
+		partition := ""
+		if reservation.Partition != nil {
+			partition = *reservation.Partition
+		}
+
+		// Extract node count from pointer
+		nodeCount := int32(0)
+		if reservation.NodeCount != nil {
+			nodeCount = *reservation.NodeCount
+		}
+
+		// Extract core count from pointer
+		coreCount := int32(0)
+		if reservation.CoreCount != nil {
+			coreCount = *reservation.CoreCount
+		}
 
 		// Resource metrics
 		ch <- prometheus.MustNewConstMetric(
 			c.reservationNodes,
 			prometheus.GaugeValue,
-			float64(reservation.NodeCount),
-			reservation.Name, reservation.PartitionName,
+			float64(nodeCount),
+			name, partition,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.reservationCores,
 			prometheus.GaugeValue,
-			float64(reservation.CoreCount),
-			reservation.Name, reservation.PartitionName,
+			float64(coreCount),
+			name, partition,
 		)
 
 		// Time metrics
@@ -199,23 +227,26 @@ func (c *ReservationCollector) collect(ctx context.Context, ch chan<- prometheus
 			c.reservationStartTime,
 			prometheus.GaugeValue,
 			float64(startTime),
-			reservation.Name,
+			name,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.reservationEndTime,
 			prometheus.GaugeValue,
 			float64(endTime),
-			reservation.Name,
+			name,
 		)
 
-		// Duration (convert minutes to seconds if needed)
-		duration := float64(reservation.Duration * 60) // Convert minutes to seconds
+		// Duration (calculate from end - start, no Duration field in new API)
+		duration := 0.0
+		if !reservation.StartTime.IsZero() && !reservation.EndTime.IsZero() {
+			duration = reservation.EndTime.Sub(reservation.StartTime).Seconds()
+		}
 		ch <- prometheus.MustNewConstMetric(
 			c.reservationDuration,
 			prometheus.GaugeValue,
 			duration,
-			reservation.Name,
+			name,
 		)
 
 		// Calculate remaining time
@@ -227,21 +258,41 @@ func (c *ReservationCollector) collect(ctx context.Context, ch chan<- prometheus
 			c.reservationRemaining,
 			prometheus.GaugeValue,
 			remaining,
-			reservation.Name,
+			name,
 		)
 
 		// Reservation info
-		users := strings.Join(reservation.Users, ",")
-		accounts := strings.Join(reservation.Accounts, ",")
-		flags := strings.Join(reservation.Flags, ",")
+		// Users and Accounts are now *string (comma-separated), not []string
+		users := ""
+		if reservation.Users != nil {
+			users = *reservation.Users
+		}
+
+		accounts := ""
+		if reservation.Accounts != nil {
+			accounts = *reservation.Accounts
+		}
+
+		// Flags are now []ReservationFlagsValue enum
+		flagStrs := make([]string, 0, len(reservation.Flags))
+		for _, f := range reservation.Flags {
+			flagStrs = append(flagStrs, string(f))
+		}
+		flags := strings.Join(flagStrs, ",")
+
+		// Calculate state string for info metric
+		stateStr := "inactive"
+		if isActive {
+			stateStr = "active"
+		}
 
 		ch <- prometheus.MustNewConstMetric(
 			c.reservationInfo,
 			prometheus.GaugeValue,
 			1,
-			reservation.Name,
-			reservation.State,
-			reservation.PartitionName,
+			name,
+			stateStr,
+			partition,
 			users,
 			accounts,
 			flags,
@@ -251,16 +302,3 @@ func (c *ReservationCollector) collect(ctx context.Context, ch chan<- prometheus
 	return nil
 }
 
-// isReservationActive returns true if the reservation is in an active state
-func isReservationActive(state string) bool {
-	state = strings.ToLower(state)
-	switch state {
-	case "active", "running":
-		return true
-	case "inactive", "pending", "expired", "deleted":
-		return false
-	default:
-		// Default to considering unknown states as inactive
-		return false
-	}
-}

@@ -6,10 +6,29 @@ package testutil
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
+	"github.com/jontk/slurm-client/api"
 )
+
+// Helper functions for pointer types
+func strPtr(s string) *string {
+	return &s
+}
+
+func int32Ptr(i int32) *int32 {
+	return &i
+}
+
+func uint32Ptr(i uint32) *uint32 {
+	return &i
+}
+
+func uint64Ptr(i uint64) *uint64 {
+	return &i
+}
 
 // TestDataGenerator provides functions to generate test data
 type TestDataGenerator struct {
@@ -27,39 +46,48 @@ func NewTestDataGenerator() *TestDataGenerator {
 func (g *TestDataGenerator) GenerateJobs(count int) []slurm.Job {
 	jobs := make([]slurm.Job, count)
 
-	states := []string{"RUNNING", "PENDING", "COMPLETED", "FAILED", "CANCELLED"}
+	states := []api.JobState{api.JobStateRunning, api.JobStatePending, api.JobStateCompleted, api.JobStateFailed, api.JobStateCancelled}
 	partitions := []string{"gpu", "cpu", "highmem", "debug"}
 	users := []string{"user1", "user2", "user3", "user4", "user5"}
 
 	for i := 0; i < count; i++ {
 		startTime := time.Now().Add(-time.Duration(g.rand.Intn(7*24)) * time.Hour)
+		jobID := int32(10000 + i)
+		partition := partitions[g.rand.Intn(len(partitions))]
+		user := users[g.rand.Intn(len(users))]
+		state := states[g.rand.Intn(len(states))]
 
 		job := slurm.Job{
-			ID:         fmt.Sprintf("%d", 10000+i),
-			Name:       fmt.Sprintf("job-%d", i),
-			State:      states[g.rand.Intn(len(states))],
-			UserID:     users[g.rand.Intn(len(users))],
-			GroupID:    fmt.Sprintf("group%d", g.rand.Intn(5)+1),
-			Partition:  partitions[g.rand.Intn(len(partitions))],
-			Priority:   g.rand.Intn(1000),
-			SubmitTime: startTime.Add(-time.Duration(g.rand.Intn(60)) * time.Minute),
-			StartTime:  &startTime,
-			CPUs:       g.rand.Intn(64) + 1,
-			Memory:     g.rand.Intn(128*1024) + 1024, // 1GB to 128GB in MB
-			TimeLimit:  g.rand.Intn(72*60) + 60,      // 1 to 72 hours in minutes
-			WorkingDir: fmt.Sprintf("/home/%s/work", users[g.rand.Intn(len(users))]),
-			Command:    fmt.Sprintf("simulation_%d.sh", i),
-			Nodes:      g.generateNodeList(g.rand.Intn(4) + 1),
-			Metadata: map[string]interface{}{
-				"account": fmt.Sprintf("account%d", g.rand.Intn(10)+1),
-				"qos":     []string{"normal", "high", "low"}[g.rand.Intn(3)],
-			},
+			JobID:                   &jobID,
+			Name:                    strPtr(fmt.Sprintf("job-%d", i)),
+			JobState:                []api.JobState{state},
+			UserID:                  int32Ptr(int32(1000 + g.rand.Intn(100))),
+			UserName:                &user,
+			GroupID:                 int32Ptr(int32(1000 + g.rand.Intn(5))),
+			GroupName:               strPtr(fmt.Sprintf("group%d", g.rand.Intn(5)+1)),
+			Partition:               &partition,
+			Priority:                uint32Ptr(uint32(g.rand.Intn(1000))),
+			SubmitTime:              startTime.Add(-time.Duration(g.rand.Intn(60)) * time.Minute),
+			StartTime:               startTime,
+			CPUs:                    uint32Ptr(uint32(g.rand.Intn(64) + 1)),
+			MemoryPerNode:           uint64Ptr(uint64(g.rand.Intn(128*1024) + 1024)), // 1GB to 128GB in MB
+			TimeLimit:               uint32Ptr(uint32(g.rand.Intn(72*60) + 60)),      // 1 to 72 hours in minutes
+			CurrentWorkingDirectory: strPtr(fmt.Sprintf("/home/%s/work", user)),
+			Command:                 strPtr(fmt.Sprintf("simulation_%d.sh", i)),
+			Nodes:                   strPtr(strings.Join(g.generateNodeList(g.rand.Intn(4)+1), ",")),
 		}
 
 		// Set end time for completed jobs
-		if job.State == "COMPLETED" || job.State == "FAILED" || job.State == "CANCELLED" {
-			endTime := startTime.Add(time.Duration(g.rand.Intn(job.TimeLimit)) * time.Minute)
-			job.EndTime = &endTime
+		if state == api.JobStateCompleted || state == api.JobStateFailed || state == api.JobStateCancelled {
+			var timeLimit int
+			if job.TimeLimit != nil && *job.TimeLimit > 0 {
+				timeLimit = int(*job.TimeLimit)
+			}
+			if timeLimit == 0 {
+				timeLimit = 60
+			}
+			endTime := startTime.Add(time.Duration(g.rand.Intn(timeLimit)) * time.Minute)
+			job.EndTime = endTime
 		}
 
 		jobs[i] = job
@@ -68,33 +96,21 @@ func (g *TestDataGenerator) GenerateJobs(count int) []slurm.Job {
 	return jobs
 }
 
-// GenerateNodes generates test nodes
+// GenerateNodes generates test nodes  
 func (g *TestDataGenerator) GenerateNodes(count int) []slurm.Node {
 	nodes := make([]slurm.Node, count)
 
-	states := []string{"idle", "allocated", "mixed", "down", "drain"}
-	partitions := []string{"gpu", "cpu", "highmem", "debug"}
-
+	states := []api.NodeState{api.NodeStateIdle, api.NodeStateAllocated, api.NodeStateMixed, api.NodeStateDown, api.NodeStateDrain}
+	
 	for i := 0; i < count; i++ {
+		cpus := int32([]int{16, 32, 64, 128}[g.rand.Intn(4)])
+		memory := int64([]int{64 * 1024, 128 * 1024, 256 * 1024, 512 * 1024}[g.rand.Intn(4)]) // GB in MB
+
 		node := slurm.Node{
-			Name:   fmt.Sprintf("node%03d", i+1),
-			State:  states[g.rand.Intn(len(states))],
-			CPUs:   []int{16, 32, 64, 128}[g.rand.Intn(4)],
-			Memory: []int{64 * 1024, 128 * 1024, 256 * 1024, 512 * 1024}[g.rand.Intn(4)], // GB in MB
-			Metadata: map[string]interface{}{
-				"arch":      []string{"x86_64", "aarch64"}[g.rand.Intn(2)],
-				"features":  g.generateFeatures(),
-				"partition": partitions[g.rand.Intn(len(partitions))],
-			},
-		}
-
-		// Set allocated resources for allocated/mixed nodes
-		if node.State == "allocated" || node.State == "mixed" {
-			allocatedCPUs := g.rand.Intn(node.CPUs)
-			allocatedMemory := g.rand.Intn(node.Memory)
-
-			node.Metadata["allocated_cpus"] = allocatedCPUs
-			node.Metadata["allocated_memory"] = allocatedMemory
+			Name:       strPtr(fmt.Sprintf("node%03d", i+1)),
+			State:      []api.NodeState{states[g.rand.Intn(len(states))]},
+			CPUs:       &cpus,
+			RealMemory: &memory,
 		}
 
 		nodes[i] = node
@@ -108,21 +124,10 @@ func (g *TestDataGenerator) GeneratePartitions(count int) []slurm.Partition {
 	partitions := make([]slurm.Partition, count)
 
 	names := []string{"gpu", "cpu", "highmem", "debug", "interactive"}
-	states := []string{"UP", "DOWN", "DRAIN"}
 
 	for i := 0; i < count && i < len(names); i++ {
-		totalNodes := g.rand.Intn(50) + 10
-		availableNodes := g.rand.Intn(totalNodes)
-		totalCPUs := totalNodes * (g.rand.Intn(64) + 16)
-		idleCPUs := g.rand.Intn(totalCPUs)
-
 		partition := slurm.Partition{
-			Name:           names[i],
-			State:          states[g.rand.Intn(len(states))],
-			TotalNodes:     totalNodes,
-			AvailableNodes: availableNodes,
-			TotalCPUs:      totalCPUs,
-			IdleCPUs:       idleCPUs,
+			Name: strPtr(names[i]),
 		}
 
 		partitions[i] = partition
@@ -140,24 +145,6 @@ func (g *TestDataGenerator) generateNodeList(count int) []string {
 	return nodes
 }
 
-// generateFeatures generates node features
-func (g *TestDataGenerator) generateFeatures() []string {
-	allFeatures := []string{"gpu", "ssd", "infiniband", "large_mem", "nvme", "fpga"}
-	count := g.rand.Intn(3) + 1 // 1-3 features
-
-	features := make([]string, 0, count)
-	used := make(map[string]bool)
-
-	for len(features) < count {
-		feature := allFeatures[g.rand.Intn(len(allFeatures))]
-		if !used[feature] {
-			features = append(features, feature)
-			used[feature] = true
-		}
-	}
-
-	return features
-}
 
 // GenerateJobStates generates realistic job state distributions
 func (g *TestDataGenerator) GenerateJobStates() map[string]int {

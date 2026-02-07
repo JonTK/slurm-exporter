@@ -8,8 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jontk/slurm-client"
-	"github.com/jontk/slurm-client/interfaces"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -47,27 +46,29 @@ func TestSharesCollector_Collect_Success(t *testing.T) {
 	timeout := 30 * time.Second
 
 	// Setup mock expectations with test data
-	sharesList := &interfaces.SharesList{
-		Shares: []interfaces.Share{
+	sharesList := &slurm.SharesList{
+		Shares: []slurm.Share{
 			{
-				Name:        "account1",
-				User:        "user1",
-				RawShares:   100,
-				NormShares:  0.5,
-				RawUsage:    50,
-				NormUsage:   0.25,
-				EffectUsage: 0.25,
-				FairShare:   2.0,
+				Account:          "account1",
+				User:             "user1",
+				RawShares:        100,
+				NormalizedShares: 0.5,
+				RawUsage:         50,
+				NormalizedUsage:  0.25,
+				EffectiveUsage:   0.25,
+				FairshareUsage:   2.0,
+				FairshareLevel:   1.0,
 			},
 			{
-				Name:        "account2",
-				User:        "user2",
-				RawShares:   200,
-				NormShares:  1.0,
-				RawUsage:    100,
-				NormUsage:   0.5,
-				EffectUsage: 0.5,
-				FairShare:   2.0,
+				Account:          "account2",
+				User:             "user2",
+				RawShares:        200,
+				NormalizedShares: 1.0,
+				RawUsage:         100,
+				NormalizedUsage:  0.5,
+				EffectiveUsage:   0.5,
+				FairshareUsage:   2.0,
+				FairshareLevel:   1.0,
 			},
 		},
 	}
@@ -131,8 +132,8 @@ func TestSharesCollector_EmptySharesList(t *testing.T) {
 	timeout := 30 * time.Second
 
 	// Setup mock to return empty list
-	emptyList := &interfaces.SharesList{
-		Shares: []interfaces.Share{},
+	emptyList := &slurm.SharesList{
+		Shares: []slurm.Share{},
 	}
 
 	clusterInfo := &slurm.ClusterInfo{

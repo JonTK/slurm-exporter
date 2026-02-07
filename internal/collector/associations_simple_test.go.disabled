@@ -7,11 +7,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/jontk/slurm-client/interfaces"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
+	slurm "github.com/jontk/slurm-client"
 	"github.com/jontk/slurm-exporter/internal/testutil"
 	"github.com/jontk/slurm-exporter/internal/testutil/mocks"
 )
@@ -42,31 +42,34 @@ func TestAssociationsSimpleCollector_Collect_Success(t *testing.T) {
 	mockClient := new(mocks.MockSlurmClient)
 	mockAssociationManager := new(mocks.MockAssociationManager)
 
+	// Helper functions for pointers
+	int32Ptr := func(i int32) *int32 { return &i }
+	uint32Ptr := func(u uint32) *uint32 { return &u }
+	stringPtr := func(s string) *string { return &s }
+	boolPtr := func(b bool) *bool { return &b }
+
 	// Setup mock expectations with test data
-	maxJobs := 100
-	associationList := &interfaces.AssociationList{
-		Associations: []*interfaces.Association{
+	associationList := &slurm.AssociationList{
+		Associations: []slurm.Association{
 			{
-				ID:        1,
+				ID:        int32Ptr(1),
 				User:      "user1",
-				Account:   "account1",
-				Cluster:   "test-cluster",
-				IsDefault: true,
-				SharesRaw: 100,
-				Priority:  50,
-				MaxJobs:   &maxJobs,
+				Account:   stringPtr("account1"),
+				Cluster:   stringPtr("test-cluster"),
+				IsDefault: boolPtr(true),
+				SharesRaw: int32Ptr(100),
+				Priority:  uint32Ptr(50),
 			},
 			{
-				ID:        2,
+				ID:        int32Ptr(2),
 				User:      "user2",
-				Account:   "account2",
-				Cluster:   "test-cluster",
-				IsDefault: false,
-				SharesRaw: 200,
-				Priority:  75,
+				Account:   stringPtr("account2"),
+				Cluster:   stringPtr("test-cluster"),
+				IsDefault: boolPtr(false),
+				SharesRaw: int32Ptr(200),
+				Priority:  uint32Ptr(75),
 			},
 		},
-		Total: 2,
 	}
 
 	mockClient.On("Associations").Return(mockAssociationManager)
@@ -150,9 +153,8 @@ func TestAssociationsSimpleCollector_EmptyAssociationList(t *testing.T) {
 	mockAssociationManager := new(mocks.MockAssociationManager)
 
 	// Setup mock to return empty list
-	emptyList := &interfaces.AssociationList{
-		Associations: []*interfaces.Association{},
-		Total:        0,
+	emptyList := &slurm.AssociationList{
+		Associations: []slurm.Association{},
 	}
 
 	mockClient.On("Associations").Return(mockAssociationManager)

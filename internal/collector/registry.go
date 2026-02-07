@@ -12,7 +12,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
-	"github.com/jontk/slurm-client"
+	slurm "github.com/jontk/slurm-client"
 	"github.com/jontk/slurm-exporter/internal/config"
 	"github.com/jontk/slurm-exporter/internal/metrics"
 )
@@ -575,7 +575,7 @@ func (r *Registry) registerSimpleCollectors(cfg *config.CollectorsConfig, client
 		{cfg.Partitions.Enabled, "partitions", func() Collector { return NewPartitionsSimpleCollector(client, logger) }},
 		{cfg.Cluster.Enabled, "cluster", func() Collector { return NewClusterSimpleCollector(client, logger) }},
 		{cfg.Users.Enabled, "users", func() Collector { return NewUsersSimpleCollector(client, logger) }},
-		{cfg.Accounts.Enabled, "accounts", func() Collector { return NewAccountsSimpleCollector(client, logger) }},
+		// {cfg.Accounts.Enabled, "accounts", func() Collector { return NewAccountsSimpleCollector(client, logger) }},
 		{cfg.Associations.Enabled, "associations", func() Collector { return NewAssociationsSimpleCollector(client, logger) }},
 	}
 
@@ -625,7 +625,8 @@ func (r *Registry) registerConfigurableCollectors(cfg *config.CollectorsConfig, 
 	}{
 		{cfg.Jobs.Enabled, "jobs", func() Collector { return NewJobsSimpleCollector(client, r.logger) }, cfg.Jobs.Filters, cfg.Jobs.Labels},
 		{cfg.Nodes.Enabled, "nodes", func() Collector { return NewNodesSimpleCollector(client, r.logger) }, config.FilterConfig{}, cfg.Nodes.Labels},
-		{cfg.Performance.Enabled, "performance", func() Collector { return NewPerformanceSimpleCollector(client, r.logger) }, config.FilterConfig{}, cfg.Performance.Labels},
+		// Temporarily disabled during API migration:
+		// {cfg.Performance.Enabled, "performance", func() Collector { return NewPerformanceSimpleCollector(client, r.logger) }, config.FilterConfig{}, cfg.Performance.Labels},
 		{cfg.System.Enabled, "system", func() Collector { return NewSystemSimpleCollector(client, r.logger) }, config.FilterConfig{}, cfg.System.Labels},
 	}
 

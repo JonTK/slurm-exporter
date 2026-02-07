@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	interfaces "github.com/jontk/slurm-client/interfaces"
+	"github.com/jontk/slurm-client"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,19 +15,19 @@ type MockSlurmClientInterface struct {
 }
 
 // Accounts provides a mock function with no fields
-func (_m *MockSlurmClientInterface) Accounts() interfaces.AccountManager {
+func (_m *MockSlurmClientInterface) Accounts() slurm.AccountManager {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Accounts")
 	}
 
-	var r0 interfaces.AccountManager
-	if rf, ok := ret.Get(0).(func() interfaces.AccountManager); ok {
+	var r0 slurm.AccountManager
+	if rf, ok := ret.Get(0).(func() slurm.AccountManager); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interfaces.AccountManager)
+			r0 = ret.Get(0).(slurm.AccountManager)
 		}
 	}
 
@@ -35,20 +35,58 @@ func (_m *MockSlurmClientInterface) Accounts() interfaces.AccountManager {
 }
 
 // Associations provides a mock function with no fields
-func (_m *MockSlurmClientInterface) Associations() interfaces.AssociationManager {
+func (_m *MockSlurmClientInterface) Associations() slurm.AssociationManager {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Associations")
 	}
 
-	var r0 interfaces.AssociationManager
-	if rf, ok := ret.Get(0).(func() interfaces.AssociationManager); ok {
+	var r0 slurm.AssociationManager
+	if rf, ok := ret.Get(0).(func() slurm.AssociationManager); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interfaces.AssociationManager)
+			r0 = ret.Get(0).(slurm.AssociationManager)
 		}
+	}
+
+	return r0
+}
+
+// Analytics provides a mock function with no fields
+func (_m *MockSlurmClientInterface) Analytics() slurm.AnalyticsManager {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Analytics")
+	}
+
+	var r0 slurm.AnalyticsManager
+	if rf, ok := ret.Get(0).(func() slurm.AnalyticsManager); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(slurm.AnalyticsManager)
+		}
+	}
+
+	return r0
+}
+
+// Capabilities provides a mock function with no fields
+func (_m *MockSlurmClientInterface) Capabilities() slurm.ClientCapabilities {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Capabilities")
+	}
+
+	var r0 slurm.ClientCapabilities
+	if rf, ok := ret.Get(0).(func() slurm.ClientCapabilities); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(slurm.ClientCapabilities)
 	}
 
 	return r0
@@ -73,19 +111,19 @@ func (_m *MockSlurmClientInterface) Close() error {
 }
 
 // Clusters provides a mock function with no fields
-func (_m *MockSlurmClientInterface) Clusters() interfaces.ClusterManager {
+func (_m *MockSlurmClientInterface) Clusters() slurm.ClusterManager {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Clusters")
 	}
 
-	var r0 interfaces.ClusterManager
-	if rf, ok := ret.Get(0).(func() interfaces.ClusterManager); ok {
+	var r0 slurm.ClusterManager
+	if rf, ok := ret.Get(0).(func() slurm.ClusterManager); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interfaces.ClusterManager)
+			r0 = ret.Get(0).(slurm.ClusterManager)
 		}
 	}
 
@@ -93,27 +131,27 @@ func (_m *MockSlurmClientInterface) Clusters() interfaces.ClusterManager {
 }
 
 // CreateTRES provides a mock function with given fields: ctx, req
-func (_m *MockSlurmClientInterface) CreateTRES(ctx context.Context, req *interfaces.CreateTRESRequest) (*interfaces.TRES, error) {
+func (_m *MockSlurmClientInterface) CreateTRES(ctx context.Context, req *slurm.CreateTRESRequest) (*slurm.TRES, error) {
 	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateTRES")
 	}
 
-	var r0 *interfaces.TRES
+	var r0 *slurm.TRES
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.CreateTRESRequest) (*interfaces.TRES, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.CreateTRESRequest) (*slurm.TRES, error)); ok {
 		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.CreateTRESRequest) *interfaces.TRES); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.CreateTRESRequest) *slurm.TRES); ok {
 		r0 = rf(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.TRES)
+			r0 = ret.Get(0).(*slurm.TRES)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.CreateTRESRequest) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.CreateTRESRequest) error); ok {
 		r1 = rf(ctx, req)
 	} else {
 		r1 = ret.Error(1)
@@ -123,23 +161,23 @@ func (_m *MockSlurmClientInterface) CreateTRES(ctx context.Context, req *interfa
 }
 
 // GetConfig provides a mock function with given fields: ctx
-func (_m *MockSlurmClientInterface) GetConfig(ctx context.Context) (*interfaces.Config, error) {
+func (_m *MockSlurmClientInterface) GetConfig(ctx context.Context) (*slurm.Config, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetConfig")
 	}
 
-	var r0 *interfaces.Config
+	var r0 *slurm.Config
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*interfaces.Config, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*slurm.Config, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *interfaces.Config); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *slurm.Config); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.Config)
+			r0 = ret.Get(0).(*slurm.Config)
 		}
 	}
 
@@ -153,23 +191,23 @@ func (_m *MockSlurmClientInterface) GetConfig(ctx context.Context) (*interfaces.
 }
 
 // GetDBDiagnostics provides a mock function with given fields: ctx
-func (_m *MockSlurmClientInterface) GetDBDiagnostics(ctx context.Context) (*interfaces.Diagnostics, error) {
+func (_m *MockSlurmClientInterface) GetDBDiagnostics(ctx context.Context) (*slurm.Diagnostics, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetDBDiagnostics")
 	}
 
-	var r0 *interfaces.Diagnostics
+	var r0 *slurm.Diagnostics
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*interfaces.Diagnostics, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*slurm.Diagnostics, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *interfaces.Diagnostics); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *slurm.Diagnostics); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.Diagnostics)
+			r0 = ret.Get(0).(*slurm.Diagnostics)
 		}
 	}
 
@@ -183,23 +221,23 @@ func (_m *MockSlurmClientInterface) GetDBDiagnostics(ctx context.Context) (*inte
 }
 
 // GetDiagnostics provides a mock function with given fields: ctx
-func (_m *MockSlurmClientInterface) GetDiagnostics(ctx context.Context) (*interfaces.Diagnostics, error) {
+func (_m *MockSlurmClientInterface) GetDiagnostics(ctx context.Context) (*slurm.Diagnostics, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetDiagnostics")
 	}
 
-	var r0 *interfaces.Diagnostics
+	var r0 *slurm.Diagnostics
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*interfaces.Diagnostics, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*slurm.Diagnostics, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *interfaces.Diagnostics); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *slurm.Diagnostics); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.Diagnostics)
+			r0 = ret.Get(0).(*slurm.Diagnostics)
 		}
 	}
 
@@ -213,27 +251,27 @@ func (_m *MockSlurmClientInterface) GetDiagnostics(ctx context.Context) (*interf
 }
 
 // GetInstance provides a mock function with given fields: ctx, opts
-func (_m *MockSlurmClientInterface) GetInstance(ctx context.Context, opts *interfaces.GetInstanceOptions) (*interfaces.Instance, error) {
+func (_m *MockSlurmClientInterface) GetInstance(ctx context.Context, opts *slurm.GetInstanceOptions) (*slurm.Instance, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetInstance")
 	}
 
-	var r0 *interfaces.Instance
+	var r0 *slurm.Instance
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.GetInstanceOptions) (*interfaces.Instance, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.GetInstanceOptions) (*slurm.Instance, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.GetInstanceOptions) *interfaces.Instance); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.GetInstanceOptions) *slurm.Instance); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.Instance)
+			r0 = ret.Get(0).(*slurm.Instance)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.GetInstanceOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.GetInstanceOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -243,27 +281,27 @@ func (_m *MockSlurmClientInterface) GetInstance(ctx context.Context, opts *inter
 }
 
 // GetInstances provides a mock function with given fields: ctx, opts
-func (_m *MockSlurmClientInterface) GetInstances(ctx context.Context, opts *interfaces.GetInstancesOptions) (*interfaces.InstanceList, error) {
+func (_m *MockSlurmClientInterface) GetInstances(ctx context.Context, opts *slurm.GetInstancesOptions) (*slurm.InstanceList, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetInstances")
 	}
 
-	var r0 *interfaces.InstanceList
+	var r0 *slurm.InstanceList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.GetInstancesOptions) (*interfaces.InstanceList, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.GetInstancesOptions) (*slurm.InstanceList, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.GetInstancesOptions) *interfaces.InstanceList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.GetInstancesOptions) *slurm.InstanceList); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.InstanceList)
+			r0 = ret.Get(0).(*slurm.InstanceList)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.GetInstancesOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.GetInstancesOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -273,23 +311,23 @@ func (_m *MockSlurmClientInterface) GetInstances(ctx context.Context, opts *inte
 }
 
 // GetLicenses provides a mock function with given fields: ctx
-func (_m *MockSlurmClientInterface) GetLicenses(ctx context.Context) (*interfaces.LicenseList, error) {
+func (_m *MockSlurmClientInterface) GetLicenses(ctx context.Context) (*slurm.LicenseList, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetLicenses")
 	}
 
-	var r0 *interfaces.LicenseList
+	var r0 *slurm.LicenseList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*interfaces.LicenseList, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*slurm.LicenseList, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *interfaces.LicenseList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *slurm.LicenseList); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.LicenseList)
+			r0 = ret.Get(0).(*slurm.LicenseList)
 		}
 	}
 
@@ -303,27 +341,27 @@ func (_m *MockSlurmClientInterface) GetLicenses(ctx context.Context) (*interface
 }
 
 // GetShares provides a mock function with given fields: ctx, opts
-func (_m *MockSlurmClientInterface) GetShares(ctx context.Context, opts *interfaces.GetSharesOptions) (*interfaces.SharesList, error) {
+func (_m *MockSlurmClientInterface) GetShares(ctx context.Context, opts *slurm.GetSharesOptions) (*slurm.SharesList, error) {
 	ret := _m.Called(ctx, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetShares")
 	}
 
-	var r0 *interfaces.SharesList
+	var r0 *slurm.SharesList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.GetSharesOptions) (*interfaces.SharesList, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.GetSharesOptions) (*slurm.SharesList, error)); ok {
 		return rf(ctx, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *interfaces.GetSharesOptions) *interfaces.SharesList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *slurm.GetSharesOptions) *slurm.SharesList); ok {
 		r0 = rf(ctx, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.SharesList)
+			r0 = ret.Get(0).(*slurm.SharesList)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *interfaces.GetSharesOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *slurm.GetSharesOptions) error); ok {
 		r1 = rf(ctx, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -333,23 +371,23 @@ func (_m *MockSlurmClientInterface) GetShares(ctx context.Context, opts *interfa
 }
 
 // GetTRES provides a mock function with given fields: ctx
-func (_m *MockSlurmClientInterface) GetTRES(ctx context.Context) (*interfaces.TRESList, error) {
+func (_m *MockSlurmClientInterface) GetTRES(ctx context.Context) (*slurm.TRESList, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTRES")
 	}
 
-	var r0 *interfaces.TRESList
+	var r0 *slurm.TRESList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*interfaces.TRESList, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*slurm.TRESList, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *interfaces.TRESList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *slurm.TRESList); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.TRESList)
+			r0 = ret.Get(0).(*slurm.TRESList)
 		}
 	}
 
@@ -363,19 +401,19 @@ func (_m *MockSlurmClientInterface) GetTRES(ctx context.Context) (*interfaces.TR
 }
 
 // Info provides a mock function with no fields
-func (_m *MockSlurmClientInterface) Info() interfaces.InfoManager {
+func (_m *MockSlurmClientInterface) Info() slurm.InfoManager {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Info")
 	}
 
-	var r0 interfaces.InfoManager
-	if rf, ok := ret.Get(0).(func() interfaces.InfoManager); ok {
+	var r0 slurm.InfoManager
+	if rf, ok := ret.Get(0).(func() slurm.InfoManager); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interfaces.InfoManager)
+			r0 = ret.Get(0).(slurm.InfoManager)
 		}
 	}
 
@@ -383,19 +421,19 @@ func (_m *MockSlurmClientInterface) Info() interfaces.InfoManager {
 }
 
 // Jobs provides a mock function with no fields
-func (_m *MockSlurmClientInterface) Jobs() interfaces.JobManager {
+func (_m *MockSlurmClientInterface) Jobs() slurm.JobManager {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Jobs")
 	}
 
-	var r0 interfaces.JobManager
-	if rf, ok := ret.Get(0).(func() interfaces.JobManager); ok {
+	var r0 slurm.JobManager
+	if rf, ok := ret.Get(0).(func() slurm.JobManager); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interfaces.JobManager)
+			r0 = ret.Get(0).(slurm.JobManager)
 		}
 	}
 
@@ -403,19 +441,19 @@ func (_m *MockSlurmClientInterface) Jobs() interfaces.JobManager {
 }
 
 // Nodes provides a mock function with no fields
-func (_m *MockSlurmClientInterface) Nodes() interfaces.NodeManager {
+func (_m *MockSlurmClientInterface) Nodes() slurm.NodeManager {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Nodes")
 	}
 
-	var r0 interfaces.NodeManager
-	if rf, ok := ret.Get(0).(func() interfaces.NodeManager); ok {
+	var r0 slurm.NodeManager
+	if rf, ok := ret.Get(0).(func() slurm.NodeManager); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interfaces.NodeManager)
+			r0 = ret.Get(0).(slurm.NodeManager)
 		}
 	}
 
@@ -423,19 +461,19 @@ func (_m *MockSlurmClientInterface) Nodes() interfaces.NodeManager {
 }
 
 // Partitions provides a mock function with no fields
-func (_m *MockSlurmClientInterface) Partitions() interfaces.PartitionManager {
+func (_m *MockSlurmClientInterface) Partitions() slurm.PartitionManager {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Partitions")
 	}
 
-	var r0 interfaces.PartitionManager
-	if rf, ok := ret.Get(0).(func() interfaces.PartitionManager); ok {
+	var r0 slurm.PartitionManager
+	if rf, ok := ret.Get(0).(func() slurm.PartitionManager); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interfaces.PartitionManager)
+			r0 = ret.Get(0).(slurm.PartitionManager)
 		}
 	}
 
@@ -443,19 +481,19 @@ func (_m *MockSlurmClientInterface) Partitions() interfaces.PartitionManager {
 }
 
 // QoS provides a mock function with no fields
-func (_m *MockSlurmClientInterface) QoS() interfaces.QoSManager {
+func (_m *MockSlurmClientInterface) QoS() slurm.QoSManager {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for QoS")
 	}
 
-	var r0 interfaces.QoSManager
-	if rf, ok := ret.Get(0).(func() interfaces.QoSManager); ok {
+	var r0 slurm.QoSManager
+	if rf, ok := ret.Get(0).(func() slurm.QoSManager); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interfaces.QoSManager)
+			r0 = ret.Get(0).(slurm.QoSManager)
 		}
 	}
 
@@ -463,23 +501,23 @@ func (_m *MockSlurmClientInterface) QoS() interfaces.QoSManager {
 }
 
 // Reconfigure provides a mock function with given fields: ctx
-func (_m *MockSlurmClientInterface) Reconfigure(ctx context.Context) (*interfaces.ReconfigureResponse, error) {
+func (_m *MockSlurmClientInterface) Reconfigure(ctx context.Context) (*slurm.ReconfigureResponse, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Reconfigure")
 	}
 
-	var r0 *interfaces.ReconfigureResponse
+	var r0 *slurm.ReconfigureResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*interfaces.ReconfigureResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*slurm.ReconfigureResponse, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *interfaces.ReconfigureResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *slurm.ReconfigureResponse); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*interfaces.ReconfigureResponse)
+			r0 = ret.Get(0).(*slurm.ReconfigureResponse)
 		}
 	}
 
@@ -493,19 +531,19 @@ func (_m *MockSlurmClientInterface) Reconfigure(ctx context.Context) (*interface
 }
 
 // Reservations provides a mock function with no fields
-func (_m *MockSlurmClientInterface) Reservations() interfaces.ReservationManager {
+func (_m *MockSlurmClientInterface) Reservations() slurm.ReservationManager {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Reservations")
 	}
 
-	var r0 interfaces.ReservationManager
-	if rf, ok := ret.Get(0).(func() interfaces.ReservationManager); ok {
+	var r0 slurm.ReservationManager
+	if rf, ok := ret.Get(0).(func() slurm.ReservationManager); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interfaces.ReservationManager)
+			r0 = ret.Get(0).(slurm.ReservationManager)
 		}
 	}
 
@@ -513,19 +551,19 @@ func (_m *MockSlurmClientInterface) Reservations() interfaces.ReservationManager
 }
 
 // Users provides a mock function with no fields
-func (_m *MockSlurmClientInterface) Users() interfaces.UserManager {
+func (_m *MockSlurmClientInterface) Users() slurm.UserManager {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Users")
 	}
 
-	var r0 interfaces.UserManager
-	if rf, ok := ret.Get(0).(func() interfaces.UserManager); ok {
+	var r0 slurm.UserManager
+	if rf, ok := ret.Get(0).(func() slurm.UserManager); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interfaces.UserManager)
+			r0 = ret.Get(0).(slurm.UserManager)
 		}
 	}
 
@@ -551,19 +589,19 @@ func (_m *MockSlurmClientInterface) Version() string {
 }
 
 // WCKeys provides a mock function with no fields
-func (_m *MockSlurmClientInterface) WCKeys() interfaces.WCKeyManager {
+func (_m *MockSlurmClientInterface) WCKeys() slurm.WCKeyManager {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for WCKeys")
 	}
 
-	var r0 interfaces.WCKeyManager
-	if rf, ok := ret.Get(0).(func() interfaces.WCKeyManager); ok {
+	var r0 slurm.WCKeyManager
+	if rf, ok := ret.Get(0).(func() slurm.WCKeyManager); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interfaces.WCKeyManager)
+			r0 = ret.Get(0).(slurm.WCKeyManager)
 		}
 	}
 

@@ -201,22 +201,23 @@ linters:
         - (github.com/prometheus/client_golang/prometheus.Registerer).Register(
         # SLURM client external API - Manager.List() and similar methods
         # Error context is clear from caller's perspective; wrapping adds noise
-        - (github.com/jontk/slurm-client/interfaces.JobManager).List(
-        - (github.com/jontk/slurm-client/interfaces.NodeManager).List(
-        - (github.com/jontk/slurm-client/interfaces.PartitionManager).List(
-        - (github.com/jontk/slurm-client/interfaces.AccountManager).List(
-        - (github.com/jontk/slurm-client/interfaces.AssociationManager).List(
-        - (github.com/jontk/slurm-client/interfaces.QoSManager).List(
-        - (github.com/jontk/slurm-client/interfaces.WCKeyManager).List(
-        - (github.com/jontk/slurm-client/interfaces.ReservationManager).List(
-        - (github.com/jontk/slurm-client/interfaces.UserManager).List(
-        - (github.com/jontk/slurm-client/interfaces.ClusterManager).List(
-        - (github.com/jontk/slurm-client/interfaces.InfoManager).Get(
-        - (github.com/jontk/slurm-client/interfaces.InfoManager).Ping(
-        - (github.com/jontk/slurm-client/interfaces.SlurmClient).GetDiagnostics(
-        - (github.com/jontk/slurm-client/interfaces.SlurmClient).GetLicenses(
-        - (github.com/jontk/slurm-client/interfaces.SlurmClient).GetShares(
-        - (github.com/jontk/slurm-client/interfaces.SlurmClient).GetTRES(
+        - (github.com/jontk/slurm-client/api.JobManager).List(
+        - (github.com/jontk/slurm-client/api.JobReader).List(
+        - (github.com/jontk/slurm-client/api.NodeManager).List(
+        - (github.com/jontk/slurm-client/api.PartitionManager).List(
+        - (github.com/jontk/slurm-client/api.AccountManager).List(
+        - (github.com/jontk/slurm-client/api.AssociationManager).List(
+        - (github.com/jontk/slurm-client/api.QoSManager).List(
+        - (github.com/jontk/slurm-client/api.WCKeyManager).List(
+        - (github.com/jontk/slurm-client/api.ReservationManager).List(
+        - (github.com/jontk/slurm-client/api.UserManager).List(
+        - (github.com/jontk/slurm-client/api.ClusterManager).List(
+        - (github.com/jontk/slurm-client/api.InfoManager).Get(
+        - (github.com/jontk/slurm-client/api.InfoManager).Ping(
+        - (github.com/jontk/slurm-client/api.SlurmClient).GetDiagnostics(
+        - (github.com/jontk/slurm-client/api.SlurmClient).GetLicenses(
+        - (github.com/jontk/slurm-client/api.SlurmClient).GetShares(
+        - (github.com/jontk/slurm-client/api.SlurmClient).GetTRES(
         # Standard library file operations - errors are clear from operation context
         - os.RemoveAll(
         - os.Remove(
