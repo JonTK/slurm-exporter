@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -296,8 +297,17 @@ func (s *Server) setupHealthChecks() {
 	})
 
 	// Metrics endpoint self-check
+	// Extract port from address (e.g., ":8080" or "0.0.0.0:8080")
+	metricsURL := fmt.Sprintf("http://localhost:8080%s", s.config.Server.MetricsPath) // default
+	if addr := s.config.Server.Address; addr != "" {
+		// Extract port from address
+		if idx := strings.LastIndex(addr, ":"); idx >= 0 {
+			port := addr[idx:] // includes the colon
+			metricsURL = fmt.Sprintf("http://localhost%s%s", port, s.config.Server.MetricsPath)
+		}
+	}
 	s.healthChecker.RegisterCheck("metrics_endpoint", health.MetricsEndpointCheck(
-		fmt.Sprintf("http://localhost%s%s", s.config.Server.Address, s.config.Server.MetricsPath),
+		metricsURL,
 		&http.Client{Timeout: 10 * time.Second},
 	))
 
