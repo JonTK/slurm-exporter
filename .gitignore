@@ -106,3 +106,15 @@ docs/
 !website/docs/
 
 plan/
+
+# Test scripts and artifacts (moved to ../slurm-exporter-tests)
+test-*.sh
+*-test.sh
+get-slurm-token.sh
+comprehensive-api-version-test.sh
+slurm-exporter-test
+test/api-version-tests/
+test/configs/
+TEST-*.md
+COMPARISON-*.md
+comparison.csv
