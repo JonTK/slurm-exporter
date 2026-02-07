@@ -41,10 +41,16 @@ func TestPartitionsSimpleCollector_Collect_Success(t *testing.T) {
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockPartitionManager := new(mocks.MockPartitionManager)
+	mockNodeManager := new(mocks.MockNodeManager)
+	mockJobManager := new(mocks.MockJobManager)
 
 	// Setup mock expectations
 	mockClient.On("Partitions").Return(mockPartitionManager)
 	mockPartitionManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestPartitionList(), nil)
+	mockClient.On("Nodes").Return(mockNodeManager)
+	mockNodeManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestNodeList(), nil)
+	mockClient.On("Jobs").Return(mockJobManager)
+	mockJobManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestJobList(), nil)
 
 	collector := NewPartitionsSimpleCollector(mockClient, logger)
 	collector.SetEnabled(true)
@@ -67,6 +73,8 @@ func TestPartitionsSimpleCollector_Collect_Success(t *testing.T) {
 	// Verify mock expectations
 	mockClient.AssertExpectations(t)
 	mockPartitionManager.AssertExpectations(t)
+	mockNodeManager.AssertExpectations(t)
+	mockJobManager.AssertExpectations(t)
 }
 
 func TestPartitionsSimpleCollector_Collect_Disabled(t *testing.T) {
@@ -123,10 +131,16 @@ func TestPartitionsSimpleCollector_StateMetrics(t *testing.T) {
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockPartitionManager := new(mocks.MockPartitionManager)
+	mockNodeManager := new(mocks.MockNodeManager)
+	mockJobManager := new(mocks.MockJobManager)
 
 	// Setup mock expectations
 	mockClient.On("Partitions").Return(mockPartitionManager)
 	mockPartitionManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestPartitionList(), nil)
+	mockClient.On("Nodes").Return(mockNodeManager)
+	mockNodeManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestNodeList(), nil)
+	mockClient.On("Jobs").Return(mockJobManager)
+	mockJobManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestJobList(), nil)
 
 	collector := NewPartitionsSimpleCollector(mockClient, logger)
 	collector.SetEnabled(true)
@@ -157,10 +171,16 @@ func TestPartitionsSimpleCollector_ResourceMetrics(t *testing.T) {
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockPartitionManager := new(mocks.MockPartitionManager)
+	mockNodeManager := new(mocks.MockNodeManager)
+	mockJobManager := new(mocks.MockJobManager)
 
 	// Setup mock expectations
 	mockClient.On("Partitions").Return(mockPartitionManager)
 	mockPartitionManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestPartitionList(), nil)
+	mockClient.On("Nodes").Return(mockNodeManager)
+	mockNodeManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestNodeList(), nil)
+	mockClient.On("Jobs").Return(mockJobManager)
+	mockJobManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestJobList(), nil)
 
 	collector := NewPartitionsSimpleCollector(mockClient, logger)
 	collector.SetEnabled(true)
@@ -200,10 +220,16 @@ func TestPartitionsSimpleCollector_LimitMetrics(t *testing.T) {
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockPartitionManager := new(mocks.MockPartitionManager)
+	mockNodeManager := new(mocks.MockNodeManager)
+	mockJobManager := new(mocks.MockJobManager)
 
 	// Setup mock expectations
 	mockClient.On("Partitions").Return(mockPartitionManager)
 	mockPartitionManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestPartitionList(), nil)
+	mockClient.On("Nodes").Return(mockNodeManager)
+	mockNodeManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestNodeList(), nil)
+	mockClient.On("Jobs").Return(mockJobManager)
+	mockJobManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestJobList(), nil)
 
 	collector := NewPartitionsSimpleCollector(mockClient, logger)
 	collector.SetEnabled(true)
@@ -233,10 +259,16 @@ func TestPartitionsSimpleCollector_EmptyPartitionList(t *testing.T) {
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockPartitionManager := new(mocks.MockPartitionManager)
+	mockNodeManager := new(mocks.MockNodeManager)
+	mockJobManager := new(mocks.MockJobManager)
 
 	// Setup mock to return empty list
 	mockClient.On("Partitions").Return(mockPartitionManager)
 	mockPartitionManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetEmptyPartitionList(), nil)
+	mockClient.On("Nodes").Return(mockNodeManager)
+	mockNodeManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestNodeList(), nil)
+	mockClient.On("Jobs").Return(mockJobManager)
+	mockJobManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestJobList(), nil)
 
 	collector := NewPartitionsSimpleCollector(mockClient, logger)
 	collector.SetEnabled(true)
@@ -262,10 +294,16 @@ func TestPartitionsSimpleCollector_QOSMetrics(t *testing.T) {
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockPartitionManager := new(mocks.MockPartitionManager)
+	mockNodeManager := new(mocks.MockNodeManager)
+	mockJobManager := new(mocks.MockJobManager)
 
 	// Setup mock expectations
 	mockClient.On("Partitions").Return(mockPartitionManager)
 	mockPartitionManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestPartitionList(), nil)
+	mockClient.On("Nodes").Return(mockNodeManager)
+	mockNodeManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestNodeList(), nil)
+	mockClient.On("Jobs").Return(mockJobManager)
+	mockJobManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestJobList(), nil)
 
 	collector := NewPartitionsSimpleCollector(mockClient, logger)
 	collector.SetEnabled(true)
@@ -290,10 +328,16 @@ func TestPartitionsSimpleCollector_ActivePartitions(t *testing.T) {
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockPartitionManager := new(mocks.MockPartitionManager)
+	mockNodeManager := new(mocks.MockNodeManager)
+	mockJobManager := new(mocks.MockJobManager)
 
 	// Setup mock to return only active partitions
 	mockClient.On("Partitions").Return(mockPartitionManager)
 	mockPartitionManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetActivePartitionList(), nil)
+	mockClient.On("Nodes").Return(mockNodeManager)
+	mockNodeManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestNodeList(), nil)
+	mockClient.On("Jobs").Return(mockJobManager)
+	mockJobManager.On("List", mock.Anything, mock.Anything).Return(fixtures.GetTestJobList(), nil)
 
 	collector := NewPartitionsSimpleCollector(mockClient, logger)
 	collector.SetEnabled(true)
