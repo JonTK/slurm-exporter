@@ -465,9 +465,11 @@ func (c *JobsSimpleCollector) collectResourceMetrics(ch chan<- prometheus.Metric
 		)
 	}
 
-	// Node count (Nodes is now a string, not []string)
-	// TODO: Parse job.Nodes string to get actual node list
-	nodes := c.calculateNodeCount([]string{})
+	// Node count - use the NodeCount field directly from the API
+	nodes := uint32(1) // default to 1 if not specified
+	if job.NodeCount != nil {
+		nodes = *job.NodeCount
+	}
 	if c.shouldCollectMetric("slurm_job_nodes", MetricTypeGauge, false, true) &&
 		c.shouldCollectWithCardinality("slurm_job_nodes", labels) {
 		ch <- prometheus.MustNewConstMetric(
