@@ -145,8 +145,8 @@ func (c *SharesCollector) Collect(ctx context.Context, ch chan<- prometheus.Metr
 			}
 
 			// Track maximum depth
-			if uint32(share.Level) > depthMap[partition] {
-				depthMap[partition] = uint32(share.Level)
+			if uint32(share.FairshareLevel) > depthMap[partition] {
+				depthMap[partition] = uint32(share.FairshareLevel)
 			}
 
 			// Raw shares
@@ -161,7 +161,7 @@ func (c *SharesCollector) Collect(ctx context.Context, ch chan<- prometheus.Metr
 			ch <- prometheus.MustNewConstMetric(
 				c.fairshareNormalizedShares,
 				prometheus.GaugeValue,
-				share.NormShares,
+				share.NormalizedShares,
 				user, account, partition, clusterName,
 			)
 
@@ -177,7 +177,7 @@ func (c *SharesCollector) Collect(ctx context.Context, ch chan<- prometheus.Metr
 			ch <- prometheus.MustNewConstMetric(
 				c.fairshareEffectiveUsage,
 				prometheus.GaugeValue,
-				share.EffectUsage,
+				share.EffectiveUsage,
 				user, account, partition, clusterName,
 			)
 
@@ -185,7 +185,7 @@ func (c *SharesCollector) Collect(ctx context.Context, ch chan<- prometheus.Metr
 			ch <- prometheus.MustNewConstMetric(
 				c.fairshareUsageFactor,
 				prometheus.GaugeValue,
-				share.FairShare,
+				share.FairshareUsage,
 				user, account, partition, clusterName,
 			)
 
@@ -193,7 +193,7 @@ func (c *SharesCollector) Collect(ctx context.Context, ch chan<- prometheus.Metr
 			ch <- prometheus.MustNewConstMetric(
 				c.fairshareLevel,
 				prometheus.GaugeValue,
-				float64(share.Level),
+				float64(share.FairshareLevel),
 				user, account, partition, clusterName,
 			)
 		}

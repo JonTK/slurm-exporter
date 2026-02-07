@@ -117,12 +117,19 @@ func (c *TRESCollector) Collect(ctx context.Context, ch chan<- prometheus.Metric
 
 	// Process each TRES
 	for _, tres := range tresList.TRES {
-		tresID := fmt.Sprintf("%d", tres.ID)
-		tresType := tres.Type
-		tresName := tres.Name
+		// Handle pointer field ID
+		tresID := ""
+		if tres.ID != nil {
+			tresID = fmt.Sprintf("%d", *tres.ID)
+		}
 
-		if tresName == "" {
-			tresName = tresType // Use type as name if name is empty
+		// Type is a value type (not pointer)
+		tresType := tres.Type
+
+		// Handle pointer field Name
+		tresName := tresType // Default to type
+		if tres.Name != nil && *tres.Name != "" {
+			tresName = *tres.Name
 		}
 
 		// Export TRES info metric

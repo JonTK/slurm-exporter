@@ -17,13 +17,13 @@ import (
 	"github.com/jontk/slurm-exporter/internal/testutil/mocks"
 )
 
-func TestSharesCollector_Describe(t *testing.T) {
+func TestTRESCollector_Describe(t *testing.T) {
 	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	timeout := 30 * time.Second
 
-	collector := NewSharesCollector(mockClient, logger, timeout)
+	collector := NewTRESCollector(mockClient, logger, timeout)
 
 	ch := make(chan *prometheus.Desc, 100)
 	collector.Describe(ch)
@@ -38,51 +38,71 @@ func TestSharesCollector_Describe(t *testing.T) {
 	assert.True(t, len(descs) > 0, "should have metric descriptors")
 }
 
-func TestSharesCollector_Collect_Success(t *testing.T) {
+func TestTRESCollector_Collect_Success(t *testing.T) {
 	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)
+	mockNodeManager := new(mocks.MockNodeManager)
 	timeout := 30 * time.Second
 
 	// Setup mock expectations with test data
-	sharesList := &slurm.SharesList{
-		Shares: []slurm.Share{
-			{
-				Name:        "account1",
-				User:        "user1",
-				RawShares:   100,
-				NormShares:  0.5,
-				RawUsage:    50,
-				NormUsage:   0.25,
-				EffectUsage: 0.25,
-				FairShare:   2.0,
-			},
-			{
-				Name:        "account2",
-				User:        "user2",
-				RawShares:   200,
-				NormShares:  1.0,
-				RawUsage:    100,
-				NormUsage:   0.5,
-				EffectUsage: 0.5,
-				FairShare:   2.0,
-			},
-		},
-	}
-
 	clusterInfo := &slurm.ClusterInfo{
 		ClusterName: "test-cluster",
 	}
 
-	mockClient.On("GetShares", mock.Anything, mock.Anything).Return(sharesList, nil)
+	// Helper to create pointer values
+	intPtr := func(i int32) *int32 { return &i }
+	int64Ptr := func(i int64) *int64 { return &i }
+	strPtr := func(s string) *string { return &s }
+
+	tresList := &slurm.TRESList{
+		TRES: []slurm.TRES{
+			{
+				ID:    intPtr(1),
+				Type:  "cpu",
+				Name:  strPtr("cpu"),
+				Count: int64Ptr(1000),
+			},
+			{
+				ID:    intPtr(2),
+				Type:  "mem",
+				Name:  strPtr("mem"),
+				Count: int64Ptr(102400), // 100GB
+			},
+			{
+				ID:    intPtr(3),
+				Type:  "node",
+				Name:  strPtr("node"),
+				Count: int64Ptr(10),
+			},
+			{
+				ID:    intPtr(4),
+				Type:  "gres",
+				Name:  strPtr("gpu"),
+				Count: int64Ptr(8),
+			},
+		},
+	}
+
+	nodeList := &slurm.NodeList{
+		Nodes: []slurm.Node{
+			{
+				Name: strPtr("node1"),
+			},
+		},
+	}
+
 	mockClient.On("Info").Return(mockInfoManager)
 	mockInfoManager.On("Get", mock.Anything).Return(clusterInfo, nil)
+	mockClient.On("GetTRES", mock.Anything).Return(tresList, nil)
+	mockClient.On("Nodes").Return(mockNodeManager)
+	mockNodeManager.On("List", mock.Anything, mock.Anything).Return(nodeList, nil)
 
-	collector := NewSharesCollector(mockClient, logger, timeout)
+	collector := NewTRESCollector(mockClient, logger, timeout)
 
 	// Collect metrics
-	ch := make(chan prometheus.Metric, 100)
+	ch := make(chan prometheus.Metric, 200)
 	err := collector.Collect(context.Background(), ch)
 	close(ch)
 
@@ -99,18 +119,26 @@ func TestSharesCollector_Collect_Success(t *testing.T) {
 	// Verify mock expectations
 	mockClient.AssertExpectations(t)
 	mockInfoManager.AssertExpectations(t)
+	mockNodeManager.AssertExpectations(t)
 }
 
-func TestSharesCollector_Collect_Error(t *testing.T) {
+func TestTRESCollector_Collect_Error(t *testing.T) {
 	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
+	mockInfoManager := new(mocks.MockInfoManager)
 	timeout := 30 * time.Second
 
-	// Setup mock to return error
-	mockClient.On("GetShares", mock.Anything, mock.Anything).Return(nil, assert.AnError)
+	clusterInfo := &slurm.ClusterInfo{
+		ClusterName: "test-cluster",
+	}
 
-	collector := NewSharesCollector(mockClient, logger, timeout)
+	// Setup mock to return error
+	mockClient.On("Info").Return(mockInfoManager)
+	mockInfoManager.On("Get", mock.Anything).Return(clusterInfo, nil)
+	mockClient.On("GetTRES", mock.Anything).Return(nil, assert.AnError)
+
+	collector := NewTRESCollector(mockClient, logger, timeout)
 
 	// Collect metrics - should handle error gracefully
 	ch := make(chan prometheus.Metric, 100)
@@ -120,29 +148,37 @@ func TestSharesCollector_Collect_Error(t *testing.T) {
 	// May or may not have metrics depending on error handling
 	// Just verify mock expectations were met
 	mockClient.AssertExpectations(t)
+	mockInfoManager.AssertExpectations(t)
 }
 
-func TestSharesCollector_EmptySharesList(t *testing.T) {
+func TestTRESCollector_EmptyTRESList(t *testing.T) {
 	t.Parallel()
 	logger := testutil.GetTestLogger()
 	mockClient := new(mocks.MockSlurmClient)
 	mockInfoManager := new(mocks.MockInfoManager)
+	mockNodeManager := new(mocks.MockNodeManager)
 	timeout := 30 * time.Second
-
-	// Setup mock to return empty list
-	emptyList := &slurm.SharesList{
-		Shares: []slurm.Share{},
-	}
 
 	clusterInfo := &slurm.ClusterInfo{
 		ClusterName: "test-cluster",
 	}
 
-	mockClient.On("GetShares", mock.Anything, mock.Anything).Return(emptyList, nil)
+	// Setup mock to return empty list
+	emptyList := &slurm.TRESList{
+		TRES: []slurm.TRES{},
+	}
+
+	nodeList := &slurm.NodeList{
+		Nodes: []slurm.Node{},
+	}
+
 	mockClient.On("Info").Return(mockInfoManager)
 	mockInfoManager.On("Get", mock.Anything).Return(clusterInfo, nil)
+	mockClient.On("GetTRES", mock.Anything).Return(emptyList, nil)
+	mockClient.On("Nodes").Return(mockNodeManager)
+	mockNodeManager.On("List", mock.Anything, mock.Anything).Return(nodeList, nil)
 
-	collector := NewSharesCollector(mockClient, logger, timeout)
+	collector := NewTRESCollector(mockClient, logger, timeout)
 
 	// Collect metrics
 	ch := make(chan prometheus.Metric, 100)
@@ -151,16 +187,16 @@ func TestSharesCollector_EmptySharesList(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	// With empty shares list, minimal or no metrics should be emitted
+	// With empty TRES list, no metrics should be emitted
 	count := 0
 	for range ch {
 		count++
 	}
 
-	// Empty list should result in few or no metrics
-	assert.True(t, count >= 0, "should handle empty shares list")
+	assert.Equal(t, 0, count, "should not emit metrics when TRES list is empty")
 
 	// Verify mock expectations
 	mockClient.AssertExpectations(t)
 	mockInfoManager.AssertExpectations(t)
+	mockNodeManager.AssertExpectations(t)
 }
