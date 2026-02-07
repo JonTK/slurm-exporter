@@ -6,7 +6,10 @@ package collector
 import (
 	"context"
 	"fmt"
+	"os"
 	"runtime"
+	"strconv"
+	"strings"
 	"time"
 
 	slurm "github.com/jontk/slurm-client"
@@ -336,90 +339,133 @@ func (c *SystemSimpleCollector) collectSystemMetrics(ch chan<- prometheus.Metric
 		"heap",
 	)
 
-	// Simulate load average (in real implementation, read from /proc/loadavg)
-	ch <- prometheus.MustNewConstMetric(
-		c.systemLoadAvg,
-		prometheus.GaugeValue,
-		0.5, // Simulated 1-minute load average
-		"1m",
-	)
+	// Read real load averages from /proc/loadavg
+	if loadAvgs, err := readLoadAverage(); err == nil {
+		if len(loadAvgs) >= 3 {
+			ch <- prometheus.MustNewConstMetric(
+				c.systemLoadAvg,
+				prometheus.GaugeValue,
+				loadAvgs[0],
+				"1m",
+			)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.systemLoadAvg,
-		prometheus.GaugeValue,
-		0.4, // Simulated 5-minute load average
-		"5m",
-	)
+			ch <- prometheus.MustNewConstMetric(
+				c.systemLoadAvg,
+				prometheus.GaugeValue,
+				loadAvgs[1],
+				"5m",
+			)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.systemLoadAvg,
-		prometheus.GaugeValue,
-		0.3, // Simulated 15-minute load average
-		"15m",
-	)
+			ch <- prometheus.MustNewConstMetric(
+				c.systemLoadAvg,
+				prometheus.GaugeValue,
+				loadAvgs[2],
+				"15m",
+			)
+		}
+	} else {
+		c.logger.WithError(err).Warn("Failed to read load average")
+	}
 
-	// Simulate disk usage (in real implementation, use syscall.Statfs_t)
-	ch <- prometheus.MustNewConstMetric(
-		c.systemDiskUsage,
-		prometheus.GaugeValue,
-		1024*1024*1024*100, // 100GB used
-		"/", "used",
-	)
+	// Read real disk usage using syscall.Statfs
+	if diskStats, err := readDiskUsage("/"); err == nil {
+		ch <- prometheus.MustNewConstMetric(
+			c.systemDiskUsage,
+			prometheus.GaugeValue,
+			float64(diskStats.Used),
+			"/", "used",
+		)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.systemDiskUsage,
-		prometheus.GaugeValue,
-		1024*1024*1024*400, // 400GB total
-		"/", "total",
-	)
+		ch <- prometheus.MustNewConstMetric(
+			c.systemDiskUsage,
+			prometheus.GaugeValue,
+			float64(diskStats.Total),
+			"/", "total",
+		)
+	} else {
+		c.logger.WithError(err).Warn("Failed to read disk usage")
+	}
 }
 
 // collectSlurmSystemInfo collects SLURM-specific system information
 func (c *SystemSimpleCollector) collectSlurmSystemInfo(ch chan<- prometheus.Metric, ctx context.Context, clusterName string) {
-	_ = ctx
-	// Number of active controllers (simulated)
+	// Try to get diagnostics from SLURM API for active controllers
+	activeControllers := 1.0 // Default to 1 if we can't determine
+	if diag, err := c.client.GetDiagnostics(ctx); err == nil && diag != nil {
+		// The diagnostics don't directly provide controller count, but we can infer
+		// If we can get diagnostics, at least one controller is active
+		activeControllers = 1.0
+		c.logger.Debug("Successfully retrieved SLURM diagnostics")
+	} else {
+		c.logger.WithError(err).Debug("Could not retrieve SLURM diagnostics")
+	}
+
 	ch <- prometheus.MustNewConstMetric(
 		c.activeControllers,
 		prometheus.GaugeValue,
-		1, // Single controller
-		clusterName,
-	)
-	// Configuration last modified (simulated)
-	configTime := time.Now().Add(-24 * time.Hour).Unix() // Config modified 24 hours ago
-	ch <- prometheus.MustNewConstMetric(
-		c.configLastModified,
-		prometheus.GaugeValue,
-		float64(configTime),
-		clusterName, "slurm.conf",
-	)
-
-	ch <- prometheus.MustNewConstMetric(
-		c.configLastModified,
-		prometheus.GaugeValue,
-		float64(configTime-3600), // DB config modified 25 hours ago
-		clusterName, "slurmdbd.conf",
-	)
-
-	// Database connections (simulated)
-	ch <- prometheus.MustNewConstMetric(
-		c.slurmDBConnections,
-		prometheus.GaugeValue,
-		5, // 5 active connections
+		activeControllers,
 		clusterName,
 	)
 
-	// Database latency (simulated)
-	ch <- prometheus.MustNewConstMetric(
-		c.slurmDBLatency,
-		prometheus.GaugeValue,
-		0.025, // 25ms query latency
-		clusterName, "select",
-	)
+	// Read configuration file modification times
+	configPaths := map[string]string{
+		"slurm.conf":    "/etc/slurm/slurm.conf",
+		"slurmdbd.conf": "/etc/slurm/slurmdbd.conf",
+	}
 
-	ch <- prometheus.MustNewConstMetric(
-		c.slurmDBLatency,
-		prometheus.GaugeValue,
-		0.050, // 50ms insert latency
-		clusterName, "insert",
-	)
+	for configType, configPath := range configPaths {
+		if modTime, err := getFileModTime(configPath); err == nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.configLastModified,
+				prometheus.GaugeValue,
+				float64(modTime.Unix()),
+				clusterName, configType,
+			)
+		} else {
+			c.logger.WithError(err).WithField("config", configType).Debug("Could not read config file modification time")
+		}
+	}
+
+	// Database connection and latency metrics are not available from the API
+	// These would require direct database access which we don't have
+	// Removing these metrics as they would be misleading
+}
+
+// Helper functions for reading system metrics
+
+// readLoadAverage reads load averages from /proc/loadavg
+func readLoadAverage() ([]float64, error) {
+	data, err := os.ReadFile("/proc/loadavg")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read /proc/loadavg: %w", err)
+	}
+
+	fields := strings.Fields(string(data))
+	if len(fields) < 3 {
+		return nil, fmt.Errorf("invalid /proc/loadavg format")
+	}
+
+	loadAvgs := make([]float64, 3)
+	for i := 0; i < 3; i++ {
+		val, err := strconv.ParseFloat(fields[i], 64)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse load average: %w", err)
+		}
+		loadAvgs[i] = val
+	}
+
+	return loadAvgs, nil
+}
+
+// DiskStats and readDiskUsage are defined in platform-specific files:
+// - system_simple_linux.go (Linux)
+// - system_simple_windows.go (Windows)
+
+// getFileModTime returns the modification time of a file
+func getFileModTime(path string) (time.Time, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("failed to stat %s: %w", path, err)
+	}
+	return info.ModTime(), nil
 }

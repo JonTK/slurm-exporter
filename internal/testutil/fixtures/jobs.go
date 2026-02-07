@@ -35,12 +35,12 @@ func createRunningTestJob(now time.Time, startTime time.Time) slurm.Job {
 		UserName:                strPtr("user1"),
 		GroupID:                 int32Ptr(1001),
 		GroupName:               strPtr("group1"),
-		Partition:               strPtr("compute"),
+		Partition:               strPtr("general"),
 		Priority:                uint32Ptr(1000),
 		SubmitTime:              now.Add(-2 * time.Hour),
 		StartTime:               startTime,
 		CPUs:                    uint32Ptr(16),
-		MemoryPerNode:           uint64Ptr(32768), // 32GB in MB
+		MemoryPerNode:           uint64Ptr(32768),   // 32GB in MB
 		TimeLimit:               uint32Ptr(24 * 60), // 24 hours in minutes
 		CurrentWorkingDirectory: strPtr("/home/user1"),
 		Command:                 strPtr("test-job.sh"),
@@ -58,11 +58,11 @@ func createPendingTestJob(now time.Time) slurm.Job {
 		UserName:                strPtr("user2"),
 		GroupID:                 int32Ptr(1002),
 		GroupName:               strPtr("group2"),
-		Partition:               strPtr("compute"),
+		Partition:               strPtr("general"),
 		Priority:                uint32Ptr(500),
 		SubmitTime:              now.Add(-30 * time.Minute),
 		CPUs:                    uint32Ptr(32),
-		MemoryPerNode:           uint64Ptr(65536), // 64GB in MB
+		MemoryPerNode:           uint64Ptr(65536),   // 64GB in MB
 		TimeLimit:               uint32Ptr(48 * 60), // 48 hours in minutes
 		CurrentWorkingDirectory: strPtr("/home/user2"),
 		Command:                 strPtr("test-job.sh"),
@@ -88,7 +88,7 @@ func createCompletedTestJob(now time.Time, startTime, endTime time.Time) slurm.J
 		StartTime:               startTime,
 		EndTime:                 endTime,
 		CPUs:                    uint32Ptr(8),
-		MemoryPerNode:           uint64Ptr(16384), // 16GB in MB
+		MemoryPerNode:           uint64Ptr(16384),  // 16GB in MB
 		TimeLimit:               uint32Ptr(4 * 60), // 4 hours in minutes
 		CurrentWorkingDirectory: strPtr("/home/user1"),
 		Command:                 strPtr("gpu-job.sh"),
@@ -110,13 +110,13 @@ func createFailedTestJob(now time.Time, startTime, endTime time.Time) slurm.Job 
 		UserName:                strPtr("user3"),
 		GroupID:                 int32Ptr(1003),
 		GroupName:               strPtr("group3"),
-		Partition:               strPtr("compute"),
+		Partition:               strPtr("general"),
 		Priority:                uint32Ptr(250),
 		SubmitTime:              now.Add(-2 * time.Hour),
 		StartTime:               startTime,
 		EndTime:                 endTime,
 		CPUs:                    uint32Ptr(4),
-		MemoryPerNode:           uint64Ptr(8192), // 8GB in MB
+		MemoryPerNode:           uint64Ptr(8192),   // 8GB in MB
 		TimeLimit:               uint32Ptr(2 * 60), // 2 hours in minutes
 		CurrentWorkingDirectory: strPtr("/home/user3"),
 		Command:                 strPtr("test-job.sh"),
@@ -135,12 +135,12 @@ func createArrayTestJob(now time.Time, startTime time.Time) slurm.Job {
 		UserName:                strPtr("user2"),
 		GroupID:                 int32Ptr(1002),
 		GroupName:               strPtr("group2"),
-		Partition:               strPtr("compute"),
+		Partition:               strPtr("debug"),
 		Priority:                uint32Ptr(600),
 		SubmitTime:              now.Add(-1 * time.Hour),
 		StartTime:               startTime,
 		CPUs:                    uint32Ptr(2),
-		MemoryPerNode:           uint64Ptr(4096), // 4GB in MB
+		MemoryPerNode:           uint64Ptr(4096),   // 4GB in MB
 		TimeLimit:               uint32Ptr(1 * 60), // 1 hour in minutes
 		CurrentWorkingDirectory: strPtr("/home/user2"),
 		Command:                 strPtr("array-job.sh"),
@@ -206,9 +206,9 @@ func GenerateLargeJobList(count int) *slurm.JobList {
 		user := users[i%len(users)]
 
 		// Create realistic job with varying resource requirements
-		cpus := uint32(1 + (i % 64))                     // 1-64 CPUs
-		memory := uint64(1024 + (i%32)*1024)             // 1GB-32GB memory
-		runtime := time.Duration(i%3600) * time.Second   // 0-1 hour runtime
+		cpus := uint32(1 + (i % 64))                   // 1-64 CPUs
+		memory := uint64(1024 + (i%32)*1024)           // 1GB-32GB memory
+		runtime := time.Duration(i%3600) * time.Second // 0-1 hour runtime
 
 		startTime := time.Now().Add(-runtime)
 		endTime := time.Now()

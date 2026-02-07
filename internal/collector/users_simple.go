@@ -240,10 +240,10 @@ func (c *UsersSimpleCollector) collectJobStatsByUser(ctx context.Context, jobsMa
 	}
 
 	for _, job := range jobList.Jobs {
-		// UserID is now a pointer
+		// Use UserName (string) to match the lookup key in line 176
 		userName := ""
-		if job.UserID != nil {
-			userName = fmt.Sprintf("%d", *job.UserID)
+		if job.UserName != nil {
+			userName = *job.UserName
 		}
 		if userName == "" {
 			continue

@@ -458,7 +458,7 @@ func Default() *Config {
 				},
 			},
 			Performance: CollectorConfig{
-				Enabled:  true,
+				Enabled:  false, // Disabled - not registered in collector registry (API migration)
 				Interval: 30 * time.Second,
 				Timeout:  10 * time.Second,
 				Filters: FilterConfig{

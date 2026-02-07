@@ -204,3 +204,143 @@ func TestQoSCollector_EmptyQoSList(t *testing.T) {
 	mockClient.AssertExpectations(t)
 	mockQoSManager.AssertExpectations(t)
 }
+
+func TestGetTRESValue(t *testing.T) {
+	t.Parallel()
+
+	int64Ptr := func(i int64) *int64 { return &i }
+
+	tests := []struct {
+		name     string
+		tresList []slurm.TRES
+		resType  string
+		expected int64
+	}{
+		{
+			name: "find cpu in list",
+			tresList: []slurm.TRES{
+				{Type: "cpu", Count: int64Ptr(100)},
+				{Type: "mem", Count: int64Ptr(1024)},
+				{Type: "node", Count: int64Ptr(10)},
+			},
+			resType:  "cpu",
+			expected: 100,
+		},
+		{
+			name: "find node in list",
+			tresList: []slurm.TRES{
+				{Type: "cpu", Count: int64Ptr(100)},
+				{Type: "mem", Count: int64Ptr(1024)},
+				{Type: "node", Count: int64Ptr(10)},
+			},
+			resType:  "node",
+			expected: 10,
+		},
+		{
+			name: "resource not found",
+			tresList: []slurm.TRES{
+				{Type: "cpu", Count: int64Ptr(100)},
+				{Type: "mem", Count: int64Ptr(1024)},
+			},
+			resType:  "node",
+			expected: 0,
+		},
+		{
+			name:     "empty list",
+			tresList: []slurm.TRES{},
+			resType:  "cpu",
+			expected: 0,
+		},
+		{
+			name: "nil count",
+			tresList: []slurm.TRES{
+				{Type: "cpu", Count: nil},
+			},
+			resType:  "cpu",
+			expected: 0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := getTRESValue(tt.tresList, tt.resType)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestQoSCollector_TRESLimits(t *testing.T) {
+	t.Parallel()
+	logger := testutil.GetTestLogger()
+	mockClient := new(mocks.MockSlurmClient)
+	mockQoSManager := new(mocks.MockQoSManager)
+
+	// Helper functions for pointers
+	strPtr := func(s string) *string { return &s }
+	uint32Ptr := func(i uint32) *uint32 { return &i }
+	float64Ptr := func(f float64) *float64 { return &f }
+	int64Ptr := func(i int64) *int64 { return &i }
+
+	qosList := &slurm.QoSList{
+		QoS: []slurm.QoS{
+			{
+				Name:        strPtr("tres-limited"),
+				Description: strPtr("QoS with TRES limits"),
+				Priority:    uint32Ptr(100),
+				UsageFactor: float64Ptr(1.0),
+				Limits: &slurm.QoSLimits{
+					Max: &slurm.QoSLimitsMax{
+						TRES: &slurm.QoSLimitsMaxTRES{
+							Total: []slurm.TRES{
+								{Type: "cpu", Count: int64Ptr(1000)},
+								{Type: "node", Count: int64Ptr(50)},
+								{Type: "mem", Count: int64Ptr(102400)},
+							},
+							Per: &slurm.QoSLimitsMaxTRESPer{
+								User: []slurm.TRES{
+									{Type: "cpu", Count: int64Ptr(100)},
+									{Type: "node", Count: int64Ptr(10)},
+								},
+							},
+						},
+					},
+					Min: &slurm.QoSLimitsMin{
+						TRES: &slurm.QoSLimitsMinTRES{
+							Per: &slurm.QoSLimitsMinTRESPer{
+								Job: []slurm.TRES{
+									{Type: "cpu", Count: int64Ptr(1)},
+									{Type: "node", Count: int64Ptr(1)},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	mockClient.On("QoS").Return(mockQoSManager)
+	mockQoSManager.On("List", mock.Anything, mock.Anything).Return(qosList, nil)
+
+	collector := NewQoSCollector(mockClient, logger)
+	collector.SetEnabled(true)
+
+	// Collect metrics
+	ch := make(chan prometheus.Metric, 100)
+	err := collector.Collect(context.Background(), ch)
+	close(ch)
+
+	assert.NoError(t, err)
+
+	// Verify TRES values are extracted correctly
+	qos := qosList.QoS[0]
+	assert.Equal(t, int64(1000), getQoSMaxCPUs(qos))
+	assert.Equal(t, int64(100), getQoSMaxCPUsPerUser(qos))
+	assert.Equal(t, int64(50), getQoSMaxNodes(qos))
+	assert.Equal(t, int64(1), getQoSMinCPUs(qos))
+	assert.Equal(t, int64(1), getQoSMinNodes(qos))
+
+	// Verify mock expectations
+	mockClient.AssertExpectations(t)
+	mockQoSManager.AssertExpectations(t)
+}

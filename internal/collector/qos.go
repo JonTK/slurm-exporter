@@ -229,10 +229,10 @@ func (c *QoSCollector) collect(ctx context.Context, ch chan<- prometheus.Metric)
 		c.sendMetricIfNotInfinite(ch, c.qosMaxJobsPerAccount, name, int(getQoSMaxJobsPerAccount(qos)))
 		c.sendMetricIfNotInfinite(ch, c.qosMaxSubmitJobs, name, int(getQoSMaxSubmitJobs(qos)))
 
-		// Resource limits - these are in TRES, for now use placeholders
-		c.sendMetricIfNotInfinite(ch, c.qosMaxCPUs, name, 0)
-		c.sendMetricIfNotInfinite(ch, c.qosMaxCPUsPerUser, name, 0)
-		c.sendMetricIfNotInfinite(ch, c.qosMaxNodes, name, 0)
+		// Resource limits - extract from TRES
+		c.sendMetricIfNotInfinite(ch, c.qosMaxCPUs, name, int(getQoSMaxCPUs(qos)))
+		c.sendMetricIfNotInfinite(ch, c.qosMaxCPUsPerUser, name, int(getQoSMaxCPUsPerUser(qos)))
+		c.sendMetricIfNotInfinite(ch, c.qosMaxNodes, name, int(getQoSMaxNodes(qos)))
 
 		// Wall time (convert minutes to seconds)
 		maxWallTime := getQoSMaxWallTime(qos)
@@ -252,20 +252,9 @@ func (c *QoSCollector) collect(ctx context.Context, ch chan<- prometheus.Metric)
 			)
 		}
 
-		// Minimum requirements - these are in TRES, for now use placeholders
-		ch <- prometheus.MustNewConstMetric(
-			c.qosMinCPUs,
-			prometheus.GaugeValue,
-			0,
-			name,
-		)
-
-		ch <- prometheus.MustNewConstMetric(
-			c.qosMinNodes,
-			prometheus.GaugeValue,
-			0,
-			name,
-		)
+		// Minimum requirements - extract from TRES
+		c.sendMetricIfNotInfinite(ch, c.qosMinCPUs, name, int(getQoSMinCPUs(qos)))
+		c.sendMetricIfNotInfinite(ch, c.qosMinNodes, name, int(getQoSMinNodes(qos)))
 
 		// QoS info
 		preemptMode := getQoSPreemptMode(qos)
@@ -391,4 +380,62 @@ func getQoSFlags(qos slurm.QoS) string {
 		flagStrs = append(flagStrs, string(f))
 	}
 	return strings.Join(flagStrs, ",")
+}
+
+// getTRESValue searches a TRES array for a specific resource type and returns its count
+func getTRESValue(tresList []slurm.TRES, resType string) int64 {
+	for _, tres := range tresList {
+		if tres.Type == resType && tres.Count != nil {
+			return *tres.Count
+		}
+	}
+	return 0
+}
+
+// getQoSMaxCPUs returns the maximum total CPUs for the QoS (GrpTRES)
+func getQoSMaxCPUs(qos slurm.QoS) int64 {
+	if qos.Limits != nil && qos.Limits.Max != nil &&
+		qos.Limits.Max.TRES != nil && qos.Limits.Max.TRES.Total != nil {
+		return getTRESValue(qos.Limits.Max.TRES.Total, "cpu")
+	}
+	return 0
+}
+
+// getQoSMaxCPUsPerUser returns the maximum CPUs per user for the QoS (MaxTRESPerUser)
+func getQoSMaxCPUsPerUser(qos slurm.QoS) int64 {
+	if qos.Limits != nil && qos.Limits.Max != nil &&
+		qos.Limits.Max.TRES != nil && qos.Limits.Max.TRES.Per != nil &&
+		qos.Limits.Max.TRES.Per.User != nil {
+		return getTRESValue(qos.Limits.Max.TRES.Per.User, "cpu")
+	}
+	return 0
+}
+
+// getQoSMaxNodes returns the maximum total nodes for the QoS (GrpTRES)
+func getQoSMaxNodes(qos slurm.QoS) int64 {
+	if qos.Limits != nil && qos.Limits.Max != nil &&
+		qos.Limits.Max.TRES != nil && qos.Limits.Max.TRES.Total != nil {
+		return getTRESValue(qos.Limits.Max.TRES.Total, "node")
+	}
+	return 0
+}
+
+// getQoSMinCPUs returns the minimum CPUs per job for the QoS (MinTRESPerJob)
+func getQoSMinCPUs(qos slurm.QoS) int64 {
+	if qos.Limits != nil && qos.Limits.Min != nil &&
+		qos.Limits.Min.TRES != nil && qos.Limits.Min.TRES.Per != nil &&
+		qos.Limits.Min.TRES.Per.Job != nil {
+		return getTRESValue(qos.Limits.Min.TRES.Per.Job, "cpu")
+	}
+	return 0
+}
+
+// getQoSMinNodes returns the minimum nodes per job for the QoS (MinTRESPerJob)
+func getQoSMinNodes(qos slurm.QoS) int64 {
+	if qos.Limits != nil && qos.Limits.Min != nil &&
+		qos.Limits.Min.TRES != nil && qos.Limits.Min.TRES.Per != nil &&
+		qos.Limits.Min.TRES.Per.Job != nil {
+		return getTRESValue(qos.Limits.Min.TRES.Per.Job, "node")
+	}
+	return 0
 }

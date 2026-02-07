@@ -524,10 +524,10 @@ func CreateResourceUtilizationDataFromJob(job *slurm.Job) *ResourceUtilizationDa
 	data := &ResourceUtilizationData{
 		CPURequested:    cpus,
 		CPUAllocated:    cpus,
-		CPUUsed:         cpus * 0.75,          // Estimate 75% usage
+		CPUUsed:         cpus * 0.75, // Estimate 75% usage
 		MemoryRequested: memory,
 		MemoryAllocated: memory,
-		MemoryUsed:      memory * 65 / 100,    // Estimate 65% usage
+		MemoryUsed:      memory * 65 / 100, // Estimate 65% usage
 		JobState:        jobState,
 	}
 

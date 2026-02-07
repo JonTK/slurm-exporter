@@ -347,7 +347,7 @@ func (c *JobsSimpleCollector) collectJobMetrics(ch chan<- prometheus.Metric, job
 	c.collectRunTime(ch, job, ctx, now)
 	c.collectSubmitTime(ch, job, ctx)
 	c.collectResourceMetrics(ch, job, ctx)
-	c.collectJobInfo(ch, ctx)
+	c.collectJobInfo(ch, job, ctx)
 }
 
 // collectJobState collects job state metric
@@ -449,12 +449,12 @@ func (c *JobsSimpleCollector) collectResourceMetrics(ch chan<- prometheus.Metric
 		)
 	}
 
-	// Memory in bytes
+	// Memory in bytes (MemoryPerNode is in MB per API spec)
 	memoryMB := uint64(0)
 	if job.MemoryPerNode != nil {
 		memoryMB = *job.MemoryPerNode
 	}
-	memoryBytes := c.sanitizeMemory(int(memoryMB))
+	memoryBytes := c.sanitizeMemory(int(memoryMB * 1024 * 1024))
 	if c.shouldCollectMetric("slurm_job_memory_bytes", MetricTypeGauge, false, true) &&
 		c.shouldCollectWithCardinality("slurm_job_memory_bytes", labels) {
 		ch <- prometheus.MustNewConstMetric(
@@ -465,9 +465,11 @@ func (c *JobsSimpleCollector) collectResourceMetrics(ch chan<- prometheus.Metric
 		)
 	}
 
-	// Node count (Nodes is now a string, not []string)
-	// TODO: Parse job.Nodes string to get actual node list
-	nodes := c.calculateNodeCount([]string{})
+	// Node count - use the NodeCount field directly from the API
+	nodes := uint32(1) // default to 1 if not specified
+	if job.NodeCount != nil {
+		nodes = *job.NodeCount
+	}
 	if c.shouldCollectMetric("slurm_job_nodes", MetricTypeGauge, false, true) &&
 		c.shouldCollectWithCardinality("slurm_job_nodes", labels) {
 		ch <- prometheus.MustNewConstMetric(
@@ -507,19 +509,17 @@ func (c *JobsSimpleCollector) sanitizeMemory(memoryBytes int) int64 {
 	return int64(memoryBytes)
 }
 
-// calculateNodeCount determines node count from job node list
-func (c *JobsSimpleCollector) calculateNodeCount(nodes []string) int {
-	if len(nodes) == 0 {
-		return 1 // Default for single-node jobs
-	}
-	return len(nodes)
-}
-
 // collectJobInfo collects job info metric
-func (c *JobsSimpleCollector) collectJobInfo(ch chan<- prometheus.Metric, ctx jobContext) {
-	// These fields don't exist in slurm.Job, use defaults
-	account := "default"
-	qos := "normal"
+func (c *JobsSimpleCollector) collectJobInfo(ch chan<- prometheus.Metric, job slurm.Job, ctx jobContext) {
+	// Use actual account and QoS from the job
+	account := "unknown"
+	if job.Account != nil {
+		account = *job.Account
+	}
+	qos := "unknown"
+	if job.QoS != nil {
+		qos = *job.QoS
+	}
 
 	infoLabels := map[string]string{
 		"job_id":    ctx.jobID,

@@ -216,18 +216,11 @@ func (c *NodesSimpleCollector) collect(ctx context.Context, ch chan<- prometheus
 			nodeName, partition,
 		)
 
-		// Calculate allocated CPUs from node state
-		// If node is in use, assume some CPUs are allocated based on state
+		// Get actual allocated CPUs from node data (API provides this)
 		allocCPUs := int32(0)
-		switch nodeStateStr {
-		case "ALLOCATED", "MIXED":
-			// For allocated/mixed nodes, assume 50% utilization as reasonable estimate
-			allocCPUs = nodeCPUs / 2
-		case "COMPLETING":
-			// Node is completing jobs, assume high utilization
-			allocCPUs = nodeCPUs * 3 / 4
+		if node.AllocCPUs != nil {
+			allocCPUs = *node.AllocCPUs
 		}
-		// For IDLE, DRAIN, DOWN states, allocCPUs stays 0
 		ch <- prometheus.MustNewConstMetric(
 			c.nodeCPUsAllocated,
 			prometheus.GaugeValue,
@@ -252,12 +245,13 @@ func (c *NodesSimpleCollector) collect(ctx context.Context, ch chan<- prometheus
 			nodeName, partition,
 		)
 
-		// Allocated memory (estimate based on CPU allocation ratio)
+		// Get actual allocated memory from node data (API provides this in MB)
 		memoryAllocBytes := float64(0)
-		if memoryTotalBytes > 0 && allocCPUs > 0 && nodeCPUs > 0 {
-			// Estimate memory allocation proportional to CPU allocation
-			allocationRatio := float64(allocCPUs) / float64(nodeCPUs)
-			memoryAllocBytes = memoryTotalBytes * allocationRatio
+		if node.AllocMemory != nil {
+			allocMemoryMB := *node.AllocMemory
+			if allocMemoryMB > 0 && allocMemoryMB < 1000000 { // Sanity check: < 1TB
+				memoryAllocBytes = float64(allocMemoryMB * 1024 * 1024)
+			}
 		}
 		ch <- prometheus.MustNewConstMetric(
 			c.nodeMemoryAllocated,
@@ -272,8 +266,15 @@ func (c *NodesSimpleCollector) collect(ctx context.Context, ch chan<- prometheus
 			reason = *node.Reason
 		}
 
+		// Get actual architecture and OS from node data
 		arch := "x86_64" // default
-		os := "linux"    // default
+		if node.Architecture != nil && *node.Architecture != "" {
+			arch = *node.Architecture
+		}
+		os := "linux" // default
+		if node.OperatingSystem != nil && *node.OperatingSystem != "" {
+			os = *node.OperatingSystem
+		}
 
 		ch <- prometheus.MustNewConstMetric(
 			c.nodeInfo,

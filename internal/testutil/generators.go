@@ -96,12 +96,12 @@ func (g *TestDataGenerator) GenerateJobs(count int) []slurm.Job {
 	return jobs
 }
 
-// GenerateNodes generates test nodes  
+// GenerateNodes generates test nodes
 func (g *TestDataGenerator) GenerateNodes(count int) []slurm.Node {
 	nodes := make([]slurm.Node, count)
 
 	states := []api.NodeState{api.NodeStateIdle, api.NodeStateAllocated, api.NodeStateMixed, api.NodeStateDown, api.NodeStateDrain}
-	
+
 	for i := 0; i < count; i++ {
 		cpus := int32([]int{16, 32, 64, 128}[g.rand.Intn(4)])
 		memory := int64([]int{64 * 1024, 128 * 1024, 256 * 1024, 512 * 1024}[g.rand.Intn(4)]) // GB in MB
@@ -144,7 +144,6 @@ func (g *TestDataGenerator) generateNodeList(count int) []string {
 	}
 	return nodes
 }
-
 
 // GenerateJobStates generates realistic job state distributions
 func (g *TestDataGenerator) GenerateJobStates() map[string]int {

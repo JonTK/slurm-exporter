@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -296,8 +297,17 @@ func (s *Server) setupHealthChecks() {
 	})
 
 	// Metrics endpoint self-check
+	// Extract port from address (e.g., ":8080" or "0.0.0.0:8080")
+	metricsURL := fmt.Sprintf("http://localhost:8080%s", s.config.Server.MetricsPath) // default
+	if addr := s.config.Server.Address; addr != "" {
+		// Extract port from address
+		if idx := strings.LastIndex(addr, ":"); idx >= 0 {
+			port := addr[idx:] // includes the colon
+			metricsURL = fmt.Sprintf("http://localhost%s%s", port, s.config.Server.MetricsPath)
+		}
+	}
 	s.healthChecker.RegisterCheck("metrics_endpoint", health.MetricsEndpointCheck(
-		fmt.Sprintf("http://localhost%s%s", s.config.Server.Address, s.config.Server.MetricsPath),
+		metricsURL,
 		&http.Client{Timeout: 10 * time.Second},
 	))
 
@@ -578,40 +588,7 @@ func (s *Server) createMetricsHandler() http.Handler {
 		default:
 		}
 
-		// Trigger collection from all collectors if registry is available
-		if s.registry != nil {
-			// Use the request context (which already has timeout from middleware)
-			collectionCtx := r.Context()
-
-			s.logger.WithField("component", "metrics_handler").Debug("Starting metrics collection")
-
-			if err := s.registry.CollectAll(collectionCtx); err != nil {
-				if collectionCtx.Err() == context.DeadlineExceeded {
-					s.logger.WithField("component", "metrics_handler").Warn("Metrics collection timed out")
-				} else if collectionCtx.Err() == context.Canceled {
-					s.logger.WithField("component", "metrics_handler").Debug("Metrics collection cancelled")
-					http.Error(w, "Request cancelled", http.StatusRequestTimeout)
-					return
-				} else {
-					s.logger.WithFields(logrus.Fields{
-						"component": "metrics_handler",
-						"error":     err.Error(),
-					}).Warn("Failed to collect all metrics")
-				}
-				// Continue serving cached/existing metrics even on timeout/error
-			} else {
-				s.logger.WithField("component", "metrics_handler").Debug("Metrics collection completed successfully")
-			}
-		}
-
-		// Check again if request was cancelled during collection
-		select {
-		case <-r.Context().Done():
-			s.logger.WithField("component", "metrics_handler").Debug("Request cancelled during collection")
-			http.Error(w, "Request cancelled", http.StatusRequestTimeout)
-			return
-		default:
-		}
+		// Prometheus will trigger collection via registered collector adapters
 
 		// Serve the metrics
 		handler.ServeHTTP(w, r)
