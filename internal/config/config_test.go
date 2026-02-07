@@ -168,14 +168,13 @@ func TestCollectorsConfig(t *testing.T) {
 		t.Error("Expected graceful degradation to be enabled")
 	}
 
-	// Test individual collector settings
+	// Test individual collector settings (excluding Performance which is disabled by default)
 	collectors := []CollectorConfig{
 		cfg.Collectors.Cluster,
 		cfg.Collectors.Nodes,
 		cfg.Collectors.Jobs,
 		cfg.Collectors.Users,
 		cfg.Collectors.Partitions,
-		cfg.Collectors.Performance,
 		cfg.Collectors.System,
 	}
 
@@ -196,6 +195,11 @@ func TestCollectorsConfig(t *testing.T) {
 		if collector.ErrorHandling.BackoffFactor != 2.0 {
 			t.Errorf("Expected collector %d backoff factor to be 2.0, got: %f", i, collector.ErrorHandling.BackoffFactor)
 		}
+	}
+
+	// Performance collector should be disabled by default (not registered in registry)
+	if cfg.Collectors.Performance.Enabled {
+		t.Error("Expected Performance collector to be disabled by default")
 	}
 
 	// Test specific interval settings
