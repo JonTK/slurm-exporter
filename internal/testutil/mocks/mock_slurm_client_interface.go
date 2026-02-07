@@ -54,6 +54,44 @@ func (_m *MockSlurmClientInterface) Associations() slurm.AssociationManager {
 	return r0
 }
 
+// Analytics provides a mock function with no fields
+func (_m *MockSlurmClientInterface) Analytics() slurm.AnalyticsManager {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Analytics")
+	}
+
+	var r0 slurm.AnalyticsManager
+	if rf, ok := ret.Get(0).(func() slurm.AnalyticsManager); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(slurm.AnalyticsManager)
+		}
+	}
+
+	return r0
+}
+
+// Capabilities provides a mock function with no fields
+func (_m *MockSlurmClientInterface) Capabilities() slurm.ClientCapabilities {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Capabilities")
+	}
+
+	var r0 slurm.ClientCapabilities
+	if rf, ok := ret.Get(0).(func() slurm.ClientCapabilities); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(slurm.ClientCapabilities)
+	}
+
+	return r0
+}
+
 // Close provides a mock function with no fields
 func (_m *MockSlurmClientInterface) Close() error {
 	ret := _m.Called()

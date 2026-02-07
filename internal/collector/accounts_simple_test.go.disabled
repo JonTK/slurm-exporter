@@ -44,54 +44,46 @@ func TestAccountsSimpleCollector_Collect_Success(t *testing.T) {
 	mockAssociationManager := new(mocks.MockAssociationManager)
 
 	// Setup mock expectations with test data
-	maxTRES := map[string]int{
-		"mem": 102400, // 100GB in MB
-	}
-
 	accountList := &slurm.AccountList{
 		Accounts: []slurm.Account{
 			{
-				Name:             "account1",
-				Organization:     "org1",
-				Description:      "Test account 1",
-				ParentAccount:    "root",
-				DefaultPartition: "compute",
-				CPULimit:         1000,
-				MaxJobs:          100,
-				MaxNodes:         50,
-				MaxTRES:          maxTRES,
+				Name:         "account1",
+				Organization: "org1",
+				Description:  "Test account 1",
 			},
 			{
-				Name:          "account2",
-				Organization:  "org2",
-				Description:   "Test account 2",
-				ParentAccount: "root",
-				CPULimit:      500,
+				Name:         "account2",
+				Organization: "org2",
+				Description:  "Test account 2",
 			},
 		},
-		Total: 2,
 	}
 
 	// Setup associations for user counting
+	id1 := int32(1)
+	id2 := int32(2)
+	id3 := int32(3)
+	acc1 := "account1"
+	acc2 := "account2"
+
 	associationList := &slurm.AssociationList{
-		Associations: []*slurm.Association{
+		Associations: []slurm.Association{
 			{
-				ID:      1,
+				ID:      &id1,
 				User:    "user1",
-				Account: "account1",
+				Account: &acc1,
 			},
 			{
-				ID:      2,
+				ID:      &id2,
 				User:    "user2",
-				Account: "account1",
+				Account: &acc1,
 			},
 			{
-				ID:      3,
+				ID:      &id3,
 				User:    "user3",
-				Account: "account2",
+				Account: &acc2,
 			},
 		},
-		Total: 3,
 	}
 
 	mockClient.On("Accounts").Return(mockAccountManager)
