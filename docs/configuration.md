@@ -776,12 +776,6 @@ performance:
     # Connection pooling
     max_idle_connections: 100
     connection_lifetime: 30m
-    
-    # Memory profiling
-    profiling:
-      enabled: false
-      interval: 5m
-      threshold_mb: 100
 ```
 
 ## Observability Configuration
@@ -884,7 +878,6 @@ debug:
       status: true                      # /debug/status
       collectors: true                  # /debug/collectors
       cache: true                      # /debug/cache
-      profiling: true                  # /debug/profiling
       config: false                    # /debug/config (sensitive)
       traces: true                     # /debug/traces
       
@@ -893,33 +886,6 @@ debug:
       json: true
       html: true
       prometheus: true
-```
-
-### Collection Profiling
-```yaml
-debug:
-  profiling:
-    enabled: true
-    
-    # CPU profiling
-    cpu_profile_duration: 30s
-    cpu_profile_rate: 100               # Hz
-    
-    # Memory profiling
-    memory_profile_interval: 5m
-    memory_profile_rate: 512            # KB
-    
-    # Goroutine profiling
-    goroutine_profile_enabled: true
-    block_profile_enabled: true
-    mutex_profile_enabled: true
-    
-    # Storage configuration
-    storage:
-      type: "file"                      # file, memory, s3
-      path: "/tmp/profiles"
-      max_profiles: 100
-      retention: "24h"
 ```
 
 ## Logging Settings
