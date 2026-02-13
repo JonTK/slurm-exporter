@@ -235,16 +235,46 @@ jobs:
 
       - name: Run exporter smoke test
         run: |
-          export SLURM_SERVER_URL="https://mock-slurm-api.slurm-test.svc.cluster.local:6820"
-          export SLURM_JWT_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI2NTQzMDU1NzksImlhdCI6MTc1NDMwNTU3OSwic3VuIjoicm9vdCJ9.ECpVcCqD1eXUk5-3LZLCDVDolvCJkhGNj24IvqwCkPs"
-          export SLURM_INSECURE_SKIP_VERIFY="true"
+          echo "Creating test configuration..."
+          cat > test-config.yaml << 'EOF'
+          server:
+            address: ":9092"
+            metrics_path: "/metrics"
+
+          slurm:
+            base_url: "https://mock-slurm-api.slurm-test.svc.cluster.local:6820"
+            insecure_skip_verify: true
+            auth:
+              type: "jwt"
+              jwt:
+                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI2NTQzMDU1NzksImlhdCI6MTc1NDMwNTU3OSwic3VuIjoicm9vdCJ9.ECpVcCqD1eXUk5-3LZLCDVDolvCJkhGNj24IvqwCkPs"
+
+          collectors:
+            global:
+              default_interval: "60s"
+              max_concurrency: 2
+            cluster:
+              enabled: true
+            nodes:
+              enabled: true
+            jobs:
+              enabled: true
+            users:
+              enabled: false
+            partitions:
+              enabled: false
+
+          logging:
+            level: "info"
+            format: "text"
+            output: "stdout"
+
+          metrics:
+            namespace: "slurm"
+          EOF
 
           echo "Starting exporter in background..."
-          timeout 30s ./slurm-exporter \
-            --slurm.url="${SLURM_SERVER_URL}" \
-            --slurm.token="${SLURM_JWT_TOKEN}" \
-            --slurm.insecure-skip-verify=true \
-            --web.listen-address=":9092" &
+          timeout 30s ./slurm-exporter -config test-config.yaml &
           EXPORTER_PID=$!
 
           echo "Waiting for exporter to start..."
@@ -259,7 +289,7 @@ jobs:
 
           echo ""
           echo "Checking specific metrics..."
-          curl -s http://localhost:9092/metrics | grep -E "(slurm_up|slurm_nodes_total|slurm_jobs_total)"
+          curl -s http://localhost:9092/metrics | grep -E "(slurm_up|slurm_cluster_|slurm_nodes_|slurm_jobs_)" | head -10
 
           echo ""
           echo "Smoke test passed!"
