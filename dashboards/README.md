@@ -74,5 +74,5 @@ All dashboards include templating variables:
 
 ## See Also
 
-- [Metrics Catalog](../docs/metrics-catalog.md) — Full list of available metrics
+- [Metrics Guide](../website/docs/user-guide/metrics.md) — Full list of available metrics
 - [Prometheus Alert Rules](../prometheus/alerts/) — Alerting rules for SLURM metrics

@@ -215,10 +215,10 @@ make test-coverage
 
 ## Documentation
 
-- [Quick Start Guide](docs/quickstart.md) - Get running in 5 minutes
+- [Quick Start Guide](website/docs/getting-started/quickstart.md) - Get running in 5 minutes
 - [Installation Guide](docs/installation.md) - Detailed installation and setup instructions
 - [Configuration Reference](docs/configuration.md) - Complete configuration options
-- [Metrics Catalog](docs/metrics-catalog.md) - All available metrics with descriptions
+- [Metrics Guide](website/docs/user-guide/metrics.md) - All available metrics with descriptions
 - [Alerting Guide](docs/alerting.md) - Pre-built alerting rules and best practices
 
 ## Monitoring Dashboards

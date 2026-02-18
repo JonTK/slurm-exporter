@@ -1125,7 +1125,7 @@ helm upgrade slurm-exporter ./charts/slurm-exporter \
 ## Additional Resources
 
 - **Configuration Reference**: [docs/configuration.md](configuration.md)
-- **Metrics Documentation**: [docs/metrics.md](metrics.md)
+- **Metrics Documentation**: [Metrics Guide](../website/docs/user-guide/metrics.md)
 - **Alerting Guide**: [docs/alerting.md](alerting.md)
 - **High Availability**: [docs/deployment-ha.md](deployment-ha.md)
 - **Troubleshooting**: [docs/troubleshooting.md](troubleshooting.md)

@@ -1226,5 +1226,5 @@ Available reload metrics:
 
 For more information, see:
 - [Installation Guide](installation.md)
-- [Metrics Documentation](metrics.md)
+- [Metrics Documentation](../website/docs/user-guide/metrics.md)
 - [Troubleshooting Guide](troubleshooting.md)
