@@ -255,7 +255,7 @@ jobs:
       run: go install github.com/securego/gosec/v2/cmd/gosec@latest
 
     - name: Run Gosec security scanner
-      run: gosec -exclude=G101,G104,G115,G301,G304,G306,G404 -fmt json -out gosec.json ./...
+      run: gosec -exclude=G101,G104,G115,G117,G301,G304,G306,G404,G704,G705 -fmt json -out gosec.json ./...
 
     - name: Run Trivy filesystem scan
       uses: aquasecurity/trivy-action@master

@@ -106,7 +106,7 @@ jobs:
         cache: true
 
     - name: Install staticcheck
-      run: go install honnef.co/go/tools/cmd/staticcheck@latest
+      run: go install honnef.co/go/tools/cmd/staticcheck@2024.1.1
 
     - name: Run staticcheck
       run: staticcheck ./...

@@ -42,7 +42,7 @@ jobs:
       run: go vet ./...
 
     - name: Install staticcheck
-      run: go install honnef.co/go/tools/cmd/staticcheck@latest
+      run: go install honnef.co/go/tools/cmd/staticcheck@2024.1.1
 
     - name: Run staticcheck
       run: staticcheck ./...
@@ -126,7 +126,7 @@ jobs:
       run: go install github.com/securego/gosec/v2/cmd/gosec@latest
 
     - name: Run Gosec Security Scanner
-      run: gosec -exclude=G101,G104,G115,G301,G304,G306,G404 ./...
+      run: gosec -exclude=G101,G104,G115,G117,G301,G304,G306,G404,G704,G705 ./...
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master

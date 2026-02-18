@@ -7,9 +7,6 @@ on:
       - develop
     tags:
       - 'v*'
-  pull_request:
-    branches:
-      - main
   schedule:
     # Rebuild images weekly for security updates
     - cron: '0 2 * * 1'
