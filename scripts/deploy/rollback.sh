@@ -294,8 +294,8 @@ show_post_rollback_info() {
 
     # Show how to access the service
     print_info "Access the SLURM Exporter:"
-    echo "  kubectl port-forward -n $NAMESPACE service/$HELM_RELEASE_NAME 8080:8080"
-    echo "  curl http://localhost:8080/health"
+    echo "  kubectl port-forward -n $NAMESPACE service/$HELM_RELEASE_NAME 10341:10341"
+    echo "  curl http://localhost:10341/health"
 }
 
 # Main function

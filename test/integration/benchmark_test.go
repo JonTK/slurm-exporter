@@ -21,7 +21,7 @@ func BenchmarkMetricsCollection(b *testing.B) {
 	client := &http.Client{
 		Timeout: 30 * time.Second,
 	}
-	exporterURL := "http://localhost:8080"
+	exporterURL := "http://localhost:10341"
 
 	// Warmup - ensure exporter is ready
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -58,7 +58,7 @@ func BenchmarkMetricsParsing(b *testing.B) {
 	client := &http.Client{
 		Timeout: 30 * time.Second,
 	}
-	exporterURL := "http://localhost:8080"
+	exporterURL := "http://localhost:10341"
 
 	// Get metrics once
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -95,7 +95,7 @@ func BenchmarkHealthCheck(b *testing.B) {
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 	}
-	exporterURL := "http://localhost:8080"
+	exporterURL := "http://localhost:10341"
 
 	b.ResetTimer()
 
@@ -121,7 +121,7 @@ func BenchmarkConcurrentMetrics(b *testing.B) {
 	client := &http.Client{
 		Timeout: 30 * time.Second,
 	}
-	exporterURL := "http://localhost:8080"
+	exporterURL := "http://localhost:10341"
 
 	// Test different concurrency levels
 	concurrencyLevels := []int{1, 2, 4, 8, 16}
@@ -161,7 +161,7 @@ func PerformanceTest(t *testing.T) {
 	client := &http.Client{
 		Timeout: 60 * time.Second,
 	}
-	exporterURL := "http://localhost:8080"
+	exporterURL := "http://localhost:10341"
 
 	// Warmup
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

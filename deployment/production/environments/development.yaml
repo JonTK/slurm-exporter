@@ -30,7 +30,7 @@ slurm:
 
 # Server configuration for development
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
   health_path: "/health"
   ready_path: "/ready"
@@ -327,5 +327,5 @@ development:
   dev_server:
     enabled: false  # Set to true for local development
     host: "localhost"
-    port: 8080
+    port: 10341
     hot_reload: true

@@ -295,7 +295,7 @@ type ValidationConfig struct {
 func Default() *Config {
 	return &Config{
 		Server: ServerConfig{
-			Address:        ":8080",
+			Address:        ":10341",
 			MetricsPath:    "/metrics",
 			HealthPath:     "/health",
 			ReadyPath:      "/ready",
@@ -810,7 +810,7 @@ func (c *Config) Validate() error {
 // Validate validates the server configuration.
 func (s *ServerConfig) Validate() error {
 	if s.Address == "" {
-		return fmt.Errorf("server.address cannot be empty (example: ':8080' or '0.0.0.0:8080')")
+		return fmt.Errorf("server.address cannot be empty (example: ':10341' or '0.0.0.0:10341')")
 	}
 
 	if s.MetricsPath == "" {

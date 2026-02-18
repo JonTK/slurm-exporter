@@ -9,10 +9,10 @@ services:
     image: slurm-exporter:latest
     container_name: slurm-exporter
     ports:
-      - "8080:8080"
+      - "10341:10341"
     environment:
       - SLURM_EXPORTER_CONFIG_FILE=/etc/slurm-exporter/config.yaml
-      - SLURM_EXPORTER_ADDRESS=:8080
+      - SLURM_EXPORTER_ADDRESS=:10341
     volumes:
       - ./configs/config.yaml:/etc/slurm-exporter/config.yaml:ro
       - ./configs/dev-config.yaml:/etc/slurm-exporter/dev-config.yaml:ro

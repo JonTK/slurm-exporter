@@ -3,7 +3,7 @@
 
 # HTTP server configuration
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
   health_path: "/health"
   ready_path: "/ready"

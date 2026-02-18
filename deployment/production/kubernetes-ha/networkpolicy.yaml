@@ -33,7 +33,7 @@ spec:
           app.kubernetes.io/name: prometheus
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
   
   # Allow health checks from ingress controllers
   - from:
@@ -51,13 +51,13 @@ spec:
           app: istio-proxy
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
   
   # Allow load balancer health checks
   - from: []  # Allow from any source for LB health checks
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
     - protocol: TCP
       port: 8081
   
@@ -68,7 +68,7 @@ spec:
           name: slurm-exporter
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
     - protocol: TCP
       port: 6060  # pprof endpoint for debugging
   
@@ -146,7 +146,7 @@ spec:
           monitoring: "true"
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
   
   # Allow Grafana dashboards
   - from:
@@ -158,7 +158,7 @@ spec:
           app: grafana
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
   
   # Allow alerting systems
   - from:
@@ -170,7 +170,7 @@ spec:
           app: alertmanager
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
 
 ---
 # Strict network policy for production security

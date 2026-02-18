@@ -6,7 +6,7 @@ SLURM Exporter provides several HTTP endpoints for metrics collection, health ch
 
 The default base URL for all endpoints is:
 ```
-http://localhost:8080
+http://localhost:10341
 ```
 
 This can be configured using the `server.address` configuration option or the `--addr` CLI flag.
@@ -36,7 +36,7 @@ server:
 Include credentials in requests:
 
 ```bash
-curl -u prometheus:secret http://localhost:8080/metrics
+curl -u prometheus:secret http://localhost:10341/metrics
 ```
 
 ## Metrics Endpoint
@@ -48,7 +48,7 @@ Returns Prometheus-formatted metrics.
 **Request:**
 ```http
 GET /metrics HTTP/1.1
-Host: localhost:8080
+Host: localhost:10341
 ```
 
 **Response:**
@@ -73,10 +73,10 @@ slurm_nodes_total{cluster="production",partition="compute",state="down"} 2
 
 ```bash
 # Get all metrics
-curl http://localhost:8080/metrics
+curl http://localhost:10341/metrics
 
 # With authentication
-curl -u prometheus:secret http://localhost:8080/metrics
+curl -u prometheus:secret http://localhost:10341/metrics
 ```
 
 **Error Responses:**
@@ -99,7 +99,7 @@ Returns overall system health status.
 **Request:**
 ```http
 GET /health HTTP/1.1
-Host: localhost:8080
+Host: localhost:10341
 ```
 
 **Success Response:**
@@ -153,7 +153,7 @@ Returns readiness status for load balancer checks.
 **Request:**
 ```http
 GET /ready HTTP/1.1
-Host: localhost:8080
+Host: localhost:10341
 ```
 
 **Success Response:**
@@ -199,7 +199,7 @@ server:
 
 Access endpoints via HTTPS:
 ```bash
-curl https://localhost:8080/metrics
+curl https://localhost:10341/metrics
 ```
 
 ## CORS Support
@@ -231,7 +231,7 @@ import (
 func main() {
     client := &http.Client{Timeout: 30 * time.Second}
 
-    resp, err := client.Get("http://localhost:8080/health")
+    resp, err := client.Get("http://localhost:10341/health")
     if err != nil {
         panic(err)
     }
@@ -247,7 +247,7 @@ func main() {
 import requests
 
 class SlurmExporterClient:
-    def __init__(self, base_url="http://localhost:8080"):
+    def __init__(self, base_url="http://localhost:10341"):
         self.base_url = base_url
         self.session = requests.Session()
 
@@ -275,7 +275,7 @@ print(f"Status: {health['status']}")
 ```bash
 #!/bin/bash
 
-BASE_URL="http://localhost:8080"
+BASE_URL="http://localhost:10341"
 
 # Check health
 health_status=$(curl -s -w "%{http_code}" -o /dev/null "$BASE_URL/health")
@@ -300,7 +300,7 @@ fi
 
 1. **Connection Refused**
    - Check if service is running: `systemctl status slurm-exporter`
-   - Verify listen address: `netstat -tlnp | grep 8080`
+   - Verify listen address: `netstat -tlnp | grep 10341`
 
 2. **Authentication Failures**
    - Verify credentials in configuration
@@ -314,11 +314,11 @@ fi
 
 ```bash
 # Test basic connectivity
-curl -v http://localhost:8080/health
+curl -v http://localhost:10341/health
 
 # Check metrics availability
-curl -s http://localhost:8080/metrics | wc -l
+curl -s http://localhost:10341/metrics | wc -l
 
 # Verify authentication
-curl -u user:pass -v http://localhost:8080/metrics
+curl -u user:pass -v http://localhost:10341/metrics
 ```

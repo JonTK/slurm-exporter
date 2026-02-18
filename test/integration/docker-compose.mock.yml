@@ -22,7 +22,7 @@ services:
   slurm-exporter:
     image: slurm-exporter:test
     ports:
-      - "8080:8080"
+      - "10341:10341"
     volumes:
       - ./mock-cluster-config.yaml:/etc/slurm-exporter/config.yaml:ro
       - ./output/logs:/var/log/slurm-exporter
@@ -32,7 +32,7 @@ services:
       mock-slurm:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:10341/health"]
       interval: 10s
       timeout: 5s
       retries: 5

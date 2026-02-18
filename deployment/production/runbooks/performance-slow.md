@@ -15,8 +15,8 @@
 ### 1. Assess Impact
 ```bash
 # Check current performance metrics
-kubectl port-forward svc/slurm-exporter 8080:8080 -n slurm-exporter &
-curl "http://localhost:8080/metrics" | grep slurm_exporter_scrape_duration
+kubectl port-forward svc/slurm-exporter 10341:10341 -n slurm-exporter &
+curl "http://localhost:10341/metrics" | grep slurm_exporter_scrape_duration
 
 # Check Prometheus scrape health
 kubectl exec prometheus-kube-prometheus-stack-prometheus-0 -n monitoring -- \
@@ -58,10 +58,10 @@ curl http://localhost:6060/debug/pprof/goroutine?debug=1 > goroutines.txt
 ### Application-Level Analysis
 ```bash
 # Check collection timing by collector
-curl -s http://localhost:8080/metrics | grep -E "(duration_seconds|collection_errors)"
+curl -s http://localhost:10341/metrics | grep -E "(duration_seconds|collection_errors)"
 
 # Check cardinality metrics
-curl -s http://localhost:8080/metrics | grep -E "(cardinality|series_count)"
+curl -s http://localhost:10341/metrics | grep -E "(cardinality|series_count)"
 
 # Application logs for performance patterns
 kubectl logs deployment/slurm-exporter -n slurm-exporter --tail=100 | grep -E "(slow|timeout|error)"
@@ -105,10 +105,10 @@ kubectl exec deployment/slurm-exporter -n slurm-exporter -- \
 **Investigation**:
 ```bash
 # Check metric cardinality
-curl -s http://localhost:8080/metrics | grep "^slurm_" | wc -l
+curl -s http://localhost:10341/metrics | grep "^slurm_" | wc -l
 
 # Find high-cardinality metrics
-curl -s http://localhost:8080/metrics | grep "^slurm_" | cut -d'{' -f1 | sort | uniq -c | sort -nr | head -20
+curl -s http://localhost:10341/metrics | grep "^slurm_" | cut -d'{' -f1 | sort | uniq -c | sort -nr | head -20
 
 # Check cardinality limits
 kubectl get configmap slurm-exporter-config -n slurm-exporter -o yaml | grep -A 10 cardinality
@@ -283,7 +283,7 @@ kubectl patch deployment slurm-exporter -n slurm-exporter -p '
 **Investigation**:
 ```bash
 # Cache performance metrics
-curl -s http://localhost:8080/metrics | grep -E "(cache_hits|cache_misses|cache_size)"
+curl -s http://localhost:10341/metrics | grep -E "(cache_hits|cache_misses|cache_size)"
 
 # Cache configuration
 kubectl get configmap slurm-exporter-config -n slurm-exporter -o yaml | grep -A 10 caching

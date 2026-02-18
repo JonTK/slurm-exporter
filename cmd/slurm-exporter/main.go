@@ -38,7 +38,7 @@ var (
 	logLevel    = flag.String("log-level", "info", "Log level (debug, info, warn, error)")
 	showVersion = flag.Bool("version", false, "Show version information and exit")
 	healthCheck = flag.Bool("health-check", false, "Perform health check and exit")
-	addr        = flag.String("addr", ":8080", "Address to listen on")
+	addr        = flag.String("addr", ":10341", "Address to listen on")
 	metricsPath = flag.String("metrics-path", "/metrics", "Path for metrics endpoint")
 )
 
@@ -84,7 +84,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// Override config with command line flags if provided
-	if *addr != ":8080" {
+	if *addr != ":10341" {
 		cfg.Server.Address = *addr
 	}
 	if *metricsPath != "/metrics" {
@@ -207,7 +207,7 @@ func main() {
 // performHealthCheck performs a simple health check by trying to connect to the health endpoint
 func performHealthCheck() error {
 	// Default address for health check
-	healthURL := "http://localhost:8080/health"
+	healthURL := "http://localhost:10341/health"
 
 	// Try to read address from environment or config
 	if envAddr := os.Getenv("SLURM_EXPORTER_ADDRESS"); envAddr != "" {

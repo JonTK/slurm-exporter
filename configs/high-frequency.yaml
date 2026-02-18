@@ -2,7 +2,7 @@
 # Optimized for real-time monitoring and alerting
 
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
   timeout: "60s"  # Longer timeout for high-frequency collection
   read_timeout: "20s"

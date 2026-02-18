@@ -151,7 +151,7 @@ release:
 
     **Docker:**
     ```bash
-    docker run -p 8080:8080 jontk/slurm-exporter:{{ .Version }}
+    docker run -p 10341:10341 jontk/slurm-exporter:{{ .Version }}
     ```
 
   footer: |

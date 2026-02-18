@@ -365,7 +365,7 @@ kubectl exec prometheus-0 -n monitoring -- \
 ```bash
 # Check current response times
 kubectl exec deployment/slurm-exporter -n slurm-exporter -- \
-  curl -w "%{time_total}" http://localhost:8080/metrics
+  curl -w "%{time_total}" http://localhost:10341/metrics
 
 # Check resource constraints
 kubectl top pods -n slurm-exporter
@@ -394,7 +394,7 @@ kubectl logs job/baseline-$(date +%s) -n slurm-exporter
 
 # Verify target service health
 kubectl get endpoints slurm-exporter -n slurm-exporter
-curl http://slurm-exporter.slurm-exporter:8080/health
+curl http://slurm-exporter.slurm-exporter:10341/health
 
 # Check resource limits for test jobs
 kubectl describe job/baseline-$(date +%s) -n slurm-exporter

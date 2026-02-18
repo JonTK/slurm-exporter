@@ -357,7 +357,7 @@ spec:
             if [ "$READY_PODS" -gt 0 ]; then
               # Test health endpoint
               log "Testing service health..."
-              if kubectl exec deployment/slurm-exporter -n slurm-exporter -- curl -f http://localhost:8080/health; then
+              if kubectl exec deployment/slurm-exporter -n slurm-exporter -- curl -f http://localhost:10341/health; then
                 log "Service health check passed"
                 notify "Disaster recovery completed successfully for $DR_SCENARIO" "success"
               else
@@ -453,7 +453,7 @@ data:
     
     # Test health endpoint
     echo "Testing health endpoint..."
-    if kubectl exec deployment/slurm-exporter -n slurm-exporter -- curl -f http://localhost:8080/health; then
+    if kubectl exec deployment/slurm-exporter -n slurm-exporter -- curl -f http://localhost:10341/health; then
       echo "✓ Health check passed"
     else
       echo "✗ Health check failed"
@@ -462,7 +462,7 @@ data:
     
     # Test metrics endpoint
     echo "Testing metrics endpoint..."
-    if kubectl exec deployment/slurm-exporter -n slurm-exporter -- curl -f http://localhost:8080/metrics | head -5; then
+    if kubectl exec deployment/slurm-exporter -n slurm-exporter -- curl -f http://localhost:10341/metrics | head -5; then
       echo "✓ Metrics endpoint accessible"
     else
       echo "✗ Metrics endpoint failed"

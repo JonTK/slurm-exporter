@@ -13,7 +13,7 @@ The `docker-compose.yml` defines the following services:
 | **SLURM Controller** | 6820, 6817 | SLURM controller with REST API (slurmrestd) |
 | **SLURM Compute Node** | - | Simulated worker node |
 | **Job Generator** | - | Submits sample jobs continuously |
-| **SLURM Exporter** | 8080 | Collects metrics from the SLURM REST API |
+| **SLURM Exporter** | 10341 | Collects metrics from the SLURM REST API |
 | **Prometheus** | 9090 | Scrapes and stores metrics |
 | **Alertmanager** | 9093 | Alert routing |
 | **Grafana** | 3000 | Dashboards (admin/admin) |
@@ -51,7 +51,7 @@ docker-compose up -d
 docker-compose ps
 
 # View exporter metrics
-curl http://localhost:8080/metrics
+curl http://localhost:10341/metrics
 
 # Access Grafana
 open http://localhost:3000

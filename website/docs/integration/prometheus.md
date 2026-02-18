@@ -25,7 +25,7 @@ global:
 scrape_configs:
   - job_name: 'slurm-exporter'
     static_configs:
-      - targets: ['localhost:8080']
+      - targets: ['localhost:10341']
     scrape_interval: 30s
     scrape_timeout: 25s
     metrics_path: /metrics
@@ -92,11 +92,11 @@ metadata:
   name: slurm-exporter
   annotations:
     prometheus.io/scrape: "true"
-    prometheus.io/port: "8080"
+    prometheus.io/port: "10341"
     prometheus.io/path: "/metrics"
 spec:
   ports:
-    - port: 8080
+    - port: 10341
       name: metrics
   selector:
     app: slurm-exporter
@@ -214,14 +214,14 @@ For monitoring multiple SLURM clusters:
 scrape_configs:
   - job_name: 'slurm-cluster-1'
     static_configs:
-      - targets: ['cluster1-exporter:8080']
+      - targets: ['cluster1-exporter:10341']
     external_labels:
       cluster: 'cluster1'
       datacenter: 'dc1'
 
   - job_name: 'slurm-cluster-2'
     static_configs:
-      - targets: ['cluster2-exporter:8080']
+      - targets: ['cluster2-exporter:10341']
     external_labels:
       cluster: 'cluster2'
       datacenter: 'dc2'
@@ -235,7 +235,7 @@ Optimize metric collection with relabeling:
 scrape_configs:
   - job_name: 'slurm-exporter'
     static_configs:
-      - targets: ['localhost:8080']
+      - targets: ['localhost:10341']
 
     metric_relabel_configs:
       # Drop high-cardinality metrics in test environments
@@ -302,7 +302,7 @@ spec:
 scrape_configs:
   - job_name: 'slurm-exporter'
     static_configs:
-      - targets: ['localhost:8080']
+      - targets: ['localhost:10341']
 
     # Optimize for large clusters
     scrape_interval: 60s      # Reduce frequency for large datasets

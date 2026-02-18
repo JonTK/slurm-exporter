@@ -3,7 +3,7 @@
 
 # Server configuration
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
   health_path: "/health"
   ready_path: "/ready"
@@ -30,7 +30,7 @@ server:
 
 # SLURM connection configuration (mock server)
 slurm:
-  base_url: "http://slurm-mock:8080"
+  base_url: "http://slurm-mock:10341"
   api_version: "v0.0.42"
   timeout: "30s"
   retry_attempts: 3

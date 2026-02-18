@@ -304,7 +304,7 @@ data:
     ### 1. Verify the Outage
     ```bash
     # Check service health
-    curl -f http://slurm-exporter.slurm-exporter:8080/health || echo "Service is down"
+    curl -f http://slurm-exporter.slurm-exporter:10341/health || echo "Service is down"
     
     # Check pod status
     kubectl get pods -n slurm-exporter
@@ -405,14 +405,14 @@ data:
     kubectl logs deployment/slurm-exporter -n slurm-exporter -f
     
     # Verify metrics collection
-    curl http://slurm-exporter.slurm-exporter:8080/metrics | grep slurm_
+    curl http://slurm-exporter.slurm-exporter:10341/metrics | grep slurm_
     ```
     
     ### 8. Validation
     ```bash
     # Run health checks
     for i in {1..10}; do
-      curl -f http://slurm-exporter.slurm-exporter:8080/health && echo " - OK" || echo " - FAIL"
+      curl -f http://slurm-exporter.slurm-exporter:10341/health && echo " - OK" || echo " - FAIL"
       sleep 5
     done
     
@@ -505,7 +505,7 @@ data:
           sleep 30
           
           # Check if recovered
-          if ! curl -f http://slurm-exporter.$NAMESPACE:8080/health; then
+          if ! curl -f http://slurm-exporter.$NAMESPACE:10341/health; then
             log "Automatic recovery failed, attempting rollback"
             kubectl rollout undo deployment/slurm-exporter -n $NAMESPACE
           fi

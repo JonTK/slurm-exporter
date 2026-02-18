@@ -101,7 +101,7 @@ route:
 receivers:
 - name: 'incident-webhook'
   webhook_configs:
-  - url: 'http://incident-webhook.slurm-exporter:8080/webhook'
+  - url: 'http://incident-webhook.slurm-exporter:10341/webhook'
     send_resolved: true
 ```
 

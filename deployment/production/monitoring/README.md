@@ -275,8 +275,8 @@ kubectl exec -it deployment/grafana -n monitoring -- \
 
 ```bash
 # Check SLURM Exporter metrics
-kubectl port-forward svc/slurm-exporter 8080:8080 -n slurm-exporter
-curl http://localhost:8080/metrics | grep slurm_exporter
+kubectl port-forward svc/slurm-exporter 10341:10341 -n slurm-exporter
+curl http://localhost:10341/metrics | grep slurm_exporter
 
 # Check Prometheus scraping
 kubectl exec -it prometheus-kube-prometheus-stack-prometheus-0 -n monitoring -- \

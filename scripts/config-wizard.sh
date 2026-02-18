@@ -525,7 +525,7 @@ EOF
 
 # Server Configuration
 server:
-  address: ":8080"
+  address: ":10341"
 EOF
 
     if [[ "$ENVIRONMENT" == "Production" ]]; then
@@ -769,7 +769,7 @@ EOF
 
 service:
   type: ClusterIP
-  port: 8080
+  port: 10341
 
 serviceMonitor:
   enabled: true
@@ -799,10 +799,10 @@ ${GREEN}🚢 Kubernetes Deployment Instructions:${NC}
 
 4. Verify deployment:
    ${CYAN}kubectl get pods -n slurm-exporter
-   kubectl port-forward svc/slurm-exporter 8080:8080 -n slurm-exporter${NC}
+   kubectl port-forward svc/slurm-exporter 10341:10341 -n slurm-exporter${NC}
 
 5. Test metrics endpoint:
-   ${CYAN}curl http://localhost:8080/metrics${NC}
+   ${CYAN}curl http://localhost:10341/metrics${NC}
 
 Generated files:
   • $CONFIG_FILE - Configuration file
@@ -849,7 +849,7 @@ services:
     container_name: slurm-exporter
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "10341:10341"
     volumes:
       - ./config:/etc/slurm-exporter:ro
 EOF
@@ -866,7 +866,7 @@ EOF
     environment:
       - CONFIG_FILE=/etc/slurm-exporter/config.yaml
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:10341/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -907,7 +907,7 @@ ${GREEN}🐳 Docker Compose Deployment Instructions:${NC}
    ${CYAN}docker-compose logs -f slurm-exporter${NC}
 
 5. Test metrics endpoint:
-   ${CYAN}curl http://localhost:8080/metrics${NC}
+   ${CYAN}curl http://localhost:10341/metrics${NC}
 
 Generated files:
   • $CONFIG_FILE - Configuration file
@@ -950,7 +950,7 @@ ${GREEN}🐋 Docker Deployment Instructions:${NC}
    ${CYAN}docker run -d \\
      --name slurm-exporter \\
      --restart unless-stopped \\
-     -p 8080:8080 \\
+     -p 10341:10341 \\
      -v \$(pwd)/config:/config:ro \\
      --env-file $env_file \\
      ghcr.io/jontk/slurm-exporter:latest${NC}
@@ -959,7 +959,7 @@ ${GREEN}🐋 Docker Deployment Instructions:${NC}
    ${CYAN}docker logs -f slurm-exporter${NC}
 
 5. Test metrics endpoint:
-   ${CYAN}curl http://localhost:8080/metrics${NC}
+   ${CYAN}curl http://localhost:10341/metrics${NC}
 
 Generated files:
   • $CONFIG_FILE - Configuration file
@@ -1054,7 +1054,7 @@ EOF
    journalctl -u slurm-exporter -f${NC}
 
 7. Test metrics endpoint:
-   ${CYAN}curl http://localhost:8080/metrics${NC}
+   ${CYAN}curl http://localhost:10341/metrics${NC}
 
 Generated files:
   • $CONFIG_FILE - Configuration file
@@ -1101,7 +1101,7 @@ EOF
    ./bin/slurm-exporter --config.file=configs/dev-config.yaml${NC}
 
 7. Test metrics endpoint:
-   ${CYAN}curl http://localhost:8080/metrics${NC}
+   ${CYAN}curl http://localhost:10341/metrics${NC}
 
 Development commands:
   • ${CYAN}make test${NC} - Run tests
@@ -1146,12 +1146,12 @@ ${CYAN}📚 Resources:${NC}
 
 ${CYAN}💡 Quick Validation:${NC}
 After deployment, test these endpoints:
-  • Health: http://your-host:8080/health
-  • Metrics: http://your-host:8080/metrics
+  • Health: http://your-host:10341/health
+  • Metrics: http://your-host:10341/metrics
 EOF
 
     if [[ " ${ADVANCED_FEATURES[*]} " =~ " debug_endpoints " ]]; then
-        echo "  • Debug: http://your-host:8080/debug/status"
+        echo "  • Debug: http://your-host:10341/debug/status"
     fi
 
     echo ""

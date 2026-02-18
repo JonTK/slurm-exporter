@@ -68,7 +68,7 @@ performance:
 # Server configuration for testing
 server:
   host: "0.0.0.0"
-  port: 8080
+  port: 10341
   metrics_path: "/metrics"
   health_path: "/health"
   ready_path: "/ready"

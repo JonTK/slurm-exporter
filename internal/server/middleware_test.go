@@ -22,7 +22,7 @@ import (
 func createTestServer() *Server {
 	cfg := &config.Config{
 		Server: config.ServerConfig{
-			Address:      ":8080",
+			Address:      ":10341",
 			MetricsPath:  "/metrics",
 			ReadTimeout:  30 * time.Second,
 			WriteTimeout: 30 * time.Second,

@@ -77,7 +77,7 @@ SLURM Exporter uses a flexible YAML configuration system:
 ```yaml title="Basic Configuration"
 # HTTP server settings
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
   health_path: "/health"
   ready_path: "/ready"

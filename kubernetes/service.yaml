@@ -9,13 +9,13 @@ metadata:
     app.kubernetes.io/component: exporter
   annotations:
     prometheus.io/scrape: "true"
-    prometheus.io/port: "8080"
+    prometheus.io/port: "10341"
     prometheus.io/path: "/metrics"
 spec:
   type: ClusterIP
   ports:
   - name: metrics
-    port: 8080
+    port: 10341
     targetPort: metrics
     protocol: TCP
   selector:

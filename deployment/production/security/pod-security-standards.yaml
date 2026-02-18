@@ -191,7 +191,7 @@ spec:
         seccomp.security.alpha.kubernetes.io/pod: runtime/default
         # Prometheus scraping
         prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
+        prometheus.io/port: "10341"
         prometheus.io/path: "/metrics"
     spec:
       # Security context for the pod
@@ -348,10 +348,10 @@ spec:
         # Ports
         ports:
         - name: http-metrics
-          containerPort: 8080
+          containerPort: 10341
           protocol: TCP
         - name: http-health
-          containerPort: 8080
+          containerPort: 10341
           protocol: TCP
         
         # Enhanced volume mounts with security

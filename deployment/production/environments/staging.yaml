@@ -30,7 +30,7 @@ slurm:
 
 # Server configuration for staging
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
   health_path: "/health"
   ready_path: "/ready"

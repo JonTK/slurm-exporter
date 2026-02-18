@@ -32,7 +32,7 @@ type RockyClusterTestSuite struct {
 
 // SetupSuite initializes the test suite
 func (suite *RockyClusterTestSuite) SetupSuite() {
-	suite.exporterURL = "http://localhost:8080"
+	suite.exporterURL = "http://localhost:10341"
 	suite.client = &http.Client{
 		Timeout: 30 * time.Second,
 	}

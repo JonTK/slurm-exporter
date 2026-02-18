@@ -46,11 +46,11 @@ kubectl apply -f monitoring/alertmanager-config.yaml
 kubectl get pods -n slurm-exporter
 
 # Check health
-kubectl port-forward svc/slurm-exporter 8080:8080 -n slurm-exporter
-curl http://localhost:8080/health
+kubectl port-forward svc/slurm-exporter 10341:10341 -n slurm-exporter
+curl http://localhost:10341/health
 
 # Check metrics
-curl http://localhost:8080/metrics | grep slurm_
+curl http://localhost:10341/metrics | grep slurm_
 ```
 
 ## Security
@@ -88,9 +88,9 @@ kubectl exec deployment/slurm-exporter -n slurm-exporter -- \
   curl http://slurm-api:6820/slurm/v0.0.44/ping
 
 # Check exporter health
-kubectl port-forward svc/slurm-exporter 8080:8080 -n slurm-exporter
-curl http://localhost:8080/health
-curl http://localhost:8080/ready
+kubectl port-forward svc/slurm-exporter 10341:10341 -n slurm-exporter
+curl http://localhost:10341/health
+curl http://localhost:10341/ready
 ```
 
 ## Support

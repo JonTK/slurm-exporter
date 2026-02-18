@@ -213,7 +213,7 @@ docker-push:
 # Docker run
 docker-run:
 	@echo "Running Docker container..."
-	docker run --rm -p 8080:8080 $(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker run --rm -p 10341:10341 $(DOCKER_IMAGE):$(DOCKER_TAG)
 
 # Docker compose up
 docker-compose-up:

@@ -196,7 +196,7 @@ spec:
         impact: "Performance degradation and potential memory exhaustion"
         action_required: "Immediate cardinality reduction required"
         troubleshooting: |
-          1. Check top metrics: curl {{ $labels.instance }}:8080/metrics | grep -c "^slurm_"
+          1. Check top metrics: curl {{ $labels.instance }}:10341/metrics | grep -c "^slurm_"
           2. Review cardinality limits in configuration
           3. Check for label explosion in job or node metrics
           4. Consider metric filtering or sampling

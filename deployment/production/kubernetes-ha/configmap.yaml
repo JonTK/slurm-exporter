@@ -10,7 +10,7 @@ data:
   config.yaml: |
     # SLURM Exporter Production Configuration
     server:
-      address: ":8080"
+      address: ":10341"
       metrics_path: "/metrics"
       health_path: "/health"
       ready_path: "/ready"
@@ -178,7 +178,7 @@ data:
     set -e
     
     # Health check script for SLURM Exporter
-    ENDPOINT="${1:-http://localhost:8080}"
+    ENDPOINT="${1:-http://localhost:10341}"
     
     echo "Checking SLURM Exporter health at $ENDPOINT"
     
@@ -208,7 +208,7 @@ data:
     set -e
     
     # Startup probe - more lenient for initial startup
-    ENDPOINT="${1:-http://localhost:8080}"
+    ENDPOINT="${1:-http://localhost:10341}"
     MAX_RETRIES="${2:-30}"
     RETRY_DELAY="${3:-2}"
     

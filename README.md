@@ -97,7 +97,7 @@ Create a configuration file:
 ```yaml
 # config.yaml
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
 
 slurm:
@@ -157,7 +157,7 @@ make run
 make docker-build
 
 # Run with Docker
-docker run -p 8080:8080 -v $(pwd)/config.yaml:/app/config.yaml localhost/slurm-exporter:latest
+docker run -p 10341:10341 -v $(pwd)/config.yaml:/app/config.yaml localhost/slurm-exporter:latest
 
 # Or use Docker Compose
 make docker-compose-up
@@ -177,9 +177,9 @@ helm install slurm-exporter ./charts/slurm-exporter/
 
 Once running, metrics are available at:
 
-- **Metrics endpoint**: `http://localhost:8080/metrics`
-- **Health check**: `http://localhost:8080/health`
-- **Readiness check**: `http://localhost:8080/ready`
+- **Metrics endpoint**: `http://localhost:10341/metrics`
+- **Health check**: `http://localhost:10341/health`
+- **Readiness check**: `http://localhost:10341/ready`
 
 ## Development
 

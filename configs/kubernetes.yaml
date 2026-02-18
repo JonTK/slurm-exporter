@@ -2,7 +2,7 @@
 # Optimized for containerized deployment with service discovery
 
 server:
-  address: ":8080"  # Standard container port
+  address: ":10341"  # Standard container port
   metrics_path: "/metrics"
   health_path: "/health"
   ready_path: "/ready"

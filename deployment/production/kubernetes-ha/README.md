@@ -79,9 +79,9 @@ kubectl get hpa -n slurm-exporter
 kubectl get endpoints -n slurm-exporter
 
 # Test connectivity
-kubectl port-forward svc/slurm-exporter 8080:8080 -n slurm-exporter
-curl http://localhost:8080/health
-curl http://localhost:8080/metrics | head -20
+kubectl port-forward svc/slurm-exporter 10341:10341 -n slurm-exporter
+curl http://localhost:10341/health
+curl http://localhost:10341/metrics | head -20
 ```
 
 ## Architecture
@@ -203,7 +203,7 @@ Edit `networkpolicy.yaml` to customize network access:
         name: monitoring
   ports:
   - protocol: TCP
-    port: 8080
+    port: 10341
 ```
 
 ## Monitoring Integration

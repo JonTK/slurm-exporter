@@ -25,7 +25,7 @@ spec:
         version: v1
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
+        prometheus.io/port: "10341"
         prometheus.io/path: "/metrics"
         config/hash: ""  # This should be updated when config changes
     spec:
@@ -43,13 +43,13 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - name: http-metrics
-          containerPort: 8080
+          containerPort: 10341
           protocol: TCP
         env:
         - name: SLURM_EXPORTER_CONFIG_FILE
           value: "/etc/slurm-exporter/config.yaml"
         - name: SLURM_EXPORTER_ADDRESS
-          value: ":8080"
+          value: ":10341"
         volumeMounts:
         - name: config
           mountPath: /etc/slurm-exporter

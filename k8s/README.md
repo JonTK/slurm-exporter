@@ -117,7 +117,7 @@ replicas:
 ### Network Security
 - NetworkPolicy restricts ingress/egress traffic
 - Only allows necessary communication:
-  - Prometheus scraping on port 8080
+  - Prometheus scraping on port 10341
   - DNS resolution
   - SLURM API access
   - Kubernetes API (if needed)
@@ -145,7 +145,7 @@ The deployment includes annotations for automatic Prometheus discovery:
 ```yaml
 annotations:
   prometheus.io/scrape: "true"
-  prometheus.io/port: "8080"
+  prometheus.io/port: "10341"
   prometheus.io/path: "/metrics"
 ```
 

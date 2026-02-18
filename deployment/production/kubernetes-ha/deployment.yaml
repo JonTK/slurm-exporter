@@ -26,7 +26,7 @@ spec:
         version: v1.0.0
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
+        prometheus.io/port: "10341"
         prometheus.io/path: "/metrics"
         config/checksum: "{{ checksum }}"  # Updated by CI/CD
     spec:
@@ -196,10 +196,10 @@ spec:
         # Ports
         ports:
         - name: http-metrics
-          containerPort: 8080
+          containerPort: 10341
           protocol: TCP
         - name: http-health
-          containerPort: 8080
+          containerPort: 10341
           protocol: TCP
         - name: pprof
           containerPort: 6060

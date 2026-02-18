@@ -11,7 +11,7 @@ import (
 func TestConfig_ValidateEnhanced_Valid(t *testing.T) {
 	cfg := &Config{
 		Server: ServerConfig{
-			Address:        ":8080",
+			Address:        ":10341",
 			MetricsPath:    "/metrics",
 			HealthPath:     "/health",
 			ReadyPath:      "/ready",
@@ -96,7 +96,7 @@ func TestConfig_ValidateEnhanced_ServerErrors(t *testing.T) {
 			name: "invalid metrics path",
 			config: &Config{
 				Server: ServerConfig{
-					Address:     ":8080",
+					Address:     ":10341",
 					MetricsPath: "metrics", // missing leading slash
 					HealthPath:  "/health",
 				},
@@ -128,7 +128,7 @@ func TestConfig_ValidateEnhanced_ServerErrors(t *testing.T) {
 			name: "timeouts too short",
 			config: &Config{
 				Server: ServerConfig{
-					Address:      ":8080",
+					Address:      ":10341",
 					MetricsPath:  "/metrics",
 					HealthPath:   "/health",
 					ReadyPath:    "/ready",
@@ -180,7 +180,7 @@ func TestConfig_ValidateEnhanced_SLURMErrors(t *testing.T) {
 			name: "missing base URL",
 			config: &Config{
 				Server: ServerConfig{
-					Address:     ":8080",
+					Address:     ":10341",
 					MetricsPath: "/metrics",
 					HealthPath:  "/health",
 					ReadyPath:   "/ready",
@@ -213,7 +213,7 @@ func TestConfig_ValidateEnhanced_SLURMErrors(t *testing.T) {
 			name: "invalid base URL",
 			config: &Config{
 				Server: ServerConfig{
-					Address:     ":8080",
+					Address:     ":10341",
 					MetricsPath: "/metrics",
 					HealthPath:  "/health",
 					ReadyPath:   "/ready",
@@ -246,7 +246,7 @@ func TestConfig_ValidateEnhanced_SLURMErrors(t *testing.T) {
 			name: "invalid auth type",
 			config: &Config{
 				Server: ServerConfig{
-					Address:     ":8080",
+					Address:     ":10341",
 					MetricsPath: "/metrics",
 					HealthPath:  "/health",
 					ReadyPath:   "/ready",
@@ -282,7 +282,7 @@ func TestConfig_ValidateEnhanced_SLURMErrors(t *testing.T) {
 			name: "missing JWT path",
 			config: &Config{
 				Server: ServerConfig{
-					Address:     ":8080",
+					Address:     ":10341",
 					MetricsPath: "/metrics",
 					HealthPath:  "/health",
 					ReadyPath:   "/ready",
@@ -336,7 +336,7 @@ func TestConfig_ValidateEnhanced_CollectorErrors(t *testing.T) {
 			name: "collector timeout too short",
 			config: &Config{
 				Server: ServerConfig{
-					Address:     ":8080",
+					Address:     ":10341",
 					MetricsPath: "/metrics",
 					HealthPath:  "/health",
 					ReadyPath:   "/ready",
@@ -370,7 +370,7 @@ func TestConfig_ValidateEnhanced_CollectorErrors(t *testing.T) {
 			name: "collector timeout exceeds SLURM timeout",
 			config: &Config{
 				Server: ServerConfig{
-					Address:     ":8080",
+					Address:     ":10341",
 					MetricsPath: "/metrics",
 					HealthPath:  "/health",
 					ReadyPath:   "/ready",
@@ -421,7 +421,7 @@ func TestConfig_ValidateEnhanced_FilterErrors(t *testing.T) {
 			name: "conflicting filter flags",
 			config: &Config{
 				Server: ServerConfig{
-					Address:     ":8080",
+					Address:     ":10341",
 					MetricsPath: "/metrics",
 					HealthPath:  "/health",
 					ReadyPath:   "/ready",
@@ -457,7 +457,7 @@ func TestConfig_ValidateEnhanced_FilterErrors(t *testing.T) {
 			name: "invalid wildcard pattern",
 			config: &Config{
 				Server: ServerConfig{
-					Address:     ":8080",
+					Address:     ":10341",
 					MetricsPath: "/metrics",
 					HealthPath:  "/health",
 					ReadyPath:   "/ready",
@@ -502,7 +502,7 @@ func TestConfig_ValidateEnhanced_FilterErrors(t *testing.T) {
 func TestConfig_ValidateEnhanced_CrossFieldValidation(t *testing.T) {
 	cfg := &Config{
 		Server: ServerConfig{
-			Address:      ":8080",
+			Address:      ":10341",
 			MetricsPath:  "/metrics",
 			HealthPath:   "/health",
 			ReadTimeout:  5 * time.Second,

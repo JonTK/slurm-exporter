@@ -27,7 +27,7 @@ spec:
           app: prometheus
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
   # Allow health checks from kube-system (kubelet)
   - from:
     - namespaceSelector:
@@ -35,7 +35,7 @@ spec:
           name: kube-system
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
   egress:
   # Allow DNS resolution
   - to: []

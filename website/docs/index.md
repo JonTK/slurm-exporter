@@ -110,7 +110,7 @@ Get up and running in minutes:
     ```bash
     docker run -d \
       --name slurm-exporter \
-      -p 8080:8080 \
+      -p 10341:10341 \
       -v $(pwd)/config.yaml:/etc/slurm-exporter/config.yaml:ro \
       ghcr.io/jontk/slurm-exporter:latest
     ```

@@ -13,13 +13,13 @@ When SLURM Exporter isn't working correctly, follow these initial steps:
 
 ```bash
 # Quick health check
-curl -s http://localhost:8080/health | jq .
+curl -s http://localhost:10341/health | jq .
 
 # Check readiness
-curl -s http://localhost:8080/ready
+curl -s http://localhost:10341/ready
 
 # Check if metrics are being collected
-curl -s http://localhost:8080/metrics | grep -c slurm_
+curl -s http://localhost:10341/metrics | grep -c slurm_
 
 # View recent logs
 sudo journalctl -u slurm-exporter -n 50 --no-pager
@@ -45,7 +45,7 @@ ls -la /etc/slurm-exporter/config.yaml
 # Test with minimal config
 cat > /tmp/minimal-config.yaml << 'EOF'
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
   health_path: "/health"
   ready_path: "/ready"
@@ -82,8 +82,8 @@ sudo systemctl show slurm-exporter | grep User
 
 ```bash
 # Check if port is in use
-sudo netstat -tlnp | grep 8080
-sudo lsof -i :8080
+sudo netstat -tlnp | grep 10341
+sudo lsof -i :10341
 
 # Use different port via CLI flag
 slurm-exporter --config=/etc/slurm-exporter/config.yaml --addr=:9090
@@ -170,10 +170,10 @@ slurm:
 
 ```bash
 # Check which metrics are available
-curl -s http://localhost:8080/metrics | grep slurm_exporter
+curl -s http://localhost:10341/metrics | grep slurm_exporter
 
 # Check collection errors
-curl -s http://localhost:8080/metrics | grep slurm_exporter_collect_errors_total
+curl -s http://localhost:10341/metrics | grep slurm_exporter_collect_errors_total
 ```
 
 #### Solutions
@@ -273,7 +273,7 @@ metrics:
 curl -s http://prometheus:9090/api/v1/targets | jq '.data.activeTargets[] | select(.job=="slurm-exporter")'
 
 # Verify scrape endpoint
-curl -s http://localhost:8080/metrics | head -20
+curl -s http://localhost:10341/metrics | head -20
 
 # Check Prometheus logs
 docker logs prometheus 2>&1 | grep slurm-exporter
@@ -288,7 +288,7 @@ docker logs prometheus 2>&1 | grep slurm-exporter
 scrape_configs:
   - job_name: 'slurm-exporter'
     static_configs:
-      - targets: ['localhost:8080']
+      - targets: ['localhost:10341']
     scrape_interval: 30s
     scrape_timeout: 30s
     metrics_path: /metrics
@@ -298,10 +298,10 @@ scrape_configs:
 
 ```bash
 # Test from Prometheus container
-docker exec prometheus curl -s http://slurm-exporter:8080/metrics
+docker exec prometheus curl -s http://slurm-exporter:10341/metrics
 
 # Check firewall rules
-sudo iptables -L | grep 8080
+sudo iptables -L | grep 10341
 ```
 
 ### 6. Dashboard Issues in Grafana
@@ -378,7 +378,7 @@ curl http://slurm-controller:6820/openapi/v3
 
 ```bash
 # Check container connectivity
-docker exec slurm-exporter curl -s http://localhost:8080/health
+docker exec slurm-exporter curl -s http://localhost:10341/health
 
 # Network troubleshooting
 docker network ls
@@ -417,7 +417,7 @@ kubectl describe pod slurm-exporter-xxx
 kubectl get endpoints slurm-exporter
 
 # Test service internally
-kubectl run debug --image=busybox -it --rm -- wget -qO- http://slurm-exporter:8080/health
+kubectl run debug --image=busybox -it --rm -- wget -qO- http://slurm-exporter:10341/health
 ```
 
 ## Recovery Procedures
@@ -491,19 +491,19 @@ ps aux | grep slurm-exporter | grep -v grep
 echo
 
 echo "=== Network Ports ==="
-netstat -tlnp | grep 8080
+netstat -tlnp | grep 10341
 echo
 
 echo "=== Health Endpoint ==="
-curl -s -m 5 http://localhost:8080/health | jq . 2>/dev/null || echo "Health endpoint not responding"
+curl -s -m 5 http://localhost:10341/health | jq . 2>/dev/null || echo "Health endpoint not responding"
 echo
 
 echo "=== Ready Endpoint ==="
-curl -s -m 5 http://localhost:8080/ready || echo "Ready endpoint not responding"
+curl -s -m 5 http://localhost:10341/ready || echo "Ready endpoint not responding"
 echo
 
 echo "=== Metrics Count ==="
-curl -s -m 5 http://localhost:8080/metrics | grep -c "^slurm_" || echo "Metrics not available"
+curl -s -m 5 http://localhost:10341/metrics | grep -c "^slurm_" || echo "Metrics not available"
 echo
 
 echo "=== Recent Errors ==="

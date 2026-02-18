@@ -53,7 +53,7 @@ spec:
           app.kubernetes.io/name: prometheus
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
   
   # Allow Grafana access
   - from:
@@ -68,7 +68,7 @@ spec:
           app.kubernetes.io/name: grafana
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
   
   # Allow Alertmanager access
   - from:
@@ -80,7 +80,7 @@ spec:
           app: alertmanager
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
   
   # Allow ingress controllers (with IP restrictions)
   - from:
@@ -106,7 +106,7 @@ spec:
         cidr: 192.168.0.0/16
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
   
   # Allow load balancer health checks (AWS ALB/NLB)
   - from:
@@ -118,7 +118,7 @@ spec:
         cidr: 192.168.0.0/16
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -201,7 +201,7 @@ spec:
           name: slurm-exporter
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -335,7 +335,7 @@ spec:
       namespaceSelector: name == "monitoring"
     destination:
       ports:
-      - 8080
+      - 10341
   
   # Rate limit incoming connections
   - action: Allow
@@ -347,7 +347,7 @@ spec:
       - 192.168.0.0/16
     destination:
       ports:
-      - 8080
+      - 10341
     metadata:
       annotations:
         rate-limit: "100/minute"
@@ -540,7 +540,7 @@ data:
         (k8s_ns=slurm-exporter and k8s_pod_label_app=slurm-exporter) and
         (inbound) and
         (not fd.cip in (monitoring_networks)) and
-        (fd.sport=8080)
+        (fd.sport=10341)
       output: >
         Network policy violation in SLURM Exporter
         (client_ip=%fd.cip client_port=%fd.cport server_port=%fd.sport)

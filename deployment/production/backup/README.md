@@ -247,9 +247,9 @@ kubectl get deployment slurm-exporter -n slurm-exporter
 kubectl rollout status deployment/slurm-exporter -n slurm-exporter
 
 # Test service health
-kubectl port-forward svc/slurm-exporter 8080:8080 -n slurm-exporter &
-curl http://localhost:8080/health
-curl http://localhost:8080/metrics | head -10
+kubectl port-forward svc/slurm-exporter 10341:10341 -n slurm-exporter &
+curl http://localhost:10341/health
+curl http://localhost:10341/metrics | head -10
 ```
 
 ### Cross-Region Failover
@@ -417,7 +417,7 @@ kubectl apply -f backup-*/configmaps.yaml --dry-run=client
 kubectl describe pods -n slurm-exporter
 
 # Check service connectivity
-kubectl exec deployment/slurm-exporter -n slurm-exporter -- curl -v http://localhost:8080/health
+kubectl exec deployment/slurm-exporter -n slurm-exporter -- curl -v http://localhost:10341/health
 
 # Check SLURM connectivity
 kubectl exec deployment/slurm-exporter -n slurm-exporter -- curl -v "$SLURM_REST_URL/slurm/v0.0.44/ping"

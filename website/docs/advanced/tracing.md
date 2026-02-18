@@ -50,7 +50,7 @@ export SLURM_EXPORTER_OBSERVABILITY_TRACING_INSECURE=true
 
 ```yaml title="config.yaml"
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
   health_path: "/health"
   ready_path: "/ready"
@@ -133,10 +133,10 @@ Use the health and readiness endpoints for operational monitoring:
 
 ```bash
 # Health check
-curl http://localhost:8080/health
+curl http://localhost:10341/health
 
 # Readiness check
-curl http://localhost:8080/ready
+curl http://localhost:10341/ready
 ```
 
 ### Performance Monitoring

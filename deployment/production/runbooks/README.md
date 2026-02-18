@@ -20,8 +20,8 @@ kubectl get pods -n slurm-exporter
 kubectl get events -n slurm-exporter --sort-by='.lastTimestamp'
 
 # Check health
-kubectl port-forward svc/slurm-exporter 8080:8080 -n slurm-exporter
-curl http://localhost:8080/health
+kubectl port-forward svc/slurm-exporter 10341:10341 -n slurm-exporter
+curl http://localhost:10341/health
 ```
 
 ### 2. Check Logs

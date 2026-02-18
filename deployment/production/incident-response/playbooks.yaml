@@ -194,7 +194,7 @@ data:
     
     # Verify health
     for i in {1..10}; do
-      curl -f http://slurm-exporter.slurm-exporter:8080/health && echo " - OK" || echo " - FAIL"
+      curl -f http://slurm-exporter.slurm-exporter:10341/health && echo " - OK" || echo " - FAIL"
       sleep 30
     done
     ```
@@ -260,7 +260,7 @@ data:
     ### 1.1 Verify Performance Issues
     ```bash
     # Check current response times
-    curl -w "@curl-format.txt" -o /dev/null -s http://slurm-exporter.slurm-exporter:8080/metrics
+    curl -w "@curl-format.txt" -o /dev/null -s http://slurm-exporter.slurm-exporter:10341/metrics
     
     # Review error rates
     kubectl exec prometheus-0 -n monitoring -- \
@@ -358,11 +358,11 @@ data:
     ### 3.2 Cardinality Analysis
     ```bash
     # Check metric cardinality
-    curl -s http://slurm-exporter.slurm-exporter:8080/metrics | \
+    curl -s http://slurm-exporter.slurm-exporter:10341/metrics | \
       grep -E "^slurm_" | cut -d'{' -f1 | sort | uniq -c | sort -nr | head -20
     
     # Identify high-cardinality labels
-    curl -s http://slurm-exporter.slurm-exporter:8080/metrics | \
+    curl -s http://slurm-exporter.slurm-exporter:10341/metrics | \
       grep -oE '{[^}]+}' | sort | uniq -c | sort -nr | head -20
     ```
     
@@ -576,12 +576,12 @@ data:
     ```bash
     # Health checks
     for i in {1..10}; do
-      curl -f http://slurm-exporter.slurm-exporter:8080/health
+      curl -f http://slurm-exporter.slurm-exporter:10341/health
       sleep 10
     done
     
     # Metrics validation
-    curl http://slurm-exporter.slurm-exporter:8080/metrics | grep -c "^slurm_"
+    curl http://slurm-exporter.slurm-exporter:10341/metrics | grep -c "^slurm_"
     
     # Integration testing
     kubectl exec prometheus-0 -n monitoring -- \

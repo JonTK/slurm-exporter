@@ -17,7 +17,7 @@ Create a `config.yaml` file with your SLURM connection details:
 
 ```yaml title="config.yaml"
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
   health_path: "/health"
   ready_path: "/ready"
@@ -60,7 +60,7 @@ validation:
     ```bash
     docker run -d \
       --name slurm-exporter \
-      -p 8080:8080 \
+      -p 10341:10341 \
       -v $(pwd)/config.yaml:/etc/slurm-exporter/config.yaml:ro \
       ghcr.io/jontk/slurm-exporter:latest
     ```
@@ -85,17 +85,17 @@ Check that SLURM Exporter is running and collecting metrics:
 
 ```bash
 # Check health endpoint
-curl http://localhost:8080/health
+curl http://localhost:10341/health
 ```
 
 ```bash
 # Check readiness endpoint
-curl http://localhost:8080/ready
+curl http://localhost:10341/ready
 ```
 
 ```bash
 # Check metrics endpoint
-curl http://localhost:8080/metrics | head -20
+curl http://localhost:10341/metrics | head -20
 
 # Expected output should include SLURM metrics like:
 # slurm_exporter_... metrics
@@ -107,13 +107,13 @@ Verify key metrics are being collected:
 
 ```bash
 # Check job metrics
-curl -s http://localhost:8080/metrics | grep slurm_job
+curl -s http://localhost:10341/metrics | grep slurm_job
 
 # Check node metrics
-curl -s http://localhost:8080/metrics | grep slurm_node
+curl -s http://localhost:10341/metrics | grep slurm_node
 
 # Check partition metrics
-curl -s http://localhost:8080/metrics | grep slurm_partition
+curl -s http://localhost:10341/metrics | grep slurm_partition
 ```
 
 ## Step 5: Quick Prometheus Setup
@@ -130,7 +130,7 @@ Set up basic Prometheus monitoring:
       slurm-exporter:
         image: ghcr.io/jontk/slurm-exporter:latest
         ports:
-          - "8080:8080"
+          - "10341:10341"
         volumes:
           - ./config.yaml:/etc/slurm-exporter/config.yaml:ro
 
@@ -151,7 +151,7 @@ Set up basic Prometheus monitoring:
     scrape_configs:
       - job_name: 'slurm-exporter'
         static_configs:
-          - targets: ['slurm-exporter:8080']
+          - targets: ['slurm-exporter:10341']
         scrape_interval: 30s
         metrics_path: /metrics
     ```
@@ -170,7 +170,7 @@ Set up basic Prometheus monitoring:
     scrape_configs:
       - job_name: 'slurm-exporter'
         static_configs:
-          - targets: ['localhost:8080']
+          - targets: ['localhost:10341']
         scrape_interval: 30s
         metrics_path: /metrics
     ```
@@ -261,15 +261,15 @@ Scale up for production with high availability:
 ## Quick Reference
 
 ### Default Ports
-- **SLURM Exporter**: 8080
+- **SLURM Exporter**: 10341
 - **Prometheus**: 9090
 - **Grafana**: 3000
 - **SLURM REST API**: 6820
 
 ### Key Endpoints
-- **Metrics**: `http://localhost:8080/metrics`
-- **Health**: `http://localhost:8080/health`
-- **Ready**: `http://localhost:8080/ready`
+- **Metrics**: `http://localhost:10341/metrics`
+- **Health**: `http://localhost:10341/health`
+- **Ready**: `http://localhost:10341/ready`
 
 ### CLI Flags
 ```bash
@@ -277,7 +277,7 @@ slurm-exporter --help
 
   --config         Path to configuration file (default: "configs/config.yaml")
   --log-level      Log level: debug, info, warn, error (default: "info")
-  --addr           Listen address (default: ":8080")
+  --addr           Listen address (default: ":10341")
   --metrics-path   Metrics endpoint path (default: "/metrics")
   --version        Show version information and exit
   --health-check   Perform health check and exit

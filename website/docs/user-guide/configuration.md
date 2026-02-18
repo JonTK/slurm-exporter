@@ -18,7 +18,7 @@ The following command-line flags are available:
 slurm-exporter \
   --config=/etc/slurm-exporter/config.yaml \
   --log-level=info \
-  --addr=:8080 \
+  --addr=:10341 \
   --metrics-path=/metrics \
   --version \
   --health-check
@@ -30,7 +30,7 @@ slurm-exporter \
 |------|-------------|---------|
 | `--config` | Path to configuration file | `configs/config.yaml` |
 | `--log-level` | Log level (debug, info, warn, error) | `info` |
-| `--addr` | HTTP server listen address | `:8080` |
+| `--addr` | HTTP server listen address | `:10341` |
 | `--metrics-path` | Metrics endpoint path | `/metrics` |
 | `--version` | Show version information and exit | - |
 | `--health-check` | Perform health check and exit | - |
@@ -41,7 +41,7 @@ Configuration can be set using environment variables with the `SLURM_EXPORTER_` 
 
 ```bash
 # Server configuration
-export SLURM_EXPORTER_SERVER_ADDRESS=":8080"
+export SLURM_EXPORTER_SERVER_ADDRESS=":10341"
 export SLURM_EXPORTER_SERVER_METRICS_PATH="/metrics"
 export SLURM_EXPORTER_SERVER_HEALTH_PATH="/health"
 export SLURM_EXPORTER_SERVER_READY_PATH="/ready"
@@ -74,7 +74,7 @@ Configure the HTTP server that serves metrics, health, and readiness endpoints:
 ```yaml
 server:
   # Listen address (host:port or :port)
-  address: ":8080"
+  address: ":10341"
 
   # Endpoint paths
   metrics_path: "/metrics"
@@ -433,7 +433,7 @@ Not all configuration changes can be hot-reloaded. Changes requiring restart:
 
 ```yaml
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
   health_path: "/health"
   ready_path: "/ready"
@@ -461,7 +461,7 @@ logging:
 
 ```yaml
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
   health_path: "/health"
   ready_path: "/ready"

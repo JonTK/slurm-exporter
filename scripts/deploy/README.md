@@ -306,9 +306,9 @@ kubectl describe deployment -n monitoring slurm-exporter
 kubectl get events -n monitoring --sort-by='.lastTimestamp'
 
 # Port forward for local testing
-kubectl port-forward -n monitoring service/slurm-exporter 8080:8080
-curl http://localhost:8080/health
-curl http://localhost:8080/metrics
+kubectl port-forward -n monitoring service/slurm-exporter 10341:10341
+curl http://localhost:10341/health
+curl http://localhost:10341/metrics
 ```
 
 ## Integration with CI/CD

@@ -30,7 +30,7 @@ Docker deployment is perfect for development, testing, and simple production set
 docker run -d \
   --name slurm-exporter \
   --restart unless-stopped \
-  -p 8080:8080 \
+  -p 10341:10341 \
   -v $(pwd)/config.yaml:/etc/slurm-exporter/config.yaml:ro \
   ghcr.io/jontk/slurm-exporter:latest
 ```
@@ -48,7 +48,7 @@ services:
     container_name: slurm-exporter
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "10341:10341"
     volumes:
       - ./config.yaml:/etc/slurm-exporter/config.yaml:ro
     healthcheck:
@@ -87,7 +87,7 @@ Create a configuration file for the exporter:
 # Create configuration file
 cat > ./config.yaml << 'EOF'
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
   health_path: "/health"
   ready_path: "/ready"
@@ -120,7 +120,7 @@ EOF
 docker run -d \
   --name slurm-exporter \
   --restart unless-stopped \
-  -p 8080:8080 \
+  -p 10341:10341 \
   -v $(pwd)/config.yaml:/etc/slurm-exporter/config.yaml:ro \
   ghcr.io/jontk/slurm-exporter:latest
 ```
@@ -267,7 +267,7 @@ sudo systemctl enable slurm-exporter
 # Create basic configuration
 sudo tee /etc/slurm-exporter/config.yaml << 'EOF'
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
   health_path: "/health"
   ready_path: "/ready"
@@ -358,16 +358,16 @@ After installation with any method, verify SLURM Exporter is working:
 
 ```bash
 # Check metrics endpoint
-curl http://localhost:8080/metrics
+curl http://localhost:10341/metrics
 
 # Check health endpoint
-curl http://localhost:8080/health
+curl http://localhost:10341/health
 
 # Check readiness endpoint
-curl http://localhost:8080/ready
+curl http://localhost:10341/ready
 
 # Check specific metric
-curl -s http://localhost:8080/metrics | grep slurm_
+curl -s http://localhost:10341/metrics | grep slurm_
 ```
 
 ### Initial Configuration

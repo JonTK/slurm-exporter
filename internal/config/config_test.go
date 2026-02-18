@@ -21,8 +21,8 @@ func TestLoadDefaults(t *testing.T) {
 	}
 
 	// Test server config defaults
-	if cfg.Server.Address != ":8080" {
-		t.Errorf("Expected server address to be ':8080', got: %s", cfg.Server.Address)
+	if cfg.Server.Address != ":10341" {
+		t.Errorf("Expected server address to be ':10341', got: %s", cfg.Server.Address)
 	}
 
 	if cfg.Server.MetricsPath != "/metrics" {
@@ -402,7 +402,7 @@ func TestLoadInvalidYAML(t *testing.T) {
 	t.Parallel()
 	invalidYAML := `
 server:
-  address: ":8080"
+  address: ":10341"
   invalid_yaml: [unclosed
 `
 
@@ -433,7 +433,7 @@ func TestValidateServerConfig(t *testing.T) {
 		{
 			name: "valid config",
 			config: ServerConfig{
-				Address:        ":8080",
+				Address:        ":10341",
 				MetricsPath:    "/metrics",
 				HealthPath:     "/health",
 				ReadyPath:      "/ready",
@@ -463,7 +463,7 @@ func TestValidateServerConfig(t *testing.T) {
 		{
 			name: "negative timeout",
 			config: ServerConfig{
-				Address:        ":8080",
+				Address:        ":10341",
 				MetricsPath:    "/metrics",
 				HealthPath:     "/health",
 				ReadyPath:      "/ready",
@@ -706,8 +706,8 @@ func TestDefault(t *testing.T) {
 	}
 
 	// Test some key defaults
-	if cfg.Server.Address != ":8080" {
-		t.Errorf("Expected default server address to be ':8080', got: %s", cfg.Server.Address)
+	if cfg.Server.Address != ":10341" {
+		t.Errorf("Expected default server address to be ':10341', got: %s", cfg.Server.Address)
 	}
 
 	if cfg.SLURM.APIVersion != "v0.0.44" {

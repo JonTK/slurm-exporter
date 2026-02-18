@@ -54,7 +54,7 @@ func TestWatcher_New(t *testing.T) {
 	configFile := filepath.Join(tmpDir, "config.yaml")
 	err = os.WriteFile(configFile, []byte(`
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
 slurm:
   base_url: "http://localhost:6820"
@@ -81,7 +81,7 @@ func TestWatcher_Start_Stop(t *testing.T) {
 	configFile := filepath.Join(tmpDir, "config.yaml")
 	err = os.WriteFile(configFile, []byte(`
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
 slurm:
   base_url: "http://localhost:6820"
@@ -125,7 +125,7 @@ func TestWatcher_ConfigChange(t *testing.T) {
 	configFile := filepath.Join(tmpDir, "config.yaml")
 	initialConfig := `
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
 slurm:
   base_url: "http://localhost:6820"
@@ -186,7 +186,7 @@ func TestWatcher_InvalidConfig(t *testing.T) {
 	configFile := filepath.Join(tmpDir, "config.yaml")
 	validConfig := `
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
 slurm:
   base_url: "http://localhost:6820"
@@ -217,7 +217,7 @@ slurm:
 	// Write invalid YAML
 	invalidConfig := `
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
 slurm:
   base_url: "http://localhost:6820"
@@ -237,7 +237,7 @@ slurm:
 	assert.Equal(t, 1, handler.reloadCount, "handler should only be called for initial valid config")
 	assert.NoError(t, handler.lastError, "last successful handler call should have no error")
 	// The config should still be the initial valid config
-	assert.Equal(t, ":8080", handler.GetLastConfig().Server.Address)
+	assert.Equal(t, ":10341", handler.GetLastConfig().Server.Address)
 }
 
 func TestWatcher_NonExistentFile(t *testing.T) {
@@ -258,7 +258,7 @@ func TestWatcher_GetConfig(t *testing.T) {
 	configFile := filepath.Join(tmpDir, "config.yaml")
 	err = os.WriteFile(configFile, []byte(`
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
 slurm:
   base_url: "http://localhost:6820"
@@ -286,7 +286,7 @@ slurm:
 	// Get current config
 	currentConfig := watcher.GetConfig()
 	assert.NotNil(t, currentConfig)
-	assert.Equal(t, ":8080", currentConfig.Server.Address)
+	assert.Equal(t, ":10341", currentConfig.Server.Address)
 
 	_ = watcher.Stop()
 }
@@ -300,7 +300,7 @@ func TestWatcher_DebounceMultipleChanges(t *testing.T) {
 	configFile := filepath.Join(tmpDir, "config.yaml")
 	initialConfig := `
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
 slurm:
   base_url: "http://localhost:6820"
@@ -365,7 +365,7 @@ func TestWatcher_ConcurrentAccess(t *testing.T) {
 	configFile := filepath.Join(tmpDir, "config.yaml")
 	err = os.WriteFile(configFile, []byte(`
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
 slurm:
   base_url: "http://localhost:6820"
