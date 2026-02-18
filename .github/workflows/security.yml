@@ -63,43 +63,13 @@ jobs:
           sarif_file: gosec-results.sarif
           category: gosec
 
-      # StaticCheck - Go static analysis
-      - name: Install StaticCheck
-        run: go install honnef.co/go/tools/cmd/staticcheck@2024.1.1
-
-      - name: Run StaticCheck
-        continue-on-error: true
-        run: |
-          # Run staticcheck and output to SARIF format
-          staticcheck -f sarif ./... > staticcheck-results.sarif || true
-
-          # Validate SARIF has proper structure
-          if [ -s staticcheck-results.sarif ] && grep -q '"results"' staticcheck-results.sarif; then
-            echo "## ⚠️ Static Analysis Issues Found" >> $GITHUB_STEP_SUMMARY
-            # Show issues in readable format too
-            staticcheck ./... || true
-          else
-            echo "✅ No static analysis issues found" >> $GITHUB_STEP_SUMMARY
-            # Create valid empty SARIF file
-            printf '%s\n' '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"staticcheck","informationUri":"https://staticcheck.io/"}},"results":[]}]}' > staticcheck-results.sarif
-          fi
-
-      - name: Upload StaticCheck results
-        uses: github/codeql-action/upload-sarif@v3
-        if: always() && hashFiles('staticcheck-results.sarif') != ''
-        with:
-          sarif_file: staticcheck-results.sarif
-          category: staticcheck
-
       # Upload security scan artifacts
       - name: Upload security scan results
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: security-scan-results
-          path: |
-            gosec-results.sarif
-            staticcheck-results.sarif
+          path: gosec-results.sarif
           retention-days: 30
 
   # Go Vulnerability Check

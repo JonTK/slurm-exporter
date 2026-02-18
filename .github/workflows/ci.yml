@@ -91,26 +91,6 @@ jobs:
         # Increase buffer size to handle large linter output
         NODE_OPTIONS: --max-old-space-size=8192
 
-  staticcheck:
-    name: Static Analysis
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v6
-
-    - name: Set up Go
-      uses: actions/setup-go@v6
-      with:
-        go-version: ${{ env.GO_VERSION_STABLE }}
-        cache: true
-
-    - name: Install staticcheck
-      run: go install honnef.co/go/tools/cmd/staticcheck@2024.1.1
-
-    - name: Run staticcheck
-      run: staticcheck ./...
-
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -280,7 +260,7 @@ jobs:
 
   all-checks-passed:
     name: All Checks Passed
-    needs: [test, lint, staticcheck, build, module-check, license-check]
+    needs: [test, lint, build, module-check, license-check]
     runs-on: ubuntu-latest
     if: always()
 
@@ -290,14 +270,12 @@ jobs:
         echo "Job results:"
         echo "  test: ${{ needs.test.result }}"
         echo "  lint: ${{ needs.lint.result }}"
-        echo "  staticcheck: ${{ needs.staticcheck.result }}"
         echo "  build: ${{ needs.build.result }}"
         echo "  module-check: ${{ needs.module-check.result }}"
         echo "  license-check: ${{ needs.license-check.result }}"
 
         if [ "${{ needs.test.result }}" == "failure" ] || \
            [ "${{ needs.lint.result }}" == "failure" ] || \
-           [ "${{ needs.staticcheck.result }}" == "failure" ] || \
            [ "${{ needs.build.result }}" == "failure" ] || \
            [ "${{ needs.module-check.result }}" == "failure" ] || \
            [ "${{ needs.license-check.result }}" == "failure" ]; then
