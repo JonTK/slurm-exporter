@@ -45,10 +45,27 @@ func NewClient(cfg *config.SLURMConfig) (*Client, error) {
 	// Create rate limiter
 	rateLimiter := rate.NewLimiter(rate.Limit(cfg.RateLimit.RequestsPerSecond), cfg.RateLimit.BurstSize)
 
-	// Configure authentication using the auth package
-	authProvider, err := authpkg.ConfigureAuth(&cfg.Auth)
-	if err != nil {
-		return nil, fmt.Errorf("failed to configure authentication: %w", err)
+	// Build client options based on configuration
+	opts := []slurm.ClientOption{
+		slurm.WithBaseURL(cfg.BaseURL),
+	}
+
+	// Configure authentication: use WithUserToken for JWT+username (sets both
+	// X-SLURM-USER-NAME and X-SLURM-USER-TOKEN headers), otherwise use the
+	// auth provider which goes through WithAuth.
+	if cfg.Auth.Type == "jwt" && cfg.Auth.Username != "" {
+		token, err := authpkg.GetJWTToken(&cfg.Auth)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get JWT token: %w", err)
+		}
+		logrus.WithField("username", cfg.Auth.Username).Info("Using JWT user token authentication")
+		opts = append(opts, slurm.WithUserToken(cfg.Auth.Username, token))
+	} else {
+		authProvider, err := authpkg.ConfigureAuth(&cfg.Auth)
+		if err != nil {
+			return nil, fmt.Errorf("failed to configure authentication: %w", err)
+		}
+		opts = append(opts, slurm.WithAuth(authProvider))
 	}
 
 	// Create the SLURM client
@@ -56,6 +73,7 @@ func NewClient(cfg *config.SLURMConfig) (*Client, error) {
 	defer cancel()
 
 	var client slurm.SlurmClient
+	var err error
 
 	// Use adapter pattern for better version compatibility
 	// Adapters provide more complete implementation of standalone operations
@@ -63,18 +81,12 @@ func NewClient(cfg *config.SLURMConfig) (*Client, error) {
 	logrus.Info("Creating SLURM client with adapter pattern enabled")
 
 	if cfg.APIVersion == "" {
-		client, err = slurm.NewClient(ctx,
-			slurm.WithBaseURL(cfg.BaseURL),
-			slurm.WithAuth(authProvider),
-		)
+		client, err = slurm.NewClient(ctx, opts...)
 		if err == nil {
 			logrus.WithField("version", client.Version()).Info("Auto-detected SLURM API version")
 		}
 	} else {
-		client, err = slurm.NewClientWithVersion(ctx, cfg.APIVersion,
-			slurm.WithBaseURL(cfg.BaseURL),
-			slurm.WithAuth(authProvider),
-		)
+		client, err = slurm.NewClientWithVersion(ctx, cfg.APIVersion, opts...)
 		if err == nil {
 			logrus.WithFields(logrus.Fields{
 				"configured": cfg.APIVersion,

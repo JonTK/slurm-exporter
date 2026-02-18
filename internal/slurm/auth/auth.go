@@ -4,7 +4,9 @@
 package auth
 
 import (
+	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 
@@ -12,6 +14,24 @@ import (
 	"github.com/jontk/slurm-exporter/internal/config"
 	"github.com/sirupsen/logrus"
 )
+
+// userTokenAuth implements SLURM user token authentication with both username and token
+type userTokenAuth struct {
+	username string
+	token    string
+}
+
+// Authenticate adds both X-SLURM-USER-NAME and X-SLURM-USER-TOKEN headers
+func (u *userTokenAuth) Authenticate(_ context.Context, req *http.Request) error {
+	req.Header.Set("X-SLURM-USER-NAME", u.username)
+	req.Header.Set("X-SLURM-USER-TOKEN", u.token)
+	return nil
+}
+
+// Type returns the authentication type
+func (u *userTokenAuth) Type() string {
+	return "user-token"
+}
 
 // ConfigureAuth creates an auth provider based on the configuration
 func ConfigureAuth(cfg *config.AuthConfig) (slurmauth.Provider, error) {
@@ -21,9 +41,17 @@ func ConfigureAuth(cfg *config.AuthConfig) (slurmauth.Provider, error) {
 		return slurmauth.NewNoAuth(), nil
 
 	case "jwt":
-		token, err := getJWTToken(cfg)
+		token, err := GetJWTToken(cfg)
 		if err != nil {
 			return nil, fmt.Errorf("failed to configure JWT auth: %w", err)
+		}
+		// If username is provided, use user token auth which sets both X-SLURM-USER-NAME and X-SLURM-USER-TOKEN
+		if cfg.Username != "" {
+			logrus.WithField("username", cfg.Username).Debug("Using JWT authentication with username")
+			return &userTokenAuth{
+				username: cfg.Username,
+				token:    token,
+			}, nil
 		}
 		logrus.Debug("Using JWT authentication")
 		return slurmauth.NewTokenAuth(token), nil
@@ -51,8 +79,8 @@ func ConfigureAuth(cfg *config.AuthConfig) (slurmauth.Provider, error) {
 	}
 }
 
-// getJWTToken retrieves JWT token from configuration or file
-func getJWTToken(cfg *config.AuthConfig) (string, error) {
+// GetJWTToken retrieves JWT token from configuration or file
+func GetJWTToken(cfg *config.AuthConfig) (string, error) {
 	if cfg.Token != "" {
 		return cfg.Token, nil
 	}
