@@ -14,7 +14,7 @@ data:
 
     # Server configuration
     server:
-      address: ":8080"
+      address: ":10341"
       metrics_path: "/metrics"
       health_path: "/health"
       ready_path: "/ready"
@@ -135,7 +135,7 @@ data:
     # Production-specific SLURM Exporter Configuration
 
     server:
-      address: ":8080"
+      address: ":10341"
       metrics_path: "/metrics"
       health_path: "/health"
       ready_path: "/ready"
@@ -228,7 +228,7 @@ data:
     # Staging environment configuration
 
     server:
-      address: ":8080"
+      address: ":10341"
       metrics_path: "/metrics"
       health_path: "/health"
       ready_path: "/ready"

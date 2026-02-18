@@ -92,8 +92,8 @@ kubectl get pods -n slurm-monitoring
 kubectl logs -n slurm-monitoring -l app.kubernetes.io/name=slurm-exporter
 
 # Test metrics endpoint
-kubectl port-forward -n slurm-monitoring svc/slurm-exporter 8080:8080
-curl http://localhost:8080/metrics
+kubectl port-forward -n slurm-monitoring svc/slurm-exporter 10341:10341
+curl http://localhost:10341/metrics
 ```
 
 ## Environment-Specific Deployments
@@ -279,7 +279,7 @@ kubectl logs -n slurm-monitoring -l app.kubernetes.io/name=slurm-exporter
 2. Verify connectivity:
 ```bash
 # Test from within pod
-kubectl exec -n slurm-monitoring -it deployment/slurm-exporter -- wget -O- http://localhost:8080/metrics
+kubectl exec -n slurm-monitoring -it deployment/slurm-exporter -- wget -O- http://localhost:10341/metrics
 ```
 
 3. Check SLURM API access:
@@ -292,7 +292,7 @@ kubectl exec -n slurm-monitoring -it deployment/slurm-exporter -- wget -O- $SLUR
 
 1. Check cardinality:
 ```bash
-curl http://localhost:8080/metrics | grep "^slurm_" | cut -d'{' -f1 | sort | uniq -c | sort -nr
+curl http://localhost:10341/metrics | grep "^slurm_" | cut -d'{' -f1 | sort | uniq -c | sort -nr
 ```
 
 2. Enable filtering in ConfigMap

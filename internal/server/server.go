@@ -297,8 +297,8 @@ func (s *Server) setupHealthChecks() {
 	})
 
 	// Metrics endpoint self-check
-	// Extract port from address (e.g., ":8080" or "0.0.0.0:8080")
-	metricsURL := fmt.Sprintf("http://localhost:8080%s", s.config.Server.MetricsPath) // default
+	// Extract port from address (e.g., ":10341" or "0.0.0.0:10341")
+	metricsURL := fmt.Sprintf("http://localhost:10341%s", s.config.Server.MetricsPath) // default
 	if addr := s.config.Server.Address; addr != "" {
 		// Extract port from address
 		if idx := strings.LastIndex(addr, ":"); idx >= 0 {

@@ -10,12 +10,11 @@ Before diving into specific issues, run this quick health check:
 # Check exporter health
 curl http://localhost:8080/health
 
+# Check readiness
+curl http://localhost:8080/ready
+
 # Check metrics endpoint
 curl http://localhost:8080/metrics | head -20
-
-# Check debug endpoints
-curl http://localhost:8080/debug/collectors
-curl http://localhost:8080/debug/health
 ```
 
 ## 📊 Issue Decision Tree

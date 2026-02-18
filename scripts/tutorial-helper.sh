@@ -274,7 +274,7 @@ start_sandbox() {
     echo "Available services:"
     echo "  📊 Grafana:         http://localhost:3000 (admin/admin)"
     echo "  📈 Prometheus:      http://localhost:9090"
-    echo "  🚀 SLURM Exporter:  http://localhost:8080"
+    echo "  🚀 SLURM Exporter:  http://localhost:10341"
     echo "  🔔 Alertmanager:    http://localhost:9093"
     echo "  🎓 Tutorials:       http://localhost:8888"
     echo
@@ -329,7 +329,7 @@ sandbox_status() {
     # Quick health checks
     echo -e "${BLUE}Health Checks:${NC}"
     
-    check_service_health "SLURM Exporter" "http://localhost:8080/health"
+    check_service_health "SLURM Exporter" "http://localhost:10341/health"
     check_service_health "Prometheus" "http://localhost:9090/-/ready"
     check_service_health "Grafana" "http://localhost:3000/api/health"
     check_service_health "Alertmanager" "http://localhost:9093/-/ready"
@@ -351,7 +351,7 @@ wait_for_services() {
     local attempt=0
     
     services=(
-        "SLURM Exporter:http://localhost:8080/health"
+        "SLURM Exporter:http://localhost:10341/health"
         "Prometheus:http://localhost:9090/-/ready"
         "Grafana:http://localhost:3000/api/health"
     )
@@ -499,7 +499,7 @@ run_basic_setup_tutorial() {
     
     echo "Running command:"
     echo -e "${CYAN}docker run -d --name slurm-exporter-tutorial \\
-  -p 8081:8080 \\
+  -p 8081:10341 \\
   -e SLURM_ENDPOINT='http://localhost:6820' \\
   -e SLURM_AUTH_TYPE='none' \\
   ghcr.io/jontk/slurm-exporter:latest${NC}"
@@ -509,7 +509,7 @@ run_basic_setup_tutorial() {
     # Actually run the command (connect to sandbox network)
     docker run -d --name slurm-exporter-tutorial \
         --network sandbox_default \
-        -p 8081:8080 \
+        -p 8081:10341 \
         -e SLURM_ENDPOINT='http://slurm-controller:6820' \
         -e SLURM_AUTH_TYPE='none' \
         ghcr.io/jontk/slurm-exporter:latest || true
@@ -622,13 +622,13 @@ troubleshoot_connectivity() {
     # Check 1: Exporter running
     echo -e "${BLUE}1. Checking if SLURM Exporter is running...${NC}"
     
-    if curl -sf http://localhost:8080/health &> /dev/null; then
+    if curl -sf http://localhost:10341/health &> /dev/null; then
         log_success "SLURM Exporter is responding"
     else
         log_warning "SLURM Exporter is not responding"
         echo "  Possible causes:"
         echo "  • Exporter not started"
-        echo "  • Wrong port (default: 8080)"
+        echo "  • Wrong port (default: 10341)"
         echo "  • Configuration error"
         echo
         echo "  Try: docker logs <container-name>"
@@ -639,7 +639,7 @@ troubleshoot_connectivity() {
     echo -e "${BLUE}2. Checking SLURM API connectivity...${NC}"
     
     local slurm_endpoint
-    slurm_endpoint=$(curl -s http://localhost:8080/debug/config | jq -r '.slurm.endpoint' 2>/dev/null || echo "unknown")
+    slurm_endpoint=$(curl -s http://localhost:10341/debug/config | jq -r '.slurm.endpoint' 2>/dev/null || echo "unknown")
     
     echo "  SLURM endpoint: $slurm_endpoint"
     
@@ -658,7 +658,7 @@ troubleshoot_connectivity() {
     echo -e "${BLUE}3. Checking authentication...${NC}"
     
     local auth_type
-    auth_type=$(curl -s http://localhost:8080/debug/config | jq -r '.slurm.auth.type' 2>/dev/null || echo "unknown")
+    auth_type=$(curl -s http://localhost:10341/debug/config | jq -r '.slurm.auth.type' 2>/dev/null || echo "unknown")
     
     echo "  Authentication type: $auth_type"
     
@@ -672,7 +672,7 @@ troubleshoot_connectivity() {
     echo -e "${BLUE}4. Checking circuit breaker status...${NC}"
     
     local cb_state
-    cb_state=$(curl -s http://localhost:8080/debug/health | jq -r '.circuit_breaker.state' 2>/dev/null || echo "unknown")
+    cb_state=$(curl -s http://localhost:10341/debug/health | jq -r '.circuit_breaker.state' 2>/dev/null || echo "unknown")
     
     echo "  Circuit breaker state: $cb_state"
     
@@ -681,7 +681,7 @@ troubleshoot_connectivity() {
         echo "  This happens after repeated failures to protect the SLURM API"
         echo "  • Fix the underlying connectivity issue"
         echo "  • Wait for automatic recovery (usually 60s)"
-        echo "  • Or manually reset: curl -X POST http://localhost:8080/debug/circuit-breaker/reset"
+        echo "  • Or manually reset: curl -X POST http://localhost:10341/debug/circuit-breaker/reset"
     fi
 }
 
@@ -743,7 +743,7 @@ monitor_performance() {
     log_tutorial "Monitoring SLURM Exporter Performance"
     echo
     
-    if ! curl -sf http://localhost:8080/health &> /dev/null; then
+    if ! curl -sf http://localhost:10341/health &> /dev/null; then
         log_error "SLURM Exporter is not running"
         echo "Start with: $0 sandbox start"
         return
@@ -760,7 +760,7 @@ monitor_performance() {
         
         # Collection performance
         echo -e "${GREEN}Collection Performance:${NC}"
-        curl -s http://localhost:8080/debug/collectors | jq -r '
+        curl -s http://localhost:10341/debug/collectors | jq -r '
             .collectors[] | 
             "\(.name): \(.last_duration)s (\(.success_rate | tonumber * 100 | floor)% success)"
         ' 2>/dev/null || echo "  Unable to fetch collector stats"
@@ -768,21 +768,21 @@ monitor_performance() {
         
         # Memory usage
         echo -e "${GREEN}Memory Usage:${NC}"
-        curl -s http://localhost:8080/debug/memory | jq -r '
+        curl -s http://localhost:10341/debug/memory | jq -r '
             "  Heap: \(.heap_mb)MB, System: \(.system_mb)MB, GC: \(.gc_cycles)"
         ' 2>/dev/null || echo "  Unable to fetch memory stats"
         echo
         
         # Cache performance
         echo -e "${GREEN}Cache Performance:${NC}"
-        curl -s http://localhost:8080/debug/cache | jq -r '
+        curl -s http://localhost:10341/debug/cache | jq -r '
             .stats | "  Hit Rate: \(.hit_rate | tonumber * 100 | floor)%, Size: \(.size)"
         ' 2>/dev/null || echo "  Cache not enabled or unavailable"
         echo
         
         # Circuit breaker
         echo -e "${GREEN}Circuit Breaker:${NC}"
-        curl -s http://localhost:8080/debug/health | jq -r '
+        curl -s http://localhost:10341/debug/health | jq -r '
             .circuit_breaker | "  State: \(.state), Failures: \(.failures)"
         ' 2>/dev/null || echo "  Circuit breaker status unavailable"
         

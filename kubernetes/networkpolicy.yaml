@@ -26,14 +26,14 @@ spec:
           app: prometheus  # Adjust to your Prometheus labels
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
   # Allow health checks from kubelet
   - from:
     - namespaceSelector: {}
       podSelector: {}
     ports:
     - protocol: TCP
-      port: 8080
+      port: 10341
   egress:
   # Allow DNS
   - to:

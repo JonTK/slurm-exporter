@@ -6,12 +6,52 @@ Get SLURM Exporter running in your environment in under 5 minutes! This guide pr
 
 Before starting, ensure you have:
 
-- [ ] SLURM cluster with REST API enabled
-- [ ] Access credentials (JWT token or user/password)
+- [ ] SLURM cluster with REST API enabled (slurmrestd)
+- [ ] Access credentials (JWT token)
 - [ ] Network connectivity to SLURM controller
-- [ ] Docker, Kubernetes, or Linux system for deployment
+- [ ] Docker or Linux system for deployment
 
-## Step 1: Choose Your Deployment Method
+## Step 1: Create a Configuration File
+
+Create a `config.yaml` file with your SLURM connection details:
+
+```yaml title="config.yaml"
+server:
+  address: ":10341"
+  metrics_path: "/metrics"
+  health_path: "/health"
+  ready_path: "/ready"
+
+slurm:
+  base_url: "http://your-slurm-controller.example.com:6820"
+  api_version: "v0.0.44"
+  auth:
+    type: "jwt"
+    username: "root"
+    token: "your-jwt-token"
+  timeout: 30s
+  retry_attempts: 3
+  retry_delay: 5s
+
+collectors:
+  jobs:
+    enabled: true
+  nodes:
+    enabled: true
+  partitions:
+    enabled: true
+  cluster:
+    enabled: true
+
+logging:
+  level: "info"
+  format: "json"
+
+validation:
+  allow_insecure_connections: true
+```
+
+## Step 2: Choose Your Deployment Method
 
 === "Docker (Fastest)"
 
@@ -20,21 +60,9 @@ Before starting, ensure you have:
     ```bash
     docker run -d \
       --name slurm-exporter \
-      -p 9341:9341 \
-      -e SLURM_EXPORTER_SLURM_HOST=your-slurm-controller.example.com \
-      -e SLURM_EXPORTER_SLURM_TOKEN=your-jwt-token \
-      slurm/exporter:latest
-    ```
-
-=== "Kubernetes"
-
-    For production environments:
-
-    ```bash
-    helm repo add slurm-exporter https://jontk.github.io/slurm-exporter
-    helm install slurm-exporter slurm-exporter/slurm-exporter \
-      --set config.slurm.host=your-slurm-controller.example.com \
-      --set config.slurm.token=your-jwt-token
+      -p 10341:10341 \
+      -v $(pwd)/config.yaml:/etc/slurm-exporter/config.yaml:ro \
+      ghcr.io/jontk/slurm-exporter:latest
     ```
 
 === "Binary"
@@ -46,57 +74,49 @@ Before starting, ensure you have:
     curl -LO https://github.com/jontk/slurm-exporter/releases/latest/download/slurm-exporter-linux-amd64.tar.gz
     tar xzf slurm-exporter-linux-amd64.tar.gz
     chmod +x slurm-exporter
-    
+
     # Configure and run
-    ./slurm-exporter \
-      --slurm.host=your-slurm-controller.example.com \
-      --slurm.token=your-jwt-token
+    ./slurm-exporter --config=config.yaml
     ```
 
-## Step 2: Verify Installation
+## Step 3: Verify Installation
 
 Check that SLURM Exporter is running and collecting metrics:
 
 ```bash
 # Check health endpoint
-curl http://localhost:9341/health
+curl http://localhost:10341/health
+```
 
-# Expected response:
-# {"status":"ok","timestamp":"2024-01-15T10:30:00Z","version":"1.0.0"}
+```bash
+# Check readiness endpoint
+curl http://localhost:10341/ready
 ```
 
 ```bash
 # Check metrics endpoint
-curl http://localhost:9341/metrics | head -20
+curl http://localhost:10341/metrics | head -20
 
 # Expected output should include SLURM metrics like:
-# slurm_up 1
-# slurm_jobs_pending 42
-# slurm_nodes_total 128
+# slurm_exporter_... metrics
 ```
 
-## Step 3: Test Basic Functionality
+## Step 4: Test Basic Functionality
 
 Verify key metrics are being collected:
 
 ```bash
 # Check job metrics
-curl -s http://localhost:9341/metrics | grep slurm_jobs
+curl -s http://localhost:10341/metrics | grep slurm_job
 
-# Check node metrics  
-curl -s http://localhost:9341/metrics | grep slurm_nodes
+# Check node metrics
+curl -s http://localhost:10341/metrics | grep slurm_node
 
 # Check partition metrics
-curl -s http://localhost:9341/metrics | grep slurm_partitions
+curl -s http://localhost:10341/metrics | grep slurm_partition
 ```
 
-Expected metrics include:
-- `slurm_jobs_pending` - Jobs waiting to run
-- `slurm_jobs_running` - Currently executing jobs
-- `slurm_nodes_idle` - Available compute nodes
-- `slurm_nodes_down` - Unavailable nodes
-
-## Step 4: Quick Prometheus Setup
+## Step 5: Quick Prometheus Setup
 
 Set up basic Prometheus monitoring:
 
@@ -108,12 +128,11 @@ Set up basic Prometheus monitoring:
     version: '3.8'
     services:
       slurm-exporter:
-        image: slurm/exporter:latest
+        image: ghcr.io/jontk/slurm-exporter:latest
         ports:
-          - "9341:9341"
-        environment:
-          SLURM_EXPORTER_SLURM_HOST: your-slurm-controller.example.com
-          SLURM_EXPORTER_SLURM_TOKEN: your-jwt-token
+          - "10341:10341"
+        volumes:
+          - ./config.yaml:/etc/slurm-exporter/config.yaml:ro
 
       prometheus:
         image: prom/prometheus:latest
@@ -132,7 +151,7 @@ Set up basic Prometheus monitoring:
     scrape_configs:
       - job_name: 'slurm-exporter'
         static_configs:
-          - targets: ['slurm-exporter:9341']
+          - targets: ['slurm-exporter:10341']
         scrape_interval: 30s
         metrics_path: /metrics
     ```
@@ -143,30 +162,20 @@ Set up basic Prometheus monitoring:
     docker-compose up -d
     ```
 
-=== "Kubernetes"
+=== "Standalone Prometheus"
 
-    Apply Prometheus configuration:
+    Add to your existing `prometheus.yml`:
 
     ```yaml
-    apiVersion: v1
-    kind: ConfigMap
-    metadata:
-      name: prometheus-config
-    data:
-      prometheus.yml: |
-        global:
-          scrape_interval: 30s
-        scrape_configs:
-          - job_name: 'slurm-exporter'
-            kubernetes_sd_configs:
-            - role: endpoints
-            relabel_configs:
-            - source_labels: [__meta_kubernetes_service_name]
-              action: keep
-              regex: slurm-exporter
+    scrape_configs:
+      - job_name: 'slurm-exporter'
+        static_configs:
+          - targets: ['localhost:10341']
+        scrape_interval: 30s
+        metrics_path: /metrics
     ```
 
-## Step 5: View Your Metrics
+## Step 6: View Your Metrics
 
 Access Prometheus to see your SLURM metrics:
 
@@ -175,24 +184,24 @@ Access Prometheus to see your SLURM metrics:
 3. **Try these queries**:
 
 ```promql
-# Total jobs in the system
-sum(slurm_jobs_pending + slurm_jobs_running)
+# Check exporter is up
+up{job="slurm-exporter"}
 
 # Node utilization percentage
-(slurm_nodes_allocated / slurm_nodes_total) * 100
+(slurm_partition_cpus_allocated / slurm_partition_cpus_total) * 100
 
 # Job completion rate (5-minute average)
 rate(slurm_jobs_completed_total[5m])
 ```
 
-## What's Working Now? ✅
+## What's Working Now?
 
 After completing these steps, you have:
 
 - [x] **SLURM Exporter** collecting basic metrics
 - [x] **Prometheus** scraping and storing metrics
 - [x] **Core monitoring** of jobs, nodes, and partitions
-- [x] **HTTP endpoints** for health checks and metrics
+- [x] **HTTP endpoints** for health checks and metrics (`/health`, `/ready`, `/metrics`)
 - [x] **Foundation** for alerting and dashboards
 
 ## Common Quick Fixes
@@ -202,9 +211,7 @@ After completing these steps, you have:
 ```bash
 # Test SLURM API connectivity
 curl -H "X-SLURM-USER-TOKEN: your-jwt-token" \
-     http://your-slurm-controller.example.com:6820/slurm/v0.0.40/ping
-
-# Should return: {"ping": "UP"}
+     http://your-slurm-controller.example.com:6820/slurm/v0.0.44/ping
 ```
 
 ### No Metrics
@@ -213,8 +220,8 @@ curl -H "X-SLURM-USER-TOKEN: your-jwt-token" \
 # Check exporter logs
 docker logs slurm-exporter
 
-# Enable debug logging
-docker run --environment SLURM_EXPORTER_LOG_LEVEL=debug slurm/exporter:latest
+# Enable debug logging via config file
+# Set logging.level to "debug" in config.yaml and restart
 ```
 
 ### Permission Denied
@@ -231,66 +238,58 @@ sinfo --format="%P %.5a %.10l %.6D %.6t %N"
 
 Now that you have basic monitoring working, consider these enhancements:
 
-### 📊 **Add Dashboards**
+### **Add Dashboards**
 Import pre-built Grafana dashboards for visualization:
 
-[→ Grafana Integration Guide](../integration/grafana.md){ .md-button }
+[-> Grafana Integration Guide](../integration/grafana.md){ .md-button }
 
-### 🚨 **Set Up Alerting**  
+### **Set Up Alerting**
 Configure alerts for job failures and node issues:
 
-[→ Alerting Setup Guide](../user-guide/alerting.md){ .md-button }
+[-> Alerting Setup Guide](../user-guide/alerting.md){ .md-button }
 
-### ⚡ **Enable Advanced Features**
-Turn on job analytics, efficiency monitoring, and more:
+### **Full Configuration**
+Explore the complete configuration reference to tune the exporter for your environment:
 
-[→ Distributed Tracing](../advanced/tracing.md){ .md-button }
+[-> Configuration Reference](../user-guide/configuration.md){ .md-button }
 
-### 🏭 **Production Deployment**
+### **Production Deployment**
 Scale up for production with high availability:
 
-<!-- [→ Production Guide](../deployment/production.md){ .md-button } -->
+<!-- [-> Production Guide](../deployment/production.md){ .md-button } -->
 
 ## Quick Reference
 
 ### Default Ports
-- **SLURM Exporter**: 9341
+- **SLURM Exporter**: 10341
 - **Prometheus**: 9090
 - **Grafana**: 3000
 - **SLURM REST API**: 6820
 
 ### Key Endpoints
-- **Metrics**: `http://localhost:9341/metrics`
-- **Health**: `http://localhost:9341/health`
-- **Debug**: `http://localhost:9341/debug/vars`
+- **Metrics**: `http://localhost:10341/metrics`
+- **Health**: `http://localhost:10341/health`
+- **Ready**: `http://localhost:10341/ready`
 
-### Essential Metrics
-```promql
-# System health
-slurm_up
+### CLI Flags
+```bash
+slurm-exporter --help
 
-# Workload overview  
-slurm_jobs_pending
-slurm_jobs_running
-slurm_jobs_completed_total
-
-# Resource utilization
-slurm_nodes_idle
-slurm_nodes_allocated
-slurm_nodes_down
-
-# Partition status
-slurm_partition_jobs_pending
-slurm_partition_nodes_idle
+  --config         Path to configuration file (default: "configs/config.yaml")
+  --log-level      Log level: debug, info, warn, error (default: "info")
+  --addr           Listen address (default: ":10341")
+  --metrics-path   Metrics endpoint path (default: "/metrics")
+  --version        Show version information and exit
+  --health-check   Perform health check and exit
 ```
 
 ### Configuration Files
-- **Docker**: Environment variables
-- **Kubernetes**: Helm values
-- **Binary**: `/etc/slurm-exporter/config.yaml`
+- **Docker**: Mount config file to `/etc/slurm-exporter/config.yaml`
+- **Binary**: Pass with `--config=/path/to/config.yaml`
+- **Package**: `/etc/slurm-exporter/config.yaml`
 
 ---
 
-🎉 **Congratulations!** You now have SLURM monitoring up and running. 
+**Congratulations!** You now have SLURM monitoring up and running.
 
 Need help? Check our [Troubleshooting Guide](../user-guide/troubleshooting.md) or explore [Job Analytics](../user-guide/job-analytics.md) for advanced features.

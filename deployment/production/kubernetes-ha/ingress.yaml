@@ -64,14 +64,14 @@ spec:
           service:
             name: slurm-exporter
             port:
-              number: 8080
+              number: 10341
       - path: /metrics
         pathType: Exact
         backend:
           service:
             name: slurm-exporter
             port:
-              number: 8080
+              number: 10341
       - path: /health
         pathType: Exact
         backend:
@@ -96,7 +96,7 @@ spec:
           service:
             name: slurm-exporter
             port:
-              number: 8080
+              number: 10341
 
 ---
 # Alternative Istio Gateway and VirtualService configuration
@@ -152,7 +152,7 @@ spec:
     - destination:
         host: slurm-exporter.slurm-exporter.svc.cluster.local
         port:
-          number: 8080
+          number: 10341
     timeout: 30s
     retries:
       attempts: 3
@@ -177,7 +177,7 @@ spec:
     - destination:
         host: slurm-exporter.slurm-exporter.svc.cluster.local
         port:
-          number: 8080
+          number: 10341
     timeout: 30s
 
 ---

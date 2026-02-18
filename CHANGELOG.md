@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All integration tests pass with real cluster data (nodes, jobs, partitions)
   - Confirmed rate limiting and adapter pattern functionality
 - Re-enabled all disabled collectors after slurm-client API migration
-  - All 14 collectors now active and operational
+  - All 16 collectors now active and operational
 
 ### Fixed
 - **Critical**: Fixed duplicate collection per scrape causing 2x API load (#35)
@@ -70,7 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pre-release support (alpha, beta, rc)
 - Full support for SLURM API v0.0.44 with adapter pattern (#32)
   - Auto-detection of latest API version
-  - All 14 collectors work correctly with v0.0.44 endpoints
+  - All 16 collectors work correctly with v0.0.44 endpoints
   - Successfully tested with rocky9 SLURM server (v25.11.1)
 
 ## [0.1.0] - 2026-01-21

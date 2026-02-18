@@ -10,13 +10,6 @@ This Helm chart deploys the SLURM Prometheus Exporter on a Kubernetes cluster us
 
 ## Installation
 
-### Add Helm Repository (if using a Helm repository)
-
-```bash
-helm repo add slurm-exporter https://your-helm-repo.com/
-helm repo update
-```
-
 ### Install from Local Chart
 
 ```bash

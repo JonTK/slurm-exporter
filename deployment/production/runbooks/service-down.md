@@ -96,7 +96,7 @@ kubectl exec -it deployment/slurm-exporter -n slurm-exporter -- \
 
 # External connectivity
 kubectl exec -it deployment/slurm-exporter -n slurm-exporter -- \
-  curl -k "$SLURM_REST_URL/slurm/v0.0.39/ping"
+  curl -k "$SLURM_REST_URL/slurm/v0.0.44/ping"
 ```
 
 ## Common Causes and Solutions
@@ -235,7 +235,7 @@ kubectl rollout restart deployment/slurm-exporter -n slurm-exporter
 ```bash
 # Test SLURM API directly
 kubectl exec -it deployment/slurm-exporter -n slurm-exporter -- \
-  curl -v -k "$SLURM_REST_URL/slurm/v0.0.39/ping"
+  curl -v -k "$SLURM_REST_URL/slurm/v0.0.44/ping"
 
 # Check authentication
 kubectl exec -it deployment/slurm-exporter -n slurm-exporter -- env | grep SLURM

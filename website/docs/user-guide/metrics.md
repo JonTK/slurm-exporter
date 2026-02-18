@@ -1,6 +1,6 @@
 # Metrics Catalog
 
-This page provides a comprehensive catalog of all metrics exposed by SLURM Exporter.
+This page provides a catalog of metrics exposed by SLURM Exporter.
 
 ## Metric Naming Convention
 
@@ -56,17 +56,6 @@ Many metrics include these common labels:
 | `slurm_job_cpu_efficiency_ratio` | Gauge | CPU efficiency (0-1) | `job_id`, `partition`, `user` |
 | `slurm_job_memory_efficiency_ratio` | Gauge | Memory efficiency (0-1) | `job_id`, `partition`, `user` |
 | `slurm_job_wait_time_seconds` | Gauge | Time spent waiting in queue | `job_id`, `partition`, `user` |
-| `slurm_job_gpu_utilization_ratio` | Gauge | GPU utilization (0-1) | `job_id`, `partition`, `user`, `gpu_id` |
-| `slurm_job_io_read_bytes_total` | Counter | Total bytes read | `job_id`, `partition`, `user` |
-| `slurm_job_io_write_bytes_total` | Counter | Total bytes written | `job_id`, `partition`, `user` |
-
-### Job Step Metrics
-
-| Metric | Type | Description | Labels |
-|--------|------|-------------|--------|
-| `slurm_job_step_cpu_time_seconds` | Gauge | CPU time consumed by step | `job_id`, `step_id`, `user` |
-| `slurm_job_step_memory_max_bytes` | Gauge | Maximum memory used by step | `job_id`, `step_id`, `user` |
-| `slurm_job_step_runtime_seconds` | Gauge | Step runtime | `job_id`, `step_id`, `user` |
 
 ## Node Metrics
 
@@ -100,16 +89,6 @@ Many metrics include these common labels:
 | `slurm_node_gpus_total` | Gauge | Total GPUs on node | `node`, `gpu_type` |
 | `slurm_node_gpus_allocated` | Gauge | Allocated GPUs | `node`, `gpu_type` |
 
-### Node Performance
-
-| Metric | Type | Description | Labels |
-|--------|------|-------------|--------|
-| `slurm_node_load_average` | Gauge | Node load average | `node`, `period` |
-| `slurm_node_cpu_utilization_ratio` | Gauge | CPU utilization (0-1) | `node` |
-| `slurm_node_memory_utilization_ratio` | Gauge | Memory utilization (0-1) | `node` |
-| `slurm_node_boot_time` | Gauge | Node boot timestamp | `node` |
-| `slurm_node_slurmd_start_time` | Gauge | Slurmd start timestamp | `node` |
-
 ## Partition Metrics
 
 ### Partition State
@@ -141,48 +120,6 @@ Many metrics include these common labels:
 | `slurm_partition_default_time_seconds` | Gauge | Default job time limit | `partition` |
 | `slurm_partition_max_nodes` | Gauge | Maximum nodes per job | `partition` |
 | `slurm_partition_max_cpus_per_node` | Gauge | Maximum CPUs per node | `partition` |
-
-## Account Metrics
-
-### Account Usage
-
-| Metric | Type | Description | Labels |
-|--------|------|-------------|--------|
-| `slurm_account_jobs_running` | Gauge | Running jobs for account | `account`, `user` |
-| `slurm_account_jobs_pending` | Gauge | Pending jobs for account | `account`, `user` |
-| `slurm_account_cpu_hours_used_total` | Counter | Total CPU hours consumed | `account`, `user` |
-| `slurm_account_cpu_hours_allocated` | Gauge | Allocated CPU hours | `account` |
-| `slurm_account_cpu_hours_remaining` | Gauge | Remaining CPU hours | `account` |
-
-### Account Limits
-
-| Metric | Type | Description | Labels |
-|--------|------|-------------|--------|
-| `slurm_account_max_jobs` | Gauge | Maximum concurrent jobs | `account` |
-| `slurm_account_max_submit_jobs` | Gauge | Maximum submittable jobs | `account` |
-| `slurm_account_max_cpus` | Gauge | Maximum CPUs | `account` |
-| `slurm_account_max_nodes` | Gauge | Maximum nodes | `account` |
-| `slurm_account_max_wall_duration_seconds` | Gauge | Maximum wall time | `account` |
-
-## Fairshare Metrics
-
-### Fairshare Values
-
-| Metric | Type | Description | Labels |
-|--------|------|-------------|--------|
-| `slurm_fairshare_shares` | Gauge | Fairshare allocation | `account`, `user` |
-| `slurm_fairshare_usage_raw` | Gauge | Raw usage value | `account`, `user` |
-| `slurm_fairshare_usage_normalized` | Gauge | Normalized usage (0-1) | `account`, `user` |
-| `slurm_fairshare_factor` | Gauge | Current fairshare factor | `account`, `user` |
-| `slurm_fairshare_level_factor` | Gauge | Level fairshare factor | `account`, `user` |
-
-### Fairshare Trends
-
-| Metric | Type | Description | Labels |
-|--------|------|-------------|--------|
-| `slurm_fairshare_usage_trend` | Gauge | Usage trend indicator | `account`, `user`, `period` |
-| `slurm_fairshare_priority_trend` | Gauge | Priority trend | `account`, `user`, `period` |
-| `slurm_fairshare_decay_factor` | Gauge | Usage decay factor | `cluster` |
 
 ## QoS (Quality of Service) Metrics
 
@@ -223,17 +160,6 @@ Many metrics include these common labels:
 | `slurm_reservation_end_time` | Gauge | Reservation end timestamp | `reservation` |
 | `slurm_reservation_duration_seconds` | Gauge | Reservation duration | `reservation` |
 
-## License Metrics
-
-### License Usage
-
-| Metric | Type | Description | Labels |
-|--------|------|-------------|--------|
-| `slurm_licenses_total` | Gauge | Total available licenses | `license`, `feature` |
-| `slurm_licenses_used` | Gauge | Currently used licenses | `license`, `feature` |
-| `slurm_licenses_free` | Gauge | Free licenses | `license`, `feature` |
-| `slurm_licenses_reserved` | Gauge | Reserved licenses | `license`, `feature` |
-
 ## TRES (Trackable Resources) Metrics
 
 ### TRES Allocation
@@ -251,7 +177,6 @@ Many metrics include these common labels:
 | Metric | Type | Description | Labels |
 |--------|------|-------------|--------|
 | `slurm_controller_up` | Gauge | Controller availability (1=up, 0=down) | `controller` |
-| `slurm_database_up` | Gauge | Database availability (1=up, 0=down) | `database` |
 | `slurm_version_info` | Gauge | SLURM version information | `version`, `build` |
 
 ### Scheduler Metrics
@@ -260,34 +185,7 @@ Many metrics include these common labels:
 |--------|------|-------------|--------|
 | `slurm_scheduler_queue_length` | Gauge | Number of jobs in queue | `priority` |
 | `slurm_scheduler_backfill_jobs_since_start_total` | Counter | Backfilled jobs since start | `cluster` |
-| `slurm_scheduler_backfill_jobs_since_cycle_total` | Counter | Backfilled jobs in last cycle | `cluster` |
 | `slurm_scheduler_cycle_duration_seconds` | Gauge | Last scheduling cycle duration | `cluster` |
-
-## Advanced Analytics Metrics
-
-### Job Efficiency Analytics
-
-| Metric | Type | Description | Labels |
-|--------|------|-------------|--------|
-| `slurm_job_efficiency_score` | Gauge | Overall efficiency score (0-1) | `job_id`, `user` |
-| `slurm_job_waste_cpu_hours` | Gauge | Wasted CPU hours | `job_id`, `user` |
-| `slurm_job_waste_memory_gb_hours` | Gauge | Wasted memory GB-hours | `job_id`, `user` |
-| `slurm_job_bottleneck_score` | Gauge | Bottleneck severity (0-1) | `job_id`, `resource_type` |
-
-### Trend Analytics
-
-| Metric | Type | Description | Labels |
-|--------|------|-------------|--------|
-| `slurm_usage_trend_hourly` | Gauge | Hourly usage trend | `resource_type`, `hour` |
-| `slurm_usage_trend_daily` | Gauge | Daily usage trend | `resource_type`, `day` |
-| `slurm_usage_trend_weekly` | Gauge | Weekly usage trend | `resource_type`, `week` |
-
-### Anomaly Detection
-
-| Metric | Type | Description | Labels |
-|--------|------|-------------|--------|
-| `slurm_anomaly_score` | Gauge | Anomaly detection score | `entity_type`, `entity_id` |
-| `slurm_anomaly_threshold` | Gauge | Anomaly detection threshold | `entity_type` |
 
 ## Exporter Self-Monitoring
 
@@ -299,22 +197,12 @@ Many metrics include these common labels:
 | `slurm_exporter_collect_errors_total` | Counter | Collection errors | `collector`, `error_type` |
 | `slurm_exporter_last_collect_timestamp` | Gauge | Last successful collection time | `collector` |
 
-### Cache Performance
-
-| Metric | Type | Description | Labels |
-|--------|------|-------------|--------|
-| `slurm_exporter_cache_hits_total` | Counter | Cache hit count | `cache_type` |
-| `slurm_exporter_cache_misses_total` | Counter | Cache miss count | `cache_type` |
-| `slurm_exporter_cache_size` | Gauge | Current cache size | `cache_type` |
-
 ### API Performance
 
 | Metric | Type | Description | Labels |
 |--------|------|-------------|--------|
 | `slurm_exporter_api_request_duration_seconds` | Histogram | SLURM API request duration | `endpoint`, `method` |
 | `slurm_exporter_api_requests_total` | Counter | Total API requests | `endpoint`, `method`, `status` |
-| `slurm_exporter_connection_pool_active` | Gauge | Active connections | `pool` |
-| `slurm_exporter_connection_pool_idle` | Gauge | Idle connections | `pool` |
 
 ## Usage Examples
 
@@ -325,21 +213,18 @@ Many metrics include these common labels:
 slurm_node_cpus_allocated / slurm_node_cpus_total
 
 # Memory utilization by partition
-sum(slurm_partition_memory_allocated_bytes) by (partition) / 
+sum(slurm_partition_memory_allocated_bytes) by (partition) /
 sum(slurm_partition_memory_total_bytes) by (partition)
 
 # Job completion rate
 rate(slurm_jobs_completed_total[5m])
 ```
 
-### Advanced Analytics Queries
+### Advanced Queries
 
 ```promql
 # Average job efficiency by user
 avg(slurm_job_cpu_efficiency_ratio) by (user)
-
-# Wasted resources by partition
-sum(slurm_job_waste_cpu_hours) by (partition)
 
 # Queue wait time distribution
 histogram_quantile(0.95, slurm_job_wait_time_seconds)

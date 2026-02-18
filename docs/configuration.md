@@ -4,17 +4,7 @@ This comprehensive guide covers all configuration options for SLURM Exporter, wi
 
 ## Quick Configuration
 
-**🚀 Use the Interactive Wizard:**
-```bash
-curl -s https://raw.githubusercontent.com/jontk/slurm-exporter/main/scripts/config-wizard.sh | bash
-```
-
-The configuration wizard will help you generate a production-ready configuration in under 2 minutes by:
-- Selecting your deployment type (Kubernetes, Docker, Binary)
-- Configuring SLURM API connection and authentication
-- Choosing appropriate collectors for your use case
-- Enabling advanced features based on your environment
-- Generating deployment instructions and files
+For a full annotated example configuration, see `configs/config.yaml` in the repository root. That file documents every supported field with comments and can be used as a starting point for your deployment.
 
 ## Table of Contents
 
@@ -50,16 +40,16 @@ Priority order: Command-line flags > Environment variables > Configuration file 
 # config.yaml
 server:
   # HTTP server settings
-  
+
 slurm:
   # SLURM API connection settings
-  
+
 collectors:
   # Individual collector configurations
-  
+
 logging:
   # Logging configuration
-  
+
 metrics:
   # Metrics exposition settings
 ```
@@ -73,42 +63,38 @@ server:
   # Network address to bind to
   # Default: ":8080"
   address: ":8080"
-  
+
+  # General request timeout
+  # Default: "30s"
+  timeout: "30s"
+
   # Read timeout for HTTP requests
-  # Default: "30s"
-  readTimeout: "30s"
-  
+  # Default: "15s"
+  read_timeout: "15s"
+
   # Write timeout for HTTP responses
-  # Default: "30s"
-  writeTimeout: "30s"
-  
+  # Default: "10s"
+  write_timeout: "10s"
+
   # Idle timeout for keep-alive connections
-  # Default: "120s"
-  idleTimeout: "120s"
-  
-  # Maximum header size in bytes
+  # Default: "60s"
+  idle_timeout: "60s"
+
+  # Maximum request size in bytes
   # Default: 1048576 (1MB)
-  maxHeaderBytes: 1048576
-  
-  # Enable pprof debug endpoints
-  # Default: false
-  enablePprof: false
-  
-  # Enable metrics endpoint
-  # Default: true
-  enableMetrics: true
-  
+  max_request_size: 1048576
+
   # Metrics path
   # Default: "/metrics"
-  metricsPath: "/metrics"
-  
+  metrics_path: "/metrics"
+
   # Health check path
   # Default: "/health"
-  healthPath: "/health"
-  
+  health_path: "/health"
+
   # Ready check path
   # Default: "/ready"
-  readyPath: "/ready"
+  ready_path: "/ready"
 ```
 
 ### TLS Configuration
@@ -119,59 +105,40 @@ server:
     # Enable TLS
     # Default: false
     enabled: true
-    
+
     # Path to certificate file
-    certFile: "/etc/ssl/certs/server.crt"
-    
+    cert_file: "/etc/ssl/certs/server.crt"
+
     # Path to private key file
-    keyFile: "/etc/ssl/private/server.key"
-    
-    # Path to CA certificate file (for client verification)
-    caFile: "/etc/ssl/certs/ca.crt"
-    
+    key_file: "/etc/ssl/private/server.key"
+
     # Minimum TLS version
     # Options: "1.0", "1.1", "1.2", "1.3"
     # Default: "1.2"
-    minVersion: "1.2"
-    
+    min_version: "1.2"
+
     # Cipher suites (if empty, uses Go defaults)
-    cipherSuites:
+    cipher_suites:
       - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
       - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
       - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
       - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
-    
-    # Enable client certificate verification
-    # Default: false
-    clientAuth: false
-    
-    # Client CA certificates for verification
-    clientCAFile: "/etc/ssl/certs/client-ca.crt"
 ```
 
 ### HTTP Authentication
 
 ```yaml
 server:
-  auth:
+  basic_auth:
     # Enable basic authentication for metrics endpoint
     # Default: false
     enabled: true
-    
-    # Authentication realm
-    # Default: "SLURM Exporter"
-    realm: "SLURM Exporter"
-    
-    # Users configuration
-    users:
-      - username: "prometheus"
-        # Password can be plain text or bcrypt hash
-        password: "$2a$10$Qx5rIu3gYSnAqBNlHAYMZ.nKro1I.KlPbHVlkwPGZeGxHPvNqUqRq"
-      - username: "admin"
-        password: "admin-password"
-    
-    # Path to htpasswd file (alternative to users list)
-    htpasswdFile: "/etc/slurm-exporter/htpasswd"
+
+    # Username for basic auth
+    username: "prometheus"
+
+    # Password for basic auth
+    password: "secure-password-here"
 ```
 
 ## SLURM Connection Settings
@@ -182,92 +149,28 @@ server:
 slurm:
   # SLURM REST API base URL
   # Required
-  baseURL: "http://slurm-server:6820"
-  
+  base_url: "http://slurm-server:6820"
+
   # API version to use
-  # Default: "v0.0.40"
-  apiVersion: "v0.0.40"
-  
-  # Connection timeout
-  # Default: "10s"
-  connectionTimeout: "10s"
-  
+  # Default: "" (empty enables auto-detection, falls back to "v0.0.44")
+  # Supported versions: v0.0.40, v0.0.41, v0.0.42, v0.0.43, v0.0.44
+  api_version: "v0.0.44"
+
+  # Enable adapter pattern for better version compatibility
+  # Default: true
+  use_adapters: true
+
   # Request timeout
   # Default: "30s"
-  requestTimeout: "30s"
-  
-  # Maximum idle connections
-  # Default: 10
-  maxIdleConns: 10
-  
-  # Maximum connections per host
-  # Default: 10
-  maxConnsPerHost: 10
-  
-  # Idle connection timeout
-  # Default: "90s"
-  idleConnTimeout: "90s"
-  
-  # Enable keep-alive
-  # Default: true
-  keepAlive: true
-  
-  # Keep-alive interval
-  # Default: "30s"
-  keepAliveInterval: "30s"
-```
+  timeout: "30s"
 
-### Advanced Connection Settings
+  # Number of retry attempts
+  # Default: 3
+  retry_attempts: 3
 
-```yaml
-slurm:
-  # Retry configuration
-  retry:
-    # Enable automatic retries
-    # Default: true
-    enabled: true
-    
-    # Maximum number of retries
-    # Default: 3
-    maxRetries: 3
-    
-    # Initial retry delay
-    # Default: "1s"
-    initialDelay: "1s"
-    
-    # Maximum retry delay
-    # Default: "30s"
-    maxDelay: "30s"
-    
-    # Backoff multiplier
-    # Default: 2.0
-    multiplier: 2.0
-    
-    # Retry on these HTTP status codes
-    # Default: [429, 502, 503, 504]
-    retryStatusCodes:
-      - 429  # Too Many Requests
-      - 502  # Bad Gateway
-      - 503  # Service Unavailable
-      - 504  # Gateway Timeout
-  
-  # Circuit breaker configuration
-  circuitBreaker:
-    # Enable circuit breaker
-    # Default: false
-    enabled: true
-    
-    # Failure threshold before opening
-    # Default: 5
-    threshold: 5
-    
-    # Time window for failures
-    # Default: "60s"
-    window: "60s"
-    
-    # Time to wait before half-open
-    # Default: "30s"
-    timeout: "30s"
+  # Delay between retries
+  # Default: "5s"
+  retry_delay: "5s"
 ```
 
 ### TLS for SLURM Connection
@@ -275,28 +178,37 @@ slurm:
 ```yaml
 slurm:
   tls:
-    # Enable TLS for SLURM connection
-    # Default: false
-    enabled: true
-    
     # Skip certificate verification (insecure)
     # Default: false
-    insecureSkipVerify: false
-    
-    # Client certificate for mutual TLS
-    certFile: "/etc/ssl/certs/client.crt"
-    keyFile: "/etc/ssl/private/client.key"
-    
+    insecure_skip_verify: false
+
     # CA certificate for server verification
-    caFile: "/etc/ssl/certs/slurm-ca.crt"
-    
-    # Server name for verification
-    serverName: "slurm-server.example.com"
+    ca_cert_file: "/etc/ssl/certs/slurm-ca.crt"
+
+    # Client certificate for mutual TLS
+    client_cert_file: "/etc/ssl/certs/client.crt"
+    client_key_file: "/etc/ssl/private/client.key"
+```
+
+### Rate Limiting
+
+```yaml
+slurm:
+  rate_limit:
+    # Requests per second to the SLURM API
+    # Default: 10.0
+    requests_per_second: 10.0
+
+    # Burst size
+    # Default: 20
+    burst_size: 20
 ```
 
 ## Authentication Options
 
 ### JWT Token Authentication
+
+SLURM JWT authentication sets the `X-SLURM-USER-TOKEN` header. When a `username` is also provided, the exporter additionally sets the `X-SLURM-USER-NAME` header, which is required by SLURM REST API to identify the requesting user.
 
 ```yaml
 slurm:
@@ -304,32 +216,16 @@ slurm:
     # Authentication type
     # Options: "none", "jwt", "basic", "apikey"
     type: "jwt"
-    
+
+    # SLURM username (sets X-SLURM-USER-NAME header)
+    # Required for SLURM REST API to identify the user
+    username: "your-slurm-username"
+
     # JWT token (direct value)
     token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-    
-    # JWT token from file
-    tokenFile: "/run/secrets/slurm-jwt-token"
-    
-    # JWT token from environment variable
-    tokenEnv: "SLURM_JWT_TOKEN"
-    
-    # Token refresh configuration
-    refresh:
-      # Enable automatic token refresh
-      # Default: false
-      enabled: true
-      
-      # Refresh before expiry
-      # Default: "5m"
-      beforeExpiry: "5m"
-      
-      # Command to execute for token refresh
-      command: "/usr/local/bin/refresh-slurm-token.sh"
-      
-      # Refresh interval (if not using expiry)
-      # Default: "1h"
-      interval: "1h"
+
+    # JWT token from file (alternative to token)
+    token_file: "/run/secrets/slurm-jwt-token"
 ```
 
 ### Basic Authentication
@@ -338,18 +234,15 @@ slurm:
 slurm:
   auth:
     type: "basic"
-    
+
     # Username
     username: "prometheus-user"
-    
+
     # Password (direct value)
     password: "secure-password"
-    
-    # Password from file
-    passwordFile: "/run/secrets/slurm-password"
-    
-    # Password from environment variable
-    passwordEnv: "SLURM_PASSWORD"
+
+    # Password from file (alternative to password)
+    password_file: "/run/secrets/slurm-password"
 ```
 
 ### API Key Authentication
@@ -358,36 +251,12 @@ slurm:
 slurm:
   auth:
     type: "apikey"
-    
-    # API key header name
-    # Default: "X-API-Key"
-    headerName: "X-API-Key"
-    
+
     # API key value
-    apiKey: "your-api-key"
-    
-    # API key from file
-    apiKeyFile: "/run/secrets/slurm-apikey"
-    
-    # API key from environment variable
-    apiKeyEnv: "SLURM_API_KEY"
-```
+    api_key: "your-api-key"
 
-### Custom Authentication
-
-```yaml
-slurm:
-  auth:
-    type: "custom"
-    
-    # Custom headers to add to requests
-    headers:
-      X-Custom-Auth: "custom-value"
-      X-Request-ID: "{{.RequestID}}"
-    
-    # Headers from environment variables
-    headersFromEnv:
-      X-Secret-Token: "SECRET_TOKEN_ENV"
+    # API key from file (alternative to api_key)
+    api_key_file: "/run/secrets/slurm-apikey"
 ```
 
 ## Collector Configuration
@@ -400,23 +269,27 @@ collectors:
   global:
     # Default collection interval
     # Default: "30s"
-    interval: "30s"
-    
+    default_interval: "30s"
+
     # Default collection timeout
-    # Default: "25s"
-    timeout: "25s"
-    
-    # Namespace for metrics
-    # Default: "slurm"
-    namespace: "slurm"
-    
-    # Subsystem for metrics
-    # Default: ""
-    subsystem: ""
-    
-    # Enable all collectors by default
+    # Default: "10s"
+    default_timeout: "10s"
+
+    # Maximum concurrent collectors
+    # Default: 5
+    max_concurrency: 5
+
+    # Error threshold before degradation
+    # Default: 5
+    error_threshold: 5
+
+    # Recovery delay after errors
+    # Default: "60s"
+    recovery_delay: "60s"
+
+    # Enable graceful degradation
     # Default: true
-    enabledByDefault: true
+    graceful_degradation: true
 ```
 
 ### Cluster Collector
@@ -427,28 +300,25 @@ collectors:
     # Enable cluster collector
     # Default: true
     enabled: true
-    
+
     # Collection interval
     # Default: "30s"
     interval: "30s"
-    
+
     # Collection timeout
-    # Default: "25s"
-    timeout: "25s"
-    
-    # Metrics to collect
-    metrics:
-      # Cluster configuration metrics
-      config: true
-      
-      # Controller statistics
-      controller: true
-      
-      # License information
-      licenses: true
-      
-      # Cluster totals
-      totals: true
+    # Default: "10s"
+    timeout: "10s"
+
+    # Maximum concurrency
+    max_concurrency: 1
+
+    # Error handling
+    error_handling:
+      max_retries: 3
+      retry_delay: "5s"
+      backoff_factor: 2.0
+      max_retry_delay: "60s"
+      fail_fast: false
 ```
 
 ### Nodes Collector
@@ -459,70 +329,32 @@ collectors:
     # Enable nodes collector
     # Default: true
     enabled: true
-    
+
     # Collection interval
-    # Default: "60s"
-    interval: "60s"
-    
+    # Default: "30s"
+    interval: "30s"
+
     # Collection timeout
-    # Default: "50s"
-    timeout: "50s"
-    
-    # Batch size for node queries
-    # Default: 100
-    batchSize: 100
-    
-    # Concurrent requests
-    # Default: 5
-    concurrency: 5
-    
-    # Node states to include
-    # Default: all states
-    includeStates:
-      - "idle"
-      - "allocated"
-      - "mixed"
-      - "down"
-      - "drain"
-      - "draining"
-    
-    # Node metrics configuration
-    metrics:
-      # Basic node info
-      info: true
-      
-      # CPU metrics
-      cpu: true
-      
-      # Memory metrics
-      memory: true
-      
-      # GPU metrics (if available)
-      gpu: true
-      
-      # Network metrics
-      network: false
-      
-      # Disk metrics
-      disk: false
-    
-    # Label configuration
-    labels:
-      # Include partition as label
-      partition: true
-      
-      # Include features as labels
-      features: true
-      
-      # Include reason as label
-      reason: true
-      
-      # Custom labels from node properties
-      custom:
-        - property: "Arch"
-          label: "architecture"
-        - property: "OS"
-          label: "operating_system"
+    # Default: "10s"
+    timeout: "10s"
+
+    # Maximum concurrency
+    max_concurrency: 2
+
+    # Filters
+    filters:
+      # Optionally filter specific nodes or states
+      # include_nodes: ["node001", "node002"]
+      # exclude_nodes: ["maintenance-node"]
+      # node_states: ["IDLE", "ALLOCATED", "MIXED"]
+
+    # Error handling
+    error_handling:
+      max_retries: 3
+      retry_delay: "5s"
+      backoff_factor: 2.0
+      max_retry_delay: "60s"
+      fail_fast: false
 ```
 
 ### Jobs Collector
@@ -533,75 +365,30 @@ collectors:
     # Enable jobs collector
     # Default: true
     enabled: true
-    
+
     # Collection interval
-    # Default: "30s"
-    interval: "30s"
-    
+    # Default: "15s"
+    interval: "15s"
+
     # Collection timeout
-    # Default: "25s"
-    timeout: "25s"
-    
-    # Batch size for job queries
-    # Default: 500
-    batchSize: 500
-    
-    # Job states to include
-    # Default: ["RUNNING", "PENDING"]
-    includeStates:
-      - "RUNNING"
-      - "PENDING"
-      - "SUSPENDED"
-      - "COMPLETING"
-    
-    # Job time window
-    timeWindow:
-      # Include jobs from this duration ago
-      # Default: "0" (no limit)
-      lookback: "24h"
-      
-      # Include future jobs (for pending)
-      # Default: true
-      includeFuture: true
-    
-    # Job metrics configuration
-    metrics:
-      # Job counts by state
-      counts: true
-      
-      # Job wait time
-      waitTime: true
-      
-      # Job runtime
-      runtime: true
-      
-      # Resource usage
-      resources: true
-      
-      # Array job metrics
-      arrays: true
-    
-    # Label configuration
-    labels:
-      # Include user as label
-      user: true
-      
-      # Include account as label
-      account: true
-      
-      # Include partition as label
-      partition: true
-      
-      # Include QoS as label
-      qos: true
-      
-      # Maximum number of users to track
-      # Default: 100
-      maxUsers: 100
-      
-      # Maximum number of accounts to track
-      # Default: 50
-      maxAccounts: 50
+    # Default: "10s"
+    timeout: "10s"
+
+    # Maximum concurrency
+    max_concurrency: 3
+
+    # Filters
+    filters:
+      # Optionally filter job states
+      # job_states: ["RUNNING", "PENDING", "COMPLETED"]
+
+    # Error handling
+    error_handling:
+      max_retries: 3
+      retry_delay: "5s"
+      backoff_factor: 2.0
+      max_retry_delay: "60s"
+      fail_fast: false
 ```
 
 ### Partitions Collector
@@ -612,39 +399,27 @@ collectors:
     # Enable partitions collector
     # Default: true
     enabled: true
-    
+
     # Collection interval
-    # Default: "120s"
-    interval: "120s"
-    
-    # Collection timeout
     # Default: "60s"
-    timeout: "60s"
-    
-    # Partitions to include (empty = all)
-    includePartitions: []
-    
-    # Partitions to exclude
-    excludePartitions:
-      - "test"
-      - "debug"
-    
-    # Partition metrics configuration
-    metrics:
-      # Node counts by state
-      nodes: true
-      
-      # CPU metrics
-      cpus: true
-      
-      # Memory metrics
-      memory: true
-      
-      # Job metrics
-      jobs: true
-      
-      # Limits and constraints
-      limits: true
+    interval: "60s"
+
+    # Collection timeout
+    # Default: "10s"
+    timeout: "10s"
+
+    # Filters
+    filters:
+      # include_partitions: ["compute", "gpu"]
+      # exclude_partitions: ["debug"]
+
+    # Error handling
+    error_handling:
+      max_retries: 3
+      retry_delay: "5s"
+      backoff_factor: 2.0
+      max_retry_delay: "60s"
+      fail_fast: false
 ```
 
 ### Reservations Collector
@@ -653,27 +428,29 @@ collectors:
 collectors:
   reservations:
     # Enable reservations collector
-    # Default: false
+    # Default: true
     enabled: true
-    
+
     # Collection interval
-    # Default: "300s"
-    interval: "300s"
-    
-    # Collection timeout
     # Default: "60s"
-    timeout: "60s"
-    
-    # Reservation metrics
-    metrics:
-      # Active reservations
-      active: true
-      
-      # Resource usage
-      resources: true
-      
-      # Time metrics
-      time: true
+    interval: "60s"
+
+    # Collection timeout
+    # Default: "10s"
+    timeout: "10s"
+
+    # Filters
+    filters:
+      # include_partitions: ["compute", "gpu"]
+      # include_accounts: ["research", "engineering"]
+
+    # Error handling
+    error_handling:
+      max_retries: 3
+      retry_delay: "5s"
+      backoff_factor: 2.0
+      max_retry_delay: "60s"
+      fail_fast: false
 ```
 
 ### QoS Collector
@@ -682,23 +459,55 @@ collectors:
 collectors:
   qos:
     # Enable QoS collector
-    # Default: false
+    # Default: true
     enabled: true
-    
+
     # Collection interval
-    # Default: "300s"
-    interval: "300s"
-    
-    # QoS metrics
-    metrics:
-      # Limits and thresholds
-      limits: true
-      
-      # Usage statistics
-      usage: true
-      
-      # Priority information
-      priority: true
+    # Default: "60s"
+    interval: "60s"
+
+    # Collection timeout
+    # Default: "10s"
+    timeout: "10s"
+
+    # Filters
+    filters:
+      # include_qos: ["normal", "high"]
+      # exclude_qos: ["low"]
+
+    # Error handling
+    error_handling:
+      max_retries: 3
+      retry_delay: "5s"
+      backoff_factor: 2.0
+      max_retry_delay: "60s"
+      fail_fast: false
+```
+
+### Graceful Degradation
+
+```yaml
+collectors:
+  degradation:
+    # Enable graceful degradation
+    # Default: true
+    enabled: true
+
+    # Maximum failures before degradation
+    # Default: 3
+    max_failures: 3
+
+    # Time before resetting failure count
+    # Default: "5m"
+    reset_timeout: "5m"
+
+    # Use cached metrics during degradation
+    # Default: true
+    use_cached_metrics: true
+
+    # TTL for cached metrics
+    # Default: "10m"
+    cache_ttl: "10m"
 ```
 
 ## Performance Configuration
@@ -711,7 +520,7 @@ performance:
     default_ttl: 5m
     max_entries: 10000
     cleanup_interval: 60s
-    
+
     # Adaptive TTL based on data change patterns
     adaptive_ttl:
       enabled: true
@@ -722,7 +531,7 @@ performance:
       stability_factor: 0.9
       extension_factor: 1.5
       reduction_factor: 0.5
-    
+
     # Per-collector cache settings
     collectors:
       jobs:
@@ -744,12 +553,12 @@ performance:
     max_batch_size: 500
     flush_interval: 5s
     max_wait_time: 10s
-    
+
     # Deduplication settings
     deduplication:
       enabled: true
       window_size: 1000
-      
+
     # Per-collector batch settings
     collectors:
       jobs:
@@ -766,13 +575,13 @@ performance:
   memory:
     max_heap_size: "512MB"
     gc_target_percentage: 75
-    
+
     # Cardinality limits
     max_series: 100000
     max_labels_per_series: 50
     max_label_name_length: 64
     max_label_value_length: 256
-    
+
     # Connection pooling
     max_idle_connections: 100
     connection_lifetime: 30m
@@ -788,7 +597,7 @@ observability:
     failure_threshold: 10               # Failures to trigger open state
     reset_timeout: 60s                  # Time before trying half-open
     half_open_max_requests: 3           # Max requests in half-open state
-    
+
     # Per-collector circuit breakers
     collectors:
       jobs:
@@ -806,7 +615,7 @@ observability:
     enabled: true
     check_interval: 30s
     unhealthy_threshold: 3              # Failures before marking unhealthy
-    
+
     # Health checks
     checks:
       slurm_api:
@@ -821,7 +630,7 @@ observability:
         enabled: true
         max_memory_mb: 1024
         critical: true
-      
+
     # Health endpoint configuration
     endpoint:
       path: "/health"
@@ -831,31 +640,16 @@ observability:
 ```
 
 ### OpenTelemetry Tracing
+
+**Note:** Tracing configuration exists in the config schema but is NOT currently wired into the application. The fields below are parsed and validated, but enabling tracing will have no effect until a future release connects the tracing pipeline.
+
 ```yaml
 observability:
   tracing:
-    enabled: true
-    service_name: "slurm-exporter"
-    service_version: "1.0.0"
-    
-    # OTLP exporter
-    otlp:
-      endpoint: "http://jaeger:14268/api/traces"
-      headers:
-        authorization: "Bearer ${TRACING_TOKEN}"
-      timeout: 30s
-      
-    # Sampling configuration
-    sampling:
-      type: "ratio"                     # ratio, always, never
-      ratio: 0.1                        # 10% sampling
-      
-    # Resource attributes
-    resource:
-      attributes:
-        environment: "production"
-        cluster.name: "hpc-cluster-01"
-        datacenter: "us-west-2"
+    enabled: false                      # Not yet functional
+    sample_rate: 0.01                   # 1% sampling when eventually enabled
+    endpoint: "localhost:4317"
+    insecure: true
 ```
 
 ## Debug Configuration
@@ -866,13 +660,13 @@ debug:
   endpoints:
     enabled: true
     path_prefix: "/debug"
-    
+
     # Authentication for debug endpoints
     authentication:
       enabled: true
       type: "token"                     # token, basic, none
       token: "${DEBUG_TOKEN}"
-      
+
     # Available endpoints
     endpoints:
       status: true                      # /debug/status
@@ -880,7 +674,7 @@ debug:
       cache: true                      # /debug/cache
       config: false                    # /debug/config (sensitive)
       traces: true                     # /debug/traces
-      
+
     # Output formats
     formats:
       json: true
@@ -895,26 +689,19 @@ debug:
 ```yaml
 logging:
   # Log level
-  # Options: "debug", "info", "warn", "error", "fatal"
+  # Options: "debug", "info", "warn", "error"
   # Default: "info"
   level: "info"
-  
+
   # Log format
   # Options: "text", "json"
   # Default: "json"
   format: "json"
-  
-  # Enable colored output (text format only)
-  # Default: false
-  color: false
-  
-  # Include caller information
-  # Default: false
-  caller: false
-  
-  # Timestamp format
-  # Default: "2006-01-02T15:04:05.000Z07:00"
-  timestampFormat: "2006-01-02T15:04:05.000Z07:00"
+
+  # Output destination
+  # Options: "stdout", "stderr", "file"
+  # Default: "stdout"
+  output: "stdout"
 ```
 
 ### File Logging
@@ -922,29 +709,24 @@ logging:
 ```yaml
 logging:
   # Output to file
-  file:
-    # Enable file logging
-    # Default: false
-    enabled: true
-    
-    # Log file path
-    path: "/var/log/slurm-exporter/exporter.log"
-    
-    # Maximum size in MB before rotation
-    # Default: 100
-    maxSize: 100
-    
-    # Maximum number of old files to keep
-    # Default: 5
-    maxBackups: 5
-    
-    # Maximum age in days
-    # Default: 30
-    maxAge: 30
-    
-    # Compress rotated files
-    # Default: true
-    compress: true
+  output: "file"
+  file: "/var/log/slurm-exporter/exporter.log"
+
+  # Maximum size in MB before rotation
+  # Default: 100
+  max_size: 100
+
+  # Maximum age in days
+  # Default: 7
+  max_age: 7
+
+  # Maximum number of old files to keep
+  # Default: 3
+  max_backups: 3
+
+  # Compress rotated files
+  # Default: true
+  compress: true
 ```
 
 ### Structured Logging Fields
@@ -956,11 +738,10 @@ logging:
     service: "slurm-exporter"
     environment: "production"
     cluster: "hpc-prod"
-    
-  # Fields from environment variables
-  fieldsFromEnv:
-    pod_name: "HOSTNAME"
-    namespace: "KUBERNETES_NAMESPACE"
+
+  # Suppress HTTP request logs
+  # Default: false
+  suppress_http: false
 ```
 
 ## Advanced Configuration
@@ -969,124 +750,37 @@ logging:
 
 ```yaml
 metrics:
-  # Include Go runtime metrics
-  # Default: true
-  includeGoMetrics: true
-  
-  # Include process metrics
-  # Default: true
-  includeProcessMetrics: true
-  
-  # Metric name prefix
+  # Metric namespace
   # Default: "slurm"
-  prefix: "slurm"
-  
-  # Histogram buckets configuration
-  histograms:
-    # Request duration buckets (seconds)
-    requestDuration:
-      - 0.001
-      - 0.005
-      - 0.01
-      - 0.05
-      - 0.1
-      - 0.5
-      - 1
-      - 5
-      - 10
-    
-    # Response size buckets (bytes)
-    responseSize:
-      - 100
-      - 1000
-      - 10000
-      - 100000
-      - 1000000
-```
+  namespace: "slurm"
 
-### Caching Configuration
+  # Metric subsystem
+  # Default: "exporter"
+  subsystem: "exporter"
 
-```yaml
-cache:
-  # Enable caching
-  # Default: true
-  enabled: true
-  
-  # Cache backend
-  # Options: "memory", "redis"
-  # Default: "memory"
-  backend: "memory"
-  
-  # Default TTL for cache entries
-  # Default: "60s"
-  defaultTTL: "60s"
-  
-  # Maximum cache size (memory backend)
-  # Default: 1000
-  maxSize: 1000
-  
-  # Cache key prefix
-  # Default: "slurm-exporter"
-  keyPrefix: "slurm-exporter"
-  
-  # Redis configuration (if backend is redis)
-  redis:
-    address: "localhost:6379"
-    password: ""
-    db: 0
-    maxRetries: 3
-    poolSize: 10
-```
+  # Additional constant labels applied to all metrics
+  const_labels: {}
 
-### Rate Limiting
+  # Maximum age for summary metrics
+  # Default: "5m"
+  max_age: "5m"
 
-```yaml
-rateLimit:
-  # Enable rate limiting
-  # Default: false
-  enabled: true
-  
-  # Requests per second
-  # Default: 10
-  requestsPerSecond: 10
-  
-  # Burst size
-  # Default: 20
-  burst: 20
-  
-  # Rate limit by
-  # Options: "global", "ip", "user"
-  # Default: "global"
-  by: "ip"
-  
-  # Exclude certain IPs from rate limiting
-  excludeIPs:
-    - "127.0.0.1"
-    - "10.0.0.0/8"
-```
+  # Number of age buckets for summaries
+  # Default: 5
+  age_buckets: 5
 
-### Feature Flags
+  # Registry configuration
+  registry:
+    enable_go_collector: true
+    enable_process_collector: true
+    enable_build_info: true
 
-```yaml
-features:
-  # Enable experimental features
-  experimental:
-    # Enable experimental collectors
-    collectors: false
-    
-    # Enable experimental metrics
-    metrics: false
-    
-    # Enable experimental API endpoints
-    api: false
-  
-  # Deprecated features (for backward compatibility)
-  deprecated:
-    # Enable v1 metrics format
-    v1Metrics: false
-    
-    # Enable legacy authentication
-    legacyAuth: false
+  # Cardinality management
+  cardinality:
+    max_series: 10000
+    max_labels: 100
+    max_label_size: 1024
+    warn_limit: 8000
 ```
 
 ## Environment Variables
@@ -1106,11 +800,11 @@ export SLURM_EXPORTER_SERVER_TLS_CERT_FILE="/etc/ssl/certs/server.crt"
 export SLURM_EXPORTER_SLURM_BASE_URL="http://slurm-server:6820"
 export SLURM_EXPORTER_SLURM_AUTH_TYPE="jwt"
 export SLURM_EXPORTER_SLURM_AUTH_TOKEN="your-jwt-token"
+export SLURM_EXPORTER_SLURM_AUTH_USERNAME="your-slurm-username"
 
 # Collector configuration
 export SLURM_EXPORTER_COLLECTORS_NODES_ENABLED="true"
 export SLURM_EXPORTER_COLLECTORS_NODES_INTERVAL="60s"
-export SLURM_EXPORTER_COLLECTORS_NODES_BATCH_SIZE="100"
 
 # Logging configuration
 export SLURM_EXPORTER_LOGGING_LEVEL="info"
@@ -1140,7 +834,7 @@ export SLURM_EXPORTER_ENABLE_COLLECTORS="nodes,jobs,partitions"
 ```yaml
 # Minimal configuration for development
 slurm:
-  baseURL: "http://localhost:6820"
+  base_url: "http://localhost:6820"
 ```
 
 ### Development Configuration
@@ -1149,10 +843,9 @@ slurm:
 # Development configuration with debug logging
 server:
   address: ":8080"
-  enablePprof: true
 
 slurm:
-  baseURL: "http://slurm-dev:6820"
+  base_url: "http://slurm-dev:6820"
   auth:
     type: "basic"
     username: "dev-user"
@@ -1160,17 +853,11 @@ slurm:
 
 collectors:
   global:
-    interval: "10s"
-  nodes:
-    batchSize: 10
-  jobs:
-    batchSize: 50
+    default_interval: "10s"
 
 logging:
   level: "debug"
   format: "text"
-  color: true
-  caller: true
 ```
 
 ### Production Configuration
@@ -1179,78 +866,59 @@ logging:
 # Production configuration with high availability
 server:
   address: ":8080"
-  readTimeout: "30s"
-  writeTimeout: "30s"
+  read_timeout: "30s"
+  write_timeout: "30s"
   tls:
     enabled: true
-    certFile: "/etc/ssl/certs/server.crt"
-    keyFile: "/etc/ssl/private/server.key"
-    minVersion: "1.2"
-  auth:
+    cert_file: "/etc/ssl/certs/server.crt"
+    key_file: "/etc/ssl/private/server.key"
+    min_version: "1.2"
+  basic_auth:
     enabled: true
-    htpasswdFile: "/etc/slurm-exporter/htpasswd"
+    username: "prometheus"
+    password: "secure-password-here"
 
 slurm:
-  baseURL: "https://slurm-prod.company.com:6820"
-  connectionTimeout: "10s"
-  requestTimeout: "30s"
-  maxConnsPerHost: 20
+  base_url: "https://slurm-prod.company.com:6820"
+  timeout: "30s"
+  retry_attempts: 3
+  retry_delay: "5s"
   auth:
     type: "jwt"
-    tokenFile: "/run/secrets/slurm-jwt-token"
-    refresh:
-      enabled: true
-      beforeExpiry: "5m"
-  retry:
-    enabled: true
-    maxRetries: 3
+    username: "slurm-exporter"
+    token_file: "/run/secrets/slurm-jwt-token"
   tls:
-    enabled: true
-    caFile: "/etc/ssl/certs/company-ca.crt"
+    ca_cert_file: "/etc/ssl/certs/company-ca.crt"
 
 collectors:
   nodes:
     interval: "60s"
-    timeout: "50s"
-    batchSize: 200
-    concurrency: 10
+    timeout: "10s"
   jobs:
     interval: "30s"
-    batchSize: 1000
-    includeStates: ["RUNNING", "PENDING"]
+    filters:
+      job_states: ["RUNNING", "PENDING"]
   partitions:
     interval: "300s"
-    excludePartitions: ["test", "debug"]
-
-cache:
-  enabled: true
-  backend: "redis"
-  redis:
-    address: "redis-cluster:6379"
-    poolSize: 20
+    filters:
+      exclude_partitions: ["test", "debug"]
 
 logging:
   level: "warn"
   format: "json"
-  file:
-    enabled: true
-    path: "/var/log/slurm-exporter/exporter.log"
-    maxSize: 100
-    maxBackups: 5
-    compress: true
+  output: "file"
+  file: "/var/log/slurm-exporter/exporter.log"
+  max_size: 100
+  max_backups: 5
+  compress: true
   fields:
     environment: "production"
     datacenter: "us-east-1"
 
 metrics:
-  includeGoMetrics: false
-  includeProcessMetrics: true
-
-rateLimit:
-  enabled: true
-  requestsPerSecond: 100
-  burst: 200
-  by: "ip"
+  registry:
+    enable_go_collector: false
+    enable_process_collector: true
 ```
 
 ### Large Cluster Configuration
@@ -1259,76 +927,51 @@ rateLimit:
 # Configuration optimized for large SLURM clusters (10k+ nodes)
 server:
   address: ":8080"
-  readTimeout: "60s"
-  writeTimeout: "60s"
-  maxHeaderBytes: 2097152  # 2MB
+  read_timeout: "60s"
+  write_timeout: "60s"
+  max_request_size: 2097152  # 2MB
 
 slurm:
-  baseURL: "https://slurm-large.company.com:6820"
-  connectionTimeout: "30s"
-  requestTimeout: "120s"
-  maxIdleConns: 100
-  maxConnsPerHost: 100
-  retry:
-    enabled: true
-    maxRetries: 5
-    maxDelay: "60s"
+  base_url: "https://slurm-large.company.com:6820"
+  timeout: "120s"
+  retry_attempts: 5
+  retry_delay: "10s"
 
 collectors:
   global:
-    timeout: "110s"
+    default_timeout: "110s"
   nodes:
     enabled: true
     interval: "300s"  # 5 minutes
     timeout: "240s"   # 4 minutes
-    batchSize: 500
-    concurrency: 20
-    metrics:
-      info: true
-      cpu: true
-      memory: true
-      gpu: false      # Disable if not needed
-      network: false
-      disk: false
   jobs:
     enabled: true
     interval: "60s"
     timeout: "50s"
-    batchSize: 2000
-    includeStates: ["RUNNING", "PENDING"]
-    timeWindow:
-      lookback: "1h"  # Only recent jobs
-    labels:
-      maxUsers: 500
-      maxAccounts: 200
+    filters:
+      job_states: ["RUNNING", "PENDING"]
   partitions:
     enabled: true
     interval: "600s"  # 10 minutes
     timeout: "300s"   # 5 minutes
 
-cache:
-  enabled: true
-  backend: "memory"
-  maxSize: 10000
-  defaultTTL: "300s"  # 5 minutes
-
 logging:
   level: "info"
   format: "json"
-  file:
-    enabled: true
-    path: "/var/log/slurm-exporter/exporter.log"
-    maxSize: 200
-    maxBackups: 10
+  output: "file"
+  file: "/var/log/slurm-exporter/exporter.log"
+  max_size: 200
+  max_backups: 10
 
 metrics:
-  includeGoMetrics: false
-  includeProcessMetrics: false  # Reduce overhead
+  registry:
+    enable_go_collector: false
+    enable_process_collector: false  # Reduce overhead
 
-rateLimit:
-  enabled: true
-  requestsPerSecond: 1000
-  burst: 2000
+slurm:
+  rate_limit:
+    requests_per_second: 1000.0
+    burst_size: 2000
 ```
 
 ### Multi-Cluster Configuration
@@ -1339,15 +982,14 @@ rateLimit:
 
 # Instance 1: Cluster A
 slurm:
-  baseURL: "https://slurm-cluster-a.company.com:6820"
+  base_url: "https://slurm-cluster-a.company.com:6820"
   auth:
     type: "jwt"
-    tokenEnv: "SLURM_TOKEN_CLUSTER_A"
+    username: "exporter-user"
+    token_file: "/run/secrets/slurm-token-cluster-a"
 
-collectors:
-  global:
-    namespace: "slurm"
-    subsystem: "cluster_a"
+metrics:
+  subsystem: "cluster_a"
 
 logging:
   fields:
@@ -1355,17 +997,16 @@ logging:
     region: "us-east"
 
 ---
-# Instance 2: Cluster B
+# Instance 2: Cluster B (separate config file)
 slurm:
-  baseURL: "https://slurm-cluster-b.company.com:6820"
+  base_url: "https://slurm-cluster-b.company.com:6820"
   auth:
     type: "jwt"
-    tokenEnv: "SLURM_TOKEN_CLUSTER_B"
+    username: "exporter-user"
+    token_file: "/run/secrets/slurm-token-cluster-b"
 
-collectors:
-  global:
-    namespace: "slurm"
-    subsystem: "cluster_b"
+metrics:
+  subsystem: "cluster_b"
 
 logging:
   fields:
@@ -1382,23 +1023,24 @@ logging:
    server:
      tls:
        enabled: true
-       minVersion: "1.2"
+       min_version: "1.2"
    ```
 
 2. **Store sensitive data in secrets**
    ```yaml
    slurm:
      auth:
-       tokenFile: "/run/secrets/slurm-token"  # Good
-       # token: "hardcoded-token"             # Bad
+       token_file: "/run/secrets/slurm-token"  # Good
+       # token: "hardcoded-token"               # Bad
    ```
 
 3. **Enable authentication for metrics endpoint**
    ```yaml
    server:
-     auth:
+     basic_auth:
        enabled: true
-       htpasswdFile: "/etc/slurm-exporter/htpasswd"
+       username: "prometheus"
+       password: "secure-password-here"
    ```
 
 4. **Use least privilege principle**
@@ -1413,26 +1055,30 @@ logging:
    - Medium clusters (100-1000 nodes): 60s intervals
    - Large clusters (> 1000 nodes): 300s intervals
 
-2. **Adjust batch sizes and concurrency**
+2. **Adjust concurrency for your environment**
    ```yaml
    collectors:
      nodes:
-       batchSize: 200      # Increase for better performance
-       concurrency: 10     # Increase for parallel processing
+       max_concurrency: 2
+     jobs:
+       max_concurrency: 3
    ```
 
-3. **Enable caching for stable data**
+3. **Disable unnecessary collectors**
    ```yaml
-   cache:
-     enabled: true
-     defaultTTL: "300s"
+   collectors:
+     qos:
+       enabled: false       # If not needed
+     reservations:
+       enabled: false       # If not needed
    ```
 
-4. **Disable unnecessary metrics**
+4. **Disable unnecessary registry metrics**
    ```yaml
    metrics:
-     includeGoMetrics: false      # If not needed
-     includeProcessMetrics: false # If not needed
+     registry:
+       enable_go_collector: false       # If not needed
+       enable_process_collector: false   # If not needed
    ```
 
 ### Operational Best Practices
@@ -1449,11 +1095,11 @@ logging:
 2. **Enable file logging with rotation**
    ```yaml
    logging:
-     file:
-       enabled: true
-       maxSize: 100
-       maxBackups: 5
-       compress: true
+     output: "file"
+     file: "/var/log/slurm-exporter/exporter.log"
+     max_size: 100
+     max_backups: 5
+     compress: true
    ```
 
 3. **Monitor exporter health**
@@ -1474,21 +1120,16 @@ logging:
    git commit -m "Update production configuration"
    ```
 
-2. **Validate configurations before deployment**
-   ```bash
-   slurm-exporter --config config.yaml --validate
-   ```
-
-3. **Use environment-specific configurations**
+2. **Use environment-specific configurations**
    ```bash
    # Development
    slurm-exporter --config config/dev.yaml
-   
+
    # Production
    slurm-exporter --config config/prod.yaml
    ```
 
-4. **Document configuration changes**
+3. **Document configuration changes**
    ```yaml
    # config.yaml
    # Last updated: 2024-01-01
@@ -1517,7 +1158,7 @@ curl http://localhost:8080/debug/config/status
 
 The following settings can be reloaded without restarting the exporter:
 
-**✅ Hot-Reloadable:**
+**Hot-Reloadable:**
 - Collector intervals and filters
 - Logging level and format
 - Cache TTL settings and size limits
@@ -1527,35 +1168,12 @@ The following settings can be reloaded without restarting the exporter:
 - Health check configurations
 - Metrics collection options
 
-**❌ Non-Reloadable (Requires Restart):**
+**Non-Reloadable (Requires Restart):**
 - SLURM connection details (URL, authentication)
 - Server address and port
 - TLS configuration
 - Performance limits (memory, cardinality)
 - OpenTelemetry tracing configuration
-
-### Reload Configuration
-
-```yaml
-# Hot reload configuration
-hotReload:
-  # Enable configuration hot reload
-  enabled: true
-  
-  # Watch configuration file for changes
-  watchFile: true
-  
-  # Reload interval for file watching
-  watchInterval: 30s
-  
-  # Validation on reload
-  validateOnReload: true
-  
-  # Reload hooks
-  hooks:
-    preReload: "/usr/local/bin/pre-reload-hook.sh"
-    postReload: "/usr/local/bin/post-reload-hook.sh"
-```
 
 ### Reload Events
 
@@ -1576,38 +1194,13 @@ Available reload metrics:
 
 ## Configuration Validation
 
-### Command-Line Validation
-
-```bash
-# Validate configuration file
-slurm-exporter --config config.yaml --validate
-
-# Test configuration with dry-run
-slurm-exporter --config config.yaml --dry-run
-
-# Check specific collector configuration
-slurm-exporter --config config.yaml --validate-collector nodes
-```
-
-### Configuration Schema
-
-The exporter provides a JSON schema for validation:
-
-```bash
-# Get configuration schema
-slurm-exporter --print-schema > config-schema.json
-
-# Validate using schema
-ajv validate -s config-schema.json -d config.yaml
-```
-
 ### Common Validation Errors
 
 1. **Invalid duration format**
    ```yaml
    # Wrong
    interval: 30  # Missing unit
-   
+
    # Correct
    interval: "30s"
    ```
@@ -1615,26 +1208,23 @@ ajv validate -s config-schema.json -d config.yaml
 2. **Invalid URL format**
    ```yaml
    # Wrong
-   baseURL: "slurm-server:6820"  # Missing protocol
-   
+   base_url: "slurm-server:6820"  # Missing protocol
+
    # Correct
-   baseURL: "http://slurm-server:6820"
+   base_url: "http://slurm-server:6820"
    ```
 
-3. **Conflicting settings**
+3. **JWT auth with username**
    ```yaml
-   # Wrong
+   # This is correct - username IS used with JWT auth
+   # It sets the X-SLURM-USER-NAME header required by SLURM REST API
    auth:
      type: "jwt"
-     username: "user"  # Not used with JWT
-   
-   # Correct
-   auth:
-     type: "jwt"
+     username: "slurm-user"
      token: "..."
    ```
 
 For more information, see:
 - [Installation Guide](installation.md)
-- [Metrics Documentation](metrics.md)
+- [Metrics Documentation](../website/docs/user-guide/metrics.md)
 - [Troubleshooting Guide](troubleshooting.md)

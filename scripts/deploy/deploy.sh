@@ -298,9 +298,9 @@ show_post_deployment_info() {
 
     # Show how to access the exporter
     print_info "To access the SLURM Exporter:"
-    echo "  kubectl port-forward -n $NAMESPACE service/$HELM_RELEASE_NAME 8080:8080"
-    echo "  curl http://localhost:8080/health"
-    echo "  curl http://localhost:8080/metrics"
+    echo "  kubectl port-forward -n $NAMESPACE service/$HELM_RELEASE_NAME 10341:10341"
+    echo "  curl http://localhost:10341/health"
+    echo "  curl http://localhost:10341/metrics"
 }
 
 # Main function

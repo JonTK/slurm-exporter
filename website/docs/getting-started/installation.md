@@ -17,139 +17,8 @@ This guide covers all installation methods for SLURM Exporter. Choose the method
 - **Network**: Low-latency connection to SLURM controller
 
 ### SLURM Compatibility
-- **SLURM Version**: 20.02+ (recommended: 22.05+)
-- **REST API**: Enabled with authentication
-- **Database**: Read access (optional but recommended for full metrics)
-
-## Kubernetes {#kubernetes}
-
-Kubernetes deployment is the recommended method for production environments, providing automatic scaling, rolling updates, and integrated monitoring.
-
-### Prerequisites
-
-- Kubernetes 1.19+
-- Helm 3.7+
-- kubectl configured for your cluster
-
-### Helm Repository Setup
-
-```bash
-# Add the SLURM Exporter Helm repository
-helm repo add slurm-exporter https://jontk.github.io/slurm-exporter
-helm repo update
-```
-
-### Quick Installation
-
-```bash
-# Basic installation with minimal configuration
-helm install slurm-exporter slurm-exporter/slurm-exporter \
-  --set config.slurm.host=your-slurm-controller.example.com \
-  --set config.slurm.auth.token=your-jwt-token
-```
-
-### Production Installation
-
-Create a values file for production configuration:
-
-```yaml title="production-values.yaml"
-# Production configuration
-replicaCount: 3
-
-config:
-  slurm:
-    host: "slurm-controller.example.com"
-    port: 6820
-    auth:
-      type: "jwt"
-      token: "your-jwt-token"
-    tls:
-      enabled: true
-      verify: true
-
-  metrics:
-    enabled_collectors:
-      - jobs
-      - nodes
-      - partitions
-      - accounts
-      - fairshare
-      - qos
-    collection_interval: 30s
-    job_analytics:
-      enabled: true
-      efficiency_calculation: true
-      waste_detection: true
-
-  performance:
-    cache:
-      enabled: true
-      ttl: 300s
-    connection_pool:
-      max_connections: 10
-    batch_processing:
-      enabled: true
-      batch_size: 1000
-
-# Resource configuration
-resources:
-  limits:
-    cpu: 2000m
-    memory: 4Gi
-  requests:
-    cpu: 500m
-    memory: 1Gi
-
-# High availability
-podDisruptionBudget:
-  enabled: true
-  minAvailable: 2
-
-# Monitoring
-serviceMonitor:
-  enabled: true
-  interval: 30s
-
-# Security
-securityContext:
-  runAsNonRoot: true
-  runAsUser: 65534
-  fsGroup: 65534
-
-podSecurityContext:
-  seccompProfile:
-    type: RuntimeDefault
-```
-
-Install with production values:
-
-```bash
-helm install slurm-exporter slurm-exporter/slurm-exporter \
-  --namespace monitoring \
-  --create-namespace \
-  --values production-values.yaml
-```
-
-### Upgrade
-
-```bash
-helm upgrade slurm-exporter slurm-exporter/slurm-exporter \
-  --values production-values.yaml
-```
-
-### Verification
-
-```bash
-# Check pod status
-kubectl get pods -n monitoring -l app.kubernetes.io/name=slurm-exporter
-
-# Check service
-kubectl get svc -n monitoring slurm-exporter
-
-# Check metrics endpoint
-kubectl port-forward -n monitoring svc/slurm-exporter 9341:9341
-curl http://localhost:9341/metrics
-```
+- **SLURM REST API**: Enabled with authentication (slurmrestd)
+- **Supported API Versions**: v0.0.40, v0.0.41, v0.0.42, v0.0.43, v0.0.44
 
 ## Docker {#docker}
 
@@ -161,10 +30,9 @@ Docker deployment is perfect for development, testing, and simple production set
 docker run -d \
   --name slurm-exporter \
   --restart unless-stopped \
-  -p 9341:9341 \
-  -e SLURM_EXPORTER_SLURM_HOST=your-slurm-controller.example.com \
-  -e SLURM_EXPORTER_SLURM_TOKEN=your-jwt-token \
-  slurm/exporter:latest
+  -p 10341:10341 \
+  -v $(pwd)/config.yaml:/etc/slurm-exporter/config.yaml:ro \
+  ghcr.io/jontk/slurm-exporter:latest
 ```
 
 ### Docker Compose
@@ -176,21 +44,15 @@ version: '3.8'
 
 services:
   slurm-exporter:
-    image: slurm/exporter:latest
+    image: ghcr.io/jontk/slurm-exporter:latest
     container_name: slurm-exporter
     restart: unless-stopped
     ports:
-      - "9341:9341"
-    environment:
-      SLURM_EXPORTER_LOG_LEVEL: info
-      SLURM_EXPORTER_SLURM_HOST: your-slurm-controller.example.com
-      SLURM_EXPORTER_SLURM_PORT: 6820
-      SLURM_EXPORTER_SLURM_TOKEN: your-jwt-token
+      - "10341:10341"
     volumes:
-      - ./config:/etc/slurm-exporter:ro
-      - ./logs:/var/log/slurm-exporter
+      - ./config.yaml:/etc/slurm-exporter/config.yaml:ro
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9341/health"]
+      test: ["CMD", "/usr/local/bin/slurm-exporter", "--health-check"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -219,41 +81,48 @@ docker-compose up -d
 
 ### Configuration File
 
-Mount a configuration file for advanced settings:
+Create a configuration file for the exporter:
 
 ```bash
-# Create config directory
-mkdir -p ./config
-
 # Create configuration file
-cat > ./config/config.yaml << 'EOF'
+cat > ./config.yaml << 'EOF'
+server:
+  address: ":10341"
+  metrics_path: "/metrics"
+  health_path: "/health"
+  ready_path: "/ready"
+
 slurm:
-  host: "your-slurm-controller.example.com"
-  port: 6820
+  base_url: "http://your-slurm-controller.example.com:6820"
+  api_version: "v0.0.44"
   auth:
     type: "jwt"
+    username: "root"
     token: "your-jwt-token"
+  timeout: 30s
+  retry_attempts: 3
+  retry_delay: 5s
 
-metrics:
-  enabled_collectors:
-    - jobs
-    - nodes
-    - partitions
-  collection_interval: 30s
+collectors:
+  jobs:
+    enabled: true
+  nodes:
+    enabled: true
+  partitions:
+    enabled: true
 
-server:
-  port: 9341
-  log_level: info
+logging:
+  level: "info"
+  format: "json"
 EOF
 
 # Run with mounted config
 docker run -d \
   --name slurm-exporter \
   --restart unless-stopped \
-  -p 9341:9341 \
-  -v $(pwd)/config:/etc/slurm-exporter:ro \
-  slurm/exporter:latest \
-  --config.file=/etc/slurm-exporter/config.yaml
+  -p 10341:10341 \
+  -v $(pwd)/config.yaml:/etc/slurm-exporter/config.yaml:ro \
+  ghcr.io/jontk/slurm-exporter:latest
 ```
 
 ## Package Installation {#packages}
@@ -367,7 +236,7 @@ After=network.target
 Type=simple
 User=slurm-exporter
 Group=slurm-exporter
-ExecStart=/usr/local/bin/slurm-exporter --config.file=/etc/slurm-exporter/config.yaml
+ExecStart=/usr/local/bin/slurm-exporter --config=/etc/slurm-exporter/config.yaml
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
 RestartSec=5
@@ -397,23 +266,34 @@ sudo systemctl enable slurm-exporter
 ```bash
 # Create basic configuration
 sudo tee /etc/slurm-exporter/config.yaml << 'EOF'
+server:
+  address: ":10341"
+  metrics_path: "/metrics"
+  health_path: "/health"
+  ready_path: "/ready"
+
 slurm:
-  host: "your-slurm-controller.example.com"
-  port: 6820
+  base_url: "http://your-slurm-controller.example.com:6820"
+  api_version: "v0.0.44"
   auth:
     type: "jwt"
+    username: "root"
     token: "your-jwt-token"
+  timeout: 30s
+  retry_attempts: 3
+  retry_delay: 5s
 
-metrics:
-  enabled_collectors:
-    - jobs
-    - nodes
-    - partitions
-  collection_interval: 30s
+collectors:
+  jobs:
+    enabled: true
+  nodes:
+    enabled: true
+  partitions:
+    enabled: true
 
-server:
-  port: 9341
-  log_level: info
+logging:
+  level: "info"
+  format: "json"
 EOF
 
 # Set permissions
@@ -447,9 +327,6 @@ make build
 # Build for specific platform
 make build GOOS=linux GOARCH=amd64
 
-# Build with custom tags
-make build TAGS="netgo static_build"
-
 # Run tests
 make test
 
@@ -471,21 +348,6 @@ make fmt
 
 # Run linting
 make lint
-
-# Run security checks
-make security
-```
-
-### Cross-Platform Build
-
-```bash
-# Build for all supported platforms
-make build-all
-
-# Build specific platforms
-make build-linux
-make build-darwin
-make build-windows
 ```
 
 ## Post-Installation
@@ -496,18 +358,21 @@ After installation with any method, verify SLURM Exporter is working:
 
 ```bash
 # Check metrics endpoint
-curl http://localhost:9341/metrics
+curl http://localhost:10341/metrics
 
 # Check health endpoint
-curl http://localhost:9341/health
+curl http://localhost:10341/health
+
+# Check readiness endpoint
+curl http://localhost:10341/ready
 
 # Check specific metric
-curl -s http://localhost:9341/metrics | grep slurm_jobs
+curl -s http://localhost:10341/metrics | grep slurm_
 ```
 
 ### Initial Configuration
 
-1. **Update configuration** with your SLURM details
+1. **Update configuration** with your SLURM details (base_url, auth token)
 2. **Test connection** to SLURM REST API
 3. **Enable desired collectors** based on your needs
 4. **Configure Prometheus** to scrape metrics
@@ -515,10 +380,10 @@ curl -s http://localhost:9341/metrics | grep slurm_jobs
 
 ### Next Steps
 
-- [→ Quick Start Guide](quickstart.md) - Get basic monitoring running
-- [→ Configuration Reference](../user-guide/configuration.md) - Detailed configuration options
-- [→ Prometheus Integration](../integration/prometheus.md) - Set up metric collection
-- [→ Grafana Dashboards](../integration/grafana.md) - Visualize your metrics
+- [-> Quick Start Guide](quickstart.md) - Get basic monitoring running
+- [-> Configuration Reference](../user-guide/configuration.md) - Detailed configuration options
+- [-> Prometheus Integration](../integration/prometheus.md) - Set up metric collection
+- [-> Grafana Dashboards](../integration/grafana.md) - Visualize your metrics
 
 ## Troubleshooting
 
@@ -535,19 +400,19 @@ journalctl -u slurm-exporter -f
 
 **Authentication failed**
 ```bash
-# Verify token
+# Verify token against SLURM REST API
 curl -H "X-SLURM-USER-NAME: your-user" \
      -H "X-SLURM-USER-TOKEN: your-token" \
-     http://your-slurm-host:6820/slurm/v0.0.40/ping
+     http://your-slurm-host:6820/slurm/v0.0.44/ping
 ```
 
 **No metrics**
 ```bash
-# Check configuration
-slurm-exporter --config.check
+# Check exporter logs for errors
+journalctl -u slurm-exporter -n 50
 
 # Test with debug logging
-slurm-exporter --log.level=debug
+slurm-exporter --config=/etc/slurm-exporter/config.yaml --log-level=debug
 ```
 
 For more troubleshooting information, visit our [Troubleshooting Guide](../user-guide/troubleshooting.md).

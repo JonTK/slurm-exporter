@@ -12,8 +12,8 @@ Before installing SLURM Exporter, ensure you have:
 
 ### SLURM Environment
 - **SLURM version**: 20.02+ (recommended: 22.05+)
-- **SLURM REST API**: Enabled and accessible
-- **Database access**: Read access to SLURM database (optional but recommended)
+- **SLURM REST API**: Enabled and accessible (slurmrestd)
+- **API version**: v0.0.40 through v0.0.44 supported
 
 ### Infrastructure
 - **Operating System**: Linux (RHEL/CentOS 7+, Ubuntu 18.04+, SLES 15+)
@@ -31,25 +31,20 @@ Before installing SLURM Exporter, ensure you have:
 
 Choose the installation method that best fits your environment:
 
-### :material-kubernetes: Kubernetes (Recommended)
-Perfect for containerized environments with automatic scaling and management.
-
-[→ Kubernetes Installation](installation.md#kubernetes){ .md-button .md-button--primary }
-
 ### :material-docker: Docker
 Quick setup for testing and development environments.
 
-[→ Docker Installation](installation.md#docker){ .md-button }
+[-> Docker Installation](installation.md#docker){ .md-button .md-button--primary }
 
 ### :material-package-variant: Package Manager
 System packages for RHEL/CentOS, Ubuntu, and SUSE distributions.
 
-[→ Package Installation](installation.md#packages){ .md-button }
+[-> Package Installation](installation.md#packages){ .md-button }
 
 ### :material-hammer-wrench: From Source
 Build from source for custom configurations or development.
 
-[→ Build from Source](installation.md#source){ .md-button }
+[-> Build from Source](installation.md#source){ .md-button }
 
 ## Quick Start Paths
 
@@ -62,7 +57,7 @@ Get basic monitoring running immediately:
 3. **Verify** metrics collection
 4. **View** in Prometheus
 
-[→ Quick Start Guide](quickstart.md){ .md-button .md-button--primary }
+[-> Quick Start Guide](quickstart.md){ .md-button .md-button--primary }
 
 ### :material-cog: Production Setup
 
@@ -73,37 +68,48 @@ Complete production deployment with high availability:
 3. **Deploy** with redundancy
 4. **Monitor** the monitoring
 
-<!-- [→ Production Guide](../deployment/production.md){ .md-button } -->
+<!-- [-> Production Guide](../deployment/production.md){ .md-button } -->
 
 ## Configuration Overview
 
 SLURM Exporter uses a flexible YAML configuration system:
 
 ```yaml title="Basic Configuration"
+# HTTP server settings
+server:
+  address: ":10341"
+  metrics_path: "/metrics"
+  health_path: "/health"
+  ready_path: "/ready"
+
 # SLURM connection settings
 slurm:
-  host: "slurm-controller.example.com"
-  port: 6820
+  base_url: "http://slurm-controller.example.com:6820"
+  api_version: "v0.0.44"
   auth:
     type: "jwt"
+    username: "root"
     token: "your-jwt-token"
+  timeout: 30s
+  retry_attempts: 3
+  retry_delay: 5s
 
-# Metric collection settings
-metrics:
-  enabled_collectors:
-    - jobs
-    - nodes
-    - partitions
-    - accounts
-  collection_interval: 30s
+# Collector settings
+collectors:
+  jobs:
+    enabled: true
+  nodes:
+    enabled: true
+  partitions:
+    enabled: true
 
-# Server settings
-server:
-  port: 9341
-  path: "/metrics"
+# Logging settings
+logging:
+  level: "info"
+  format: "json"
 ```
 
-[→ Full Configuration Reference](../user-guide/configuration.md){ .md-button }
+[-> Full Configuration Reference](../user-guide/configuration.md){ .md-button }
 
 ## Key Concepts
 
@@ -112,20 +118,20 @@ Collectors gather specific types of metrics:
 - **Jobs**: Job execution, queuing, resource usage
 - **Nodes**: Node health, utilization, hardware
 - **Partitions**: Queue status, limits, availability
-- **Accounts**: User activity, fairshare, quotas
+- **Users**: User activity and resource usage
+- **QoS**: Quality of Service policies
+- **Reservations**: Reservation status and resources
+- **System**: Cluster diagnostics and health
+- **Cluster**: Cluster-level overview metrics
 
-### Job Analytics
-Advanced analytics engine providing:
-- **Efficiency Scoring**: Automatic resource efficiency calculation
-- **Waste Detection**: Identification of underutilized resources
-- **Bottleneck Analysis**: Real-time cluster bottleneck identification
-- **Trend Analysis**: Historical performance tracking
+### Configuration Hot-Reload
+SLURM Exporter supports hot-reloading configuration without restart by watching the config file for changes.
 
 ### Performance Features
-- **Smart Caching**: Reduces SLURM API load
+- **Intelligent Caching**: Adaptive TTL reduces SLURM API load
 - **Batch Processing**: Efficient bulk metric collection
-- **Connection Pooling**: Optimized network usage
-- **Cardinality Control**: Prevents metric explosion
+- **Circuit Breaker**: Fault tolerance for SLURM API failures
+- **Graceful Degradation**: Serves cached metrics when API is unavailable
 
 ## Architecture Patterns
 
@@ -205,7 +211,7 @@ Choose your next step based on your needs:
 ## Community & Support
 
 - **GitHub**: [Report issues and contribute](https://github.com/jontk/slurm-exporter)
-- **Documentation**: You're reading it! 📚
+- **Documentation**: You're reading it!
 - **Community**: Join discussions on SLURM community forums
 
 ---

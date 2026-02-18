@@ -33,8 +33,8 @@ This comprehensive guide covers installation, configuration, and deployment of t
 
 #### SLURM Version Support
 - **Supported**: SLURM 20.11+ with REST API enabled
-- **Tested**: SLURM 21.08, 22.05, 23.02, 23.11
-- **REST API Versions**: v0.0.40 - v0.0.43
+- **Tested**: SLURM 21.08, 22.05, 23.02, 23.11, 24.05, 25.11
+- **REST API Versions**: v0.0.40 - v0.0.44
 
 #### SLURM REST API Configuration
 The SLURM REST API must be configured and running:
@@ -162,11 +162,7 @@ git --version
 ### 1. Deploy with Helm (Recommended)
 
 ```bash
-# Add the chart repository (when available)
-helm repo add slurm-exporter https://charts.slurm-exporter.io
-helm repo update
-
-# Or clone the repository
+# Use the local chart from the repository
 git clone https://github.com/jontk/slurm-exporter.git
 cd slurm-exporter
 
@@ -174,8 +170,9 @@ cd slurm-exporter
 helm install slurm-exporter ./charts/slurm-exporter \
   --namespace monitoring \
   --create-namespace \
-  --set config.slurm.baseURL="http://your-slurm-server:6820" \
+  --set config.slurm.base_url="http://your-slurm-server:6820" \
   --set config.slurm.auth.type="jwt" \
+  --set config.slurm.auth.username="your-slurm-user" \
   --set config.slurm.auth.token="your-jwt-token"
 
 # Verify deployment
@@ -189,9 +186,7 @@ kubectl get pods -n monitoring -l app.kubernetes.io/name=slurm-exporter
 git clone https://github.com/jontk/slurm-exporter.git
 cd slurm-exporter
 
-# Configure environment
-cp .env.example .env
-# Edit .env with your SLURM configuration
+# Create a config.yaml with your SLURM configuration (see Configuration section below)
 
 # Start services
 docker-compose up -d
@@ -204,20 +199,24 @@ curl http://localhost:8080/metrics
 
 ```bash
 # Download latest release
-wget https://github.com/jontk/slurm-exporter/releases/download/v1.0.0/slurm-exporter-linux-amd64.tar.gz
+wget https://github.com/jontk/slurm-exporter/releases/download/latest/slurm-exporter-linux-amd64.tar.gz
 tar xzf slurm-exporter-linux-amd64.tar.gz
 
 # Create configuration
 cat > config.yaml << EOF
 server:
   address: ":8080"
-  
+
 slurm:
-  baseURL: "http://your-slurm-server:6820"
+  base_url: "http://your-slurm-server:6820"
+  api_version: "v0.0.44"
+  timeout: 30s
+  retry_attempts: 3
   auth:
     type: "jwt"
+    username: "your-slurm-user"
     token: "your-jwt-token"
-    
+
 collectors:
   cluster:
     enabled: true
@@ -228,6 +227,9 @@ collectors:
   jobs:
     enabled: true
     interval: 30s
+
+validation:
+  allow_insecure_connections: true
 EOF
 
 # Run exporter
@@ -249,7 +251,8 @@ helm install slurm-exporter ./charts/slurm-exporter \
   --namespace monitoring \
   --create-namespace \
   --values charts/slurm-exporter/values-development.yaml \
-  --set config.slurm.baseURL="http://slurm-dev:6820" \
+  --set config.slurm.base_url="http://slurm-dev:6820" \
+  --set config.slurm.auth.username="your-slurm-user" \
   --set config.slurm.auth.token="dev-token"
 ```
 
@@ -269,20 +272,26 @@ resources:
 
 config:
   slurm:
-    baseURL: "https://slurm-prod.company.com:6820"
+    base_url: "https://slurm-prod.company.com:6820"
+    api_version: "v0.0.44"
+    timeout: 45s
+    retry_attempts: 5
     auth:
       type: "jwt"
       tokenSecretName: "slurm-jwt-token"
       tokenSecretKey: "token"
-    
+
   collectors:
     cluster:
+      enabled: true
       interval: 30s
     nodes:
+      enabled: true
       interval: 60s
     jobs:
+      enabled: true
       interval: 30s
-      
+
   server:
     tls:
       enabled: true
@@ -290,7 +299,7 @@ config:
 
 serviceMonitor:
   enabled: true
-  
+
 prometheusRule:
   enabled: true
 
@@ -374,13 +383,35 @@ kubectl apply -f k8s/servicemonitor.yaml
 git clone https://github.com/jontk/slurm-exporter.git
 cd slurm-exporter
 
-# Copy and edit environment file
-cp .env.example .env
-cat > .env << EOF
-SLURM_BASE_URL=http://your-slurm-server:6820
-SLURM_AUTH_TYPE=jwt
-SLURM_AUTH_TOKEN=your-jwt-token
-LOG_LEVEL=info
+# Create a configuration file
+cat > config.yaml << EOF
+server:
+  address: ":8080"
+
+slurm:
+  base_url: "http://your-slurm-server:6820"
+  api_version: "v0.0.44"
+  timeout: 30s
+  retry_attempts: 3
+  auth:
+    type: "jwt"
+    username: "your-slurm-user"
+    token: "your-jwt-token"
+
+collectors:
+  cluster:
+    enabled: true
+  nodes:
+    enabled: true
+  jobs:
+    enabled: true
+
+logging:
+  level: "info"
+  format: "text"
+
+validation:
+  allow_insecure_connections: true
 EOF
 
 # Start development stack
@@ -402,15 +433,16 @@ version: '3.8'
 
 services:
   slurm-exporter:
-    image: slurm-exporter:v1.0.0
+    image: ghcr.io/jontk/slurm-exporter:latest
     restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
-      - SLURM_BASE_URL=https://slurm-prod:6820
-      - SLURM_AUTH_TYPE=jwt
-      - SLURM_AUTH_TOKEN_FILE=/run/secrets/slurm_token
-      - LOG_LEVEL=warn
+      - SLURM_EXPORTER_SLURM_BASE_URL=https://slurm-prod:6820
+      - SLURM_EXPORTER_SLURM_AUTH_TYPE=jwt
+      - SLURM_EXPORTER_SLURM_AUTH_TOKEN_FILE=/run/secrets/slurm_token
+      - SLURM_EXPORTER_SLURM_AUTH_USERNAME=prometheus-exporter
+      - SLURM_EXPORTER_LOGGING_LEVEL=warn
     secrets:
       - slurm_token
     healthcheck:
@@ -443,7 +475,7 @@ secrets:
 #### System Service Installation
 ```bash
 # Download and install binary
-wget https://github.com/jontk/slurm-exporter/releases/download/v1.0.0/slurm-exporter-linux-amd64.tar.gz
+wget https://github.com/jontk/slurm-exporter/releases/download/latest/slurm-exporter-linux-amd64.tar.gz
 tar xzf slurm-exporter-linux-amd64.tar.gz
 sudo cp slurm-exporter /usr/local/bin/
 sudo chmod +x /usr/local/bin/slurm-exporter
@@ -457,16 +489,19 @@ sudo chown slurm-exporter:slurm-exporter /var/lib/slurm-exporter /var/log/slurm-
 sudo tee /etc/slurm-exporter/config.yaml << EOF
 server:
   address: ":8080"
-  readTimeout: 30s
-  writeTimeout: 30s
-  
+  read_timeout: 30s
+  write_timeout: 30s
+
 slurm:
-  baseURL: "http://your-slurm-server:6820"
+  base_url: "http://your-slurm-server:6820"
+  api_version: "v0.0.44"
   timeout: 30s
+  retry_attempts: 3
   auth:
     type: "jwt"
+    username: "your-slurm-user"
     token: "your-jwt-token"
-    
+
 collectors:
   cluster:
     enabled: true
@@ -477,11 +512,15 @@ collectors:
   jobs:
     enabled: true
     interval: 30s
-    
+
 logging:
   level: "info"
   format: "json"
+  output: "file"
   file: "/var/log/slurm-exporter/exporter.log"
+
+validation:
+  allow_insecure_connections: true
 EOF
 
 # Create systemd service
@@ -529,13 +568,16 @@ sudo systemctl status slurm-exporter
 # config/dev-config.yaml
 server:
   address: ":8080"
-  readTimeout: 30s
-  
+  read_timeout: 30s
+
 slurm:
-  baseURL: "http://localhost:6820"
+  base_url: "http://localhost:6820"
+  api_version: "v0.0.44"
+  timeout: 15s
+  retry_attempts: 2
   auth:
     type: "none"  # No auth for development
-    
+
 collectors:
   cluster:
     enabled: true
@@ -543,11 +585,16 @@ collectors:
   nodes:
     enabled: true
     interval: 60s
-    batchSize: 10  # Smaller batches for dev
-    
+  jobs:
+    enabled: true
+    interval: 15s
+
 logging:
   level: "debug"
   format: "text"
+
+validation:
+  allow_insecure_connections: true
 ```
 
 #### Production Configuration
@@ -555,21 +602,23 @@ logging:
 # config/prod-config.yaml
 server:
   address: ":8080"
-  readTimeout: 30s
-  writeTimeout: 30s
+  read_timeout: 30s
+  write_timeout: 30s
   tls:
     enabled: true
-    certFile: "/etc/ssl/certs/server.crt"
-    keyFile: "/etc/ssl/private/server.key"
-    
+    cert_file: "/etc/ssl/certs/server.crt"
+    key_file: "/etc/ssl/private/server.key"
+
 slurm:
-  baseURL: "https://slurm-prod.company.com:6820"
-  timeout: 30s
-  maxRetries: 3
+  base_url: "https://slurm-prod.company.com:6820"
+  api_version: "v0.0.44"
+  timeout: 45s
+  retry_attempts: 5
   auth:
     type: "jwt"
-    tokenFile: "/run/secrets/slurm-token"
-    
+    username: "prometheus-exporter"
+    token_file: "/run/secrets/slurm-token"
+
 collectors:
   cluster:
     enabled: true
@@ -579,20 +628,19 @@ collectors:
     enabled: true
     interval: 60s
     timeout: 45s
-    batchSize: 100
   jobs:
     enabled: true
     interval: 30s
     timeout: 25s
-    batchSize: 500
-    
+
 logging:
   level: "warn"
   format: "json"
+  output: "file"
   file: "/var/log/slurm-exporter/exporter.log"
-  maxSize: 100  # MB
-  maxBackups: 5
-  maxAge: 30    # days
+  max_size: 100  # MB
+  max_backups: 5
+  max_age: 30    # days
 ```
 
 ### Authentication Configuration
@@ -602,11 +650,10 @@ logging:
 slurm:
   auth:
     type: "jwt"
-    token: "eyJ0eXAiOiJKV1QiLCJhbGc..."  # Direct token
+    username: "prometheus-exporter"  # Sets the X-SLURM-USER-NAME header
+    token: "eyJ0eXAiOiJKV1QiLCJhbGc..."  # Direct token (sets X-SLURM-USER-TOKEN)
     # OR
-    tokenFile: "/run/secrets/slurm-token"  # Token from file
-    # OR
-    tokenEnv: "SLURM_JWT_TOKEN"  # Token from environment
+    token_file: "/run/secrets/slurm-token"  # Token from file
 ```
 
 #### API Key Authentication
@@ -614,11 +661,9 @@ slurm:
 slurm:
   auth:
     type: "apikey"
-    apiKey: "your-api-key"
+    api_key: "your-api-key"
     # OR
-    apiKeyFile: "/run/secrets/slurm-apikey"
-    # OR
-    apiKeyEnv: "SLURM_API_KEY"
+    api_key_file: "/run/secrets/slurm-apikey"
 ```
 
 #### Basic Authentication
@@ -629,9 +674,7 @@ slurm:
     username: "prometheus-user"
     password: "secure-password"
     # OR
-    passwordFile: "/run/secrets/slurm-password"
-    # OR
-    passwordEnv: "SLURM_PASSWORD"
+    password_file: "/run/secrets/slurm-password"
 ```
 
 ### Secret Management
@@ -672,7 +715,7 @@ graph TB
     A[Prometheus] --> B[SLURM Exporter]
     B --> C[SLURM REST API]
     C --> D[SLURM Cluster]
-    
+
     E[Grafana] --> A
     F[AlertManager] --> A
 ```
@@ -680,7 +723,7 @@ graph TB
 **Deployment:**
 ```bash
 helm install slurm-exporter ./charts/slurm-exporter \
-  --set config.slurm.baseURL="http://slurm-cluster:6820" \
+  --set config.slurm.base_url="http://slurm-cluster:6820" \
   --set replicaCount=2
 ```
 
@@ -691,7 +734,7 @@ graph TB
     A[Prometheus] --> B[SLURM Exporter 1]
     A --> C[SLURM Exporter 2]
     A --> D[SLURM Exporter 3]
-    
+
     B --> E[SLURM Cluster 1]
     C --> F[SLURM Cluster 2]
     D --> G[SLURM Cluster 3]
@@ -702,7 +745,7 @@ graph TB
 # Deploy exporter for each cluster
 for cluster in cluster1 cluster2 cluster3; do
   helm install slurm-exporter-$cluster ./charts/slurm-exporter \
-    --set config.slurm.baseURL="http://$cluster:6820" \
+    --set config.slurm.base_url="http://$cluster:6820" \
     --set fullnameOverride="slurm-exporter-$cluster" \
     --set serviceMonitor.jobLabel="slurm-cluster-$cluster"
 done
@@ -714,15 +757,15 @@ done
 graph TB
     A[Load Balancer] --> B[Prometheus 1]
     A --> C[Prometheus 2]
-    
+
     B --> D[SLURM Exporter Pod 1]
     B --> E[SLURM Exporter Pod 2]
     B --> F[SLURM Exporter Pod 3]
-    
+
     C --> D
     C --> E
     C --> F
-    
+
     D --> G[SLURM Cluster]
     E --> G
     F --> G
@@ -743,10 +786,10 @@ helm install slurm-exporter ./charts/slurm-exporter \
 graph TB
     A[Global Prometheus] --> B[Regional Prometheus 1]
     A --> C[Regional Prometheus 2]
-    
+
     B --> D[SLURM Exporter Region 1]
     C --> E[SLURM Exporter Region 2]
-    
+
     D --> F[SLURM Clusters Region 1]
     E --> G[SLURM Clusters Region 2]
 ```
@@ -756,7 +799,7 @@ graph TB
 # Global Prometheus federation config
 global:
   scrape_interval: 60s
-  
+
 scrape_configs:
   - job_name: 'federate'
     scrape_interval: 15s
@@ -865,8 +908,10 @@ ERROR SLURM API authentication failed: 401 Unauthorized
 
 **Solutions:**
 ```bash
-# Verify token validity
-curl -H "X-SLURM-USER-TOKEN: $TOKEN" http://slurm-server:6820/slurm/v0.0.40/ping
+# Verify token validity (SLURM requires both user name and token headers)
+curl -H "X-SLURM-USER-NAME: your-user" \
+     -H "X-SLURM-USER-TOKEN: $TOKEN" \
+     http://slurm-server:6820/slurm/v0.0.40/ping
 
 # Check secret exists (Kubernetes)
 kubectl get secret slurm-jwt-token -n monitoring -o yaml
@@ -891,7 +936,9 @@ WARN No SLURM metrics found
 kubectl get configmap slurm-exporter-config -n monitoring -o yaml
 
 # Verify SLURM API responses
-curl -H "X-SLURM-USER-TOKEN: $TOKEN" http://slurm-server:6820/slurm/v0.0.40/nodes
+curl -H "X-SLURM-USER-NAME: your-user" \
+     -H "X-SLURM-USER-TOKEN: $TOKEN" \
+     http://slurm-server:6820/slurm/v0.0.40/nodes
 
 # Check exporter logs for specific errors
 kubectl logs -n monitoring -l app.kubernetes.io/name=slurm-exporter | grep -i error
@@ -915,7 +962,6 @@ OOMKilled events in pod status
 collectors:
   nodes:
     interval: 120s  # Increase interval
-    batchSize: 50   # Reduce batch size
 
 # Increase memory limits
 # In values.yaml:
@@ -954,9 +1000,6 @@ curl http://slurm-exporter:8080/metrics
 ### Diagnostic Commands
 
 ```bash
-# Complete environment check
-./scripts/deploy/status.sh -e production --logs
-
 # Resource usage monitoring
 kubectl top pods -n monitoring --sort-by=memory
 
@@ -978,25 +1021,21 @@ kubectl logs -n monitoring -l app.kubernetes.io/name=slurm-exporter \
 
 ```yaml
 # Optimized configuration for large clusters
-config:
-  slurm:
-    maxConnections: 20
-    connectionTimeout: 10s
-    requestTimeout: 30s
-    
-  collectors:
-    nodes:
-      interval: 300s  # 5 minutes for large clusters
-      batchSize: 200
-      timeout: 120s
-    jobs:
-      interval: 60s
-      batchSize: 1000
-      timeout: 45s
-      
-  server:
-    maxConcurrentScrapes: 5
-    scrapeTimeout: 60s
+slurm:
+  base_url: "https://slurm-prod.company.com:6820"
+  api_version: "v0.0.44"
+  timeout: 60s
+  retry_attempts: 5
+
+collectors:
+  nodes:
+    enabled: true
+    interval: 300s  # 5 minutes for large clusters
+    timeout: 120s
+  jobs:
+    enabled: true
+    interval: 60s
+    timeout: 45s
 
 resources:
   limits:
@@ -1055,12 +1094,12 @@ helm upgrade slurm-exporter ./charts/slurm-exporter \
 # Large cluster configuration
 collectors:
   nodes:
+    enabled: true
     interval: 300s
-    batchSize: 500
   jobs:
+    enabled: true
     interval: 60s
-    batchSize: 2000
-    
+
 # Enable horizontal pod autoscaling
 autoscaling:
   enabled: true
@@ -1086,7 +1125,7 @@ helm upgrade slurm-exporter ./charts/slurm-exporter \
 ## Additional Resources
 
 - **Configuration Reference**: [docs/configuration.md](configuration.md)
-- **Metrics Documentation**: [docs/metrics.md](metrics.md)
+- **Metrics Documentation**: [Metrics Guide](../website/docs/user-guide/metrics.md)
 - **Alerting Guide**: [docs/alerting.md](alerting.md)
 - **High Availability**: [docs/deployment-ha.md](deployment-ha.md)
 - **Troubleshooting**: [docs/troubleshooting.md](troubleshooting.md)

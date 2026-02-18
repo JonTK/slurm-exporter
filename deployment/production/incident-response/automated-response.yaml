@@ -137,13 +137,13 @@ spec:
             fi
             
             # Check for service health
-            if ! curl -f -s http://slurm-exporter:8080/health > /dev/null; then
+            if ! curl -f -s http://slurm-exporter:10341/health > /dev/null; then
               echo "Service health check failed - triggering response"
               /scripts/respond.sh "service_outage" "critical"
             fi
             
             # Check for performance issues
-            RESPONSE_TIME=$(curl -w "%{time_total}" -o /dev/null -s http://slurm-exporter:8080/metrics || echo "999")
+            RESPONSE_TIME=$(curl -w "%{time_total}" -o /dev/null -s http://slurm-exporter:10341/metrics || echo "999")
             if [ $(echo "$RESPONSE_TIME > 5" | bc -l) -eq 1 ]; then
               echo "Performance degradation detected - response time: ${RESPONSE_TIME}s"
               /scripts/respond.sh "performance_degradation" "high"
@@ -316,7 +316,7 @@ data:
         
         # Wait and check
         sleep 30
-        if curl -f -s http://slurm-exporter:8080/health > /dev/null; then
+        if curl -f -s http://slurm-exporter:10341/health > /dev/null; then
           log "Service recovered after restart"
           notify "Service outage resolved automatically" "info"
         else
@@ -534,8 +534,8 @@ metadata:
     component: incident-response
 spec:
   ports:
-  - port: 8080
-    targetPort: 8080
+  - port: 10341
+    targetPort: 10341
     name: webhook
   selector:
     app: incident-webhook
@@ -591,7 +591,7 @@ spec:
           
           while true; do
             echo -e "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n{\"status\":\"ok\"}" | \
-            socat TCP-LISTEN:8080,fork,reuseaddr SYSTEM:'
+            socat TCP-LISTEN:10341,fork,reuseaddr SYSTEM:'
               read request
               while read header && [ "$header" != $'"'"'\r'"'"' ]; do :; done
               
@@ -610,7 +610,7 @@ spec:
           done
         
         ports:
-        - containerPort: 8080
+        - containerPort: 10341
           name: webhook
         
         resources:

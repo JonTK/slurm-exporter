@@ -21,7 +21,7 @@ spec:
         app.kubernetes.io/component: exporter
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
+        prometheus.io/port: "10341"
         prometheus.io/path: "/metrics"
     spec:
       serviceAccountName: slurm-exporter
@@ -69,7 +69,7 @@ spec:
         #       key: token
         ports:
         - name: metrics
-          containerPort: 8080
+          containerPort: 10341
           protocol: TCP
         livenessProbe:
           httpGet:

@@ -30,7 +30,7 @@ slurm:
 
 # Server configuration for staging
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
   health_path: "/health"
   ready_path: "/ready"
@@ -168,7 +168,7 @@ health:
   checks:
     - name: "slurm_api"
       type: "http"
-      endpoint: "${SLURM_REST_URL}/slurm/v0.0.39/ping"
+      endpoint: "${SLURM_REST_URL}/slurm/v0.0.44/ping"
       timeout: 5s
       headers:
         X-SLURM-USER-TOKEN: "${SLURM_JWT_TOKEN}"

@@ -10,7 +10,7 @@ metadata:
     service.beta.kubernetes.io/aws-load-balancer-type: nlb
     service.beta.kubernetes.io/aws-load-balancer-scheme: internal
     prometheus.io/scrape: "true"
-    prometheus.io/port: "8080"
+    prometheus.io/port: "10341"
     prometheus.io/path: "/metrics"
 spec:
   type: ClusterIP
@@ -19,7 +19,7 @@ spec:
     component: exporter
   ports:
   - name: http-metrics
-    port: 8080
+    port: 10341
     targetPort: http-metrics
     protocol: TCP
   - name: http-health
@@ -45,7 +45,7 @@ spec:
     component: exporter
   ports:
   - name: http-metrics
-    port: 8080
+    port: 10341
     targetPort: http-metrics
     protocol: TCP
   publishNotReadyAddresses: false

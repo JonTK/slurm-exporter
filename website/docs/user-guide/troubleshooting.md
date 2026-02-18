@@ -13,10 +13,13 @@ When SLURM Exporter isn't working correctly, follow these initial steps:
 
 ```bash
 # Quick health check
-curl -s http://localhost:9341/health | jq .
+curl -s http://localhost:10341/health | jq .
+
+# Check readiness
+curl -s http://localhost:10341/ready
 
 # Check if metrics are being collected
-curl -s http://localhost:9341/metrics | grep -c slurm_
+curl -s http://localhost:10341/metrics | grep -c slurm_
 
 # View recent logs
 sudo journalctl -u slurm-exporter -n 50 --no-pager
@@ -39,21 +42,26 @@ sudo journalctl -u slurm-exporter -n 50 --no-pager
 # Check if config file exists and is readable
 ls -la /etc/slurm-exporter/config.yaml
 
-# Validate configuration syntax
-slurm-exporter --config.file=/etc/slurm-exporter/config.yaml --validate-config
-
 # Test with minimal config
 cat > /tmp/minimal-config.yaml << 'EOF'
-slurm:
-  host: "localhost"
-  port: 6820
 server:
-  port: 9341
+  address: ":10341"
+  metrics_path: "/metrics"
+  health_path: "/health"
+  ready_path: "/ready"
+
+slurm:
+  base_url: "http://localhost:6820"
+  api_version: "v0.0.44"
+  auth:
+    type: "none"
+
 logging:
   level: "debug"
+  format: "text"
 EOF
 
-slurm-exporter --config.file=/tmp/minimal-config.yaml
+slurm-exporter --config=/tmp/minimal-config.yaml
 ```
 
 **Permission Issues:**
@@ -74,11 +82,11 @@ sudo systemctl show slurm-exporter | grep User
 
 ```bash
 # Check if port is in use
-sudo netstat -tlnp | grep 9341
-sudo lsof -i :9341
+sudo netstat -tlnp | grep 10341
+sudo lsof -i :10341
 
-# Use different port temporarily
-slurm-exporter --web.listen-address=:9342
+# Use different port via CLI flag
+slurm-exporter --config=/etc/slurm-exporter/config.yaml --addr=:9090
 ```
 
 ### 2. Cannot Connect to SLURM
@@ -95,12 +103,12 @@ slurm-exporter --web.listen-address=:9342
 telnet slurm-controller.example.com 6820
 
 # Test SLURM REST API directly
-curl -k https://slurm-controller.example.com:6820/slurm/v0.0.40/ping
+curl -k https://slurm-controller.example.com:6820/slurm/v0.0.44/ping
 
 # Check with authentication
 curl -k -H "X-SLURM-USER-NAME: your-user" \
      -H "X-SLURM-USER-TOKEN: your-token" \
-     https://slurm-controller.example.com:6820/slurm/v0.0.40/ping
+     https://slurm-controller.example.com:6820/slurm/v0.0.44/ping
 ```
 
 #### Common Solutions
@@ -108,11 +116,12 @@ curl -k -H "X-SLURM-USER-NAME: your-user" \
 **Network Connectivity:**
 
 ```yaml
-# Update configuration with correct host/port
+# Update configuration with correct base_url
 slurm:
-  host: "slurm-controller.example.com"  # Verify DNS resolution
-  port: 6820                            # Confirm port is correct
+  base_url: "http://slurm-controller.example.com:6820"
   timeout: 60s                          # Increase timeout
+  retry_attempts: 5
+  retry_delay: 10s
 ```
 
 **Authentication Issues:**
@@ -129,24 +138,25 @@ sudo chmod 600 /etc/slurm-exporter/token
 # 3. Test token manually
 export SLURM_JWT=$(cat /etc/slurm-exporter/token)
 curl -k -H "X-SLURM-USER-TOKEN: $SLURM_JWT" \
-     https://slurm-controller.example.com:6820/slurm/v0.0.40/jobs
+     https://slurm-controller.example.com:6820/slurm/v0.0.44/jobs
 ```
 
 **TLS/SSL Issues:**
 
 ```yaml
-# Disable TLS verification temporarily for testing
+# Allow insecure connections temporarily for testing
+validation:
+  allow_insecure_connections: true
+
 slurm:
   tls:
-    enabled: true
-    verify: false  # Only for testing!
+    insecure_skip_verify: true  # Only for testing!
 
 # Or provide proper certificates
 slurm:
   tls:
-    enabled: true
-    verify: true
-    ca_cert: "/etc/ssl/certs/ca-bundle.crt"
+    insecure_skip_verify: false
+    ca_cert_file: "/etc/ssl/certs/ca-bundle.crt"
 ```
 
 ### 3. Missing or Incomplete Metrics
@@ -159,14 +169,11 @@ slurm:
 #### Diagnosis
 
 ```bash
-# Check which collectors are enabled
-curl -s http://localhost:9341/metrics | grep slurm_exporter_collector_enabled
-
-# Test specific collectors
-curl -s http://localhost:9341/metrics?collector=jobs | grep slurm_job
+# Check which metrics are available
+curl -s http://localhost:10341/metrics | grep slurm_exporter
 
 # Check collection errors
-curl -s http://localhost:9341/metrics | grep slurm_exporter_collect_errors_total
+curl -s http://localhost:10341/metrics | grep slurm_exporter_collect_errors_total
 ```
 
 #### Solutions
@@ -174,34 +181,30 @@ curl -s http://localhost:9341/metrics | grep slurm_exporter_collect_errors_total
 **Enable Missing Collectors:**
 
 ```yaml
-metrics:
-  enabled_collectors:
-    - jobs           # Basic job metrics
-    - nodes          # Node status and resources
-    - partitions     # Partition information
-    - accounts       # Account usage (requires database access)
-    - fairshare      # Fairshare data (requires database access)
-    - qos            # QoS information (requires database access)
-```
-
-**Database Access Issues:**
-
-```bash
-# Test database connectivity
-mysql -h slurm-db-host -u slurm_user -p slurm_acct_db
-
-# Check SLURM accounting
-sacct -X --format=JobID,JobName,User,State
-
-# Verify exporter has database access
-curl -s http://localhost:9341/health | jq '.checks.slurm_database'
+collectors:
+  jobs:
+    enabled: true
+  nodes:
+    enabled: true
+  partitions:
+    enabled: true
+  users:
+    enabled: true
+  qos:
+    enabled: true
+  reservations:
+    enabled: true
+  cluster:
+    enabled: true
+  system:
+    enabled: true
 ```
 
 **Collector-Specific Errors:**
 
 ```bash
 # Enable debug logging
-slurm-exporter --log.level=debug
+slurm-exporter --config=/etc/slurm-exporter/config.yaml --log-level=debug
 
 # Check for specific error patterns
 sudo journalctl -u slurm-exporter -f | grep -E "(ERROR|WARN)"
@@ -219,58 +222,41 @@ sudo journalctl -u slurm-exporter -f | grep -E "(ERROR|WARN)"
 ```bash
 # Monitor resource usage
 top -p $(pgrep slurm-exporter)
-
-# Check goroutine leaks
-curl -s http://localhost:9341/debug/vars | jq .runtime.NumGoroutine
-
-# Profile memory usage
-curl -o heap.prof http://localhost:9341/debug/pprof/heap
-go tool pprof heap.prof
 ```
 
 #### Optimization Solutions
 
-**Enable Caching:**
-
-```yaml
-performance:
-  cache:
-    enabled: true
-    ttl: 300s              # Cache data for 5 minutes
-    max_size: 10000        # Limit cache entries
-```
-
 **Adjust Collection Intervals:**
 
 ```yaml
-metrics:
-  collection_interval: 60s  # Reduce collection frequency
-
-# Or use different intervals per collector
 collectors:
   jobs:
-    interval: 30s           # Frequent for job data
+    interval: 30s           # Reduce from 15s default
   nodes:
-    interval: 300s          # Less frequent for node data
+    interval: 60s           # Less frequent for node data
+  partitions:
+    interval: 120s
 ```
 
-**Enable Batch Processing:**
+**Enable Filtering:**
 
 ```yaml
-performance:
-  batch_processing:
-    enabled: true
-    batch_size: 1000        # Process jobs in batches
-    batch_timeout: 30s      # Timeout per batch
+collectors:
+  nodes:
+    filters:
+      include_partitions: ["compute", "gpu"]  # Only important partitions
+      metrics:
+        exclude_metrics:
+          - "slurm_node_tres_.*"      # High cardinality metrics
 ```
 
-**Memory Management:**
+**Adjust Cardinality Limits:**
 
 ```yaml
-performance:
-  memory:
-    max_heap_size: 1000000000  # 1GB limit
-    gc_target_percentage: 10    # Aggressive GC
+metrics:
+  cardinality:
+    max_series: 5000        # Reduce max series
+    warn_limit: 4000
 ```
 
 ### 5. Metrics Not Appearing in Prometheus
@@ -287,7 +273,7 @@ performance:
 curl -s http://prometheus:9090/api/v1/targets | jq '.data.activeTargets[] | select(.job=="slurm-exporter")'
 
 # Verify scrape endpoint
-curl -s http://localhost:9341/metrics | head -20
+curl -s http://localhost:10341/metrics | head -20
 
 # Check Prometheus logs
 docker logs prometheus 2>&1 | grep slurm-exporter
@@ -302,34 +288,20 @@ docker logs prometheus 2>&1 | grep slurm-exporter
 scrape_configs:
   - job_name: 'slurm-exporter'
     static_configs:
-      - targets: ['localhost:9341']
+      - targets: ['localhost:10341']
     scrape_interval: 30s
     scrape_timeout: 30s
     metrics_path: /metrics
-```
-
-**Service Discovery Issues:**
-
-```yaml
-# For Kubernetes
-scrape_configs:
-  - job_name: 'slurm-exporter'
-    kubernetes_sd_configs:
-      - role: endpoints
-    relabel_configs:
-      - source_labels: [__meta_kubernetes_service_name]
-        action: keep
-        regex: slurm-exporter
 ```
 
 **Network Connectivity:**
 
 ```bash
 # Test from Prometheus container
-docker exec prometheus curl -s http://slurm-exporter:9341/metrics
+docker exec prometheus curl -s http://slurm-exporter:10341/metrics
 
 # Check firewall rules
-sudo iptables -L | grep 9341
+sudo iptables -L | grep 10341
 ```
 
 ### 6. Dashboard Issues in Grafana
@@ -350,28 +322,6 @@ curl -s 'http://prometheus:9090/api/v1/label/__name__/values' | grep slurm
 ```
 
 #### Solutions
-
-**Update Metric Names:**
-
-Check if metric names have changed between versions:
-
-```promql
-# Old format
-slurm_job_state{state="running"}
-
-# New format (if changed)
-slurm_jobs_running
-```
-
-**Fix Label Selectors:**
-
-```promql
-# Ensure labels exist
-slurm_jobs_total{cluster="production"}
-
-# Check available labels
-{__name__=~"slurm_.*"}
-```
 
 **Datasource Configuration:**
 
@@ -395,164 +345,29 @@ curl -s http://prometheus:9090/api/v1/status/config
 # Generate new token
 scontrol token username=your-user
 
-# Check token expiration
-echo "your-jwt-token" | base64 -d | jq .exp
-
 # Verify token format
 echo "your-jwt-token" | base64 -d | jq .
 ```
 
-**Certificate Authentication:**
-
-```bash
-# Check certificate validity
-openssl x509 -in /etc/slurm-exporter/client.crt -text -noout
-
-# Verify certificate matches key
-openssl rsa -noout -modulus -in /etc/slurm-exporter/client.key | openssl md5
-openssl x509 -noout -modulus -in /etc/slurm-exporter/client.crt | openssl md5
-```
-
-**Basic Authentication:**
-
-```yaml
-# Test basic auth configuration
-slurm:
-  auth:
-    type: "basic"
-    user: "slurm_user"
-    password: "password"
-```
-
-### 8. Performance Bottlenecks
+### 8. API Version Mismatch
 
 #### Symptoms
-- Slow metric collection
-- Timeouts in Prometheus scrapes
-- High latency in SLURM API calls
+- 404 errors from SLURM REST API
+- "unsupported API version" in logs
 
-#### Optimization Strategies
+#### Solutions
 
-**Connection Pooling:**
-
-```yaml
-performance:
-  connection_pool:
-    enabled: true
-    max_connections: 10
-    max_idle_connections: 5
-    connection_lifetime: 300s
-```
-
-**Parallel Collection:**
+Verify your SLURM REST API version and set the correct version in config:
 
 ```yaml
-metrics:
-  collection:
-    parallel: true
-    max_concurrent: 5     # Limit concurrent collectors
+slurm:
+  # Supported versions: v0.0.40, v0.0.41, v0.0.42, v0.0.43, v0.0.44
+  api_version: "v0.0.44"
 ```
-
-**Selective Collection:**
-
-```yaml
-metrics:
-  filtering:
-    enabled: true
-    exclude_metrics:
-      - "slurm_node_tres_.*"      # High cardinality metrics
-    include_partitions: ["compute", "gpu"]  # Only important partitions
-```
-
-## Advanced Troubleshooting
-
-### Using Debug Endpoints
-
-Enable debug endpoints for detailed diagnostics:
-
-```yaml
-development:
-  enabled: true
-  debug_endpoints:
-    enabled: true
-```
-
-**Available Debug Endpoints:**
 
 ```bash
-# Runtime variables
-curl -s http://localhost:9341/debug/vars | jq .
-
-# Current configuration
-curl -s http://localhost:9341/debug/config | jq .
-
-# Profiling data
-curl -o cpu.prof http://localhost:9341/debug/pprof/profile?seconds=30
-go tool pprof cpu.prof
-```
-
-### Log Analysis
-
-**Enable Structured Logging:**
-
-```yaml
-logging:
-  level: "debug"
-  format: "json"
-  output: "/var/log/slurm-exporter/debug.log"
-```
-
-**Common Log Patterns:**
-
-```bash
-# Connection errors
-grep "connection refused\|timeout\|network" /var/log/slurm-exporter/*.log
-
-# Authentication errors
-grep "401\|403\|unauthorized\|forbidden" /var/log/slurm-exporter/*.log
-
-# Collection errors
-grep "collect_error\|collection_failed" /var/log/slurm-exporter/*.log
-
-# Performance issues
-grep "slow\|timeout\|duration" /var/log/slurm-exporter/*.log
-```
-
-### Performance Profiling
-
-**CPU Profiling:**
-
-```bash
-# Collect 30-second CPU profile
-curl -o cpu.prof http://localhost:9341/debug/pprof/profile?seconds=30
-
-# Analyze with pprof
-go tool pprof cpu.prof
-(pprof) top
-(pprof) web
-```
-
-**Memory Profiling:**
-
-```bash
-# Collect heap profile
-curl -o heap.prof http://localhost:9341/debug/pprof/heap
-
-# Analyze memory usage
-go tool pprof heap.prof
-(pprof) top
-(pprof) list main.main
-```
-
-**Goroutine Analysis:**
-
-```bash
-# Check for goroutine leaks
-curl -o goroutine.prof http://localhost:9341/debug/pprof/goroutine
-
-go tool pprof goroutine.prof
-(pprof) top
-(pprof) traces
+# Check which API versions your SLURM supports
+curl http://slurm-controller:6820/openapi/v3
 ```
 
 ## Environment-Specific Issues
@@ -563,7 +378,7 @@ go tool pprof goroutine.prof
 
 ```bash
 # Check container connectivity
-docker exec slurm-exporter curl -s http://localhost:9341/health
+docker exec slurm-exporter curl -s http://localhost:10341/health
 
 # Network troubleshooting
 docker network ls
@@ -576,7 +391,7 @@ docker exec slurm-exporter nslookup slurm-controller
 # Verify config file is mounted correctly
 docker exec slurm-exporter cat /etc/slurm-exporter/config.yaml
 
-# Check file permissions in container  
+# Check file permissions in container
 docker exec slurm-exporter ls -la /etc/slurm-exporter/
 ```
 
@@ -602,17 +417,7 @@ kubectl describe pod slurm-exporter-xxx
 kubectl get endpoints slurm-exporter
 
 # Test service internally
-kubectl run debug --image=busybox -it --rm -- wget -qO- http://slurm-exporter:9341/health
-```
-
-**ConfigMap and Secrets:**
-
-```bash
-# Verify ConfigMap
-kubectl get configmap slurm-exporter-config -o yaml
-
-# Check mounted secrets
-kubectl exec slurm-exporter-xxx -- ls -la /etc/slurm-exporter/
+kubectl run debug --image=busybox -it --rm -- wget -qO- http://slurm-exporter:10341/health
 ```
 
 ## Recovery Procedures
@@ -629,31 +434,6 @@ sudo systemctl start slurm-exporter
 
 # Reset to known good configuration
 sudo cp /etc/slurm-exporter/config.yaml.backup /etc/slurm-exporter/config.yaml
-sudo systemctl restart slurm-exporter
-```
-
-### Cache Reset
-
-```bash
-# Clear cache directory
-sudo rm -rf /var/lib/slurm-exporter/cache/*
-sudo systemctl restart slurm-exporter
-
-# Disable cache temporarily
-# Edit config: performance.cache.enabled = false
-```
-
-### Configuration Reset
-
-```bash
-# Backup current config
-sudo cp /etc/slurm-exporter/config.yaml /etc/slurm-exporter/config.yaml.$(date +%s)
-
-# Restore from package defaults
-sudo cp /usr/share/doc/slurm-exporter/examples/config.yaml /etc/slurm-exporter/
-
-# Validate and restart
-slurm-exporter --config.file=/etc/slurm-exporter/config.yaml --validate-config
 sudo systemctl restart slurm-exporter
 ```
 
@@ -711,15 +491,19 @@ ps aux | grep slurm-exporter | grep -v grep
 echo
 
 echo "=== Network Ports ==="
-netstat -tlnp | grep 9341
+netstat -tlnp | grep 10341
 echo
 
-echo "=== Metrics Endpoint ==="
-curl -s -m 5 http://localhost:9341/health | jq . 2>/dev/null || echo "Health endpoint not responding"
+echo "=== Health Endpoint ==="
+curl -s -m 5 http://localhost:10341/health | jq . 2>/dev/null || echo "Health endpoint not responding"
+echo
+
+echo "=== Ready Endpoint ==="
+curl -s -m 5 http://localhost:10341/ready || echo "Ready endpoint not responding"
 echo
 
 echo "=== Metrics Count ==="
-curl -s -m 5 http://localhost:9341/metrics | grep -c "^slurm_" || echo "Metrics not available"
+curl -s -m 5 http://localhost:10341/metrics | grep -c "^slurm_" || echo "Metrics not available"
 echo
 
 echo "=== Recent Errors ==="

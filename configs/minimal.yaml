@@ -2,7 +2,7 @@
 # Basic setup with essential collectors only
 
 server:
-  address: ":8080"
+  address: ":10341"
   metrics_path: "/metrics"
 
 slurm:

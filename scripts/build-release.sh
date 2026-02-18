@@ -267,7 +267,7 @@ cat >> "${OUTPUT_DIR}/RELEASE_NOTES.md" <<EOF
 \`\`\`bash
 docker run -d \\
   --name slurm-exporter \\
-  -p 8080:8080 \\
+  -p 10341:10341 \\
   -v /path/to/config.yaml:/etc/slurm-exporter/config.yaml \\
   ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${VERSION}
 \`\`\`

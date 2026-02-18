@@ -26,7 +26,7 @@ spec:
         version: v1.0.0
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
+        prometheus.io/port: "10341"
         prometheus.io/path: "/metrics"
         config/checksum: "{{ checksum }}"  # Updated by CI/CD
     spec:
@@ -98,7 +98,7 @@ spec:
         - -c
         - |
           echo "Checking SLURM REST API connectivity..."
-          timeout 30s sh -c 'until curl -f -k "$SLURM_REST_URL/slurm/v0.0.39/ping" >/dev/null 2>&1; do
+          timeout 30s sh -c 'until curl -f -k "$SLURM_REST_URL/slurm/v0.0.44/ping" >/dev/null 2>&1; do
             echo "Waiting for SLURM API..."
             sleep 5
           done'
@@ -196,10 +196,10 @@ spec:
         # Ports
         ports:
         - name: http-metrics
-          containerPort: 8080
+          containerPort: 10341
           protocol: TCP
         - name: http-health
-          containerPort: 8080
+          containerPort: 10341
           protocol: TCP
         - name: pprof
           containerPort: 6060

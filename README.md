@@ -19,7 +19,7 @@ The SLURM Prometheus Exporter is designed to provide complete visibility into SL
 ## Features
 
 ### 🔍 Comprehensive Monitoring
-- **50+ Prometheus metrics** covering all aspects of SLURM operations
+- **80+ Prometheus metrics** covering all aspects of SLURM operations
 - **Multi-dimensional labeling** for detailed analysis and alerting
 - **Real-time data collection** with configurable intervals
 - **Enterprise-scale support** for clusters with 1000+ nodes and 10000+ jobs
@@ -73,7 +73,7 @@ The SLURM Prometheus Exporter is designed to provide complete visibility into SL
 ### Prerequisites
 
 - Go 1.21 or higher
-- Access to SLURM REST API (v0.0.40-v0.0.43 supported)
+- Access to SLURM REST API (v0.0.40-v0.0.44 supported)
 - SLURM cluster with REST API enabled
 
 ### Installation
@@ -96,36 +96,41 @@ Create a configuration file:
 
 ```yaml
 # config.yaml
+server:
+  address: ":10341"
+  metrics_path: "/metrics"
+
 slurm:
   base_url: "https://your-slurm-server:6820"
+  api_version: "v0.0.44"
   auth:
     type: "jwt"
+    username: "root"
     token: "your-jwt-token"
-  timeout: "30s"
+  timeout: 30s
+  retry_attempts: 3
+  retry_delay: 5s
+  rate_limit:
+    requests_per_second: 10.0
+    burst_size: 20
 
-server:
-  address: ":8080"
-  metrics_path: "/metrics"
-  
 collectors:
   cluster:
     enabled: true
-    interval: "30s"
   nodes:
     enabled: true
-    interval: "30s"
   jobs:
     enabled: true
-    interval: "15s"
-  users:
-    enabled: true
-    interval: "60s"
   partitions:
     enabled: true
-    interval: "60s"
-  performance:
+  users:
     enabled: true
-    interval: "30s"
+  qos:
+    enabled: true
+  system:
+    enabled: true
+  reservations:
+    enabled: true
 
 logging:
   level: "info"
@@ -152,7 +157,7 @@ make run
 make docker-build
 
 # Run with Docker
-docker run -p 8080:8080 -v $(pwd)/config.yaml:/app/config.yaml localhost/slurm-exporter:latest
+docker run -p 10341:10341 -v $(pwd)/config.yaml:/app/config.yaml localhost/slurm-exporter:latest
 
 # Or use Docker Compose
 make docker-compose-up
@@ -172,9 +177,9 @@ helm install slurm-exporter ./charts/slurm-exporter/
 
 Once running, metrics are available at:
 
-- **Metrics endpoint**: `http://localhost:8080/metrics`
-- **Health check**: `http://localhost:8080/health`
-- **Readiness check**: `http://localhost:8080/ready`
+- **Metrics endpoint**: `http://localhost:10341/metrics`
+- **Health check**: `http://localhost:10341/health`
+- **Readiness check**: `http://localhost:10341/ready`
 
 ## Development
 
@@ -210,18 +215,19 @@ make test-coverage
 
 ## Documentation
 
+- [Quick Start Guide](website/docs/getting-started/quickstart.md) - Get running in 5 minutes
 - [Installation Guide](docs/installation.md) - Detailed installation and setup instructions
 - [Configuration Reference](docs/configuration.md) - Complete configuration options
-- [Metrics Documentation](docs/metrics.md) - All available metrics with descriptions
+- [Metrics Guide](website/docs/user-guide/metrics.md) - All available metrics with descriptions
 - [Alerting Guide](docs/alerting.md) - Pre-built alerting rules and best practices
 
-## Monitoring Dashboard
+## Monitoring Dashboards
 
-Import the included Grafana dashboard templates:
+Grafana dashboard templates are included in the `dashboards/` directory. Import them into your Grafana instance:
 
 ```bash
-# Import dashboard JSON
-kubectl create configmap grafana-dashboard --from-file=docs/grafana-dashboards.json
+# Import dashboards from the dashboards/ directory
+ls dashboards/*.json
 ```
 
 ## Alerting Rules
@@ -274,10 +280,10 @@ The exporter is built with a modular architecture:
 
 ## Performance
 
-- **Memory Usage**: < 100MB under normal operation
-- **CPU Impact**: < 5% on SLURM head node
-- **Collection Time**: < 30 seconds for 1000+ node clusters
-- **Concurrent Safe**: Supports multiple collectors running in parallel
+- **Concurrent Collection**: Semaphore-based parallel collector execution
+- **Graceful Degradation**: Circuit breaker pattern for resilient operation
+- **Rate Limiting**: Configurable request throttling to SLURM API
+- **Configuration Hot-Reload**: Update collector settings without restart
 
 ## License
 

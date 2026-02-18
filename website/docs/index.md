@@ -43,34 +43,37 @@ SLURM Exporter is a high-performance Prometheus exporter designed specifically f
 ### Key Features
 
 #### :material-speedometer: **High Performance**
-- Efficient data collection with configurable intervals
-- Smart caching and connection pooling
+- Efficient data collection with configurable intervals per collector
+- Intelligent caching with adaptive TTL
 - Low memory footprint with cardinality optimization
 - Batch processing for high-frequency metrics
 
-#### :material-chart-analytics: **Advanced Analytics**
-- **Job Analytics Engine**: SLURM-specific timing metrics, resource utilization analysis
-- **Efficiency Calculator**: Automatic efficiency scoring and waste detection
-- **Bottleneck Analyzer**: Real-time identification of cluster bottlenecks
-- **Trend Analysis**: Historical performance tracking and forecasting
+#### :material-chart-analytics: **Comprehensive Collectors**
+- **Jobs**: Job execution, scheduling, resource usage metrics
+- **Nodes**: Node health, utilization, hardware metrics
+- **Partitions**: Queue status, limits, availability
+- **QoS**: Quality of Service policies and limits
+- **Reservations**: Reservation status and resources
+- **Users**: User activity and resource usage
+- **System**: Cluster health and diagnostics
 
 #### :material-security: **Enterprise Security**
-- Multiple authentication methods (JWT, API keys, certificates)
+- JWT authentication for SLURM REST API
 - TLS encryption with certificate validation
-- RBAC integration and audit logging
-- Security scanning and vulnerability monitoring
+- Basic authentication for metrics endpoint
+- IP-based access control
 
 #### :material-scale-balance: **Scalability & Reliability**
-- Horizontal scaling with multiple exporter instances
 - Circuit breaker patterns for fault tolerance
-- Graceful degradation under load
+- Graceful degradation under load with cached metrics
 - Comprehensive health checks and self-monitoring
+- Hot-reload configuration without restart
 
 #### :material-kubernetes: **Cloud Native**
 - Native Kubernetes support with Helm charts
-- Container images for multiple architectures
-- Service mesh integration (Istio, Linkerd)
-- GitOps-friendly configuration management
+- Multi-architecture container images (amd64, arm64)
+- Scratch-based container image for minimal footprint
+- Environment variable configuration with `SLURM_EXPORTER_` prefix
 
 ### Architecture Overview
 
@@ -78,25 +81,21 @@ SLURM Exporter is a high-performance Prometheus exporter designed specifically f
 graph TB
     subgraph "SLURM Cluster"
         SLURM[SLURM REST API]
-        SLURMDB[SLURM Database]
     end
-    
+
     subgraph "SLURM Exporter"
         SE[SLURM Exporter]
         CACHE[Intelligent Cache]
-        ANALYTICS[Analytics Engine]
     end
-    
+
     subgraph "Monitoring Stack"
         PROM[Prometheus]
         GRAF[Grafana]
         AM[AlertManager]
     end
-    
+
     SLURM --> SE
-    SLURMDB --> SE
     SE --> CACHE
-    SE --> ANALYTICS
     SE --> PROM
     PROM --> GRAF
     PROM --> AM
@@ -111,20 +110,9 @@ Get up and running in minutes:
     ```bash
     docker run -d \
       --name slurm-exporter \
-      -p 9341:9341 \
-      -e SLURM_EXPORTER_SLURM_HOST=your-slurm-host \
-      -e SLURM_EXPORTER_SLURM_TOKEN=your-jwt-token \
-      slurm/exporter:latest
-    ```
-
-=== "Kubernetes"
-
-    ```bash
-    helm repo add slurm-exporter https://jontk.github.io/slurm-exporter
-    helm repo update
-    helm install slurm-exporter slurm-exporter/slurm-exporter \
-      --set config.slurm.host=your-slurm-host \
-      --set config.slurm.token=your-jwt-token
+      -p 10341:10341 \
+      -v $(pwd)/config.yaml:/etc/slurm-exporter/config.yaml:ro \
+      ghcr.io/jontk/slurm-exporter:latest
     ```
 
 === "Binary"
@@ -133,9 +121,9 @@ Get up and running in minutes:
     # Download latest release
     curl -LO https://github.com/jontk/slurm-exporter/releases/latest/download/slurm-exporter-linux-amd64.tar.gz
     tar xzf slurm-exporter-linux-amd64.tar.gz
-    
+
     # Configure and run
-    ./slurm-exporter --config.file=config.yaml
+    ./slurm-exporter --config=config.yaml
     ```
 
 ## Why Choose SLURM Exporter?
@@ -148,7 +136,7 @@ Monitor every aspect of your SLURM cluster:
 - **Jobs**: Execution, scheduling, resource usage, efficiency
 - **Nodes**: Health, utilization, hardware metrics
 - **Partitions**: Availability, limits, queue depths
-- **Users & Accounts**: Fairshare, quotas, usage patterns
+- **Users & Accounts**: Activity, quotas, usage patterns
 - **System**: Cluster health, performance, capacity planning
 
 ### :material-tools: **Production Proven**

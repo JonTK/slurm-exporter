@@ -447,7 +447,7 @@ kubectl run test-security --image=alpine:3.18 \
 ```bash
 # Test network connectivity
 kubectl run test-network --image=alpine:3.18 -n slurm-exporter \
-  --rm -it -- sh -c "wget -qO- http://slurm-exporter:8080/health"
+  --rm -it -- sh -c "wget -qO- http://slurm-exporter:10341/health"
 
 # Check network policy logs
 kubectl logs -l app=calico-node -n calico-system | grep DENY
@@ -507,7 +507,7 @@ kubectl exec deployment/slurm-exporter -n slurm-exporter -- \
 # Test 4: Network policy enforcement
 echo "Test 4: Network policy test"
 kubectl run test-network --image=alpine:3.18 --rm -n default \
-  -- sh -c "timeout 5 wget -qO- http://slurm-exporter.slurm-exporter:8080/health || echo 'Network policy enforced (PASS)'"
+  -- sh -c "timeout 5 wget -qO- http://slurm-exporter.slurm-exporter:10341/health || echo 'Network policy enforced (PASS)'"
 
 # Test 5: Secrets encryption
 echo "Test 5: Secrets encryption"

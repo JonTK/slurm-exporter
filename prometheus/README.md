@@ -4,7 +4,7 @@ This directory contains comprehensive Prometheus alerting rules for monitoring S
 
 ## 📋 Overview
 
-The alerting rules are organized into four main categories:
+The alerting rules are organized into six files:
 
 1. **Health Monitoring** (`alerts/slurm_health.yaml`)
    - Exporter availability and health
@@ -30,6 +30,13 @@ The alerting rules are organized into four main categories:
    - Performance metrics
    - Data quality
 
+5. **Exporter Performance** (`alerts/slurm_exporter_performance.yaml`)
+   - Collection duration and errors
+   - Exporter resource usage
+
+6. **Cluster Health** (`alerts/slurm_cluster_health.yaml`)
+   - Cluster-wide health indicators
+
 ## 🚀 Quick Start
 
 ### 1. Deploy to Prometheus
@@ -47,6 +54,8 @@ rule_files:
   - "alerts/slurm_jobs.yaml"
   - "alerts/slurm_resources.yaml"
   - "alerts/slurm_sla.yaml"
+  - "alerts/slurm_exporter_performance.yaml"
+  - "alerts/slurm_cluster_health.yaml"
 EOF
 
 # Reload Prometheus

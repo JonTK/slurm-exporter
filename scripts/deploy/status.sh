@@ -283,7 +283,7 @@ test_health_endpoint() {
         print_info "Testing health endpoint on pod: $pod_name"
 
         # Test health endpoint
-        if kubectl exec -n "$NAMESPACE" "$pod_name" -- wget -q -O - http://localhost:8080/health 2>/dev/null; then
+        if kubectl exec -n "$NAMESPACE" "$pod_name" -- wget -q -O - http://localhost:10341/health 2>/dev/null; then
             print_success "Health endpoint is responding"
         else
             print_warning "Health endpoint is not responding"
@@ -292,7 +292,7 @@ test_health_endpoint() {
         # Test metrics endpoint
         print_info "Testing metrics endpoint..."
         local metrics_count
-        metrics_count=$(kubectl exec -n "$NAMESPACE" "$pod_name" -- wget -q -O - http://localhost:8080/metrics 2>/dev/null | grep -c "^slurm_" || echo "0")
+        metrics_count=$(kubectl exec -n "$NAMESPACE" "$pod_name" -- wget -q -O - http://localhost:10341/metrics 2>/dev/null | grep -c "^slurm_" || echo "0")
 
         if [[ "$metrics_count" -gt 0 ]]; then
             print_success "Metrics endpoint is working ($metrics_count SLURM metrics found)"
@@ -333,9 +333,9 @@ show_access_info() {
         ClusterIP|"")
             print_info "Service type: ClusterIP"
             echo "To access the SLURM Exporter:"
-            echo "  kubectl port-forward -n $NAMESPACE service/$HELM_RELEASE_NAME 8080:8080"
-            echo "  curl http://localhost:8080/health"
-            echo "  curl http://localhost:8080/metrics"
+            echo "  kubectl port-forward -n $NAMESPACE service/$HELM_RELEASE_NAME 10341:10341"
+            echo "  curl http://localhost:10341/health"
+            echo "  curl http://localhost:10341/metrics"
             ;;
         NodePort)
             local node_port
@@ -348,7 +348,7 @@ show_access_info() {
             external_ip=$(kubectl get service -n "$NAMESPACE" "$HELM_RELEASE_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
             print_info "Service type: LoadBalancer (IP: $external_ip)"
             if [[ "$external_ip" != "pending" && -n "$external_ip" ]]; then
-                echo "Access via: http://$external_ip:8080"
+                echo "Access via: http://$external_ip:10341"
             fi
             ;;
     esac

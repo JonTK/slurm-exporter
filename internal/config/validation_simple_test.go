@@ -95,7 +95,7 @@ func TestEnhancedValidation_Functional(t *testing.T) {
 func getValidTestConfig() *Config {
 	return &Config{
 		Server: ServerConfig{
-			Address:        ":8080",
+			Address:        ":10341",
 			MetricsPath:    "/metrics",
 			HealthPath:     "/health",
 			ReadyPath:      "/ready",

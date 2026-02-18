@@ -301,7 +301,7 @@ func (dg *DocumentationGenerator) generateAPIMapping() string {
 
 	doc.WriteString("## API Version Compatibility\n\n")
 	doc.WriteString("The exporter supports multiple SLURM REST API versions:\n\n")
-	doc.WriteString("- **v0.0.39**: Full support (recommended)\n")
+	doc.WriteString("- **v0.0.44**: Full support (recommended)\n")
 	doc.WriteString("- **v0.0.40**: Full support\n")
 	doc.WriteString("- **v0.0.41**: Full support\n")
 	doc.WriteString("- **v0.0.42**: Full support\n")
@@ -445,7 +445,7 @@ config:
   slurmApi:
     baseUrl: "http://slurm-rest:6820"
     timeout: 30s
-    version: "v0.0.39"
+    version: "v0.0.44"
   collectors:
     cluster:
       enabled: true

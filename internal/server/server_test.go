@@ -60,7 +60,7 @@ func (m *mockRegistry) GetPerformanceStats() map[string]*collector.CollectorPerf
 func createTestConfig() *config.Config {
 	return &config.Config{
 		Server: config.ServerConfig{
-			Address:      ":8080",
+			Address:      ":10341",
 			MetricsPath:  "/metrics",
 			ReadTimeout:  30 * time.Second,
 			WriteTimeout: 30 * time.Second,
@@ -543,7 +543,7 @@ func TestTLSConfiguration(t *testing.T) {
 		t.Parallel()
 		cfg := &config.Config{
 			Server: config.ServerConfig{
-				Address:      ":8080",
+				Address:      ":10341",
 				MetricsPath:  "/metrics",
 				ReadTimeout:  30 * time.Second,
 				WriteTimeout: 30 * time.Second,

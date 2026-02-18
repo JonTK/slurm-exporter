@@ -234,7 +234,7 @@ func (s *APIIntegrationTestSuite) TestAPIVersionCompatibility() {
 	// Implementation pattern when test infrastructure is ready:
 	// import slurmauth "github.com/jontk/slurm-client/auth"
 	//
-	// versions := []string{"v0.0.39", "v0.0.40", "v0.0.41", "v0.0.42", "v0.0.43"}
+	// versions := []string{"v0.0.44", "v0.0.40", "v0.0.41", "v0.0.42", "v0.0.43"}
 	//
 	// for _, version := range versions {
 	// 	s.Run(fmt.Sprintf("version_%s", version), func() {

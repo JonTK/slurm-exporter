@@ -10,7 +10,7 @@ metadata:
     service: metrics-endpoint
   annotations:
     prometheus.io/scrape: "true"
-    prometheus.io/port: "8080"
+    prometheus.io/port: "10341"
     prometheus.io/path: "/metrics"
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "false"
 spec:
@@ -19,7 +19,7 @@ spec:
     app: slurm-exporter
   ports:
   - name: http-metrics
-    port: 8080
+    port: 10341
     targetPort: http-metrics
     protocol: TCP
   # Session affinity for consistent metrics collection
@@ -45,7 +45,7 @@ spec:
     app: slurm-exporter
   ports:
   - name: http-metrics
-    port: 8080
+    port: 10341
     targetPort: http-metrics
     protocol: TCP
   publishNotReadyAddresses: false
@@ -69,7 +69,7 @@ spec:
     app: slurm-exporter
   ports:
   - name: http-metrics
-    port: 8080
+    port: 10341
     targetPort: http-metrics
     protocol: TCP
     nodePort: 30080  # Fixed NodePort for consistent external access

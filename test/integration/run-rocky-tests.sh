@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 # Configuration
 CLUSTER_HOST="rocky9.ar.jontk.com"
 SLURM_JWT="${SLURM_JWT:-}"
-TEST_PORT="9341"
+TEST_PORT="10341"
 JAEGER_PORT="16686"
 PROMETHEUS_PORT="9090"
 GRAFANA_PORT="3000"
@@ -119,14 +119,14 @@ services:
   slurm-exporter:
     image: slurm-exporter:test
     ports:
-      - "${TEST_PORT}:9341"
+      - "${TEST_PORT}:10341"
     volumes:
       - ${SCRIPT_DIR}/rocky-cluster-config.yaml:/etc/slurm-exporter/config.yaml:ro
       - ${LOGS_DIR}:/var/log/slurm-exporter
     environment:
       - SLURM_EXPORTER_SLURM_TOKEN=${SLURM_JWT}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9341/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:10341/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -192,7 +192,7 @@ global:
 scrape_configs:
   - job_name: 'slurm-exporter'
     static_configs:
-      - targets: ['slurm-exporter:9341']
+      - targets: ['slurm-exporter:10341']
     scrape_interval: 15s
     scrape_timeout: 10s
 

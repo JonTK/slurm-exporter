@@ -79,7 +79,7 @@ observability:
 # Debug endpoints configuration
 debug:
   enabled: true
-  address: ":8080"
+  address: ":10341"
   authentication:
     enabled: true
     type: "basic"
@@ -106,7 +106,7 @@ debug:
 # GET /debug/profiling/download/{id} - Download profile as zip
 
 # Using profiles with go tool pprof:
-# 1. Download a profile: curl -o profile.zip http://localhost:8080/debug/profiling/download/jobs_1234567890
+# 1. Download a profile: curl -o profile.zip http://localhost:10341/debug/profiling/download/jobs_1234567890
 # 2. Extract the zip file: unzip profile.zip
 # 3. Analyze CPU profile: go tool pprof cpu.pprof
 # 4. Analyze heap profile: go tool pprof heap.pprof
